@@ -1,0 +1,43 @@
+-- ============================================================
+-- Westengen Klinikk — Audit-log policy-bekreftelse for service_* actions
+-- Migration 0009
+-- ------------------------------------------------------------
+-- Denne migrasjonen gjør INGEN DDL-endringer. Den er en eksplisitt
+-- dokumentasjon av at den eksisterende INSERT-policyen fra 0002
+-- ("audit: authenticated can insert own") allerede dekker de nye
+-- action-verdiene som introduseres av tjeneste-administrasjon:
+--
+--   service_created
+--   service_updated
+--   service_deactivated
+--   service_reactivated
+--   staff_service_changed
+--
+-- Eksisterende policy (0002_audit_log.sql):
+--
+--   create policy "audit: authenticated can insert own"
+--     on public.audit_log for insert to authenticated
+--     with check (
+--       actor_staff_id = (auth.jwt() -> 'app_metadata' ->> 'staff_id')
+--       or (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+--     );
+--
+-- Service-handlinger kan KUN utføres av admin (RLS i 0008 håndhever
+-- dette på services + staff_services). Admin har alltid role='admin'
+-- i JWT-en og slipper dermed alltid forbi audit_log-INSERT-sjekken
+-- via OR-grenen. Ingen policy-endring nødvendig.
+--
+-- Action-verdiene logges som en flat liste i denne kommentaren slik
+-- at fremtidig audit-logg-viewer-dropdown kan hardkode dem (samme
+-- mønster som 0005 dokumenterte 'login_failed' osv).
+--
+-- Kjente actions etter 0009:
+--   journal_view, journal_create, booking_status_change,
+--   gdpr_export, gdpr_pseudonymize, login_failed, login_success,
+--   service_created, service_updated, service_deactivated,
+--   service_reactivated, staff_service_changed.
+-- ============================================================
+
+-- Ingen DDL. Migrasjonen er bevisst tom for å bevare nummereringen
+-- og gjøre intensjonen sporbar i migrasjons-historikken.
+select 1;

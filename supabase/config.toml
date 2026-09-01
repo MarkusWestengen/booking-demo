@@ -1,0 +1,38 @@
+# ============================================================
+# Westengen Klinikk — supabase/config.toml
+# ------------------------------------------------------------
+# Repoet applisere migrasjoner MANUELT i SQL Editor og deployer
+# funksjoner via Dashboard ELLER `supabase functions deploy`.
+# Denne fila konsumeres KUN av Supabase CLI. Den eneste grunnen
+# til at den finnes er å feste verify_jwt for edge-funksjonene.
+#
+# project_id under er en PLASSHOLDER — fyll inn ditt prosjekt-ref
+# (Dashboard → Project Settings → General → Reference ID) hvis du
+# vil bruke CLI. Deployer du via Dashboard, kan du ignorere den.
+# ============================================================
+
+project_id = "REPLACE_WITH_PROJECT_REF"
+
+# notify-push kalles av en Database Webhook uten bruker-JWT. Vi
+# skrur derfor av JWT-verifisering og autentiserer i stedet via
+# header x-webhook-secret mot env WEBHOOK_SECRET inne i funksjonen.
+[functions.notify-push]
+verify_jwt = false
+
+# send-booking-email kalles også av en DB-trigger/webhook uten JWT
+# (autentiserer via X-Webhook-Secret). Tas med her for konsistens
+# slik at en CLI-deploy ikke skrur JWT-kravet på igjen.
+[functions.send-booking-email]
+verify_jwt = false
+
+# submit-contact er den offentlige gatewayen for kontaktskjemaet. Kalles
+# fra nettleseren uten bruker-JWT; mennesket verifiseres via Cloudflare
+# Turnstile inne i funksjonen. JWT-verifisering må derfor være AV.
+[functions.submit-contact]
+verify_jwt = false
+
+# send-sms kalles kun server-til-server av DB-trigger (0061) og cron (0062)
+# via pg_net. Autentiserer via X-Webhook-Secret (ikke JWT) — samme mønster
+# som send-booking-email. JWT-verifisering må derfor være AV.
+[functions.send-sms]
+verify_jwt = false

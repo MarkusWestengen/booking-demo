@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#171A21" />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Westengen Klinikk">
+
+<!-- Content Security Policy
+     'unsafe-inline' for script er en bevisst avveining (alle våre
+     admin-sider har store inline <script>-blokker). Vi har manuelt
+     verifisert at all brukerdata escapes med escapeHtml() før
+     innsetting. Alternativet (ekstrahere alt til .js-filer) er en
+     større refaktor som ikke er prioritert nå. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+
+<title>Min kalender · Westengen Klinikk</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #464C8C;
+    --green-deep: #2F3463;
+    --green-soft: #7A80B8;
+    --green-tint: #E9EAF4;
+    --paper: #F7F8FA;
+    --paper-2: #EDEFF3;
+    --ink: #171A21;
+    --ink-2: #2E323C;
+    --muted: #6B7080;
+    --rule: #171a2622;
+    --danger: #c0392b;
+    --warn: #C97A2A;
+    --warn-tint: #EDEFF3;
+    --info: #2C5F8B;
+    --info-tint: #E5EEF5;
+    --shadow-card: 0 1px 0 rgba(23, 26, 33,.04);
+
+    /* Safe areas for iPhone notch / home indicator */
+    --safe-top:    env(safe-area-inset-top, 0px);
+    --safe-bot:    env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.5;
+    overscroll-behavior-y: none;
+  }
+  button { font-family: inherit; }
+  a { color: var(--green); }
+
+  /* ============================================================
+     Topbar
+     ============================================================ */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--ink); color: var(--paper);
+    border-bottom: 3px solid var(--green);
+    padding: calc(var(--safe-top) + 10px) 14px 10px;
+  }
+  .topbar-inner {
+    display: flex; align-items: center; gap: 10px;
+    max-width: 720px; margin: 0 auto;
+  }
+  .brand {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 17px; letter-spacing: -0.01em;
+    flex: 1; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .brand em { font-style: italic; color: var(--green-soft);
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .who-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--green-soft); color: #fff;
+    padding: 4px 8px; white-space: nowrap;
+  }
+  .who-chip.admin { background: var(--green); }
+  .topbar a, .topbar button {
+    color: var(--paper); background: transparent;
+    border: 1px solid rgba(247, 248, 250,.22);
+    padding: 6px 10px; font-size: 12px;
+    cursor: pointer; text-decoration: none;
+  }
+  .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
+
+  /* ============================================================
+     Boot / login
+     ============================================================ */
+  .boot {
+    min-height: calc(100vh - 60px);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .boot .spinner {
+    width: 26px; height: 26px; margin-right: 12px;
+    border: 2px solid var(--rule); border-top-color: var(--green);
+    border-radius: 50%; animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .auth-wrap {
+    min-height: calc(100vh - 60px);
+    display: flex; align-items: center; justify-content: center; padding: 24px 16px;
+  }
+  .login {
+    width: 100%; max-width: 380px; background: #fff;
+    border: 1px solid var(--rule); padding: 28px 22px;
+  }
+  .login h1 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 26px; letter-spacing: -0.02em; margin: 0 0 6px;
+  }
+  .login p { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
+  .login label {
+    display: block; font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-2); margin-bottom: 6px;
+  }
+  .login input {
+    width: 100%; font-family: inherit; font-size: 16px;
+    padding: 12px 14px; border: 1px solid var(--rule);
+    background: var(--paper); margin-bottom: 14px;
+  }
+  .login input:focus { outline: 2px solid var(--green); outline-offset: -2px; }
+  .login .err {
+    background: #fdeaea; border-left: 3px solid var(--danger);
+    padding: 10px 14px; font-size: 13px; color: #7d2418; margin-bottom: 14px;
+  }
+  .btn-primary {
+    background: var(--green); color: #fff; border: 0;
+    padding: 12px 18px; font-size: 14px; font-weight: 500;
+    cursor: pointer; letter-spacing: 0.02em;
+  }
+  .btn-primary:hover { background: var(--green-deep); }
+  .btn-primary[disabled] { opacity: .5; cursor: progress; }
+
+  /* ============================================================
+     App shell
+     ============================================================ */
+  .app {
+    max-width: 720px; margin: 0 auto;
+    padding: 0 0 calc(112px + var(--safe-bot)); /* leave room for footer + bottom-nav */
+  }
+
+  /* ----- Week strip ----- */
+  .weekstrip {
+    /* DEL 2 (runde 2) — gjennomblødning ved scroll. Diagnose: stripen er sticky
+       og faktisk forankret (ingen forelder med overflow/transform bryter den),
+       bakgrunnen #fff ligger ugjennomsiktig på SELVE stripen, og ingenting i det
+       scrollende innholdet har z-index ≥ stripens. Det var altså ikke en
+       z-rekkefølge-bug, men et iOS-komposittlag-artefakt: forrige rundes
+       will-change:transform tvang stripen over på sitt eget GPU-lag, som
+       desynkroniseres fra innholdet under momentum-scroll → innhold bak blør
+       gjennom. FIKS: fjernet will-change (ingen separat lag), og isolation:isolate
+       gir en ren stacking-kontekst i normal male-rekkefølge så z-index 40 vinner
+       pålitelig uten kompositering. Bakgrunn ugjennomsiktig, under topbar (50).
+       Kun forankring/lagdeling — dato-navigasjon (pil/valgt dag) urørt. */
+    background: #fff;
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 12px 10px;
+    display: flex; align-items: center; gap: 4px;
+    position: sticky; top: calc(var(--safe-top) + 56px); z-index: 40;
+    isolation: isolate;
+  }
+  .week-nav {
+    background: transparent; border: 1px solid var(--rule);
+    width: 32px; height: 36px; padding: 0;
+    font-size: 18px; line-height: 1; cursor: pointer;
+    color: var(--ink-2);
+  }
+  .week-nav:hover { border-color: var(--ink); color: var(--ink); }
+  .week-days {
+    flex: 1; display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+  .week-day {
+    background: transparent; border: 0; padding: 6px 0 8px;
+    text-align: center; cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: var(--ink-2);
+  }
+  .week-day .wd-name {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .week-day .wd-num {
+    display: block; font-family: 'Fraunces', serif;
+    font-size: 19px; font-weight: 400; line-height: 1;
+  }
+  .week-day.today .wd-num {
+    color: var(--green);
+  }
+  .week-day.selected {
+    border-bottom-color: var(--green);
+  }
+  .week-day.selected .wd-num { color: var(--green-deep); font-weight: 500; }
+  .week-day.selected .wd-name { color: var(--green); }
+  .week-day .wd-dot {
+    display: block; width: 4px; height: 4px;
+    background: var(--green-soft); border-radius: 50%;
+    margin: 4px auto 0;
+    opacity: 0;
+  }
+  .week-day.has-bookings .wd-dot { opacity: 1; }
+
+  /* ----- Sub-header with date range, staff filter ----- */
+  .subhead {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 14px 6px; gap: 10px;
+    flex-wrap: wrap;
+  }
+  .subhead h2 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 22px; letter-spacing: -0.01em; margin: 0;
+    color: var(--ink);
+  }
+  .subhead .staff-toggle {
+    display: flex; gap: 0; border: 1px solid var(--rule);
+    background: #fff;
+  }
+  .staff-toggle button {
+    border: 0; background: transparent; padding: 7px 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+  }
+  .staff-toggle button.active {
+    background: var(--ink); color: var(--paper);
+  }
+  .staff-toggle button:not(.active):hover { color: var(--ink); }
+  /* ----- Per-behandler filter-chips (admin) ----- */
+  .staff-chips {
+    display: none; flex-wrap: wrap; gap: 6px;
+    padding: 2px 14px 8px;
+  }
+  .staff-chips.shown { display: flex; }
+  .staff-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--rule); background: #fff; border-radius: 999px;
+    padding: 6px 11px; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2);
+  }
+  .staff-chip .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--c, var(--muted)); flex: 0 0 auto;
+  }
+  .staff-chip:not(.active):hover { border-color: var(--ink); color: var(--ink); }
+  .staff-chip.active {
+    background: var(--ink); color: var(--paper); border-color: var(--ink);
+  }
+
+  /* ----- Day group headers + booking cards ----- */
+  .day-group {
+    margin: 8px 0 0;
+    padding: 0 14px;
+  }
+  .day-group-head {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted);
+    padding: 14px 4px 8px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 10px;
+  }
+  .day-group-head .day-revenue {
+    float: right; color: var(--ink-2);
+    text-transform: none; letter-spacing: 0.04em;
+  }
+
+  .b-card {
+    display: block; width: 100%; text-align: left;
+    background: #fff; border: 1px solid var(--rule); border-left-width: 4px;
+    padding: 12px 14px; margin-bottom: 8px;
+    cursor: pointer; font: inherit; color: inherit;
+    box-shadow: var(--shadow-card);
+    transition: transform .08s ease;
+  }
+  .b-card:active { transform: scale(0.99); }
+  /* Spec: grønn=confirmed, oransje=completed, grå=cancelled/no_show */
+  .b-card.s-confirmed { border-left-color: var(--green); }
+  .b-card.s-completed { border-left-color: var(--warn); }
+  .b-card.s-cancelled { border-left-color: var(--muted); opacity: 0.6; }
+  .b-card.s-no_show   { border-left-color: var(--muted); opacity: 0.6; }
+
+  .b-name {
+    font-weight: 600; font-size: 15px; color: var(--ink);
+    margin: 0 0 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .b-service {
+    color: var(--muted); font-size: 13px; margin: 0 0 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .b-meta {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--ink-2);
+    letter-spacing: 0.04em;
+  }
+  .b-meta .b-staff { color: var(--muted); }
+  .b-meta .b-staff .sdot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    margin-right: 5px; vertical-align: middle;
+  }
+  .b-meta .b-time { font-weight: 500; }
+
+  .pill {
+    display: inline-block; padding: 2px 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 500;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .pill-confirmed { background: var(--green-tint); color: var(--green-deep); }
+  .pill-completed { background: var(--warn-tint);  color: var(--warn); }
+  .pill-cancelled { background: #eaeaea;           color: #4A4F5C; }
+  .pill-no_show   { background: #eaeaea;           color: #4A4F5C; }
+
+  /* Ledig slot-rad — tappbar, grønn-tint (gjenbruker --green-tint, ingen ny farge).
+     Tapp → forhåndsutfylt Ny booking på Bookinger-siden. */
+  .b-slot {
+    display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+    background: var(--green-tint); border: 1px solid transparent;
+    border-left: 4px solid var(--green-soft);
+    padding: 10px 14px; margin-bottom: 8px;
+    cursor: pointer; font: inherit; color: var(--green-deep);
+    transition: transform .08s ease;
+  }
+  .b-slot:hover { border-left-color: var(--green); box-shadow: var(--shadow-card); }
+  .b-slot:active { transform: scale(0.99); }
+  .b-slot .bs-time { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 500; }
+  .b-slot .bs-label {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--green-soft);
+  }
+  .b-slot .bs-plus { font-size: 18px; line-height: 1; color: var(--green); }
+
+  /* ----- Empty / loading states ----- */
+  .state {
+    padding: 60px 24px; text-align: center; color: var(--muted);
+  }
+  .state h3 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 20px; color: var(--ink); margin: 0 0 6px;
+  }
+  .state p { margin: 0; font-size: 14px; }
+  .skel-card {
+    background: #fff; border: 1px solid var(--rule); border-left: 4px solid var(--rule);
+    padding: 14px; margin-bottom: 8px;
+  }
+  .skel-bar {
+    height: 11px;
+    background: linear-gradient(90deg, var(--paper-2) 0%, #E4E7EC 50%, var(--paper-2) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+    margin-bottom: 8px;
+  }
+  .skel-bar:last-child { margin-bottom: 0; }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .error-banner {
+    margin: 14px; padding: 12px 16px;
+    background: #fdeaea; border-left: 3px solid var(--danger);
+    color: #7d2418; font-size: 13px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .error-banner button {
+    background: transparent; border: 1px solid #c0392b80;
+    color: var(--danger); padding: 5px 12px;
+    font-family: inherit; font-size: 12px; cursor: pointer;
+  }
+
+  /* ============================================================
+     Footer earnings strip + Bottom nav
+     ============================================================ */
+  /* Inntekt-linje: egen rad rett OVER bunn-nav-stripa (54px høy på mobil),
+     mørk bakgrunn så den står tydelig adskilt fra den grønne nav-stripa
+     under. Flush, ingen overlapp. */
+  .earnings {
+    position: fixed; left: 0; right: 0;
+    bottom: calc(54px + var(--safe-bot));
+    background: var(--ink); color: var(--paper);
+    padding: 11px 18px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    box-shadow: 0 -6px 18px rgba(23, 26, 33, .14);
+    z-index: 42;
+  }
+  .earnings .label { opacity: 0.65; }
+  .earnings .val { font-size: 14px; color: var(--green-soft); letter-spacing: 0.04em; text-transform: none; }
+
+  .bottom-nav {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: #fff; border-top: 1px solid var(--rule);
+    padding-bottom: var(--safe-bot);
+    display: flex;
+    z-index: 41;
+  }
+  .bn-btn {
+    flex: 1;
+    background: transparent; border: 0; padding: 10px 4px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer; text-decoration: none;
+    text-align: center; line-height: 1;
+  }
+  .bn-btn .bn-ico {
+    display: block; font-size: 18px; line-height: 1;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 4px; color: var(--ink-2);
+  }
+  .bn-btn.active { color: var(--green); }
+  .bn-btn.active .bn-ico { color: var(--green); }
+  .bn-btn[disabled], .bn-btn.disabled {
+    opacity: 0.55; cursor: not-allowed;
+  }
+  .bn-btn { position: relative; }
+  .bn-btn .bn-soon {
+    position: absolute; top: 4px; right: 14%;
+    background: var(--warn-tint); color: var(--warn);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px; letter-spacing: 0.08em;
+    padding: 2px 4px; text-transform: uppercase;
+    line-height: 1;
+  }
+  a.bn-btn { display: block; text-decoration: none; }
+
+  /* ============================================================
+     Detail sheet (bottom-sheet on mobile, modal on wide)
+     ============================================================ */
+  .sheet-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(23, 26, 33,.6);
+    display: none;
+  }
+  .sheet-overlay.open { display: block; }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--paper);
+    max-height: 92vh;
+    display: flex; flex-direction: column;
+    transform: translateY(100%);
+    transition: transform .25s ease;
+    border-top-left-radius: 14px; border-top-right-radius: 14px;
+    overflow: hidden;
+  }
+  .sheet.open { transform: translateY(0); }
+  .sheet-handle {
+    width: 36px; height: 4px; background: var(--rule);
+    border-radius: 2px; margin: 8px auto 0;
+  }
+  .sheet-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 18px 12px; gap: 8px;
+    border-bottom: 1px solid var(--rule); background: var(--paper);
+  }
+  .sheet-head h3 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 18px; margin: 0;
+  }
+  .sheet-head .ref-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; color: var(--green);
+    display: block; margin-top: 1px;
+  }
+  .sheet-close {
+    background: transparent; border: 0; cursor: pointer;
+    color: var(--muted); font-size: 26px; line-height: 1;
+    padding: 4px 8px;
+  }
+  .sheet-close:hover { color: var(--ink); }
+  .sheet-body {
+    flex: 1; overflow-y: auto;
+    padding: 16px 18px 24px;
+  }
+
+  /* Booking info block */
+  .info-card {
+    background: #fff; border: 1px solid var(--rule);
+    margin-bottom: 16px;
+  }
+  .info-row {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 11px 14px; border-bottom: 1px solid var(--rule);
+  }
+  .info-row:last-child { border-bottom: 0; }
+  .info-label {
+    flex: 0 0 86px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .info-val {
+    flex: 1; font-size: 14px; color: var(--ink); min-width: 0;
+    word-break: break-word;
+  }
+  .info-val a { color: var(--green); text-decoration: none;
+    border-bottom: 1px solid var(--rule); }
+  .info-val a:hover { border-bottom-color: var(--green); }
+  .info-val .notes-text {
+    font-style: italic; color: var(--ink-2);
+    padding: 10px 12px; background: var(--paper-2);
+    border-left: 3px solid var(--green-soft);
+    font-size: 13px; line-height: 1.55;
+  }
+
+  .status-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; border-bottom: 1px solid var(--rule);
+    background: var(--paper-2);
+  }
+  .status-row select {
+    flex: 1; padding: 9px 12px; border: 1px solid var(--rule);
+    background: #fff; font-family: inherit; font-size: 14px;
+    color: var(--ink);
+  }
+  .status-row .save-feedback {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--muted); display: none;
+  }
+  .status-row .save-feedback.shown { display: inline; }
+  .status-row .save-feedback.ok    { color: var(--green); }
+  .status-row .save-feedback.error { color: var(--danger); }
+
+  /* Journal — hidden by default behind a button. Privacy by default
+     so journal isn't shoulder-surfed when therapist only checks who's
+     next. */
+  .journal-gate {
+    background: #fff; border: 1px solid var(--rule); border-left: 3px solid var(--warn);
+    padding: 14px 16px; margin-bottom: 14px;
+  }
+  .journal-gate h4 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 16px; margin: 0 0 4px; color: var(--ink);
+  }
+  .journal-gate p {
+    color: var(--muted); font-size: 13px; margin: 0 0 12px; line-height: 1.5;
+  }
+  .journal-gate button {
+    background: var(--ink); color: var(--paper); border: 0;
+    padding: 10px 16px; font: inherit; font-size: 14px; font-weight: 500;
+    cursor: pointer; letter-spacing: 0.02em;
+  }
+  .journal-gate button:hover { background: var(--ink-2); }
+
+  /* Journal */
+  .journal-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin: 6px 4px 10px;
+  }
+  .journal-head h4 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 17px; margin: 0; color: var(--ink);
+  }
+  .journal-head .j-count {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--muted); letter-spacing: 0.06em;
+  }
+  .journal-empty {
+    text-align: center; padding: 22px 16px;
+    background: #fff; border: 1px dashed var(--rule);
+    color: var(--muted); font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .j-entry {
+    background: #fff; border: 1px solid var(--rule);
+    padding: 12px 14px; margin-bottom: 8px;
+  }
+  .j-entry .j-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.08em;
+    color: var(--muted); margin-bottom: 6px;
+    display: flex; justify-content: space-between; gap: 8px;
+  }
+  .j-entry .j-meta .j-author { color: var(--green-deep); }
+  .j-entry .j-content {
+    font-size: 14px; line-height: 1.55; color: var(--ink-2);
+    white-space: pre-wrap; word-break: break-word;
+  }
+
+  .new-note {
+    background: #fff; border: 1px solid var(--rule);
+    padding: 12px 14px; margin-top: 6px;
+  }
+  .new-note textarea {
+    width: 100%; min-height: 100px;
+    font-family: inherit; font-size: 14px; line-height: 1.5;
+    padding: 10px 12px; border: 1px solid var(--rule);
+    background: var(--paper); resize: vertical;
+    color: var(--ink);
+  }
+  .new-note textarea:focus {
+    outline: 2px solid var(--green); outline-offset: -2px;
+  }
+  .new-note .nn-actions {
+    display: flex; justify-content: flex-end; align-items: center;
+    gap: 12px; margin-top: 10px;
+  }
+  .new-note .nn-err {
+    color: var(--danger); font-size: 12px; flex: 1;
+  }
+  .btn-add-note {
+    background: transparent; border: 1px solid var(--rule);
+    padding: 8px 14px; font-size: 13px; color: var(--ink-2);
+    cursor: pointer;
+  }
+  .btn-add-note:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* ----- Toast ----- */
+  .toast {
+    position: fixed; left: 12px; right: 12px;
+    bottom: calc(120px + var(--safe-bot));
+    z-index: 200;
+    background: var(--ink); color: #fff;
+    padding: 12px 18px; font-size: 14px;
+    transform: translateY(40px); opacity: 0; pointer-events: none;
+    transition: transform .25s ease, opacity .25s ease;
+  }
+  .toast.shown { transform: translateY(0); opacity: 1; pointer-events: auto; }
+  .toast.error { background: var(--danger); }
+  .toast.ok    { background: var(--green); }
+
+  /* Wide / desktop polish */
+  @media (min-width: 720px) {
+    .topbar-inner { padding: 0 4px; }
+    .brand { font-size: 19px; }
+    .week-day .wd-num { font-size: 22px; }
+    .subhead h2 { font-size: 26px; }
+
+    /* Center the sheet as a modal */
+    .sheet {
+      left: 50%; right: auto; bottom: 50%;
+      transform: translate(-50%, 50%) translateY(40px);
+      width: 560px; max-width: calc(100vw - 40px);
+      max-height: 80vh;
+      border-radius: 10px;
+    }
+    .sheet.open {
+      transform: translate(-50%, 50%) translateY(0);
+    }
+    .sheet-handle { display: none; }
+  }
+  /* Issue V — skjul sidetittel-em ("kalender" osv.) i admin-headeren
+     på smal mobil. "Westengen Klinikk KALENDER" fikk ikke plass og ble
+     avkuttet; bottom-nav viser uansett hvilken side man er på. */
+  @media (max-width: 600px) { .brand em { display: none; } }
+
+  /* ===== DEL 4A — admin-polish (kun presentasjon, ingen funksjonsendring) =====
+     8-punkts bottom-nav scroller horisontalt på smale skjermer (<=560px) i stedet
+     for å klemmes; tydeligere fokus-tilstand for tastatur-navigasjon. */
+  .bottom-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 560px) {
+    .bottom-nav .bn-btn { flex: 0 0 auto; min-width: 64px; }
+  }
+  .btn:focus-visible, .bn-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">Westengen Klinikk <em>kalender</em></div>
+    <span id="whoChip" class="who-chip" style="display:none;"></span>
+    <span id="varslingMount" style="position:relative;flex:0 0 auto;display:inline-flex;align-items:center;"></span>
+    <div id="topActions"></div>
+  </div>
+</div>
+
+<!-- Boot state -->
+<div id="bootView">
+  <div class="boot"><div class="spinner"></div> Sjekker session…</div>
+</div>
+
+<!-- Login -->
+<div id="loginView" class="auth-wrap" style="display:none;">
+  <div class="login">
+    <h1>Logg inn</h1>
+    <p>Kalender for terapeutene ved Westengen Klinikk.</p>
+    <div class="err" id="loginErr" style="display:none;"></div>
+    <form id="loginForm">
+      <label for="email">E-post</label>
+      <input id="email" type="email" autocomplete="username" required />
+      <label for="password">Passord</label>
+      <input id="password" type="password" autocomplete="current-password" required />
+      <button class="btn-primary" type="submit" id="loginSubmit">Logg inn →</button>
+    </form>
+  </div>
+</div>
+
+<!-- Authenticated app -->
+<div id="appView" class="app" style="display:none;">
+
+  <!-- Week strip with prev/next -->
+  <div class="weekstrip">
+    <button class="week-nav" id="weekPrev" aria-label="Forrige uke">‹</button>
+    <div class="week-days" id="weekDays"></div>
+    <button class="week-nav" id="weekNext" aria-label="Neste uke">›</button>
+  </div>
+
+  <!-- Sub-header: range title + staff toggle (admin) -->
+  <div class="subhead">
+    <h2 id="rangeTitle">Denne uken</h2>
+    <div class="staff-toggle" id="staffToggle" style="display:none;">
+      <button data-scope="mine" class="active">Meg</button>
+      <button data-scope="all">Alle</button>
+    </div>
+  </div>
+  <!-- Per-behandler filter-knapper (admin). Fylles fra staff_members
+       (navn + farge) av renderStaffChips(). Trykk = vis kun den behandlerens
+       timer. «Meg»/«Alle» over nullstiller valget. -->
+  <div class="staff-chips" id="staffChips" role="group" aria-label="Filtrer på behandler"></div>
+
+  <!-- Day groups go here -->
+  <div id="dayGroups"></div>
+
+</div>
+
+<!-- Earnings + bottom-nav (only when authenticated) -->
+<div id="earningsStrip" class="earnings" style="display:none;">
+  <span class="label">Denne ukens inntekt</span>
+  <span class="val" id="weekRevenue">kr 0</span>
+</div>
+
+<nav id="bottomNav" class="bottom-nav" style="display:none;">
+  <button class="bn-btn active" aria-current="page"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>Kalender</button>
+  <a class="bn-btn" href="kunder.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-1a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Kunder</a>
+  <a class="bn-btn" href="booking-admin.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span>Oversikt</a>
+  <a class="bn-btn" data-admin-only href="tjenester.html" style="display:none;">
+    <span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></span>Tjenester
+  </a>
+  <a class="bn-btn" data-admin-only href="behandlere.html" style="display:none;"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Behandlere</a>
+  <a class="bn-btn" href="dokumenter.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></span>Dokumenter</a>
+  <a class="bn-btn" href="meldinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>Meldinger</a>
+  <a class="bn-btn" id="navSettings" href="innstillinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></span>Innstillinger</a>
+</nav>
+
+<!-- Detail sheet -->
+<div id="sheetOverlay" class="sheet-overlay" aria-hidden="true">
+  <div id="sheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div style="min-width:0;flex:1;">
+        <h3 id="sheetTitle">Booking</h3>
+        <span id="sheetRef" class="ref-tag"></span>
+      </div>
+      <button class="sheet-close" id="sheetClose" aria-label="Lukk">×</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toastEl" role="status" aria-live="polite"></div>
+
+<link rel="stylesheet" href="shared/booking-flow.css">
+<script src="shared/booking-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="shared/services.js"></script>
+<script src="shared/booking-engine.js"></script>
+<script src="shared/booking-flow.js"></script>
+<script src="shared/admin-booking.js"></script>
+<script src="shared/auth.js"></script>
+<script src="shared/varsling.js"></script>
+<script src="shared/admin-nav.js" defer></script>
+<script>
+(function () {
+  'use strict';
+
+  // AUTH-GATEWAY (synchronous fast path): hvis ingen Supabase-auth-token i
+  // localStorage, redirect umiddelbart til ansatt.html. ensureValidSession()
+  // kjøres etter at sb-klienten er instansiert, for å fange utgåtte tokens.
+  if (!window.WestengenKlinikkAuth || !window.WestengenKlinikkAuth.requireAuth()) return;
+
+  // ============================================================
+  // XSS-merknad: alle innsettinger til .innerHTML i denne filen
+  // går gjennom escapeHtml() på brukerdata (b.name, b.email, b.phone,
+  // b.notes, e.content, e.staff_name osv.). Verifisert manuelt.
+  // Tekst-bare innhold settes med .textContent. Ikke endre dette
+  // mønsteret uten å oppdatere kommentaren.
+  // ============================================================
+
+  // ============================================================
+  // Init Supabase client
+  // ============================================================
+  var CFG = window.WestengenKlinikkBackend || {};
+  if (!CFG.supabaseUrl || !CFG.supabaseAnonKey) {
+    document.getElementById('bootView').innerHTML =
+      '<div class="auth-wrap"><div class="login"><h1>Konfigurasjon mangler</h1>' +
+      '<p>Supabase-URL og anon-nøkkel må være satt i <code>shared/booking-config.js</code>.</p></div></div>';
+    return;
+  }
+  if (!window.supabase || !window.supabase.createClient) {
+    document.getElementById('bootView').innerHTML =
+      '<div class="auth-wrap"><div class="login"><h1>SDK-feil</h1>' +
+      '<p>Supabase JS SDK kunne ikke lastes. Sjekk nettverk.</p></div></div>';
+    return;
+  }
+  var sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+  });
+
+  // ============================================================
+  // State
+  // ============================================================
+  var STATE = {
+    user: null,             // { userId, email, role, staffId, staffName }
+    bookings: [],           // all bookings (filtered by RLS — admin sees all)
+    weekStart: null,        // Date (Monday)
+    selectedDate: null,     // 'YYYY-MM-DD' or null = whole week
+    scope: 'mine',          // 'mine' | 'all' | 'staff:<id>'
+    activeBookingId: null,
+    journalCache: {},       // key = email+phone, value = array of entries
+    staffList: [],          // [{ staff_id, name, color }] fra staff_members (admin-filter)
+    specialOpen: []         // [{ staffId, date, openMin, closeMin }] fra special_open_days (lørdagsåpning)
+  };
+
+  // Behandler-farger (migrasjon 0049). Hardkodet fallback-palett brukes
+  // når staff_members.color mangler; speiler booking-admin.html.
+  var STAFF_FALLBACK_COLORS = {
+    erik: '#464C8C', sofie: '#B8754A', henrik: '#5B7DB1',
+    jonas: '#8E6FA8', amina: '#C2A14D', petter: '#4D9D9A',
+    lena: '#A85C5C', nora: '#D87FA0'
+  };
+  function staffColor(staffId) {
+    for (var i = 0; i < STATE.staffList.length; i++) {
+      if (STATE.staffList[i].staff_id === staffId && STATE.staffList[i].color) {
+        return STATE.staffList[i].color;
+      }
+    }
+    return STAFF_FALLBACK_COLORS[staffId] || 'var(--muted)';
+  }
+
+  // ============================================================
+  // Utils
+  // ============================================================
+  function $(id) { return document.getElementById(id); }
+  function show(view) {
+    ['bootView', 'loginView', 'appView'].forEach(function (id) {
+      $(id).style.display = id === view ? '' : 'none';
+    });
+    var auth = (view === 'appView');
+    $('earningsStrip').style.display = auth ? '' : 'none';
+    $('bottomNav').style.display     = auth ? '' : 'none';
+  }
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function ymd(d) { return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+  function parseYMD(s) {
+    if (!s) return null;
+    var p = s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]);
+  }
+  function addDays(d, n) { var x = new Date(d); x.setDate(x.getDate() + n); return x; }
+  function startOfWeek(d) {
+    // ISO week: Monday-start
+    var x = new Date(d); x.setHours(0,0,0,0);
+    var day = x.getDay();             // 0=Sun..6=Sat
+    var diff = (day === 0 ? -6 : 1 - day);
+    return addDays(x, diff);
+  }
+  function formatTimeShort(t) { return (t || '').slice(0, 5); }
+  function formatTimeRange(t, durMin) {
+    var s = formatTimeShort(t);
+    if (!s) return '';
+    var p = s.split(':');
+    var endMin = (+p[0])*60 + (+p[1]) + (durMin || 0);
+    var eh = Math.floor(endMin/60), em = endMin % 60;
+    return s + ' – ' + pad2(eh) + ':' + pad2(em);
+  }
+  // ----- Ledige slots (klientside, fra STATE.bookings) -----
+  // Klinikkens åpningsvindu speiler HOURS i shared/booking-engine.js
+  // (man–fre 07:00–15:00, 30-min rutenett). Et slot er "ledig" hvis det
+  // ligger i vinduet, ikke er dekket av en bekreftet/fullført booking for
+  // behandleren, og ikke er passert (samme 60-min-buffer som motoren).
+  var CLINIC_OPEN_MIN = 7 * 60, CLINIC_CLOSE_MIN = 15 * 60, SLOT_STEP = 30;
+  function toMin(t) { if (!t) return null; var p = t.split(':'); return (+p[0]) * 60 + (+p[1]); }
+  function minToTime(m) { return pad2(Math.floor(m / 60)) + ':' + pad2(m % 60); }
+
+  // Hvilken behandler er ledige tider relevante for? Krever ett entydig
+  // staff_id: terapeut = egen; admin "mine" (m/ staff_id) = egen; admin
+  // "staff:<id>" = valgt. "Alle" / admin uten staff_id → null (ingen
+  // ledig-rader, "ledig for hvem?" er udefinert).
+  function effectiveSingleStaff() {
+    if (STATE.user.role !== 'admin') {
+      return STATE.user.staffId ? { id: STATE.user.staffId, name: STATE.user.staffName } : null;
+    }
+    if (STATE.scope === 'mine' && STATE.user.staffId) {
+      return { id: STATE.user.staffId, name: STATE.user.staffName };
+    }
+    if (STATE.scope.indexOf('staff:') === 0) {
+      var sid = STATE.scope.slice(6);
+      var hit = STATE.bookings.find(function (b) { return b.staff_id === sid; });
+      return { id: sid, name: hit ? hit.staff_name : sid };
+    }
+    return null;
+  }
+
+  // Engangs lørdagsåpning: finn special_open_days-vinduet for (staff, dato).
+  function specialOpenFor(staffId, dateStr) {
+    for (var i = 0; i < STATE.specialOpen.length; i++) {
+      var s = STATE.specialOpen[i];
+      if (s.staffId === staffId && s.date === dateStr) return s;
+    }
+    return null;
+  }
+
+  function freeSlotTimes(dateStr, staffId) {
+    var d = parseYMD(dateStr); if (!d) return [];
+    var dow = d.getDay();
+    var openMin = CLINIC_OPEN_MIN, closeMin = CLINIC_CLOSE_MIN;
+    if (dow === 0 || dow === 6) {
+      // Helg er normalt stengt — men en special_open_days-rad for (staff,
+      // dato) åpner dagen innenfor det satte vinduet (samme kilde som
+      // booking-motoren bruker), slik at admin-kalenderen viser lørdagen
+      // som bookbar for de valgte behandlerne.
+      var sp = specialOpenFor(staffId, dateStr);
+      if (!sp || sp.openMin == null || sp.closeMin == null) return [];
+      openMin = sp.openMin; closeMin = sp.closeMin;
+    }
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    if (d < today) return [];
+    var covered = {};
+    STATE.bookings.forEach(function (b) {
+      if (b.date !== dateStr || b.staff_id !== staffId) return;
+      if (b.status !== 'confirmed' && b.status !== 'completed') return; // avlyst/no-show frigjør tiden
+      var startM = toMin((b.time || '').slice(0, 5));
+      if (startM == null) return;
+      var dur = b.duration || SLOT_STEP; // 60-min booking dekker to rader
+      for (var m = startM; m < startM + dur; m += SLOT_STEP) covered[minToTime(m)] = true;
+    });
+    var nowBuffer = -1;
+    if (ymd(new Date()) === dateStr) { var n = new Date(); nowBuffer = n.getHours() * 60 + n.getMinutes() + 60; }
+    var out = [];
+    for (var mm = openMin; mm + SLOT_STEP <= closeMin; mm += SLOT_STEP) {
+      var t = minToTime(mm);
+      if (covered[t]) continue;
+      if (mm < nowBuffer) continue;
+      out.push(t);
+    }
+    return out;
+  }
+
+  var DAYS_LONG  = ['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'];
+  var DAYS_SHORT = ['SØ','MA','TI','ON','TO','FR','LØ'];
+  var MONTHS_NO = ['januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember'];
+  function dayHeading(dateStr) {
+    var d = parseYMD(dateStr); if (!d) return dateStr;
+    return DAYS_LONG[d.getDay()] + ' ' + d.getDate() + '. ' + MONTHS_NO[d.getMonth()];
+  }
+  function formatPrice(n) {
+    return 'kr ' + (n || 0).toLocaleString('no-NO').replace(/,/g, ' ');
+  }
+  function formatCreatedAt(iso) {
+    if (!iso) return '—';
+    var d = new Date(iso);
+    return d.toLocaleString('no-NO',
+      { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+  function statusLabel(s) {
+    return ({ confirmed: 'Bekreftet', completed: 'Fullført',
+              cancelled: 'Avlyst',    no_show: 'No-show' })[s] || s || '—';
+  }
+  function todayStr() { return ymd(new Date()); }
+  function patientKey(b) {
+    return (b.email || '').toLowerCase() + '|' + (b.phone || '').trim();
+  }
+  function showToast(msg, variant) {
+    var t = $('toastEl');
+    t.className = 'toast' + (variant ? ' ' + variant : '');
+    t.textContent = msg;
+    setTimeout(function () { t.classList.add('shown'); }, 0);
+    setTimeout(function () { t.classList.remove('shown'); }, 2400);
+  }
+
+  // ============================================================
+  // Auth + session router (same model as booking-admin.html)
+  // ============================================================
+  function parseSessionUser(session) {
+    if (!session || !session.user) return null;
+    var meta = session.user.app_metadata || {};
+    var role = meta.role;
+    if (role !== 'admin' && role !== 'therapist') {
+      return { error: 'missing_role', email: session.user.email, raw: meta };
+    }
+    if (role === 'therapist' && (!meta.staff_id || !meta.staff_name)) {
+      return { error: 'missing_staff', email: session.user.email, raw: meta };
+    }
+    return {
+      userId: session.user.id,
+      email: session.user.email,
+      role: role,
+      staffId: meta.staff_id || null,
+      staffName: meta.staff_name || null
+    };
+  }
+  function setWhoChip(user) {
+    var chip = $('whoChip');
+    if (!user) { chip.style.display = 'none'; return; }
+    chip.style.display = '';
+    chip.className = 'who-chip' + (user.role === 'admin' ? ' admin' : '');
+    chip.textContent = user.role === 'admin' ? 'Admin' : (user.staffName || 'Terapeut');
+  }
+  function setTopActions(html) { $('topActions').innerHTML = html; }
+
+  function logoutAndShow(message) {
+    // Ansatt-portalen er eneste vei inn — redirect dit etter signOut.
+    // 'message' beholdes som signatur for kompatibilitet, men vises ikke
+    // lenger her (loginView er flyttet til ansatt.html).
+    if (window.WestengenKlinikkAuth && window.WestengenKlinikkAuth.logoutAndRedirect) {
+      window.WestengenKlinikkAuth.logoutAndRedirect(sb);
+    } else {
+      sb.auth.signOut().then(function () { window.location.replace('ansatt.html'); });
+    }
+  }
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'logoutBtn') logoutAndShow();
+  });
+
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = $('email').value.trim();
+    var password = $('password').value;
+    var btn = $('loginSubmit');
+    var err = $('loginErr');
+    err.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Logger inn…';
+    sb.auth.signInWithPassword({ email: email, password: password })
+      .then(function (res) {
+        btn.disabled = false; btn.textContent = 'Logg inn →';
+        if (res.error) { err.style.display = ''; err.textContent = res.error.message || 'Feil e-post eller passord.'; }
+      })
+      .catch(function (e2) {
+        btn.disabled = false; btn.textContent = 'Logg inn →';
+        err.style.display = ''; err.textContent = e2.message || 'Innlogging feilet.';
+      });
+  });
+
+  function handleSession(session) {
+    if (!session) {
+      // Auth-gateway: ingen session → tilbake til ansatt-portalen.
+      STATE.user = null;
+      window.location.replace('ansatt.html');
+      return;
+    }
+    var parsed = parseSessionUser(session);
+    if (!parsed) return logoutAndShow('Ugyldig session.');
+    if (parsed.error === 'missing_role')  return logoutAndShow('Brukeren mangler rolle.');
+    if (parsed.error === 'missing_staff') return logoutAndShow('Terapeut mangler staff_id.');
+
+    STATE.user = parsed;
+    setWhoChip(parsed);
+    var adminBtn = parsed.role === 'admin'
+      ? '<a href="booking-admin.html" style="margin-right:6px;">Admin-panel</a>'
+      : '';
+    setTopActions(adminBtn + '<button id="logoutBtn">Logg ut</button>');
+    window.WestengenKlinikkAuth.applyRoleGates(parsed.role);
+    bootApp();
+
+    // Toast-flash hvis vi nettopp ble redirected fra en admin-only side
+    // (f.eks. tjenester.html for therapist). Settes i sessionStorage av
+    // den blokkerende siden.
+    try {
+      var flash = sessionStorage.getItem('__ta_flash');
+      if (flash) { sessionStorage.removeItem('__ta_flash'); showToast(flash, 'error'); }
+    } catch (_) {}
+
+    // Session timeout — 15 min idle → signOut. Installeres etter
+    // første render slik at brukeren ikke får modalen umiddelbart.
+    if (window.WestengenKlinikkAuth) window.WestengenKlinikkAuth.installSessionTimeout(sb);
+
+    // Varsling: push-knapp + in-app realtime (lyd/toast ved ny booking).
+    // Kjøres én gang — handleSession kan kalles flere ganger (auth-events).
+    if (!handleSession._varslingInit && window.WestengenKlinikkVarsling) {
+      handleSession._varslingInit = true;
+      window.WestengenKlinikkVarsling.mountButton({ sb: sb, container: '#varslingMount' });
+      window.WestengenKlinikkVarsling.watch({
+        sb: sb,
+        tables: ['bookings'],
+        onEvent: function () { loadBookings(); }
+      });
+    }
+  }
+  sb.auth.getSession().then(function (res) { handleSession(res.data && res.data.session); })
+    .catch(function () { window.location.replace('ansatt.html'); });
+  sb.auth.onAuthStateChange(function (event, session) {
+    if (event === 'TOKEN_REFRESHED' && STATE.user && session && session.user.id === STATE.user.userId) return;
+    handleSession(session);
+  });
+
+  // ============================================================
+  // Boot app — first render
+  // ============================================================
+  function bootApp() {
+    STATE.weekStart = startOfWeek(new Date());
+    STATE.selectedDate = todayStr();
+    STATE.scope = STATE.user.role === 'admin' ? 'mine' : 'mine';
+    // Admins by default see "all" — but Erik is an admin and likely also wants
+    // a personal staff_id. We default to "mine" only if admin has a staff_id;
+    // otherwise default to all to avoid an empty screen.
+    if (STATE.user.role === 'admin' && !STATE.user.staffId) STATE.scope = 'all';
+
+    if (STATE.user.role === 'admin') {
+      $('staffToggle').style.display = '';
+      $('staffToggle').querySelectorAll('button').forEach(function (b) {
+        b.classList.toggle('active', b.dataset.scope === STATE.scope);
+      });
+    } else {
+      $('staffToggle').style.display = 'none';
+    }
+
+    show('appView');
+    renderWeekStrip();
+    loadBookings();
+  }
+
+  // ============================================================
+  // Loaders
+  // ============================================================
+  function loadBookings() {
+    $('dayGroups').innerHTML = skeletonGroup();
+    return Promise.all([
+      sb.from('bookings').select('*').order('date', { ascending: true }).order('time', { ascending: true }),
+      // Lørdagsåpning (special_open_days). Degraderer stille til [] hvis
+      // tabellen ikke finnes ennå (før 0059 er applisert) — kalenderen
+      // virker uansett, lørdager vises bare ikke som åpne før apply.
+      sb.from('special_open_days').select('staff_id, date, open_time, close_time')
+    ]).then(function (results) {
+      var res = results[0], spRes = results[1];
+      if (res.error) throw res.error;
+      STATE.bookings = res.data || [];
+      STATE.specialOpen = (spRes && !spRes.error && spRes.data) ? spRes.data.map(function (r) {
+        return { staffId: r.staff_id, date: r.date,
+          openMin: toMin((r.open_time || '').slice(0, 5)), closeMin: toMin((r.close_time || '').slice(0, 5)) };
+      }) : [];
+      loadStaffMembersOnce().then(renderStaffChips);
+      renderWeekStrip();   // refresh dots
+      renderDayGroups();
+      renderEarnings();
+    })
+      .catch(function (err) {
+        $('dayGroups').innerHTML =
+          '<div class="error-banner"><span>Kunne ikke laste bookinger: ' +
+          escapeHtml((err && err.message) || String(err)) +
+          '</span><button id="retryBtn">Prøv igjen</button></div>';
+        $('retryBtn').addEventListener('click', loadBookings);
+      });
+  }
+  function skeletonGroup() {
+    var s = '';
+    for (var i = 0; i < 4; i++) {
+      s += '<div class="day-group"><div class="day-group-head">&nbsp;</div>' +
+        '<div class="skel-card">' +
+        '<div class="skel-bar" style="width:60%"></div>' +
+        '<div class="skel-bar" style="width:80%"></div>' +
+        '<div class="skel-bar" style="width:40%"></div>' +
+        '</div></div>';
+    }
+    return s;
+  }
+
+  // ============================================================
+  // Week strip
+  // ============================================================
+  function renderWeekStrip() {
+    var wrap = $('weekDays'); wrap.innerHTML = '';
+    var today = todayStr();
+    var bookingDays = countByDay();
+    for (var i = 0; i < 7; i++) {
+      var d = addDays(STATE.weekStart, i);
+      var s = ymd(d);
+      var btn = document.createElement('button');
+      btn.className = 'week-day';
+      if (s === today) btn.classList.add('today');
+      if (s === STATE.selectedDate) btn.classList.add('selected');
+      if (bookingDays[s]) btn.classList.add('has-bookings');
+      btn.innerHTML =
+        '<span class="wd-name">' + DAYS_SHORT[d.getDay()] + '</span>' +
+        '<span class="wd-num">' + d.getDate() + '</span>' +
+        '<span class="wd-dot"></span>';
+      btn.dataset.date = s;
+      btn.addEventListener('click', function () {
+        STATE.selectedDate = this.dataset.date;
+        renderWeekStrip();
+        renderDayGroups();
+      });
+      wrap.appendChild(btn);
+    }
+    // Subhead title
+    var weekEnd = addDays(STATE.weekStart, 6);
+    var startStr = STATE.weekStart.getDate() + '. ' + MONTHS_NO[STATE.weekStart.getMonth()];
+    var endStr   = weekEnd.getDate() + '. ' + MONTHS_NO[weekEnd.getMonth()];
+    if (STATE.selectedDate) {
+      $('rangeTitle').textContent = capitalize(dayHeading(STATE.selectedDate));
+    } else {
+      $('rangeTitle').textContent = 'Uken ' + startStr + ' – ' + endStr;
+    }
+  }
+  function capitalize(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
+  function countByDay() {
+    var map = {};
+    var inScope = bookingsInScope();
+    inScope.forEach(function (b) {
+      if (!b.date) return;
+      if (b.date < ymd(STATE.weekStart) || b.date > ymd(addDays(STATE.weekStart, 6))) return;
+      map[b.date] = (map[b.date] || 0) + 1;
+    });
+    return map;
+  }
+
+  $('weekPrev').addEventListener('click', function () {
+    STATE.weekStart = addDays(STATE.weekStart, -7);
+    STATE.selectedDate = ymd(STATE.weekStart);
+    renderWeekStrip(); renderDayGroups(); renderEarnings();
+  });
+  $('weekNext').addEventListener('click', function () {
+    STATE.weekStart = addDays(STATE.weekStart, 7);
+    STATE.selectedDate = ymd(STATE.weekStart);
+    renderWeekStrip(); renderDayGroups(); renderEarnings();
+  });
+
+  // ============================================================
+  // Scope (admin only): mine / all / staff:<id>
+  // ============================================================
+  $('staffToggle').addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-scope]');
+    if (!btn) return;
+    STATE.scope = btn.dataset.scope;
+    $('staffToggle').querySelectorAll('button').forEach(function (b) {
+      b.classList.toggle('active', b === btn);
+    });
+    // Meg/Alle valgt → nullstill behandler-chip-valget.
+    $('staffChips').querySelectorAll('.staff-chip.active').forEach(function (c) {
+      c.classList.remove('active'); c.setAttribute('aria-pressed', 'false');
+    });
+    renderDayGroups();
+    renderEarnings();
+    renderWeekStrip();
+  });
+
+  // Behandler-chip valgt → vis kun den behandlerens timer. Nullstiller
+  // Meg/Alle og de andre chippene.
+  $('staffChips').addEventListener('click', function (e) {
+    var chip = e.target.closest('.staff-chip');
+    if (!chip) return;
+    STATE.scope = 'staff:' + chip.dataset.staff;
+    $('staffChips').querySelectorAll('.staff-chip').forEach(function (c) {
+      var on = c === chip;
+      c.classList.toggle('active', on); c.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    $('staffToggle').querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
+    renderDayGroups();
+    renderEarnings();
+    renderWeekStrip();
+  });
+  // Laster aktive behandlere fra staff_members (navn + farge + rekkefølge)
+  // én gang. Fallback til navn utledet fra bookingene hvis tabellen er
+  // utilgjengelig, slik at filteret aldri blir tomt for en admin.
+  var staffListPromise = null;
+  function loadStaffMembersOnce() {
+    if (staffListPromise) return staffListPromise;
+    staffListPromise = sb.from('staff_members')
+      .select('staff_id, name, color, sortering, aktiv')
+      .then(function (res) {
+        if (res.error || !res.data || !res.data.length) throw new Error('erik');
+        STATE.staffList = res.data
+          .filter(function (r) { return r.aktiv !== false; })
+          .sort(function (a, b) {
+            return (a.sortering || 0) - (b.sortering || 0) ||
+                   (a.name || '').localeCompare(b.name || '', 'no');
+          })
+          .map(function (r) {
+            return { staff_id: r.staff_id, name: r.name,
+                     color: r.color || STAFF_FALLBACK_COLORS[r.staff_id] || '' };
+          });
+      })
+      .catch(function () {
+        var uniq = {};
+        STATE.bookings.forEach(function (b) { if (b.staff_id && b.staff_name) uniq[b.staff_id] = b.staff_name; });
+        STATE.staffList = Object.keys(uniq).sort(function (a, b) {
+          return uniq[a].localeCompare(uniq[b], 'no');
+        }).map(function (id) {
+          return { staff_id: id, name: uniq[id], color: STAFF_FALLBACK_COLORS[id] || '' };
+        });
+      });
+    return staffListPromise;
+  }
+
+  // Tegner behandler-knappene (kun admin). Aktiv chip = valgt behandler.
+  // Farge fra staff_members.color (fallback-palett). Trykk håndteres av
+  // delegert listener på #staffChips.
+  function renderStaffChips() {
+    if (!STATE.user || STATE.user.role !== 'admin') return;
+    var wrap = $('staffChips');
+    if (!STATE.staffList.length) { wrap.classList.remove('shown'); wrap.innerHTML = ''; return; }
+    var activeId = STATE.scope.indexOf('staff:') === 0 ? STATE.scope.slice(6) : null;
+    // Hopp over pool-paraplyen 'terapeut': den har ingen egne timer
+    // (pool-bookinger lagres med staff_id = NULL), så et filter på den
+    // viste ingenting = død knapp. Skjult her; staffList beholdes intakt
+    // (fargelegging upåvirket). Å få den til å vise pool-timer = egen runde.
+    wrap.innerHTML = STATE.staffList.filter(function (s) {
+      return s.staff_id !== 'terapeut';
+    }).map(function (s) {
+      var c = s.color || STAFF_FALLBACK_COLORS[s.staff_id] || 'var(--muted)';
+      var on = s.staff_id === activeId;
+      return '<button type="button" class="staff-chip' + (on ? ' active' : '') +
+        '" data-staff="' + escapeHtml(s.staff_id) + '"' +
+        ' style="--c:' + escapeHtml(c) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+        '<span class="dot" aria-hidden="true"></span>' + escapeHtml(s.name || s.staff_id) + '</button>';
+    }).join('');
+    wrap.classList.add('shown');
+  }
+  function bookingsInScope() {
+    return STATE.bookings.filter(function (b) {
+      if (STATE.scope === 'all') return true;
+      if (STATE.scope === 'mine') {
+        if (STATE.user.role === 'admin') {
+          if (!STATE.user.staffId) return true;
+          return b.staff_id === STATE.user.staffId;
+        }
+        return b.staff_id === STATE.user.staffId;
+      }
+      if (STATE.scope.indexOf('staff:') === 0) {
+        var sid = STATE.scope.slice(6);
+        return b.staff_id === sid;
+      }
+      return true;
+    });
+  }
+
+  // ============================================================
+  // Day groups (the main list)
+  // ============================================================
+  function renderDayGroups() {
+    var container = $('dayGroups');
+    var inScope = bookingsInScope();
+
+    var weekStartStr = ymd(STATE.weekStart);
+    var weekEndStr   = ymd(addDays(STATE.weekStart, 6));
+
+    var rows = inScope.filter(function (b) {
+      if (STATE.selectedDate) return b.date === STATE.selectedDate;
+      return b.date >= weekStartStr && b.date <= weekEndStr;
+    });
+
+    // Grupper bookinger per dato
+    var groups = {};
+    rows.forEach(function (b) { (groups[b.date] = groups[b.date] || []).push(b); });
+
+    // Entydig behandler → vis ledige slots. Sørg for at en valgt (men
+    // booking-tom) dag fortsatt finnes som gruppe, slik at ledige tider
+    // vises på en ellers tom dag.
+    var eff = effectiveSingleStaff();
+    if (STATE.selectedDate && !groups[STATE.selectedDate]) groups[STATE.selectedDate] = [];
+    // Lørdagsåpning: sørg for at special-åpne dager for den valgte
+    // behandleren finnes som gruppe (selv uten bookinger), slik at de
+    // ledige lørdagstidene vises i ukesvisningen, ikke bare når dagen er valgt.
+    if (eff) {
+      STATE.specialOpen.forEach(function (s) {
+        if (s.staffId !== eff.id) return;
+        var inRange = STATE.selectedDate
+          ? (s.date === STATE.selectedDate)
+          : (s.date >= weekStartStr && s.date <= weekEndStr);
+        if (inRange && !groups[s.date]) groups[s.date] = [];
+      });
+    }
+    function dayFree(date) { return eff ? freeSlotTimes(date, eff.id) : []; }
+
+    var dates = Object.keys(groups).sort();
+    var anyContent = dates.some(function (date) {
+      return groups[date].length > 0 || dayFree(date).length > 0;
+    });
+    if (!anyContent) {
+      container.innerHTML =
+        '<div class="state"><h3>Ingen bookinger</h3>' +
+        '<p>' + (STATE.selectedDate
+          ? 'Ingen bookinger ' + dayHeading(STATE.selectedDate) + '.'
+          : 'Ingen bookinger denne uken.') +
+        '</p></div>';
+      return;
+    }
+
+    var html = '';
+    dates.forEach(function (date) {
+      var dayBookings = groups[date];
+      var freeTimes = dayFree(date);
+      if (dayBookings.length === 0 && freeTimes.length === 0) return; // hopp tomme dager uten ledige
+      var revenue = dayBookings.reduce(function (sum, b) {
+        return (b.status === 'confirmed' || b.status === 'completed')
+          ? sum + (b.price || 0) : sum;
+      }, 0);
+      html += '<div class="day-group">' +
+        '<div class="day-group-head">' + escapeHtml(capitalize(dayHeading(date))) +
+          '<span class="day-revenue">' + formatPrice(revenue) + '</span>' +
+        '</div>' +
+        renderDayItems(date, dayBookings, freeTimes, eff) +
+        '</div>';
+    });
+    container.innerHTML = html;
+
+    container.querySelectorAll('button.b-card').forEach(function (btn) {
+      btn.addEventListener('click', function () { openSheet(btn.dataset.id); });
+    });
+    // Ledig rad → legg slot i sessionStorage og naviger til Bookinger-siden,
+    // som åpner Ny booking-veiviseren forhåndsutfylt (terapeut/dato/tid).
+    container.querySelectorAll('button.b-slot').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        try {
+          sessionStorage.setItem('__ta_nb_prefill', JSON.stringify({
+            staffId:   btn.getAttribute('data-slot-staff'),
+            staffName: btn.getAttribute('data-slot-staffname'),
+            date:      btn.getAttribute('data-slot-date'),
+            time:      btn.getAttribute('data-slot-time')
+          }));
+        } catch (_) {}
+        window.location.href = 'booking-admin.html';
+      });
+    });
+  }
+
+  // Tidssortert sammenfletting av booking-kort og ledige slots for én dag.
+  function renderDayItems(date, dayBookings, freeTimes, eff) {
+    var items = dayBookings.map(function (b) {
+      return { time: (b.time || '').slice(0, 5), kind: 'b', b: b };
+    });
+    freeTimes.forEach(function (t) { items.push({ time: t, kind: 'free', t: t }); });
+    items.sort(function (a, b) {
+      if (a.time !== b.time) return a.time < b.time ? -1 : 1;
+      return a.kind === 'b' ? -1 : 1; // booking før ledig ved kollisjon (defensivt)
+    });
+    return items.map(function (it) {
+      return it.kind === 'b' ? renderBookingCard(it.b) : renderSlotRow(date, it.t, eff);
+    }).join('');
+  }
+  function renderSlotRow(date, time, eff) {
+    return '<button class="b-slot" ' +
+      'data-slot-staff="' + escapeHtml(eff.id) + '" ' +
+      'data-slot-staffname="' + escapeHtml(eff.name || '') + '" ' +
+      'data-slot-date="' + escapeHtml(date) + '" ' +
+      'data-slot-time="' + escapeHtml(time) + '">' +
+      '<span class="bs-time">' + escapeHtml(time) + '</span>' +
+      '<span class="bs-label">Ledig</span>' +
+      '<span class="bs-plus" aria-hidden="true">+</span>' +
+    '</button>';
+  }
+  function renderBookingCard(b) {
+    var cls = 'b-card s-' + (b.status || 'confirmed');
+    // Venstre-baren viser BEHANDLERENS farge (samme kilde som navn-prikken,
+    // staffColor()) i stedet for status — status er tydelig via pill-en.
+    // Inline overstyrer .s-*-border-fargen; faller til fallback/--muted ved
+    // manglende farge (ingen knekt visning). s-*-klassen beholdes for opacity.
+    return '<button class="' + cls + '" data-id="' + escapeHtml(b.id) +
+      '" style="border-left-color:' + escapeHtml(staffColor(b.staff_id)) + '">' +
+      '<div class="b-name">' + escapeHtml(b.name || '—') + '</div>' +
+      '<div class="b-service">' + escapeHtml(b.service_name || '—') +
+        ' · ' + (b.duration || 0) + ' min · ' + escapeHtml(formatPrice(b.price)) + '</div>' +
+      '<div class="b-meta">' +
+        '<span class="b-time">' + escapeHtml(formatTimeRange(b.time, b.duration)) + '</span>' +
+        '<span class="b-staff"><span class="sdot" style="background:' + escapeHtml(staffColor(b.staff_id)) + '"></span>' + escapeHtml(b.staff_name || '') + '</span>' +
+        '<span class="pill pill-' + (b.status || 'confirmed') + '">' +
+          escapeHtml(statusLabel(b.status)) + '</span>' +
+      '</div></button>';
+  }
+
+  // ============================================================
+  // Earnings (week total, scope-aware, confirmed+completed)
+  // ============================================================
+  function renderEarnings() {
+    var inScope = bookingsInScope();
+    var weekStartStr = ymd(STATE.weekStart);
+    var weekEndStr   = ymd(addDays(STATE.weekStart, 6));
+    var total = inScope.reduce(function (sum, b) {
+      if (b.date < weekStartStr || b.date > weekEndStr) return sum;
+      if (b.status !== 'confirmed' && b.status !== 'completed') return sum;
+      return sum + (b.price || 0);
+    }, 0);
+    $('weekRevenue').textContent = formatPrice(total);
+  }
+
+  // ============================================================
+  // Detail sheet
+  // ============================================================
+  function openSheet(bookingId) {
+    var b = STATE.bookings.find(function (x) { return x.id === bookingId; });
+    if (!b) return;
+    STATE.activeBookingId = bookingId;
+    $('sheetTitle').textContent = b.name || 'Booking';
+    $('sheetRef').textContent = b.ref ? 'REF ' + b.ref : '';
+    $('sheetBody').innerHTML = renderSheetBody(b);
+    $('sheetOverlay').classList.add('open');
+    $('sheet').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    wireSheetBody(b);
+    // Journal fetches IKKE her — først når brukeren trykker "Vis journal".
+  }
+  function closeSheet() {
+    $('sheetOverlay').classList.remove('open');
+    $('sheet').classList.remove('open');
+    document.body.style.overflow = '';
+    STATE.activeBookingId = null;
+  }
+  $('sheetClose').addEventListener('click', closeSheet);
+  $('sheetOverlay').addEventListener('click', function (e) {
+    if (e.target === this) closeSheet();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && $('sheet').classList.contains('open')) closeSheet();
+  });
+
+  function renderSheetBody(b) {
+    // P2-13 fra audit 2026-05-15: tel:-href skal kun inneholde +, sifre,
+    // parenteser og bindestrek. Faller tilbake til tom streng (linken vises
+    // som '—') hvis input ikke matcher — beskytter mot rare phone-strenger
+    // som ville rendret som upålitelige href-er.
+    var phoneRaw = (b.phone || '').replace(/\s+/g, '');
+    var phoneHref = /^[+0-9()\-]+$/.test(phoneRaw) ? phoneRaw : '';
+    return '' +
+      '<div class="info-card">' +
+        '<div class="status-row">' +
+          '<select id="statusSelect">' +
+            '<option value="confirmed">Bekreftet</option>' +
+            '<option value="completed">Fullført</option>' +
+            '<option value="cancelled">Avlyst</option>' +
+            '<option value="no_show">No-show</option>' +
+          '</select>' +
+          '<span class="save-feedback" id="saveFeedback"></span>' +
+        '</div>' +
+        infoRow('Dato', escapeHtml(capitalize(dayHeading(b.date))) +
+                       ' kl. ' + escapeHtml(formatTimeShort(b.time))) +
+        infoRow('Varighet', (b.duration || 0) + ' min · ' + escapeHtml(formatPrice(b.price))) +
+        infoRow('Behandler', escapeHtml(b.staff_name || '—')) +
+        infoRow('Tjeneste', escapeHtml(b.service_name || '—')) +
+        infoRow('Telefon', (b.phone && phoneHref)
+          ? '<a href="tel:' + escapeHtml(phoneHref) + '">' + escapeHtml(b.phone) + '</a>'
+          : (b.phone ? escapeHtml(b.phone) : '—')) +
+        infoRow('E-post', b.email
+          ? '<a href="mailto:' + escapeHtml(b.email) + '">' + escapeHtml(b.email) + '</a>'
+          : '—') +
+        (b.notes
+          ? infoRow('Notat fra kunde', '<div class="notes-text">' + escapeHtml(b.notes) + '</div>')
+          : '') +
+        infoRow('Bestilt', escapeHtml(formatCreatedAt(b.created_at))) +
+      '</div>' +
+
+      // Journal section — skjult bak en knapp (privacy by default).
+      // Klikk avdekker journalen, fetcher entries, og logger en
+      // journal_view audit-event.
+      '<div class="journal-gate" id="journalGate">' +
+        '<h4>Pasient-journal</h4>' +
+        '<p>Innholdet er skjult. Trykk for å åpne — hvert oppslag logges i audit-loggen.</p>' +
+        '<button id="revealJournalBtn" type="button">Vis journal →</button>' +
+      '</div>' +
+      '<div id="journalContent" style="display:none;">' +
+        '<div class="journal-head">' +
+          '<h4>Pasient-journal</h4>' +
+          '<span class="j-count" id="journalCount">—</span>' +
+        '</div>' +
+        '<div id="journalList">' +
+          '<div class="journal-empty">Laster journal…</div>' +
+        '</div>' +
+
+        '<div class="new-note">' +
+          '<textarea id="newNoteText" placeholder="Behandlingsnotat, observasjoner, plan for neste time…" maxlength="8000"></textarea>' +
+          '<div class="nn-actions">' +
+            '<span class="nn-err" id="newNoteErr"></span>' +
+            '<button class="btn-primary" id="saveNoteBtn" type="button">Lagre notat</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+  function infoRow(label, val) {
+    return '<div class="info-row">' +
+      '<div class="info-label">' + label + '</div>' +
+      '<div class="info-val">' + val + '</div>' +
+    '</div>';
+  }
+
+  function wireSheetBody(b) {
+    // ----- Status dropdown (optimistic + confirm for cancel/no_show) -----
+    var sel = $('statusSelect');
+    sel.value = b.status || 'confirmed';
+    sel.addEventListener('change', function () {
+      var newStatus = sel.value;
+      var oldStatus = b.status;
+      if (newStatus === oldStatus) return;
+
+      // Destruktive transisjoner krever bekreftelse
+      var needsConfirm = (newStatus === 'cancelled' || newStatus === 'no_show');
+      var proceed = needsConfirm
+        ? window.WestengenKlinikkAuth.confirmDestructive({
+            title: newStatus === 'cancelled' ? 'Avlys booking?' : 'Marker som no-show?',
+            message: newStatus === 'cancelled'
+              ? 'Bookingen blir markert som avlyst. Kunden får ingen automatisk e-post.'
+              : 'Bookingen blir markert som no-show. Dette kan ikke automatisk reverseres til "Bekreftet" uten manuell handling.',
+            confirmLabel: newStatus === 'cancelled' ? 'Avlys' : 'Marker no-show'
+          })
+        : Promise.resolve(true);
+
+      proceed.then(function (ok) {
+        if (!ok) { sel.value = oldStatus; return; }
+        var fb = $('saveFeedback');
+        fb.className = 'save-feedback shown'; fb.textContent = 'Lagrer…';
+        b.status = newStatus;
+        renderDayGroups(); renderEarnings(); renderWeekStrip();
+        sb.from('bookings').update({ status: newStatus }).eq('id', b.id)
+          .then(function (res) {
+            if (res.error) throw res.error;
+            fb.className = 'save-feedback shown ok'; fb.textContent = 'Lagret ✓';
+            // Audit log (fire-and-forget). Metadata inneholder bare status-
+            // verdier, ingen pasientdata.
+            window.WestengenKlinikkAuth.auditLog(sb, STATE.user, {
+              action: 'booking_status_change',
+              target_type: 'booking',
+              target_id: b.id,
+              metadata: { from_status: oldStatus, to_status: newStatus }
+            });
+            setTimeout(function () {
+              if (fb.classList.contains('ok')) fb.className = 'save-feedback';
+            }, 2000);
+          })
+          .catch(function (err) {
+            // Rollback
+            b.status = oldStatus; sel.value = oldStatus;
+            renderDayGroups(); renderEarnings(); renderWeekStrip();
+            fb.className = 'save-feedback shown error';
+            fb.textContent = 'Lagring feilet: ' + ((err && err.message) || '');
+          });
+      });
+    });
+
+    // ----- Reveal journal (privacy gate) -----
+    var revealBtn = $('revealJournalBtn');
+    if (revealBtn) {
+      revealBtn.addEventListener('click', function () {
+        $('journalGate').style.display = 'none';
+        $('journalContent').style.display = '';
+        // K2 (migrasjon 0051): journal_view logges av DB-laget i samme
+        // transaksjon som lesingen (get_journal_entries-RPC) — klient-
+        // side auditLog er fjernet (kunne omgås og ga dobbeltlogging).
+        fetchAndRenderJournal(b);
+        wireSaveNote(b);
+      });
+    }
+  }
+
+  function wireSaveNote(b) {
+    var saveBtn = $('saveNoteBtn');
+    if (!saveBtn || saveBtn.dataset.wired === '1') return;
+    saveBtn.dataset.wired = '1';
+    saveBtn.addEventListener('click', function () {
+      var ta = $('newNoteText');
+      var errSpan = $('newNoteErr');
+      errSpan.textContent = '';
+      var content = (ta.value || '').trim();
+      if (!content) {
+        errSpan.textContent = 'Notatet kan ikke være tomt.';
+        ta.focus(); return;
+      }
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Lagrer…';
+      saveNote(b, content)
+        .then(function (entry) {
+          ta.value = '';
+          var key = patientKey(b);
+          if (!STATE.journalCache[key]) STATE.journalCache[key] = [];
+          STATE.journalCache[key].unshift(entry);
+          renderJournalList(b);
+          showToast('Notat lagret', 'ok');
+          // journal_create audit-logges av DB-laget (RPC, migrasjon 0051).
+        })
+        .catch(function (err) {
+          errSpan.textContent = 'Kunne ikke lagre: ' + ((err && err.message) || err);
+        })
+        .finally(function () {
+          saveBtn.disabled = false; saveBtn.textContent = 'Lagre notat';
+        });
+    });
+  }
+
+  // ============================================================
+  // Journal — fetch + render + save
+  // ============================================================
+  function fetchAndRenderJournal(b) {
+    var email = (b.email || '').toLowerCase();
+    var phone = (b.phone || '').trim();
+    var key = patientKey(b);
+
+    // Match on email OR phone — journal follows the patient across bookings.
+    // K2 (migrasjon 0051): henting går via get_journal_entries-RPC-en som
+    // OR-er e-post/telefon server-side med eksakt match (parametrisert —
+    // ingen .or()-syntaks å escape lenger) og audit-logger i samme
+    // transaksjon.
+    if (!email && !phone) {
+      renderJournalEmpty(b, 'Kunden mangler både e-post og telefon — kan ikke knytte journal.');
+      return;
+    }
+    sb.rpc('get_journal_entries', { p_email: email || null, p_phone: phone || null })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        STATE.journalCache[key] = res.data || [];
+        renderJournalList(b);
+      })
+      .catch(function (err) {
+        renderJournalEmpty(b,
+          'Kunne ikke hente journal: ' + ((err && err.message) || err));
+      });
+  }
+  function renderJournalEmpty(b, message) {
+    $('journalCount').textContent = '0';
+    $('journalList').innerHTML =
+      '<div class="journal-empty">' + escapeHtml(message || 'Ingen journal-notater for denne pasienten ennå.') + '</div>';
+  }
+  function renderJournalList(b) {
+    var key = patientKey(b);
+    var entries = STATE.journalCache[key] || [];
+    $('journalCount').textContent = String(entries.length);
+    if (entries.length === 0) {
+      $('journalList').innerHTML =
+        '<div class="journal-empty">Ingen journal-notater for denne pasienten ennå. Skriv det første under.</div>';
+      return;
+    }
+    $('journalList').innerHTML = entries.map(function (e) {
+      return '<div class="j-entry">' +
+        '<div class="j-meta">' +
+          '<span class="j-author">' + escapeHtml(e.staff_name || '—') + '</span>' +
+          '<span>' + escapeHtml(formatCreatedAt(e.created_at)) + '</span>' +
+        '</div>' +
+        '<div class="j-content">' + escapeHtml(e.content || '') + '</div>' +
+      '</div>';
+    }).join('');
+  }
+  function saveNote(b, content) {
+    // K2 (migrasjon 0051): notat opprettes via create_journal_entry-RPC.
+    // staff_id/staff_name settes server-side fra JWT (kan ikke forfalskes),
+    // og journal_create audit-logges i samme DB-transaksjon.
+    return sb.rpc('create_journal_entry', {
+      p_booking_id: b.id,
+      p_patient_email: (b.email || '').toLowerCase(),
+      p_patient_phone: (b.phone || '').trim(),
+      p_content: content
+    }).then(function (res) {
+      if (res.error) throw res.error;
+      return res.data;
+    });
+  }
+
+  // (DEL: «+ Ny booking»-FAB fjernet fra kalender — samme funksjon finnes på
+  // Bookinger-siden (booking-admin #newBookingBtn). Unngår duplikat.)
+  // navSettings er nå en <a href="innstillinger.html"> — ingen JS-handler trengs.
+
+})();
+</script>
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

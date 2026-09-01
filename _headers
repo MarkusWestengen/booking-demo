@@ -1,0 +1,12 @@
+# H3 fra security-review-2026-06-12: server-headers (meta-CSP kan ikke
+# levere frame-ancestors). Denne filen brukes av Netlify/Cloudflare Pages;
+# vercel.json dekker Vercel. Bruker hosten ingen av delene: sett de samme
+# headerne i host-panelet/Cloudflare og verifiser med
+#   curl -I https://<ditt-domene>/booking-admin.html
+/*
+  X-Frame-Options: DENY
+  Content-Security-Policy: frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Permissions-Policy: camera=(), microphone=(), geolocation=()

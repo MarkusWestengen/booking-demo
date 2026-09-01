@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#171A21">
+
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+
+<title>Meldinger · Westengen Klinikk</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8; --green-tint: #E9EAF4;
+    --paper: #F7F8FA; --paper-2: #EDEFF3;
+    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
+    --rule: #171a2622; --danger: #c0392b; --clay: #B8754A;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink); background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .topbar { position: sticky; top: 0; z-index: 30;
+    background: var(--ink); color: var(--paper);
+    border-bottom: 3px solid var(--green); }
+  .topbar-inner { display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px; max-width: 1300px; margin: 0 auto; }
+  .brand { font-family: 'Fraunces', serif; font-size: 22px; flex: 1; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand em { font-style: italic; color: var(--green-soft);
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .who-chip { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--green); color: #fff; padding: 4px 8px; }
+  .topbar a, .topbar button { color: var(--paper); background: transparent;
+    border: 1px solid rgba(247, 248, 250,.22); padding: 6px 10px;
+    font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
+  .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
+
+  .shell { max-width: 1300px; margin: 0 auto; padding: 18px; }
+  /* Grønn tittel-aksent via delt .adm-accent-klasse (admin-nav.js). */
+  h1 { font-family: 'Fraunces', serif; font-weight: 400; font-size: 26px; margin: 0 0 14px; }
+  .lede { color: var(--muted); font-size: 13px; margin: 0 0 18px; max-width: 70ch; }
+
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .toolbar .count { color: var(--muted); font-size: 13px; flex: 1; }
+  .toolbar label { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); margin-right: 6px; }
+  .toolbar select { padding: 8px 10px; font: inherit; font-size: 13px;
+    border: 1px solid var(--rule); background: #fff; }
+  .toolbar select:focus { outline: 2px solid var(--green); outline-offset: -2px; }
+  .btn { background: transparent; color: var(--ink); border: 1px solid var(--rule);
+    padding: 8px 14px; font: inherit; font-size: 13px; cursor: pointer; }
+  .btn:hover { border-color: var(--ink); }
+  .btn[disabled] { opacity: 0.4; cursor: default; }
+  .btn-primary { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn-primary:hover { background: var(--green-deep); border-color: var(--green-deep); }
+
+  #tableHost { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.msgs { width: 100%; border-collapse: collapse; background: #fff;
+    border: 1px solid var(--rule); font-size: 13px; min-width: 760px; }
+  table.msgs th, table.msgs td { padding: 10px 12px; border-bottom: 1px solid var(--rule);
+    text-align: left; vertical-align: top; }
+  /* Subtil grønn skillelinje mellom meldingene (kun rad-skillet i
+     tbody — header beholder nøytral strek). */
+  table.msgs tbody td { border-bottom: 1px solid rgba(70, 76, 140, .30); }
+  table.msgs th { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+    font-weight: 500; background: var(--paper-2); position: sticky; top: 0; }
+  table.msgs td.when { font-family: 'JetBrains Mono', monospace; white-space: nowrap; color: var(--ink-2); }
+  table.msgs td.email a { color: var(--green-deep); }
+  table.msgs td.msg { white-space: pre-wrap; word-wrap: break-word; max-width: 420px; line-height: 1.5; }
+  table.msgs tr.is-new td { background: #fbfaf4; }
+  table.msgs tr.is-new td.when::before { content: "●"; color: var(--green); margin-right: 6px; }
+  .status-sel { padding: 6px 8px; font: inherit; font-size: 12px;
+    border: 1px solid var(--rule); background: #fff; }
+  .status-sel:focus { outline: 2px solid var(--green); outline-offset: -2px; }
+  .btn-del { background: transparent; color: var(--danger);
+    border: 1px solid var(--danger); padding: 6px 10px;
+    font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
+  .btn-del:hover { background: var(--danger); color: #fff; }
+  .btn-del[disabled] { opacity: 0.4; cursor: default; }
+
+  .loader { text-align: center; padding: 36px; color: var(--muted); }
+  .spinner { width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--rule); border-top-color: var(--green);
+    animation: spin 0.8s linear infinite;
+    display: inline-block; vertical-align: middle; margin-right: 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; padding: 36px; color: var(--muted);
+    background: #fff; border: 1px solid var(--rule); }
+
+  .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0;
+    background: #fff; border-top: 1px solid var(--rule);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0); z-index: 40; }
+  .bn-btn { flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 4px; padding: 10px 6px;
+    background: transparent; border: 0; border-top: 3px solid transparent;
+    font: inherit; font-size: 10.5px; color: var(--ink-2);
+    text-decoration: none; cursor: pointer; position: relative; }
+  .bn-btn .bn-ico { font-size: 18px; line-height: 1; }
+  .bn-btn.active { color: var(--green-deep); border-top-color: var(--green); }
+
+  @media (max-width: 600px) {
+    .brand em { display: none; }
+    h1 { font-size: 22px; }
+    .bn-btn { font-size: 9.5px; }
+
+    /* DEL 4 — vis meldinger som kort i stedet for en bred tabell-rad.
+       Tabellen tvang min-width 760px + horisontal scroll; nå stables hver
+       melding som et kort der lang tekst og lange e-poster wrapper. */
+    #tableHost { overflow-x: visible; }
+    table.msgs { min-width: 0; border: 0; background: transparent; font-size: 14px; }
+    /* Skjul kolonneoverskriftene visuelt, men behold dem for skjermlesere. */
+    table.msgs thead {
+      position: absolute; width: 1px; height: 1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+    }
+    table.msgs tr {
+      display: block; background: #fff; border: 1px solid var(--rule);
+      /* Mobil-kort: tynn grønn topplinje skiller meldingene tydeligere. */
+      border-top: 2px solid rgba(70, 76, 140, .45);
+      margin-bottom: 12px;
+    }
+    table.msgs td {
+      display: block; max-width: 100%;
+      padding: 9px 14px; border-bottom: 1px solid var(--rule);
+      white-space: normal; overflow-wrap: anywhere; word-break: break-word;
+    }
+    table.msgs td:last-child { border-bottom: 0; }
+    /* Feltetikett over hver verdi (fra data-label på td-en). */
+    table.msgs td::before {
+      content: attr(data-label);
+      display: block; margin-bottom: 3px;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+    }
+    table.msgs td.msg { max-width: 100%; }
+    table.msgs td.when { white-space: normal; }
+    table.msgs td.email a { overflow-wrap: anywhere; word-break: break-word; }
+    /* Nye meldinger: behold etiketten (overstyr ●-prikken fra tabellvisning)
+       — det cremede kort-bakgrunnen (tr.is-new td) signaliserer «ny». */
+    table.msgs tr.is-new td.when::before { content: attr(data-label); color: var(--muted); margin-right: 0; }
+  }
+
+  /* ===== DEL 4A — admin-polish (kun presentasjon, ingen funksjonsendring) =====
+     8-punkts bottom-nav scroller horisontalt på smale skjermer (<=560px) i stedet
+     for å klemmes; tydeligere fokus-tilstand for tastatur-navigasjon. */
+  .bottom-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 560px) {
+    .bottom-nav .bn-btn { flex: 0 0 auto; min-width: 64px; }
+  }
+  .btn:focus-visible, .bn-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">Westengen Klinikk <em>meldinger</em></div>
+    <span class="who-chip" id="whoChip" style="display:none;">—</span>
+    <span id="varslingMount" style="position:relative;flex:0 0 auto;display:inline-flex;align-items:center;"></span>
+    <div id="topActions"></div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <div id="bootView" class="loader">
+    <span class="spinner"></span>Sjekker tilgang…
+  </div>
+
+  <div id="appView" style="display:none;">
+    <h1 class="adm-accent">Meldinger</h1>
+    <p class="lede">Henvendelser sendt fra «Send oss en melding» på forsiden. Marker som lest/besvart når du har håndtert dem. Eksport til CSV og sletting er forbeholdt admin.</p>
+
+    <div class="toolbar">
+      <div class="count" id="resultCount">—</div>
+      <label for="fStatus">Status</label>
+      <select id="fStatus">
+        <option value="">Alle</option>
+        <option value="new">Nye</option>
+        <option value="read">Lest</option>
+        <option value="answered">Besvart</option>
+      </select>
+      <button class="btn" id="resetBtn">Tilbakestill</button>
+      <button class="btn btn-primary" id="csvBtn" data-admin-only style="display:none;">Eksporter CSV</button>
+    </div>
+
+    <div id="tableHost">
+      <div class="loader"><span class="spinner"></span>Henter…</div>
+    </div>
+
+    <div class="toolbar" style="justify-content:center; margin-top: 12px;">
+      <button class="btn" id="prevBtn">← Forrige</button>
+      <span class="count" id="pageInfo" style="flex:0; text-align:center;">Side 1</span>
+      <button class="btn" id="nextBtn">Neste →</button>
+    </div>
+  </div>
+
+  <div id="forbiddenView" class="empty" style="display:none;">
+    <p>Du har ikke tilgang til meldinger.</p>
+    <p><a href="kalender.html">← Tilbake til kalender</a></p>
+  </div>
+
+</div>
+
+<nav class="bottom-nav">
+  <a class="bn-btn" href="kalender.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>Kalender</a>
+  <a class="bn-btn" href="kunder.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-1a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Kunder</a>
+  <a class="bn-btn" href="booking-admin.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span>Oversikt</a>
+  <a class="bn-btn" data-admin-only href="tjenester.html" style="display:none;"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></span>Tjenester</a>
+  <a class="bn-btn" data-admin-only href="behandlere.html" style="display:none;"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Behandlere</a>
+  <a class="bn-btn" href="dokumenter.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></span>Dokumenter</a>
+  <a class="bn-btn active" href="meldinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>Meldinger</a>
+  <a class="bn-btn" href="innstillinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></span>Innstillinger</a>
+</nav>
+
+<script src="shared/booking-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="shared/auth.js"></script>
+<script src="shared/varsling.js"></script>
+<script src="shared/admin-nav.js" defer></script>
+<script>
+(function () {
+  'use strict';
+
+  if (!window.WestengenKlinikkAuth || !window.WestengenKlinikkAuth.requireAuth()) return;
+
+  var CFG = window.WestengenKlinikkBackend || {};
+  // Uten nokler ville createClient('') kastet, og sida ville sett ut
+  // som om den hang. Vi sier heller tydelig fra hva som mangler.
+  if (!CFG.supabaseUrl || !CFG.supabaseAnonKey) {
+    var _cfgTarget = document.getElementById('bootView') || document.body;
+    _cfgTarget.innerHTML =
+      '<div class="auth-wrap"><div class="login"><h1>Konfigurasjon mangler</h1>' +
+      '<p>Denne kopien er ikke koblet til en database ennå. Fyll inn Supabase-URL ' +
+      'og anon-nøkkel i <code>shared/booking-config.js</code> — se ' +
+      '<code>DEMO_SETUP.md</code>.</p></div></div>';
+    return;
+  }
+  var sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
+    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
+  });
+
+  function $(id) { return document.getElementById(id); }
+  var escapeHtml = window.WestengenKlinikkAuth.escapeHtml;
+
+  var STATUS_LABEL = { 'new': 'Ny', 'read': 'Lest', 'answered': 'Besvart' };
+  var STATE = { user: null, page: 0, pageSize: 50, totalCount: 0, rows: [] };
+
+  function show(id) {
+    ['bootView', 'appView', 'forbiddenView'].forEach(function (v) {
+      $(v).style.display = v === id ? '' : 'none';
+    });
+  }
+  function setTopActions(html) { $('topActions').innerHTML = html; }
+  function isAdmin() { return !!(STATE.user && STATE.user.role === 'admin'); }
+
+  // Meldinger er tilgjengelig for ALLE ansatte (admin + therapist),
+  // i motsetning til audit-loggen (admin-only). CSV-eksport gates til admin.
+  function parseSessionUser(session) {
+    if (!session || !session.user) return null;
+    var u = session.user;
+    var meta = (u.app_metadata || {});
+    var role = meta.role;
+    if (role !== 'admin' && role !== 'therapist') return null;
+    return {
+      userId: u.id, email: u.email, role: role,
+      staffId: meta.staff_id || (role === 'admin' ? 'admin' : null),
+      staffName: meta.staff_name || (role === 'admin' ? 'Admin' : '')
+    };
+  }
+  function handleSession(session) {
+    if (!session) { window.location.replace('ansatt.html'); return; }
+    var parsed = parseSessionUser(session);
+    if (!parsed) { show('forbiddenView'); return; }
+    STATE.user = parsed;
+    setTopActions('<a href="innstillinger.html">Innstillinger</a> <button id="logoutBtn">Logg ut</button>');
+    var chip = $('whoChip');
+    chip.textContent = parsed.staffName || (parsed.role === 'admin' ? 'Admin' : 'Terapeut');
+    chip.style.display = '';
+    window.WestengenKlinikkAuth.applyRoleGates(parsed.role);
+    window.WestengenKlinikkAuth.installSessionTimeout(sb);
+
+    // Varsling: push-knapp + in-app realtime (lyd/toast ved ny melding).
+    // Én gang — handleSession kan kalles flere ganger (auth-events).
+    if (!handleSession._varslingInit && window.WestengenKlinikkVarsling) {
+      handleSession._varslingInit = true;
+      window.WestengenKlinikkVarsling.mountButton({ sb: sb, container: '#varslingMount' });
+      window.WestengenKlinikkVarsling.watch({
+        sb: sb,
+        tables: ['contact_messages'],
+        onEvent: function () { runQuery(); }
+      });
+    }
+
+    show('appView');
+    runQuery();
+  }
+  sb.auth.getSession().then(function (res) { handleSession(res.data && res.data.session); })
+    .catch(function () { window.location.replace('ansatt.html'); });
+  sb.auth.onAuthStateChange(function (event, session) {
+    if (event === 'TOKEN_REFRESHED' && STATE.user && session && session.user.id === STATE.user.userId) return;
+    handleSession(session);
+  });
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'logoutBtn') window.WestengenKlinikkAuth.logoutAndRedirect(sb);
+  });
+
+  // ----- Query -----
+  function buildQuery(forCount) {
+    var q = sb.from('contact_messages').select('*', forCount ? { count: 'exact', head: false } : undefined);
+    var status = $('fStatus').value;
+    if (status) q = q.eq('status', status);
+    return q.order('created_at', { ascending: false });
+  }
+  function runQuery() {
+    $('tableHost').innerHTML = '<div class="loader"><span class="spinner"></span>Henter…</div>';
+    var from = STATE.page * STATE.pageSize;
+    var to = from + STATE.pageSize - 1;
+    buildQuery(true).range(from, to).then(function (res) {
+      if (res.error) {
+        $('tableHost').innerHTML = '<div class="empty">Feil: ' + escapeHtml(res.error.message) + '</div>';
+        return;
+      }
+      STATE.rows = res.data || [];
+      STATE.totalCount = res.count != null ? res.count : STATE.rows.length;
+      renderTable();
+      renderPager();
+    })
+    .catch(function (err) {
+      console.error('Meldings-spørring feilet:', err);
+      $('tableHost').innerHTML = '<div class="empty">Kunne ikke hente meldinger. Sjekk nettverkstilkoblingen og prøv igjen.</div>';
+    });
+  }
+  function statusSelect(row) {
+    var opts = ['new', 'read', 'answered'].map(function (s) {
+      return '<option value="' + s + '"' + (row.status === s ? ' selected' : '') + '>' + STATUS_LABEL[s] + '</option>';
+    }).join('');
+    return '<select class="status-sel" data-id="' + escapeHtml(row.id) + '">' + opts + '</select>';
+  }
+  function renderTable() {
+    if (STATE.rows.length === 0) {
+      $('tableHost').innerHTML = '<div class="ui-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><p>Ingen meldinger' + ($('fStatus').value ? ' med denne statusen' : ' ennå') + '.</p></div>';
+      $('resultCount').textContent = '0 meldinger';
+      return;
+    }
+    $('resultCount').textContent = STATE.totalCount + ' melding' + (STATE.totalCount === 1 ? '' : 'er');
+    // Slett-kolonnen rendres KUN for admin (rader bygges etter at
+    // rollen er kjent, så isAdmin() er pålitelig her). RLS/grants
+    // (0046) er den reelle gatingen — knappen er bare UI.
+    var admin = isAdmin();
+    var html = '<table class="msgs"><thead><tr>' +
+      '<th>Mottatt</th><th>Navn</th><th>E-post</th><th>Melding</th><th>Status</th>' +
+      (admin ? '<th data-admin-only>Slett</th>' : '') +
+      '</tr></thead><tbody>';
+    STATE.rows.forEach(function (r) {
+      var when = r.created_at ? new Date(r.created_at).toLocaleString('no-NO') : '—';
+      var mail = r.email ? '<a href="mailto:' + escapeHtml(r.email) + '">' + escapeHtml(r.email) + '</a>' : '—';
+      html += '<tr class="' + (r.status === 'new' ? 'is-new' : '') + '">' +
+        '<td class="when" data-label="Mottatt">' + escapeHtml(when) + '</td>' +
+        '<td data-label="Navn">' + escapeHtml(r.name || '—') + '</td>' +
+        '<td class="email" data-label="E-post">' + mail + '</td>' +
+        '<td class="msg" data-label="Melding">' + escapeHtml(r.message || '') + '</td>' +
+        '<td data-label="Status">' + statusSelect(r) + '</td>' +
+        (admin ? '<td data-label="Slett" data-admin-only><button class="btn-del" data-del-id="' + escapeHtml(r.id) + '">Slett</button></td>' : '') +
+        '</tr>';
+    });
+    html += '</tbody></table>';
+    $('tableHost').innerHTML = html;
+  }
+  function renderPager() {
+    var totalPages = Math.max(1, Math.ceil(STATE.totalCount / STATE.pageSize));
+    $('pageInfo').textContent = 'Side ' + (STATE.page + 1) + ' av ' + totalPages;
+    $('prevBtn').disabled = STATE.page === 0;
+    $('nextBtn').disabled = STATE.page >= totalPages - 1;
+  }
+
+  // ----- Status-endring (alle ansatte) -----
+  document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (!el || !el.classList || !el.classList.contains('status-sel')) return;
+    var id = el.getAttribute('data-id');
+    var newStatus = el.value;
+    el.disabled = true;
+    sb.from('contact_messages').update({ status: newStatus }).eq('id', id)
+      .then(function (res) {
+        el.disabled = false;
+        if (res.error) { alert('Kunne ikke oppdatere status: ' + res.error.message); return; }
+        // Oppdater lokal state + radens utseende (uten full refetch).
+        var row = STATE.rows.filter(function (r) { return r.id === id; })[0];
+        if (row) row.status = newStatus;
+        var tr = el.closest('tr');
+        if (tr) tr.className = (newStatus === 'new' ? 'is-new' : '');
+      })
+      .catch(function (err) {
+        el.disabled = false;
+        console.error('Status-oppdatering feilet:', err);
+        alert('Kunne ikke oppdatere status. Sjekk nettverkstilkoblingen og prøv igjen.');
+      });
+  });
+
+  // ----- Sletting (kun admin — 0046-policy gjør den reelle gatingen) -----
+  document.addEventListener('click', function (e) {
+    var btn = e.target && e.target.closest ? e.target.closest('.btn-del') : null;
+    if (!btn) return;
+    if (!isAdmin()) { alert('Kun admin kan slette meldinger.'); return; }
+    var id = btn.getAttribute('data-del-id');
+    if (!id) return;
+    window.WestengenKlinikkAuth.confirmDestructive({
+      title: 'Slette denne meldingen?',
+      message: 'Meldingen fjernes permanent. Kan ikke angres.',
+      confirmLabel: 'Slett',
+      cancelLabel: 'Avbryt'
+    }).then(function (ok) {
+      if (!ok) return;
+      btn.disabled = true;
+      // .select('id') gir de slettede radene tilbake — slik skiller vi
+      // «slettet» fra «RLS/grant blokkerte stille» (f.eks. 0046 ikke applisert).
+      sb.from('contact_messages').delete().eq('id', id).select('id')
+        .then(function (res) {
+          if (res.error) {
+            btn.disabled = false;
+            alert('Kunne ikke slette: ' + res.error.message);
+            return;
+          }
+          if (!res.data || res.data.length === 0) {
+            btn.disabled = false;
+            alert('Ingen melding ble slettet. Sjekk at migrasjon 0046 er applisert og at du er innlogget som admin.');
+            return;
+          }
+          // Fjern fra lokal state + re-render uten reload.
+          STATE.rows = STATE.rows.filter(function (r) { return r.id !== id; });
+          STATE.totalCount = Math.max(0, STATE.totalCount - 1);
+          renderTable();
+          renderPager();
+          // Audit-logg (best-effort, samme mønster som CSV-eksporten).
+          if (window.WestengenKlinikkAuth && window.WestengenKlinikkAuth.auditLog) {
+            window.WestengenKlinikkAuth.auditLog(sb, STATE.user, {
+              action: 'delete_contact_message',
+              target_type: 'contact_messages',
+              target_id: id,
+              metadata: {}
+            });
+          }
+        })
+        .catch(function (err) {
+          btn.disabled = false;
+          console.error('Sletting feilet:', err);
+          alert('Kunne ikke slette meldingen. Sjekk nettverkstilkoblingen og prøv igjen.');
+        });
+    });
+  });
+
+  // ----- Filter wiring -----
+  $('fStatus').addEventListener('change', function () { STATE.page = 0; runQuery(); });
+  $('resetBtn').addEventListener('click', function () {
+    $('fStatus').value = ''; STATE.page = 0; runQuery();
+  });
+  $('prevBtn').addEventListener('click', function () {
+    if (STATE.page > 0) { STATE.page--; runQuery(); }
+  });
+  $('nextBtn').addEventListener('click', function () {
+    var totalPages = Math.ceil(STATE.totalCount / STATE.pageSize);
+    if (STATE.page < totalPages - 1) { STATE.page++; runQuery(); }
+  });
+
+  // ----- CSV-eksport (admin-only) -----
+  // Celler som starter med =+-@/tab/CR prefikses med apostrof så Excel/
+  // Sheets aldri tolker kunde-input som formel (CSV-formel-injection,
+  // revisjon 2026-06-12 D-MEDIUM).
+  function csvEscape(v) {
+    if (v == null) return '';
+    var s = (typeof v === 'object') ? JSON.stringify(v) : String(v);
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1 || s.indexOf('\r') !== -1) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+  $('csvBtn').addEventListener('click', function () {
+    if (!isAdmin()) { alert('Kun admin kan eksportere meldinger.'); return; }
+    var btn = this; btn.disabled = true; var orig = btn.textContent; btn.textContent = 'Bygger CSV…';
+    buildQuery(false).range(0, 9999).then(function (res) {
+      btn.disabled = false; btn.textContent = orig;
+      if (res.error) { alert('CSV-eksport feilet: ' + res.error.message); return; }
+      var rows = res.data || [];
+      if (!rows.length) { alert('Ingen meldinger å eksportere.'); return; }
+      if (rows.length === 10000) {
+        console.warn('CSV-eksport: 10 000-grensen ble truffet. Filtrér for full historikk.');
+      }
+      var cols = ['navn', 'epost', 'melding', 'status', 'mottatt'];
+      var lines = [cols.join(',')];
+      rows.forEach(function (r) {
+        lines.push([
+          csvEscape(r.name),
+          csvEscape(r.email),
+          csvEscape(r.message),
+          csvEscape(STATUS_LABEL[r.status] || r.status),
+          csvEscape(r.created_at)
+        ].join(','));
+      });
+      // UTF-8 BOM + CRLF (Excel-kompatibel, samme som booking-eksporten).
+      var csv = '﻿' + lines.join('\r\n');
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'meldinger_eksport_' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+
+      // Audit-logg (best-effort, samme mønster som booking-CSV-eksporten).
+      if (window.WestengenKlinikkAuth && window.WestengenKlinikkAuth.auditLog) {
+        window.WestengenKlinikkAuth.auditLog(sb, STATE.user, {
+          action: 'export_contact_messages_csv',
+          target_type: 'contact_messages',
+          target_id: null,
+          metadata: { row_count: rows.length, status_filter: $('fStatus').value || 'alle' }
+        });
+      }
+    })
+    .catch(function (err) {
+      btn.disabled = false; btn.textContent = orig;
+      console.error('CSV-eksport feilet:', err);
+      alert('CSV-eksport feilet. Sjekk nettverkstilkoblingen og prøv igjen.');
+    });
+  });
+
+})();
+</script>
+
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

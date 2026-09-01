@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow" />
+<title>Generér PWA-ikoner · Westengen Klinikk</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto;
+    padding: 20px; color: #171A21; }
+  h1 { font-size: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; margin-top: 20px; }
+  .icon { text-align: center; }
+  .icon canvas { border: 1px solid #ddd; display: block; margin: 0 auto 8px; max-width: 100%; }
+  .icon button { padding: 8px 14px; cursor: pointer; }
+  pre { background: #f4f1eb; padding: 12px; font-size: 12px; overflow-x: auto; }
+</style>
+</head>
+<body>
+<h1>Generér PWA-ikoner</h1>
+<p>Denne fila tegner ikonene via Canvas og lar deg laste ned PNG-ene som
+manifest.json forventer. Last ned alle fem og legg dem i denne mappa.</p>
+
+<div class="grid">
+  <div class="icon">
+    <canvas id="c192" width="192" height="192"></canvas>
+    <button data-canvas="c192" data-name="icon-192.png">Last ned icon-192.png</button>
+  </div>
+  <div class="icon">
+    <canvas id="c512" width="512" height="512"></canvas>
+    <button data-canvas="c512" data-name="icon-512.png">Last ned icon-512.png</button>
+  </div>
+  <div class="icon">
+    <canvas id="c192m" width="192" height="192"></canvas>
+    <button data-canvas="c192m" data-name="icon-192-maskable.png">Last ned icon-192-maskable.png</button>
+  </div>
+  <div class="icon">
+    <canvas id="c512m" width="512" height="512"></canvas>
+    <button data-canvas="c512m" data-name="icon-512-maskable.png">Last ned icon-512-maskable.png</button>
+  </div>
+  <div class="icon">
+    <canvas id="cApple" width="180" height="180"></canvas>
+    <button data-canvas="cApple" data-name="apple-touch-icon.png">Last ned apple-touch-icon.png</button>
+  </div>
+</div>
+
+<h2 style="margin-top:36px;">Hvorfor en HTML-fil?</h2>
+<p>Vi har ingen PNG-encoder-pakke installert (sharp/jimp er ikke i prosjektet),
+og PNG-binary-encoding er for tungvint å skrive for hånd. Canvas i nettleseren
+gjør det rent og krever ingenting ekstra. Når Erik har en faktisk logo-fil
+i Figma/Illustrator, kan disse erstattes manuelt.</p>
+
+<script>
+function drawIcon(canvas, opts) {
+  opts = opts || {};
+  var ctx = canvas.getContext('2d');
+  var s = canvas.width;
+  var safe = opts.maskable ? 0.10 : 0.00; // 10% safe-area padding for maskable
+  var inset = s * safe;
+
+  // Bakgrunn
+  ctx.fillStyle = '#171A21';
+  ctx.fillRect(0, 0, s, s);
+
+  // Grønn aksent-strek under teksten
+  ctx.fillStyle = '#464C8C';
+  var lineY = s * 0.75;
+  var lineW = s * 0.78;
+  ctx.fillRect((s - lineW) / 2, lineY, lineW, Math.max(2, s * 0.012));
+
+  // TA-monogram
+  var fontSize = (s - inset * 2) * 0.55;
+  ctx.font = '400 ' + fontSize + 'px Georgia, "Times New Roman", serif';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+
+  // Plassér T og A side-ved-side
+  var charSpacing = fontSize * 0.5;
+  var centerY = s * 0.5;
+
+  ctx.fillStyle = '#F7F8FA';
+  ctx.fillText('T', s * 0.5 - charSpacing, centerY);
+
+  ctx.fillStyle = '#7A80B8';
+  ctx.font = 'italic 400 ' + fontSize + 'px Georgia, "Times New Roman", serif';
+  ctx.fillText('A', s * 0.5 + charSpacing, centerY);
+}
+
+drawIcon(document.getElementById('c192'), { maskable: false });
+drawIcon(document.getElementById('c512'), { maskable: false });
+drawIcon(document.getElementById('c192m'), { maskable: true });
+drawIcon(document.getElementById('c512m'), { maskable: true });
+drawIcon(document.getElementById('cApple'), { maskable: false });
+
+document.querySelectorAll('button').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var canvas = document.getElementById(btn.dataset.canvas);
+    canvas.toBlob(function (blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = btn.dataset.name;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }, 'image/png');
+  });
+});
+</script>
+<script src="../shared/demo-mode.js" defer></script>
+</body>
+</html>

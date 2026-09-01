@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#171A21" />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Westengen Klinikk">
+
+<!-- CSP: 'unsafe-inline' for script er en bevisst avveining (alle våre
+     admin-sider har store inline <script>-blokker). Vi har manuelt
+     verifisert at all brukerdata escapes med escapeHtml() før
+     innsetting. Alternativet (ekstrahere alt til .js-filer) er en
+     større refaktor som ikke er prioritert nå. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+
+<title>Innstillinger · Westengen Klinikk</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8;
+    --green-tint: #E9EAF4;
+    --paper: #F7F8FA; --paper-2: #EDEFF3;
+    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
+    --rule: #171a2622; --danger: #c0392b;
+    --warn: #C97A2A; --warn-tint: #EDEFF3;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bot: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--paper); color: var(--ink);
+    font-size: 15px; line-height: 1.5;
+  }
+  button { font-family: inherit; }
+
+  /* ===== Topbar (samme mønster som kalender.html) ===== */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--ink); color: var(--paper);
+    border-bottom: 3px solid var(--green);
+    padding: calc(var(--safe-top) + 10px) 14px 10px;
+  }
+  .topbar-inner {
+    display: flex; align-items: center; gap: 10px;
+    max-width: 720px; margin: 0 auto;
+  }
+  .brand {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 17px; letter-spacing: -0.01em;
+    flex: 1; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .brand em { font-style: italic; color: var(--green-soft);
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .who-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--green-soft); color: #fff;
+    padding: 4px 8px; white-space: nowrap;
+  }
+  .who-chip.admin { background: var(--green); }
+  .topbar a, .topbar button {
+    color: var(--paper); background: transparent;
+    border: 1px solid rgba(247, 248, 250,.22);
+    padding: 6px 10px; font-size: 12px;
+    cursor: pointer; text-decoration: none;
+  }
+  .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
+
+  /* ===== Boot + login (samme som kalender) ===== */
+  .boot {
+    min-height: calc(100vh - 60px);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .boot .spinner {
+    width: 26px; height: 26px; margin-right: 12px;
+    border: 2px solid var(--rule); border-top-color: var(--green);
+    border-radius: 50%; animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .auth-wrap {
+    min-height: calc(100vh - 60px);
+    display: flex; align-items: center; justify-content: center; padding: 24px 16px;
+  }
+  .login {
+    width: 100%; max-width: 380px; background: #fff;
+    border: 1px solid var(--rule); padding: 28px 22px;
+  }
+  .login h1 { font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 26px; letter-spacing: -0.02em; margin: 0 0 6px; }
+  .login p { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
+  .login label {
+    display: block; font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-2); margin-bottom: 6px;
+  }
+  .login input {
+    width: 100%; font-family: inherit; font-size: 16px;
+    padding: 12px 14px; border: 1px solid var(--rule);
+    background: var(--paper); margin-bottom: 14px;
+  }
+  .login input:focus { outline: 2px solid var(--green); outline-offset: -2px; }
+  .login .err {
+    background: #fdeaea; border-left: 3px solid var(--danger);
+    padding: 10px 14px; font-size: 13px; color: #7d2418; margin-bottom: 14px;
+  }
+  .btn-primary {
+    background: var(--green); color: #fff; border: 0;
+    padding: 12px 18px; font-size: 14px; font-weight: 500;
+    cursor: pointer; letter-spacing: 0.02em;
+  }
+  .btn-primary:hover { background: var(--green-deep); }
+  .btn-primary[disabled] { opacity: .5; cursor: progress; }
+
+  /* ===== App shell ===== */
+  .app {
+    max-width: 720px; margin: 0 auto;
+    padding: 14px 14px calc(72px + var(--safe-bot));
+  }
+  .app h1 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 26px; letter-spacing: -0.01em; margin: 8px 0 18px;
+  }
+
+  /* ===== Section card ===== */
+  .section {
+    background: #fff; border: 1px solid var(--rule);
+    margin-bottom: 14px;
+  }
+  .section-head {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+    padding: 14px 16px 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .row {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .row:last-child { border-bottom: 0; }
+  .row-label {
+    flex: 0 0 110px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .row-val {
+    flex: 1; font-size: 14px; color: var(--ink); min-width: 0;
+    word-break: break-word;
+  }
+  .pill {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 3px 10px; font-weight: 500;
+  }
+  .pill.admin { background: var(--green-tint); color: var(--green-deep); }
+  .pill.therapist { background: var(--paper-2); color: var(--ink-2); }
+
+  /* ===== Action buttons ===== */
+  .action-card {
+    background: #fff; border: 1px solid var(--rule);
+    padding: 16px; margin-bottom: 14px;
+  }
+  .action-card h3 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 16px; margin: 0 0 4px;
+  }
+  .action-card p {
+    color: var(--muted); font-size: 13px; margin: 0 0 12px;
+  }
+  .action-card .err {
+    background: #fdeaea; border-left: 3px solid var(--danger);
+    padding: 10px 14px; font-size: 13px; color: #7d2418; margin-bottom: 10px;
+  }
+  .action-card .ok {
+    background: var(--green-tint); border-left: 3px solid var(--green);
+    padding: 10px 14px; font-size: 13px; color: var(--green-deep); margin-bottom: 10px;
+  }
+  .btn-ghost {
+    background: transparent; color: var(--ink-2);
+    border: 1px solid var(--rule);
+    padding: 10px 16px; font-size: 14px; cursor: pointer;
+  }
+  .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+  .btn-danger {
+    background: var(--danger); color: #fff; border: 0;
+    padding: 10px 16px; font-size: 14px; font-weight: 500;
+    cursor: pointer;
+  }
+  .btn-danger:hover { background: #a3271b; }
+
+  /* ===== Bottom nav (samme som kalender.html) ===== */
+  .bottom-nav {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: #fff; border-top: 1px solid var(--rule);
+    padding-bottom: var(--safe-bot);
+    display: flex;
+    z-index: 41;
+  }
+  .bn-btn, a.bn-btn {
+    flex: 1;
+    background: transparent; border: 0; padding: 10px 4px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer; text-decoration: none;
+    text-align: center; line-height: 1; position: relative;
+  }
+  .bn-btn .bn-ico {
+    display: block; font-size: 18px; line-height: 1;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 4px; color: var(--ink-2);
+  }
+  .bn-btn.active { color: var(--green); }
+  .bn-btn.active .bn-ico { color: var(--green); }
+  .bn-btn[disabled], .bn-btn.disabled {
+    opacity: 0.5; cursor: not-allowed;
+  }
+  .bn-btn .bn-soon {
+    position: absolute; top: 4px; right: 14%;
+    background: var(--warn-tint); color: var(--warn);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px; letter-spacing: 0.08em;
+    padding: 2px 4px; text-transform: uppercase;
+    line-height: 1;
+  }
+  /* Issue V — skjul sidetittel-em i admin-headeren på smal mobil.
+     "Westengen Klinikk INNSTILLINGER" fikk ikke plass og ble avkuttet;
+     bottom-nav viser uansett hvilken side man er på. */
+  @media (max-width: 600px) { .brand em { display: none; } }
+
+  /* ===== DEL 4A — admin-polish (kun presentasjon, ingen funksjonsendring) =====
+     8-punkts bottom-nav scroller horisontalt på smale skjermer (<=560px) i stedet
+     for å klemmes; tydeligere fokus-tilstand for tastatur-navigasjon. */
+  .bottom-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 560px) {
+    .bottom-nav .bn-btn { flex: 0 0 auto; min-width: 64px; }
+  }
+  .btn:focus-visible, .bn-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">Westengen Klinikk <em>innstillinger</em></div>
+    <span id="whoChip" class="who-chip" style="display:none;"></span>
+    <div id="topActions"></div>
+  </div>
+</div>
+
+<!-- Boot -->
+<div id="bootView">
+  <div class="boot"><div class="spinner"></div> Sjekker session…</div>
+</div>
+
+<!-- Login -->
+<div id="loginView" class="auth-wrap" style="display:none;">
+  <div class="login">
+    <h1>Logg inn</h1>
+    <p>Innstillinger for Westengen Klinikk.</p>
+    <div class="err" id="loginErr" style="display:none;"></div>
+    <form id="loginForm">
+      <label for="email">E-post</label>
+      <input id="email" type="email" autocomplete="username" required />
+      <label for="password">Passord</label>
+      <input id="password" type="password" autocomplete="current-password" required />
+      <button class="btn-primary" type="submit" id="loginSubmit">Logg inn →</button>
+    </form>
+  </div>
+</div>
+
+<!-- Authenticated -->
+<div id="appView" class="app" style="display:none;">
+  <h1 class="adm-accent">Innstillinger</h1>
+
+  <div class="section">
+    <div class="section-head">Min konto</div>
+    <div class="row">
+      <div class="row-label">Navn</div>
+      <div class="row-val" id="acctName">—</div>
+    </div>
+    <div class="row">
+      <div class="row-label">E-post</div>
+      <div class="row-val" id="acctEmail">—</div>
+    </div>
+    <div class="row">
+      <div class="row-label">Rolle</div>
+      <div class="row-val"><span id="acctRolePill" class="pill">—</span></div>
+    </div>
+  </div>
+
+  <div class="action-card">
+    <h3>Endre passord</h3>
+    <p>Vi sender en lenke til e-posten din. Klikk på lenken for å sette nytt passord.</p>
+    <div class="ok"  id="resetOk"  style="display:none;"></div>
+    <div class="err" id="resetErr" style="display:none;"></div>
+    <button class="btn-ghost" id="resetPasswordBtn" type="button">Send reset-lenke</button>
+  </div>
+
+  <div class="action-card">
+    <h3>Stengte tider</h3>
+    <p>Blokker lunsj, ferie, sykmelding eller kurs så slots blir utilgjengelige for booking.</p>
+    <a class="btn-ghost" href="stengte-tider.html" style="display:inline-block; text-decoration:none;">Administrer stengte tider →</a>
+  </div>
+
+  <!-- Admin-only -->
+  <div class="action-card" id="auditLogCard" style="display:none;">
+    <h3>Audit-logg</h3>
+    <p>Append-only logg over journal- og admin-handlinger. Bruk til Datatilsynet-rapportering.</p>
+    <a class="btn-ghost" href="audit-logg.html" style="display:inline-block; text-decoration:none;">Åpne audit-logg →</a>
+  </div>
+
+  <div class="action-card">
+    <h3>Logg ut</h3>
+    <p>Lukk session-en på denne enheten.</p>
+    <button class="btn-danger" id="logoutBtn" type="button">Logg ut</button>
+  </div>
+</div>
+
+<!-- Bottom nav -->
+<nav id="bottomNav" class="bottom-nav" style="display:none;">
+  <a class="bn-btn" href="kalender.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>Kalender</a>
+  <a class="bn-btn" href="kunder.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-1a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Kunder</a>
+  <a class="bn-btn" href="booking-admin.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span>Oversikt</a>
+  <a class="bn-btn" data-admin-only href="tjenester.html" style="display:none;">
+    <span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></span>Tjenester
+  </a>
+  <a class="bn-btn" data-admin-only href="behandlere.html" style="display:none;"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Behandlere</a>
+  <a class="bn-btn" href="dokumenter.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></span>Dokumenter</a>
+  <a class="bn-btn" href="meldinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>Meldinger</a>
+  <button class="bn-btn active" aria-current="page"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></span>Innstillinger</button>
+</nav>
+
+<script src="shared/booking-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="shared/auth.js"></script>
+<script src="shared/admin-nav.js" defer></script>
+<script>
+(function () {
+  'use strict';
+
+  // AUTH-GATEWAY: redirect til ansatt.html hvis ingen session-token.
+  if (!window.WestengenKlinikkAuth || !window.WestengenKlinikkAuth.requireAuth()) return;
+
+  // ============================================================
+  // XSS-merknad: alle innsettinger i DOM bruker .textContent
+  // (denne siden bygger ikke HTML fra brukerdata).
+  // ============================================================
+
+  var CFG = window.WestengenKlinikkBackend || {};
+  if (!CFG.supabaseUrl || !CFG.supabaseAnonKey) {
+    document.getElementById('bootView').innerHTML =
+      '<div class="auth-wrap"><div class="login"><h1>Konfigurasjon mangler</h1>' +
+      '<p>Sjekk shared/booking-config.js.</p></div></div>';
+    return;
+  }
+  var sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+  });
+
+  var STATE = { user: null };
+
+  function $(id) { return document.getElementById(id); }
+  function show(view) {
+    ['bootView','loginView','appView'].forEach(function (id) {
+      $(id).style.display = id === view ? '' : 'none';
+    });
+    $('bottomNav').style.display = (view === 'appView') ? '' : 'none';
+  }
+  function setWhoChip(user) {
+    var c = $('whoChip');
+    if (!user) { c.style.display = 'none'; return; }
+    c.style.display = '';
+    c.className = 'who-chip' + (user.role === 'admin' ? ' admin' : '');
+    c.textContent = user.role === 'admin' ? 'Admin' : (user.staffName || 'Terapeut');
+  }
+  function setTopActions(html) { $('topActions').innerHTML = html; }
+
+  function parseSessionUser(session) {
+    if (!session || !session.user) return null;
+    var meta = session.user.app_metadata || {};
+    var role = meta.role;
+    if (role !== 'admin' && role !== 'therapist') return { error: 'missing_role' };
+    if (role === 'therapist' && (!meta.staff_id || !meta.staff_name)) return { error: 'missing_staff' };
+    return {
+      userId: session.user.id,
+      email: session.user.email,
+      role: role,
+      staffId: meta.staff_id || null,
+      staffName: meta.staff_name || null
+    };
+  }
+  function logoutAndShow(message) {
+    // Auth-gateway: alltid redirect til ansatt-portalen ved logout.
+    if (window.WestengenKlinikkAuth && window.WestengenKlinikkAuth.logoutAndRedirect) {
+      window.WestengenKlinikkAuth.logoutAndRedirect(sb);
+    } else {
+      sb.auth.signOut().then(function () { window.location.replace('ansatt.html'); });
+    }
+  }
+
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = $('email').value.trim();
+    var password = $('password').value;
+    var btn = $('loginSubmit');
+    var err = $('loginErr');
+    err.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Logger inn…';
+    sb.auth.signInWithPassword({ email: email, password: password })
+      .then(function (res) {
+        btn.disabled = false; btn.textContent = 'Logg inn →';
+        if (res.error) { err.style.display = ''; err.textContent = res.error.message || 'Feil e-post eller passord.'; }
+      })
+      .catch(function (e2) {
+        btn.disabled = false; btn.textContent = 'Logg inn →';
+        err.style.display = ''; err.textContent = e2.message || 'Innlogging feilet.';
+      });
+  });
+
+  function handleSession(session) {
+    if (!session) {
+      STATE.user = null;
+      window.location.replace('ansatt.html');
+      return;
+    }
+    var parsed = parseSessionUser(session);
+    if (!parsed || parsed.error) return logoutAndShow('Tilgang nektet.');
+    STATE.user = parsed;
+    window.WestengenKlinikkAuth.applyRoleGates(parsed.role);
+    renderAuthorized(parsed);
+  }
+
+  function renderAuthorized(user) {
+    setWhoChip(user);
+    var adminLink = user.role === 'admin'
+      ? '<a href="booking-admin.html">Admin-panel</a> '
+      : '';
+    setTopActions(adminLink + '<a href="kalender.html">Kalender →</a>');
+
+    $('acctName').textContent  = user.staffName || (user.role === 'admin' ? 'Admin' : '—');
+    $('acctEmail').textContent = user.email;
+    var pill = $('acctRolePill');
+    pill.textContent = user.role === 'admin' ? 'Admin' : 'Terapeut';
+    pill.className = 'pill ' + user.role;
+
+    // Admin-only seksjoner
+    var auditCard = $('auditLogCard');
+    if (auditCard) auditCard.style.display = (user.role === 'admin') ? '' : 'none';
+
+    show('appView');
+
+    // Session timeout — last etter render slik at brukeren ikke
+    // får modalen direkte ved sideoppdatering.
+    if (window.WestengenKlinikkAuth) window.WestengenKlinikkAuth.installSessionTimeout(sb);
+  }
+
+  sb.auth.getSession().then(function (res) { handleSession(res.data && res.data.session); });
+  sb.auth.onAuthStateChange(function (event, session) {
+    if (event === 'TOKEN_REFRESHED' && STATE.user && session && session.user.id === STATE.user.userId) return;
+    handleSession(session);
+  });
+
+  // ----- Reset password -----
+  $('resetPasswordBtn').addEventListener('click', function () {
+    if (!STATE.user) return;
+    var btn = this;
+    var ok = $('resetOk'); var err = $('resetErr');
+    ok.style.display = 'none'; err.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Sender…';
+    sb.auth.resetPasswordForEmail(STATE.user.email, {
+      redirectTo: window.location.origin + '/set-password.html'
+    }).then(function (res) {
+      btn.disabled = false; btn.textContent = 'Send reset-lenke';
+      if (res.error) {
+        err.style.display = '';
+        err.textContent = 'Kunne ikke sende: ' + res.error.message;
+        return;
+      }
+      ok.style.display = '';
+      ok.textContent = 'Reset-lenke sendt til ' + STATE.user.email + '. Sjekk innboksen (og spam).';
+    }).catch(function (e2) {
+      btn.disabled = false; btn.textContent = 'Send reset-lenke';
+      err.style.display = '';
+      err.textContent = 'Kunne ikke sende: ' + (e2.message || e2);
+    });
+  });
+
+  // ----- Logout -----
+  $('logoutBtn').addEventListener('click', function () {
+    logoutAndShow();
+  });
+})();
+</script>
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

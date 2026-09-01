@@ -1,0 +1,28 @@
+# ============================================================
+# Booking-demo — .vercelignore
+# ------------------------------------------------------------
+# Filer/mapper som IKKE skal deployes.
+#
+# Frontend refererer kun til:
+#   i18n/  icons/  shared/  manifest.json  *.html i rot
+# Legger du til nye runtime-avhengigheter, sjekk denne lista.
+# ============================================================
+
+# KRITISK: migrasjonsfilene beskriver hele databaseskjemaet,
+# RLS-policyene, rate-limit-grensene og RPC-signaturene. De skal
+# ikke være offentlig lesbare over HTTP. Edge-funksjonene deployes
+# til Supabase, ikke hit.
+supabase/
+
+# Oppsettsdokumentasjon. Beskriver backend-arkitektur og
+# nøkkelrotasjon — ingen grunn til at det ligger på et
+# offentlig domene.
+DEMO_SETUP.md
+RESEND_SETUP.md
+
+# Utviklerverktøy
+.claude/
+
+# Diverse
+.gitignore
+.vercelignore

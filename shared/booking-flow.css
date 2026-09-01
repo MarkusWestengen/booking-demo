@@ -1,0 +1,711 @@
+/* ============================================================
+   Westengen Klinikk — Booking flow styles
+   Scoped under .tabf-host. Inherits paper/green tokens.
+   ============================================================ */
+
+.tabf-host {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* ---------- Stepper ---------- */
+.tabf-stepper {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--rule);
+  position: sticky; top: 0; z-index: 2;
+}
+.tabf-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 8px;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  cursor: default;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: background .15s ease, color .15s ease;
+}
+.tabf-step:last-child { border-right: 0; }
+.tabf-step.done {
+  cursor: pointer;
+  color: var(--green);
+}
+.tabf-step.done:hover { background: rgba(70, 76, 140,.06); }
+.tabf-step.current { color: var(--ink); background: var(--paper); }
+.tabf-step-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  font-family: 'Fraunces', serif;
+  font-size: 13px;
+  font-weight: 500;
+}
+.tabf-step.done .tabf-step-num {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.tabf-step.current .tabf-step-num {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.tabf-step-label {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ---------- Body ---------- */
+.tabf-body { padding: 32px 40px 40px; }
+.tabf-step-wrap { max-width: 720px; margin: 0 auto; }
+
+.tabf-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 12px;
+}
+.tabf-h {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+  color: var(--ink);
+}
+.tabf-sub {
+  margin: 0 0 28px;
+  color: var(--ink-2);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/* ---------- Step 1: Staff ---------- */
+.tabf-staff-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.tabf-staff-card {
+  text-align: left;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 22px;
+  cursor: pointer;
+  font-family: inherit;
+  /* Eksplisitt color: kortet er en <button>, og iOS Safari rendrer
+     ufarget knappetekst i system-tinten (blå). Uten dette arvet
+     <h4>-navnet ("Erik Westengen" / "Eriks terapeuter") den blåfargen. */
+  color: var(--ink);
+  display: flex; flex-direction: column;
+  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.tabf-staff-card:hover {
+  border-color: var(--green);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -8px rgba(0,0,0,.12);
+}
+.tabf-staff-card.selected { border-color: var(--green); }
+/* B3 — venteliste-CTA under behandler-kortene: lang, tynn, full bredde. */
+.tabf-waitlist-cta {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px 18px;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  color: var(--ink-2);
+  font-size: 14px; line-height: 1.4;
+  text-decoration: none;
+  transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+.tabf-waitlist-cta:hover {
+  border-color: var(--green-soft);
+  background: var(--green-tint);
+  color: var(--ink);
+}
+.tabf-waitlist-arrow { color: var(--green); flex: none; font-weight: 500; }
+.tabf-staff-head {
+  display: flex; gap: 14px; align-items: center;
+  margin-bottom: 12px;
+}
+.tabf-avatar {
+  width: 48px; height: 48px;
+  background: var(--green);
+  color: #fff;
+  display: grid; place-items: center;
+  font-family: 'Fraunces', serif;
+  font-size: 17px; font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.tabf-staff-card h4 {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+}
+.tabf-staff-role {
+  font-size: 12px; color: var(--muted);
+  margin-top: 2px;
+}
+.tabf-staff-bio {
+  margin: 0 0 18px;
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.55;
+  flex: 1;
+}
+.tabf-staff-foot {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.tabf-staff-from {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted);
+}
+.tabf-staff-from strong { color: var(--ink); font-weight: 600; font-size: 14px; }
+.tabf-staff-cta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--green);
+}
+
+/* ---------- Step 2: Service ---------- */
+.tabf-service-list {
+  display: grid;
+  gap: 12px;
+}
+.tabf-service-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+  text-align: left;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 20px 24px;
+  cursor: pointer;
+  font-family: inherit;
+  /* Se .tabf-staff-card — <button>-tekst defaulter til iOS-blå. */
+  color: var(--ink);
+  transition: border-color .15s ease, transform .15s ease;
+}
+.tabf-service-card:hover {
+  border-color: var(--green);
+  transform: translateY(-1px);
+}
+.tabf-service-card h4 {
+  margin: 0 0 4px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+}
+.tabf-service-card p {
+  margin: 0 0 8px;
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.tabf-service-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted);
+}
+.tabf-service-price { text-align: right; }
+.tabf-price-num {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.tabf-price-cta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--green);
+  margin-top: 4px;
+}
+
+/* ---------- Step 3: Calendar ---------- */
+.tabf-cal {
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  margin-bottom: 16px;
+}
+.tabf-cal-head {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--rule);
+}
+.tabf-cal-head > div {
+  padding: 10px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  border-right: 1px solid var(--rule);
+}
+.tabf-cal-head > div:last-child { border-right: 0; }
+.tabf-cal-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-top: 1px solid var(--rule);
+}
+.tabf-cal-row:first-child { border-top: 0; }
+.tabf-cal-cell {
+  border: 0;
+  background: var(--paper);
+  border-right: 1px solid var(--rule);
+  padding: 14px 8px;
+  text-align: center;
+  font-family: inherit;
+  /* Eksplisitt color: de åpne dag-cellene er <button>, og iOS Safari
+     rendrer ufarget knappetekst i system-tinten (blå). Uten dette
+     arvet dagtallet (.tabf-cal-day) blåfargen. .selected overstyrer
+     til hvit; .full dempes via opacity. */
+  color: var(--ink);
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  min-height: 88px;
+  transition: background .15s ease;
+}
+.tabf-cal-cell:last-child { border-right: 0; }
+.tabf-cal-cell.empty { cursor: default; background: var(--paper-2); pointer-events: none; }
+.tabf-cal-cell.closed { cursor: not-allowed; pointer-events: none; background: repeating-linear-gradient(45deg, var(--paper) 0 6px, var(--paper-2) 6px 12px); }
+.tabf-cal-cell.full { cursor: not-allowed; pointer-events: none; opacity: 0.5; }
+.tabf-cal-cell.open:hover { background: rgba(70, 76, 140,0.08); }
+.tabf-cal-cell.selected {
+  background: var(--green);
+  color: #fff;
+}
+.tabf-cal-day {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1;
+}
+.tabf-cal-mon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.tabf-cal-cell.selected .tabf-cal-mon { color: var(--green-tint); }
+.tabf-cal-status {
+  font-size: 11px;
+  color: var(--green);
+  margin-top: 4px;
+}
+.tabf-cal-cell.full .tabf-cal-status { color: var(--muted); }
+.tabf-cal-cell.closed .tabf-cal-status { color: var(--muted); }
+.tabf-cal-cell.selected .tabf-cal-status { color: #fff; }
+
+.tabf-cal-legend {
+  display: flex; gap: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+.tabf-cal-legend .sw {
+  display: inline-block;
+  width: 12px; height: 12px;
+  margin-right: 6px;
+  vertical-align: middle;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+}
+.tabf-cal-legend .sw.full { opacity: 0.5; }
+.tabf-cal-legend .sw.closed { background: repeating-linear-gradient(45deg, var(--paper) 0 3px, var(--paper-2) 3px 6px); }
+
+/* ---------- Step 4: Time ---------- */
+.tabf-time-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.tabf-time-slot {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 14px 8px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  transition: all .15s ease;
+}
+.tabf-time-slot:hover {
+  border-color: var(--green);
+  background: rgba(70, 76, 140,0.06);
+}
+.tabf-time-slot.unavailable {
+  cursor: not-allowed;
+  color: var(--muted);
+  background: var(--paper-2);
+  text-decoration: line-through;
+}
+.tabf-time-slot.unavailable:hover {
+  border-color: var(--rule);
+  background: var(--paper-2);
+}
+.tabf-time-slot.selected {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.tabf-empty {
+  background: var(--paper-2);
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+/* Venteliste-lenke i "ingen ledige tider"-tilstanden (kun kundeflyt). */
+.tabf-waitlist-link {
+  margin-top: 12px;
+}
+.tabf-waitlist-link a {
+  color: var(--green);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* ---------- Step 5: Form ---------- */
+.tabf-summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 28px;
+  background: var(--paper-2);
+  padding: 20px 24px;
+  border: 1px solid var(--rule);
+  margin-bottom: 28px;
+}
+.tabf-summary > div { display: flex; flex-direction: column; gap: 2px; }
+.tabf-summary dt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+.tabf-summary dd { margin: 0; font-size: 14px; color: var(--ink); font-weight: 500; }
+
+.tabf-form { display: flex; flex-direction: column; gap: 16px; }
+.tabf-field { display: flex; flex-direction: column; gap: 6px; }
+.tabf-field label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-2);
+}
+.tabf-field input,
+.tabf-field textarea {
+  font-family: inherit;
+  font-size: 15px;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 0;
+}
+.tabf-field input:focus,
+.tabf-field textarea:focus {
+  outline: 2px solid var(--green);
+  outline-offset: -2px;
+  border-color: var(--green);
+}
+.tabf-form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+/* Samtykke-rader: felles boks-grunnstil så nyhetsbrev (valgfri) og
+   vilkår/journal (påkrevd) ser ut som søsken. Kun aksenten skiller:
+   nøytral kant på nyhetsbrev, grønn fremheving på det juridiske. */
+.tabf-consent {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 12px;
+  align-items: start;
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.5;
+  cursor: pointer;
+  background: var(--paper-2, #EDEFF3);
+  border-left: 3px solid var(--rule, #171a2622);
+  padding: 10px 12px;
+  margin-top: 4px;
+}
+.tabf-consent input { margin-top: 2px; }
+.tabf-consent-journal {
+  border-left-color: var(--green, #464C8C);
+}
+.tabf-consent-journal a { color: var(--green, #464C8C); }
+/* Avbestillingsvarsel rett over den obligatoriske avkrysningen. */
+.tabf-terms-notice {
+  font-size: 13px;
+  color: var(--ink-1, #1d211e);
+  line-height: 1.5;
+  font-weight: 600;
+  margin-top: 8px;
+}
+/* Diskret personvern-lenke under avkrysningen. Ren lenke, ikke samtykke. */
+.tabf-privacy-link {
+  font-size: 12px;
+  margin-top: 6px;
+}
+.tabf-privacy-link a { color: var(--ink-2); text-decoration: underline; }
+.tabf-error {
+  background: #fdeaea;
+  border-left: 3px solid #c0392b;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #7d2418;
+}
+
+/* ---------- Actions ---------- */
+.tabf-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+.tabf-actions-confirm { justify-content: center; flex-wrap: wrap; }
+.tabf-btn-primary,
+.tabf-btn-ghost {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 14px 24px;
+  cursor: pointer;
+  border-radius: 0;
+  border: 1px solid;
+  transition: all .15s ease;
+  display: inline-flex; align-items: center; gap: 8px;
+  text-decoration: none;
+}
+.tabf-btn-primary {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.tabf-btn-primary:hover {
+  background: var(--green-deep);
+  border-color: var(--green-deep);
+}
+/* STEG 2 — spinner i submit-knappen mens bookingen sendes.
+   .is-loading settes på knappen i booking-flow.js ved submit. */
+@keyframes tabf-spin { to { transform: rotate(360deg); } }
+.tabf-btn-primary.is-loading::before {
+  content: "";
+  display: inline-block;
+  width: 14px; height: 14px;
+  margin-right: 2px;
+  border: 2px solid rgba(255,255,255,0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: tabf-spin 0.7s linear infinite;
+  vertical-align: -2px;
+}
+.tabf-btn-ghost {
+  background: transparent;
+  border-color: var(--rule);
+  color: var(--ink-2);
+}
+.tabf-btn-ghost:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+  background: var(--paper-2);
+}
+
+/* ---------- Step 6: Confirm ---------- */
+.tabf-confirm { text-align: center; }
+.tabf-confirm-icon {
+  width: 72px; height: 72px;
+  margin: 0 auto 20px;
+  color: var(--green);
+}
+.tabf-confirm-icon svg { width: 100%; height: 100%; }
+.tabf-confirm-h { text-align: center; }
+.tabf-confirm-sum {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 28px;
+  background: var(--paper-2);
+  padding: 24px 28px;
+  border: 1px solid var(--rule);
+  margin: 28px 0 20px;
+  text-align: left;
+}
+.tabf-confirm-sum > div { display: flex; flex-direction: column; gap: 2px; }
+.tabf-confirm-sum dt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+.tabf-confirm-sum dd {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 500;
+}
+.tabf-confirm-note {
+  background: var(--green-tint);
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--green-deep);
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+/* Token-basert avbestillings-lenke på bekreftelses-skjermen (0024). */
+.tabf-cancel-box {
+  background: var(--green-tint);
+  border: 1px solid var(--green-soft, #7A80B8);
+  padding: 16px 18px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+.tabf-cancel-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  font-weight: 500; color: var(--green-deep);
+  margin-bottom: 8px;
+}
+.tabf-cancel-lead {
+  margin: 0 0 12px;
+  font-size: 13px; color: var(--green-deep);
+}
+.tabf-cancel-url-row {
+  display: flex; gap: 8px; align-items: stretch;
+}
+.tabf-cancel-url {
+  flex: 1; min-width: 0;
+  background: #fff;
+  border: 1px solid var(--rule);
+  padding: 10px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--green);
+  word-break: break-all;
+  display: flex; align-items: center;
+  text-decoration: none;
+}
+.tabf-btn-copy {
+  flex-shrink: 0;
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  padding: 10px 16px;
+  background: var(--green); color: #fff;
+  border: 1px solid var(--green);
+  cursor: pointer; border-radius: 0;
+  white-space: nowrap;
+}
+.tabf-btn-copy:hover,
+.tabf-btn-copy.copied { background: var(--green-deep); border-color: var(--green-deep); }
+.tabf-cancel-foot {
+  margin: 12px 0 0;
+  font-size: 12px; color: var(--green-deep);
+}
+.tabf-cancel-foot a { color: var(--green-deep); }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 720px) {
+  .tabf-body { padding: 20px 18px 28px; }
+  .tabf-h { font-size: 24px; }
+  .tabf-stepper { grid-template-columns: repeat(6, 1fr); }
+  .tabf-step { padding: 10px 4px; gap: 4px; }
+  .tabf-step-label { display: none; }
+  .tabf-staff-grid { grid-template-columns: 1fr; }
+  .tabf-service-card { grid-template-columns: 1fr; gap: 12px; }
+  /* Issue E — pris + "Velg"-knapp: radene har space-between fra før,
+     men en eksplisitt gap garanterer en minimumsavstand så de aldri
+     klemmes sammen på smal mobil. */
+  .tabf-service-price { text-align: left; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+  .tabf-staff-foot { gap: 16px; }
+  .tabf-price-cta { margin-top: 0; }
+  .tabf-summary,
+  .tabf-confirm-sum { grid-template-columns: 1fr; gap: 12px; }
+  .tabf-form-row-2 { grid-template-columns: 1fr; }
+  .tabf-cal-cell { min-height: 70px; padding: 8px 4px; }
+  .tabf-cal-day { font-size: 18px; }
+  .tabf-cal-status { font-size: 10px; }
+  .tabf-actions { flex-direction: column-reverse; align-items: stretch; }
+  .tabf-btn-primary, .tabf-btn-ghost { justify-content: center; }
+  .tabf-cal-legend { gap: 14px; flex-wrap: wrap; }
+  /* Token-lenke: stable URL + kopier-knapp vertikalt på smal mobil. */
+  .tabf-cancel-url-row { flex-direction: column; }
+  .tabf-btn-copy { padding: 12px 16px; }
+}
+
+/* B4 (Erik-feedback 2026-05-29): sticky submit-knapp på mobil
+   slik at "Bekreft bestilling" alltid er innen rekkevidde uten
+   å scrolle ned forbi notater-feltet. Bare steg 5 — andre steg har
+   mindre kritiske knapper. */
+@media (max-width: 640px) {
+  .tabf-actions-step5 {
+    position: sticky;
+    bottom: 0;
+    margin-top: 16px;
+    /* B4 (2026-06-01): mer bunnklarering + tydelig avstand mellom knappene,
+       så «Tilbake» (nederst i den reverserte stabelen) ikke havner under
+       home-indikatoren og ikke forveksles med «Bekreft» over. */
+    padding: 12px 0 calc(20px + env(safe-area-inset-bottom, 0px));
+    gap: 14px;
+    background: var(--paper, #F7F8FA);
+    border-top: 1px solid rgba(20, 25, 26, 0.1);
+    z-index: 5;
+    box-shadow: 0 -6px 14px -8px rgba(20, 25, 26, 0.12);
+  }
+  /* B4: begge knappene store nok som tap-targets (>48px) — «Bekreft» og
+     «Tilbake» er lette å treffe hver for seg på telefon. */
+  .tabf-actions-step5 .tabf-btn-primary,
+  .tabf-actions-step5 .tabf-btn-ghost {
+    min-height: 52px;
+    padding: 15px 24px;
+  }
+  /* DEL 2 (2026-06-01): venteliste-CTA-en under behandler-kortene satt
+     for lavt / var vanskelig å treffe på telefon. Komfortabelt tap-target
+     (min 48px) + tydelig avstand fra kortet over og litt luft under, så
+     den ikke klemmes mot modal-bunnen. */
+  .tabf-waitlist-cta {
+    min-height: 48px;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+}
+
+/* 4a (Erik-feedback 2026-05-30): tegnteller under textarea med maxlength. */
+.tabf-field-counter {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted, #6B7080);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

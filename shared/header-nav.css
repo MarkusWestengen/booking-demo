@@ -1,0 +1,240 @@
+/* ============================================================
+   Westengen Klinikk — delt header-nav-styling (A3 / A4 / A5)
+   ------------------------------------------------------------
+   Lastes på alle kundevendte nav-sider ETTER den inline-headeren,
+   så reglene her vinner ved lik spesifisitet. Bruker design-tokens
+   fra sidens inline :root (--ink/--paper/--rule/--green-deep osv.)
+   med trygge fallback-verdier.
+
+   Innhold:
+   - «Mer»-dropdown i desktop-headeren (ren CSS: hover + focus-within,
+     ingen JS — fungerer likt på alle sider uansett hvilken shared-JS
+     siden laster). Ligger inne i .nav-links og arver derfor skjuling
+     på ≤900px, der hamburgermenyen overtar med alle lenkene.
+   - A4: skjul «Bestill time»-knappen i headeren på telefon (≤640px).
+   - A5: skjul telefonnummeret i headeren på telefon (≤640px) — fjerner
+     den horisontale overflowen på forsiden (nav-cta var for bred på
+     smal skjerm fordi telefonnummeret ikke ble skjult slik som på
+     bestilling.html).
+   ============================================================ */
+
+/* ---------- «Mer»-dropdown ---------- */
+.nav-more { position: relative; display: inline-flex; align-items: center; }
+
+.nav-more-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: none; border: none; padding: 6px 0; margin: 0;
+  font: inherit; font-size: 14px; font-weight: 500; line-height: 1;
+  color: rgba(255, 255, 255, 0.85); cursor: pointer;
+}
+.nav-more-btn:hover,
+.nav-more:focus-within .nav-more-btn { color: #ffffff; }
+
+.nav-more-chev {
+  width: 7px; height: 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-1px);
+  transition: transform 150ms ease;
+}
+.nav-more:hover .nav-more-chev,
+.nav-more:focus-within .nav-more-chev { transform: rotate(-135deg) translateY(1px); }
+
+/* Usynlig bro over gapet mellom knapp og meny så hover ikke «faller ut» */
+.nav-more::after {
+  content: ""; position: absolute; top: 100%; left: -10px; right: -10px; height: 14px;
+}
+
+.nav-more-menu {
+  position: absolute; top: calc(100% + 12px); left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  display: flex; flex-direction: column; min-width: 212px;
+  background: var(--paper, #ffffff);
+  border: 1px solid var(--rule, #e6e2d9);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.14);
+  opacity: 0; visibility: hidden;
+  transition: opacity 150ms ease, transform 150ms ease, visibility 0s linear 150ms;
+  z-index: 70;
+}
+.nav-more:hover .nav-more-menu,
+.nav-more:focus-within .nav-more-menu {
+  opacity: 1; visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  transition: opacity 150ms ease, transform 150ms ease, visibility 0s linear 0s;
+}
+.nav-more-menu a {
+  padding: 11px 16px; font-size: 14px; font-weight: 500; white-space: nowrap;
+  color: var(--ink, #171A21); text-decoration: none;
+  border-bottom: 1px solid var(--rule, #e6e2d9);
+}
+.nav-more-menu a:last-child { border-bottom: none; }
+.nav-more-menu a:hover,
+.nav-more-menu a:focus-visible {
+  background: var(--paper-2, #f4f2ec);
+  color: var(--green-deep, #2F3463);
+}
+
+/* ---------- A4 + A5 — rydd headeren på telefon ----------
+   Skjuler «Bestill time»-knappen og telefonnummeret i headeren på ≤640px.
+   Bestill time finnes fortsatt i hamburgermenyen og i sidenes øvrige CTA-er;
+   telefonnummeret står fortsatt i footer og på kontaktseksjonen. */
+@media (max-width: 640px) {
+  .nav-cta .phone { display: none; }
+  .nav-cta .btn-primary { display: none; }
+}
+
+/* ---------- DEL 5a — tre-delt mobil-header ----------
+   På telefon: språkvelger til VENSTRE, logo SENTRERT, hamburger til HØYRE.
+   Brand sentreres absolutt; nav-cta fyller bredden med space-between. Siden
+   bare .lang + .nav-hamburger er synlige på mobil (telefon/Bestill skjult
+   over), havner språk til venstre og hamburger til høyre. */
+@media (max-width: 640px) {
+  .nav-shell .nav { position: relative; display: flex; align-items: center; }
+  .nav-shell .nav .brand {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%); margin: 0;
+  }
+  .nav-shell .nav .nav-cta {
+    flex: 1 1 auto; width: 100%; justify-content: space-between;
+  }
+  /* Språk-menyen må åpne venstrejustert når velgeren står til venstre,
+     ellers renner den ut av skjermen mot venstre. */
+  .nav-shell .nav-cta .lang-menu { left: 0; right: auto; }
+}
+
+/* ============================================================
+   DEL 6 — gjennomarbeidet mobil-meny (hamburger-overlay)
+   Editorial liste: mono-nummerering, luft, grønn hover-aksent og en
+   diskret fade-up-stagger ved åpning. Samme identitet (Fraunces +
+   JetBrains Mono, --green/--paper/--ink, skarpe hjørner). Overlayet
+   vises kun via .nav-mobile.open (hamburger ≤900px), så reglene er
+   inerte ellers. */
+.nav-mobile {
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: 84px 30px calc(40px + env(safe-area-inset-bottom, 0px));
+  counter-reset: navi;
+}
+.nav-mobile-close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent; color: var(--paper, #F7F8FA);
+  font-size: 22px; line-height: 1; cursor: pointer;
+  transition: border-color .15s ease, color .15s ease;
+}
+.nav-mobile-close:hover,
+.nav-mobile-close:focus-visible { border-color: var(--green-soft, #7A80B8); color: #fff; }
+
+.nav-mobile-links {
+  align-items: stretch; text-align: left;
+  gap: 0; margin: 8px 0 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+.nav-mobile-links a {
+  display: flex; align-items: baseline; gap: 18px;
+  padding: 17px 2px;
+  font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+  font-size: clamp(23px, 6vw, 30px); line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--paper, #F7F8FA);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  transition: color .15s ease, padding-left .15s ease;
+}
+.nav-mobile-links a::before {
+  counter-increment: navi;
+  content: counter(navi, decimal-leading-zero);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.12em;
+  color: var(--green-soft, #7A80B8);
+  align-self: center;
+}
+.nav-mobile-links a:hover,
+.nav-mobile-links a:focus-visible {
+  color: var(--green-soft, #7A80B8);
+  padding-left: 8px;
+}
+
+.nav-mobile-cta { width: 100%; margin-top: auto; }
+.nav-mobile-cta .btn { width: 100%; justify-content: center; padding: 16px 24px; font-size: 15px; }
+
+/* Diskret fade-up-stagger når menyen åpnes. */
+.nav-mobile.open .nav-mobile-links a {
+  animation: navMobileIn .34s cubic-bezier(.22, .61, .36, 1) both;
+}
+.nav-mobile.open .nav-mobile-links a:nth-child(1) { animation-delay: .03s; }
+.nav-mobile.open .nav-mobile-links a:nth-child(2) { animation-delay: .06s; }
+.nav-mobile.open .nav-mobile-links a:nth-child(3) { animation-delay: .09s; }
+.nav-mobile.open .nav-mobile-links a:nth-child(4) { animation-delay: .12s; }
+.nav-mobile.open .nav-mobile-links a:nth-child(5) { animation-delay: .15s; }
+.nav-mobile.open .nav-mobile-links a:nth-child(6) { animation-delay: .18s; }
+.nav-mobile.open .nav-mobile-links a:nth-child(7) { animation-delay: .21s; }
+.nav-mobile.open .nav-mobile-links a:nth-child(8) { animation-delay: .24s; }
+.nav-mobile.open .nav-mobile-cta {
+  animation: navMobileIn .34s cubic-bezier(.22, .61, .36, 1) both;
+  animation-delay: .27s;
+}
+/* Kun transform animeres — lenkene er ALLTID opacity:1 (default), så en
+   pauset/ikke-kjørt animasjon aldri kan skjule menyen. Selve overlayet
+   fader inn via .nav-mobile.open-opacityen i grunn-CSS-en. */
+@keyframes navMobileIn {
+  from { transform: translateY(12px); }
+  to   { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-mobile.open .nav-mobile-links a,
+  .nav-mobile.open .nav-mobile-cta { animation: none; }
+}
+
+/* ============================================================
+   E2 (#17) — synlig tastatur-fokus på kundevendte sider.
+   Lastes på alle nav-sider, så denne dekker lenker/knapper/klikkbare
+   kort globalt. Bruker --green fra sidens :root med trygg fallback.
+   :focus-visible treffer kun tastatur (ikke muse-klikk), så musebruk
+   får ingen synlig ramme. ============================================================ */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible,
+[role="link"]:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--green, #464C8C);
+  outline-offset: 2px;
+}
+
+/* ---------- Typografisk ordmerke (demo) ----------
+   Klinikken har ingen logofil: navnet settes i tekst. Reglene finnes
+   også i shared/demo-mode.js, som dekker admin-sidene uten denne
+   stilarken. Her ligger de fordi <link> i <head> rekker fram før
+   den defererte scripten, og hindrer et glimt av ustylet merkenavn. */
+.brand-wordmark { display: flex; flex-direction: column; gap: 2px; line-height: 1; }
+.brand-wordmark strong {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 500;
+  font-size: 24px; letter-spacing: -0.015em; color: #F7F8FA;
+}
+.brand-wordmark > span {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--green-soft, #7A80B8);
+}
+@media (max-width: 640px) {
+  .brand-wordmark strong { font-size: 19px; }
+  .brand-wordmark > span { font-size: 8px; letter-spacing: 0.22em; }
+}
+
+/* ---------- Sikkerhetsnett mot kollisjon i headeren ----------
+   .nav er et grid med «auto 1fr auto». Blir midtkolonnen for smal,
+   spilte nav-lenkene tidligere ut over ordmerket i stedet for å gi
+   etter. min-width:0 lar kolonnen krympe som den skal, og gapet
+   strammes før det blir trangt. */
+.nav-links { min-width: 0; }
+@media (max-width: 1200px) {
+  .nav { gap: 24px; }
+  .nav-links { gap: 22px; }
+}
+@media (max-width: 1040px) {
+  .nav { gap: 16px; }
+  .nav-links { gap: 16px; font-size: 13.5px; }
+}

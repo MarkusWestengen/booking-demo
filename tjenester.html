@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#171A21">
+
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+
+<title>Tjenester · Westengen Klinikk</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Westengen Klinikk">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8; --green-tint: #E9EAF4;
+    --paper: #F7F8FA; --paper-2: #EDEFF3;
+    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
+    --rule: #171a2622; --danger: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink); background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+    /* Issue W — inkluder iOS safe-area så innhold ikke gjemmes bak
+       den fixed bottom-nav-en på telefoner med home-indicator. */
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Topbar — same as kunder.html */
+  .topbar { position: sticky; top: 0; z-index: 30;
+    background: var(--ink); color: var(--paper);
+    border-bottom: 3px solid var(--green); }
+  .topbar-inner { display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px; max-width: 1100px; margin: 0 auto; }
+  .brand { font-family: 'Fraunces', serif; font-size: 22px; letter-spacing: -0.01em;
+    flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand em { font-style: italic; color: var(--green-soft);
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .who-chip { font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--green-soft); color: #fff;
+    padding: 4px 8px; white-space: nowrap; }
+  .who-chip.admin { background: var(--green); }
+  .topbar a, .topbar button { color: var(--paper); background: transparent;
+    border: 1px solid rgba(247, 248, 250,.22); padding: 6px 10px;
+    font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
+  .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
+
+  .shell { max-width: 1100px; margin: 0 auto; padding: 18px; }
+  h1 { font-family: 'Fraunces', serif; font-weight: 400; font-size: 24px; margin: 4px 0 0; }
+
+  .header-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+    flex-wrap: wrap; }
+  /* Lang overskrift-strek (brukerpreferanse): h1 fyller raden (flex:1) så
+     .adm-accent-streken spenner i full bredde, likt resten av admin. Knappen
+     «+ Ny tjeneste» sitter pent til høyre på samme rad. */
+  .header-row h1 { flex: 1; min-width: 0; }
+
+  .btn { background: var(--ink); color: var(--paper); border: 0;
+    padding: 10px 16px; font: inherit; font-size: 14px; font-weight: 500;
+    cursor: pointer; text-decoration: none; display: inline-block; }
+  .btn:hover { background: var(--green-deep); }
+  .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--rule);
+    padding: 10px 16px; font: inherit; font-size: 14px; cursor: pointer; }
+  .btn-ghost:hover { border-color: var(--green); }
+  .btn-primary { background: var(--green); color: #fff; border: 0;
+    padding: 10px 16px; font: inherit; font-size: 14px; font-weight: 500;
+    cursor: pointer; }
+  .btn-primary:hover { background: var(--green-deep); }
+  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+  .btn-danger { background: var(--danger); color: #fff; border: 0;
+    padding: 10px 16px; font: inherit; font-size: 14px; font-weight: 500;
+    cursor: pointer; }
+  .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Faresone i tjeneste-editoren — arkivering (skriv-for-å-bekrefte) */
+  .danger-zone { margin-top: 22px; padding: 16px; border: 1px solid var(--danger);
+    border-left-width: 4px; background: #fdeaea; }
+  .danger-zone h4 { margin: 0 0 6px; font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--danger); }
+  .danger-zone .dz-text { margin: 0 0 12px; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+  .danger-zone input { width: 100%; padding: 9px 11px; font: inherit; font-size: 13px;
+    border: 1px solid var(--rule); background: #fff; margin-bottom: 10px; }
+  .danger-zone input:focus { outline: 2px solid var(--danger); outline-offset: -2px; }
+
+  /* Filter toggle */
+  .filter-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .filter-pill { background: #fff; border: 1px solid var(--rule);
+    padding: 7px 14px; font: inherit; font-size: 13px;
+    cursor: pointer; color: var(--ink-2);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em; text-transform: uppercase; }
+  .filter-pill.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+  /* Service table */
+  .svc-list { display: flex; flex-direction: column; gap: 8px; }
+  .svc-card { background: #fff; border: 1px solid var(--rule);
+    padding: 12px 14px; display: grid;
+    grid-template-columns: 28px 1fr auto auto auto auto;
+    align-items: center; gap: 8px 14px; }
+  .svc-card.inactive { opacity: 0.6; background: var(--paper-2); }
+  .svc-card.dragging { opacity: 0.4; }
+  .svc-card.drag-over { border-color: var(--green); border-style: dashed; }
+  .svc-drag {
+    cursor: grab; user-select: none; color: var(--muted);
+    font-size: 18px; line-height: 1; text-align: center;
+    padding: 4px 0;
+  }
+  .svc-drag:active { cursor: grabbing; }
+  .svc-main { min-width: 0; }
+  .svc-name { font-weight: 600; font-size: 15px;
+    display: flex; align-items: center; gap: 8px;
+    word-break: break-word; }
+  .svc-slug { font-size: 11px; color: var(--muted);
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em;
+    margin-top: 2px; word-break: break-all; }
+  .svc-meta { font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--ink-2); white-space: nowrap; text-align: right; }
+  .svc-staff-pill {
+    background: transparent; border: 1px solid var(--rule);
+    padding: 5px 10px; font: inherit; font-size: 11px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em;
+    cursor: pointer; color: var(--ink-2); white-space: nowrap;
+  }
+  .svc-staff-pill:hover { border-color: var(--green); color: var(--green-deep); }
+  .svc-status {
+    background: transparent; border: 1px solid var(--rule);
+    padding: 5px 10px; font: inherit; font-size: 11px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.06em;
+    text-transform: uppercase; cursor: pointer;
+  }
+  .svc-status.active   { color: var(--green-deep); border-color: var(--green-soft); }
+  .svc-status.inactive { color: var(--muted); }
+  .svc-edit {
+    background: transparent; border: 1px solid var(--rule);
+    padding: 5px 10px; font: inherit; font-size: 12px;
+    cursor: pointer; color: var(--ink-2);
+  }
+  .svc-edit:hover { border-color: var(--green); }
+  /* B5 — intern-merke på kort + synlighets-toggle i editor */
+  .svc-internal-tag {
+    display: inline-block; margin-left: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); border: 1px solid var(--rule);
+    padding: 1px 6px; vertical-align: middle;
+  }
+  .vis-toggle {
+    display: flex; align-items: center; gap: 10px; cursor: pointer;
+    font-weight: 500;
+  }
+  .vis-toggle input { width: 18px; height: 18px; flex: none; accent-color: var(--green); }
+  /* A5 — flex-tekst i etikett-rader må kunne krympe/brytes så de aldri tvinger
+     horisontal overflow i editor-arket (f.eks. lange behandlernavn på smal mobil). */
+  .vis-toggle > span,
+  .staff-pickers label > span { min-width: 0; overflow-wrap: anywhere; }
+
+  /* Empty / loader */
+  .loader { text-align: center; padding: 36px; color: var(--muted); }
+  .spinner { width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--rule); border-top-color: var(--green);
+    animation: spin 0.8s linear infinite;
+    display: inline-block; vertical-align: middle; margin-right: 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; padding: 48px 18px; color: var(--muted); }
+
+  .forbidden { text-align: center; padding: 80px 20px; color: var(--muted); }
+  .forbidden a { color: var(--green-deep); }
+
+  /* Sheet (modal) — matcher kalender.html-mønster */
+  .sheet-overlay { position: fixed; inset: 0; z-index: 100;
+    background: rgba(23, 26, 33,.6); display: none; }
+  .sheet-overlay.open { display: block; }
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--paper);
+    max-height: 92vh;
+    display: flex; flex-direction: column;
+    transform: translateY(100%);
+    transition: transform .25s ease;
+    border-top-left-radius: 14px; border-top-right-radius: 14px;
+    overflow: hidden; }
+  .sheet.open { transform: translateY(0); }
+  .sheet-handle { width: 36px; height: 4px; background: var(--rule);
+    border-radius: 2px; margin: 8px auto 0; }
+  .sheet-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 18px 12px; gap: 8px;
+    border-bottom: 1px solid var(--rule); background: var(--paper); }
+  .sheet-head h3 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 18px; margin: 0; }
+  .sheet-close { background: transparent; border: 0; cursor: pointer;
+    color: var(--muted); font-size: 26px; line-height: 1;
+    padding: 4px 8px; }
+  .sheet-close:hover { color: var(--ink); }
+  .sheet-body { flex: 1; overflow-y: auto; padding: 16px 18px 24px; }
+
+  @media (min-width: 720px) {
+    .sheet {
+      left: 50%; right: auto; top: 50%; bottom: auto;
+      transform: translate(-50%, 50%) translateY(40px);
+      max-width: 560px; width: 92vw;
+      max-height: 86vh; opacity: 0;
+      border-radius: 14px;
+    }
+    .sheet.open {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+    .sheet-handle { display: none; }
+  }
+
+  /* Form */
+  .form-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .form-row label { font-size: 12px; color: var(--muted);
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em;
+    text-transform: uppercase; }
+  /* DEL 2 — :not(checkbox/radio) så avkrysningsbokser (f.eks. «Synlig for
+     kunder») IKKE arver width:100% + padding og blir kjempestore. Bare
+     tekst-/tall-/select-felt skal fylle bredden. */
+  .form-row input:not([type="checkbox"]):not([type="radio"]), .form-row textarea, .form-row select {
+    width: 100%; padding: 10px 12px;
+    font-family: inherit; font-size: 14px;
+    border: 1px solid var(--rule); background: #fff; color: var(--ink); }
+  .form-row input:focus, .form-row textarea:focus, .form-row select:focus {
+    outline: 2px solid var(--green); outline-offset: -2px; }
+  .form-row textarea { min-height: 70px; resize: vertical; }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-help { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .form-error { background: #fdecea; border: 1px solid #f5c6c0;
+    color: var(--danger); padding: 9px 12px; font-size: 13px; margin-bottom: 14px; }
+
+  .staff-pickers { display: flex; flex-direction: column; gap: 8px;
+    background: #fff; border: 1px solid var(--rule); padding: 12px; margin-bottom: 14px; }
+  .staff-pickers h4 { margin: 0 0 4px; font-size: 13px; font-weight: 600;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--ink-2); }
+  .staff-pickers label { display: flex; align-items: center; gap: 10px;
+    font-size: 14px; cursor: pointer; padding: 4px 0; }
+  .staff-pickers input[type="checkbox"] { width: 16px; height: 16px; }
+
+  .color-picker { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .color-swatch { width: 28px; height: 28px; border-radius: 50%;
+    cursor: pointer; border: 2px solid transparent; }
+  .color-swatch.selected { border-color: var(--ink); }
+  .color-clear { background: transparent; border: 1px dashed var(--rule);
+    width: 28px; height: 28px; cursor: pointer; font-size: 14px;
+    color: var(--muted); border-radius: 50%; }
+
+  .sheet-actions { display: flex; gap: 10px; justify-content: flex-end;
+    margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--rule); }
+
+  /* Toast */
+  .toast { position: fixed; left: 50%; bottom: 100px;
+    transform: translateX(-50%) translateY(40px);
+    background: var(--ink); color: var(--paper);
+    padding: 12px 20px; font-size: 14px;
+    border-radius: 4px; opacity: 0; pointer-events: none;
+    transition: transform .25s ease, opacity .25s ease;
+    z-index: 200; max-width: 90vw; }
+  .toast.shown { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
+  .toast.error { background: var(--danger); }
+  .toast.ok    { background: var(--green); }
+
+  /* Bottom nav */
+  .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0;
+    background: #fff; border-top: 1px solid var(--rule);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0); z-index: 40; }
+  .bn-btn { flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 4px; padding: 10px 8px;
+    background: transparent; border: 0; border-top: 3px solid transparent;
+    font: inherit; font-size: 11px; color: var(--ink-2);
+    text-decoration: none; cursor: pointer; position: relative; }
+  .bn-btn .bn-ico { font-size: 18px; line-height: 1; }
+  .bn-btn.active { color: var(--green-deep); border-top-color: var(--green); }
+  .bn-btn.disabled { opacity: 0.45; pointer-events: none; }
+  .bn-soon { position: absolute; top: 4px; right: 8px;
+    background: var(--green-soft); color: #fff;
+    font-family: 'JetBrains Mono', monospace; font-size: 8px;
+    padding: 1px 4px; letter-spacing: 0.08em; }
+
+  /* 720 fanger iPad portrait (768) og iPhone landscape (700-900) der den
+     opprinnelige 6-kolonne svc-card-griden blir for tett. */
+  @media (max-width: 720px) {
+    h1 { font-size: 20px; }
+    .svc-card {
+      grid-template-columns: 28px 1fr auto;
+      grid-template-areas:
+        "drag main edit"
+        "drag meta staff"
+        "drag status status";
+      gap: 6px 12px;
+    }
+    .svc-drag   { grid-area: drag; align-self: start; }
+    .svc-main   { grid-area: main; }
+    .svc-edit   { grid-area: edit; }
+    .svc-meta   { grid-area: meta; text-align: left; }
+    .svc-staff-pill { grid-area: staff; justify-self: end; }
+    .svc-status { grid-area: status; justify-self: start; }
+    .form-row-2 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .header-row { gap: 8px; }
+    .header-row .btn { padding: 10px 14px; font-size: 13px; }
+    .shell { padding: 14px; }
+    .topbar-inner { padding: 12px 14px; gap: 8px; }
+  }
+
+  /* Issue P — HTML5 drag-and-drop for å sortere tjenester er bevisst
+     på desktop (mus). På touch (coarse pointer) skrus drag av i JS,
+     og her fjernes drag-håndtaket + dets kolonne så kortene ikke får
+     et dødt ≡-ikon. Klikk og sidescroll er uberørt. */
+  @media (pointer: coarse) {
+    .svc-drag { display: none; }
+    .svc-card { grid-template-columns: 1fr auto auto auto auto; }
+  }
+  @media (pointer: coarse) and (max-width: 720px) {
+    .svc-card {
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        "main edit"
+        "meta staff"
+        "status status";
+    }
+  }
+  /* Issue V — skjul sidetittel-em i admin-headeren på smal mobil.
+     "Westengen Klinikk TJENESTER" fikk ikke plass og ble avkuttet; bottom-nav
+     viser uansett hvilken side man er på. */
+  @media (max-width: 600px) { .brand em { display: none; } }
+  /* STEG 8 — URL-navn (slug) er auto-generert og kun teknisk/internt;
+     skjul feltet i editoren. <input> beholdes i DOM-en (skjult) så
+     lagre-logikk + auto-slug + DB-kolonne fungerer som før. */
+  #slugRow { display: none; }
+  /* Jobb B STEG 6 — Emoji-ikon brukes ikke kundevendt (verken på
+     bestilling.html eller i booking-flyten). Skjul editor-feltet;
+     <input> beholdes (skjult via #iconRow) så lagre-logikk +
+     DB-kolonnen virker som før. Listevisningen er også fjernet. */
+  #iconRow { display: none; }
+
+  /* ===== DEL 4A — admin-polish (kun presentasjon, ingen funksjonsendring) =====
+     8-punkts bottom-nav scroller horisontalt på smale skjermer (<=560px) i stedet
+     for å klemmes; tydeligere fokus-tilstand for tastatur-navigasjon. */
+  .bottom-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 560px) {
+    .bottom-nav .bn-btn { flex: 0 0 auto; min-width: 64px; }
+  }
+  .btn:focus-visible, .bn-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">Westengen Klinikk <em>tjenester</em></div>
+    <span class="who-chip" id="whoChip" style="display:none;"></span>
+    <div id="topActions"></div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <div id="bootView" class="loader">
+    <span class="spinner" aria-hidden="true"></span>Sjekker session…
+  </div>
+
+  <div id="forbiddenView" class="forbidden" style="display:none;">
+    <h1 style="font-size: 22px;">Kun admin har tilgang</h1>
+    <p>Du blir sendt tilbake til kalenderen…</p>
+  </div>
+
+  <div id="appView" style="display:none;">
+    <div class="header-row">
+      <h1 class="adm-accent">Tjenester</h1>
+      <button class="btn" id="addBtn" type="button">+ Ny tjeneste</button>
+    </div>
+
+    <div class="filter-row">
+      <button class="filter-pill active" id="filterActive" type="button">Vis kun aktive</button>
+      <button class="filter-pill" id="filterAll" type="button">Vis alle</button>
+    </div>
+
+    <div class="svc-list" id="svcList"></div>
+    <div class="empty" id="emptyState" style="display:none;">Ingen tjenester ennå. Klikk «Ny tjeneste» for å legge til.</div>
+  </div>
+
+</div>
+
+<!-- Service editor sheet -->
+<div id="editorOverlay" class="sheet-overlay" aria-hidden="true">
+  <div id="editorSheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h3 id="editorTitle">Ny tjeneste</h3>
+      <button class="sheet-close" id="editorClose" aria-label="Lukk" type="button">×</button>
+    </div>
+    <div class="sheet-body" id="editorBody"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toastEl" role="status" aria-live="polite"></div>
+
+<nav class="bottom-nav">
+  <a class="bn-btn" href="kalender.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>Kalender</a>
+  <a class="bn-btn" href="kunder.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-1a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Kunder</a>
+  <a class="bn-btn" href="booking-admin.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span>Oversikt</a>
+  <a class="bn-btn active" aria-current="page" href="tjenester.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></span>Tjenester</a>
+  <a class="bn-btn" data-admin-only href="behandlere.html" style="display:none;"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Behandlere</a>
+  <a class="bn-btn" href="dokumenter.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></span>Dokumenter</a>
+  <a class="bn-btn" href="meldinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>Meldinger</a>
+  <a class="bn-btn" href="innstillinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></span>Innstillinger</a>
+</nav>
+
+<script src="shared/booking-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="shared/auth.js"></script>
+<script src="shared/admin-nav.js" defer></script>
+<script src="shared/booking-engine.js"></script>
+<script src="shared/services.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ============================================================
+  // XSS-merknad: brukerdata på denne siden er admin-controlled
+  // (tjenestenavn, slug, beskrivelse). Settes likevel konsekvent
+  // gjennom escapeHtml() og textContent for å beholde mønsteret.
+  // ============================================================
+
+  // AUTH-GATEWAY: synkron token-sjekk, deretter rolle-sjekk i handleSession.
+  if (!window.WestengenKlinikkAuth || !window.WestengenKlinikkAuth.requireAuth()) return;
+
+  var CFG = window.WestengenKlinikkBackend || {};
+  // Uten nokler ville createClient('') kastet, og sida ville sett ut
+  // som om den hang. Vi sier heller tydelig fra hva som mangler.
+  if (!CFG.supabaseUrl || !CFG.supabaseAnonKey) {
+    var _cfgTarget = document.getElementById('bootView') || document.body;
+    _cfgTarget.innerHTML =
+      '<div class="auth-wrap"><div class="login"><h1>Konfigurasjon mangler</h1>' +
+      '<p>Denne kopien er ikke koblet til en database ennå. Fyll inn Supabase-URL ' +
+      'og anon-nøkkel i <code>shared/booking-config.js</code> — se ' +
+      '<code>DEMO_SETUP.md</code>.</p></div></div>';
+    return;
+  }
+  var sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
+    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
+  });
+
+  var Services = window.WestengenKlinikkServices;
+  var Engine   = window.WestengenKlinikkBookingEngine;
+  var escapeHtml = window.WestengenKlinikkAuth.escapeHtml;
+
+  // STAFF-listen er hardkodet i booking-engine.js (8 oppføringer etter 0038:
+  // Erik + 6 navngitte terapeuter + 'terapeut' legacy-gruppe). Vi leser
+  // derfra slik at admin alltid jobber mot den autoritative listen. Hvis
+  // engine ikke har lastet, har vi en safe fallback for å unngå null-ref.
+  // P3-5 fra audit 2026-05-15: fallback synkronisert med post-0038-state.
+  var STAFF = (Engine && Engine.STAFF) ? Engine.STAFF : [
+    { id: 'erik', name: 'Erik Westengen' },
+    { id: 'sofie', name: 'Sofie' },
+    { id: 'henrik', name: 'Henrik' },
+    { id: 'jonas', name: 'Jonas' },
+    { id: 'amina', name: 'Amina' },
+    { id: 'petter', name: 'Petter' },
+    { id: 'lena', name: 'Lena' },
+    { id: 'terapeut', name: 'Eriks terapeuter' }
+  ];
+
+  function $(id) { return document.getElementById(id); }
+
+  // Hvilke STAFF-medlemmer som kan utføre en gitt tjeneste:
+  //   slug starter med 'tom-' → kun Erik
+  //   slug starter med 'ter-' → kun de 5 navngitte terapeutene
+  //     (ikke Erik, ikke 'terapeut'-paraplyen — som ikke er en utfører)
+  //   ellers (legacy/ukjent prefix) → alle utenom 'terapeut'-paraplyen
+  // Slug er autoritativ identifikator (services.id er UUID); seedet av
+  // 0008 og brukt av 0015 for å koble terapeuter til ter-tjenestene.
+  function eligibleStaffFor(svc) {
+    var slug = (svc && svc.slug) ? svc.slug : '';
+    if (slug.indexOf('tom-') === 0) {
+      return STAFF.filter(function (s) { return s.id === 'erik'; });
+    }
+    if (slug.indexOf('ter-') === 0) {
+      return STAFF.filter(function (s) {
+        return s.id !== 'erik' && s.id !== 'terapeut';
+      });
+    }
+    return STAFF.filter(function (s) { return s.id !== 'terapeut'; });
+  }
+
+  // Issue P — drag-reorder av tjenestekort er bevisst på desktop (mus),
+  // men på touch (iOS long-press) kan kortet dras rundt på skjermen
+  // uten at en reorder fullføres pålitelig. Vi skrur av drag på
+  // coarse-pointer-enheter — klikk og sidescroll er uberørt.
+  var isTouch = window.matchMedia('(pointer: coarse)').matches;
+
+  var STATE = {
+    user: null,
+    services: [],        // alle (admin)
+    staffMap: {},        // serviceId → [staffId]
+    filter: 'active',    // 'active' | 'all'
+    editing: null,       // service-rad under redigering, eller null = ny
+    dragId: null
+  };
+
+  // ----- View toggles -------------------------------------------
+  function show(view) {
+    ['bootView','appView','forbiddenView'].forEach(function (id) {
+      $(id).style.display = id === view ? '' : 'none';
+    });
+  }
+  function setWhoChip(user) {
+    var chip = $('whoChip');
+    if (!user) { chip.style.display = 'none'; return; }
+    chip.style.display = '';
+    chip.className = 'who-chip' + (user.role === 'admin' ? ' admin' : '');
+    chip.textContent = user.role === 'admin' ? 'Admin' : (user.staffName || 'Terapeut');
+  }
+  function setTopActions(html) { $('topActions').innerHTML = html; }
+
+  // ----- Auth ---------------------------------------------------
+  function parseSessionUser(session) {
+    if (!session || !session.user) return null;
+    var u = session.user;
+    var meta = (u.app_metadata || {});
+    var role = meta.role;
+    if (role !== 'admin' && role !== 'therapist') return null;
+    return {
+      userId: u.id, email: u.email, role: role,
+      staffId: meta.staff_id || (role === 'admin' ? 'admin' : null),
+      staffName: meta.staff_name || (role === 'admin' ? 'Admin' : '')
+    };
+  }
+  function handleSession(session) {
+    if (!session) { window.location.replace('ansatt.html'); return; }
+    var parsed = parseSessionUser(session);
+    if (!parsed) { window.WestengenKlinikkAuth.logoutAndRedirect(sb); return; }
+    if (parsed.role !== 'admin') {
+      // Therapist har ikke tilgang. Sett en toast-flagg som kalender.html
+      // kan plukke opp og vise, så redirect.
+      try { sessionStorage.setItem('__ta_flash', 'Kun admin har tilgang til Tjenester.'); } catch (_) {}
+      show('forbiddenView');
+      setTimeout(function () { window.location.replace('kalender.html'); }, 1200);
+      return;
+    }
+    STATE.user = parsed;
+    setWhoChip(parsed);
+    setTopActions('<a href="kalender.html">← Kalender</a> <button id="logoutBtn" type="button">Logg ut</button>');
+    show('appView');
+    if (window.WestengenKlinikkAuth) window.WestengenKlinikkAuth.installSessionTimeout(sb);
+    loadServices();
+  }
+  sb.auth.getSession().then(function (res) { handleSession(res.data && res.data.session); })
+    .catch(function () { window.location.replace('ansatt.html'); });
+  sb.auth.onAuthStateChange(function (event, session) {
+    if (event === 'TOKEN_REFRESHED' && STATE.user && session && session.user.id === STATE.user.userId) return;
+    handleSession(session);
+  });
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'logoutBtn') window.WestengenKlinikkAuth.logoutAndRedirect(sb);
+  });
+
+  // ----- Load ---------------------------------------------------
+  function loadServices() {
+    $('svcList').innerHTML = '<div class="loader"><span class="spinner"></span>Henter tjenester…</div>';
+    Services.invalidate(); // tving fersk lesing — admin har nettopp endret noe
+    Promise.all([Services.loadAllServices(sb), loadStaffMapAdmin()])
+      .then(function (res) {
+        STATE.services = res[0] || [];
+        STATE.staffMap = res[1] || {};
+        render();
+      })
+      .catch(function (err) {
+        $('svcList').innerHTML = '<div class="empty">Kunne ikke laste tjenester: ' + escapeHtml(err.message || String(err)) + '</div>';
+      });
+  }
+
+  // Admin trenger staff-kobling for ALLE tjenester (inkl. inaktive).
+  // services.loadStaffMap() henter via anon-rest og filtrerer kun aktive
+  // via RLS, så vi gjør et eget kall mot sb-klienten her.
+  function loadStaffMapAdmin() {
+    return sb.from('staff_services').select('staff_id, service_id')
+      .then(function (res) {
+        if (res.error) throw res.error;
+        var map = {};
+        (res.data || []).forEach(function (r) {
+          if (!map[r.service_id]) map[r.service_id] = [];
+          map[r.service_id].push(r.staff_id);
+        });
+        return map;
+      });
+  }
+
+  // ----- Render -------------------------------------------------
+  function render() {
+    var list = STATE.services.slice();
+    if (STATE.filter === 'active') list = list.filter(function (s) { return s.is_active; });
+    list.sort(function (a, b) {
+      if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order;
+      return (a.name || '').localeCompare(b.name || '', 'no');
+    });
+
+    $('filterActive').classList.toggle('active', STATE.filter === 'active');
+    $('filterAll').classList.toggle('active', STATE.filter === 'all');
+
+    if (list.length === 0) {
+      $('svcList').innerHTML = '';
+      $('emptyState').style.display = '';
+      return;
+    }
+    $('emptyState').style.display = 'none';
+
+    $('svcList').innerHTML = list.map(renderCard).join('');
+    attachCardHandlers();
+  }
+
+  function renderCard(s) {
+    var staffIds = STATE.staffMap[s.id] || [];
+    var staffNames = staffIds.map(function (id) {
+      var st = STAFF.find(function (x) { return x.id === id; });
+      return st ? st.name : id;
+    });
+    // Telleren bruker eligible-settet (slug-prefix-basert) som divisor,
+    // ikke STAFF.length, så tom-tjenester viser "1 av 1" istedenfor "1 av 7".
+    var eligible = eligibleStaffFor(s);
+    var staffLabel = staffNames.length === 0 ? 'Ingen' :
+                     staffNames.length === eligible.length ? 'Alle' :
+                     (staffNames.length + ' av ' + eligible.length);
+
+    return '<div class="svc-card' + (s.is_active ? '' : ' inactive') +
+                '"' + (isTouch ? '' : ' draggable="true"') + ' data-id="' + escapeHtml(s.id) + '">' +
+      '<div class="svc-drag" title="Dra for å sortere">≡</div>' +
+      '<div class="svc-main">' +
+        '<div class="svc-name">' +
+          escapeHtml(s.name) +
+          (s.is_public === false ? ' <span class="svc-internal-tag">Intern</span>' : '') +
+        '</div>' +
+        '<div class="svc-slug">' + escapeHtml(s.slug) + '</div>' +
+      '</div>' +
+      '<div class="svc-meta">' + s.duration_min + ' min<br>' +
+        'kr ' + Number(s.price_nok || 0).toLocaleString('no-NO').replace(/,/g, ' ') +
+      '</div>' +
+      '<button class="svc-staff-pill" data-act="staff" data-id="' + escapeHtml(s.id) + '" type="button">' +
+        escapeHtml(staffLabel) +
+      '</button>' +
+      '<button class="svc-status ' + (s.is_active ? 'active' : 'inactive') +
+              '" data-act="toggle" data-id="' + escapeHtml(s.id) + '" type="button">' +
+        (s.is_active ? 'Aktiv' : 'Inaktiv') +
+      '</button>' +
+      '<button class="svc-edit" data-act="edit" data-id="' + escapeHtml(s.id) + '" type="button">Rediger</button>' +
+    '</div>';
+  }
+
+  function attachCardHandlers() {
+    // Klikk-delegering: én listener per render-call på containeren.
+    var list = $('svcList');
+
+    // Fjern eventuelle gamle drag-handlere ved å klone? Nei — vi
+    // overskriver innerHTML, så nye DOM-noder har ingen gamle
+    // handlere. Vi binder nye direkte:
+    // Issue P — drag-handlere bindes kun på presise pekeenheter (mus).
+    // På touch er drag-reorder avskrudd; kortet får da heller ikke
+    // draggable-attributtet (se renderCard).
+    if (!isTouch) {
+      var cards = list.querySelectorAll('.svc-card');
+      cards.forEach(function (card) {
+        card.addEventListener('dragstart', onDragStart);
+        card.addEventListener('dragend',   onDragEnd);
+        card.addEventListener('dragover',  onDragOver);
+        card.addEventListener('dragleave', onDragLeave);
+        card.addEventListener('drop',      onDrop);
+      });
+    }
+  }
+
+  // Bruker delegert click via container — overlever re-render.
+  // (Bundet én gang under init.)
+  function bindActions() {
+    $('svcList').addEventListener('click', function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest('[data-act]') : null;
+      if (!btn) return;
+      var act = btn.getAttribute('data-act');
+      var id  = btn.getAttribute('data-id');
+      var svc = STATE.services.find(function (s) { return s.id === id; });
+      if (!svc) return;
+      if (act === 'toggle') return onToggleActive(svc);
+      if (act === 'edit')   return openEditor(svc);
+      if (act === 'staff')  return openEditor(svc, { focusStaff: true });
+    });
+
+    $('addBtn').addEventListener('click', function () { openEditor(null); });
+
+    $('filterActive').addEventListener('click', function () { STATE.filter = 'active'; render(); });
+    $('filterAll').addEventListener('click',    function () { STATE.filter = 'all';    render(); });
+
+    $('editorClose').addEventListener('click', closeEditor);
+    $('editorOverlay').addEventListener('click', function (e) {
+      if (e.target === this) closeEditor();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && $('editorOverlay').classList.contains('open')) closeEditor();
+    });
+  }
+
+  // ----- Drag-sortering -----------------------------------------
+  // Vanilla HTML5 drag-and-drop. Mobil touch-support er begrenset
+  // (krever long-press på iOS, fungerer ikke pålitelig på Android Chrome).
+  // Dokumentert som kjent begrensning i audit-report.
+  function onDragStart(e) {
+    STATE.dragId = this.getAttribute('data-id');
+    this.classList.add('dragging');
+    // Sett en string-payload så Safari faktisk lar drop fyre.
+    try { e.dataTransfer.setData('text/plain', STATE.dragId); } catch (_) {}
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  function onDragEnd() {
+    this.classList.remove('dragging');
+    document.querySelectorAll('.svc-card.drag-over').forEach(function (el) {
+      el.classList.remove('drag-over');
+    });
+    STATE.dragId = null;
+  }
+  function onDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (this.getAttribute('data-id') !== STATE.dragId) this.classList.add('drag-over');
+  }
+  function onDragLeave() { this.classList.remove('drag-over'); }
+  function onDrop(e) {
+    e.preventDefault();
+    this.classList.remove('drag-over');
+    var targetId = this.getAttribute('data-id');
+    if (!STATE.dragId || STATE.dragId === targetId) return;
+    reorderAndPersist(STATE.dragId, targetId);
+  }
+
+  function reorderAndPersist(dragId, dropId) {
+    // Bygg ny rekkefølge på den filtrerte listen brukeren ser.
+    var visible = STATE.services.slice().filter(function (s) {
+      return STATE.filter === 'all' ? true : s.is_active;
+    }).sort(function (a, b) { return a.sort_order - b.sort_order; });
+
+    var fromIdx = visible.findIndex(function (s) { return s.id === dragId; });
+    var toIdx   = visible.findIndex(function (s) { return s.id === dropId; });
+    if (fromIdx < 0 || toIdx < 0) return;
+
+    var moved = visible.splice(fromIdx, 1)[0];
+    visible.splice(toIdx, 0, moved);
+
+    // Tildel nye sort_order-verdier (10, 20, 30, …) — etterlater plass for
+    // manuell finjustering uten å trenge å skrive alle radene neste gang.
+    var updates = [];
+    visible.forEach(function (s, i) {
+      var newOrder = (i + 1) * 10;
+      if (s.sort_order !== newOrder) updates.push({ id: s.id, sort_order: newOrder });
+    });
+    if (updates.length === 0) return;
+
+    // Optimistic UI: oppdater state først, render, så skriv til DB.
+    updates.forEach(function (u) {
+      var s = STATE.services.find(function (x) { return x.id === u.id; });
+      if (s) s.sort_order = u.sort_order;
+    });
+    render();
+
+    // Skriv en-og-en (PostgREST bulk-PATCH med ulike verdier per rad er ikke
+    // trivielt; én PATCH per rad er greit for ≤20 tjenester).
+    Promise.all(updates.map(function (u) {
+      return sb.from('services').update({ sort_order: u.sort_order }).eq('id', u.id);
+    })).then(function (results) {
+      var anyError = results.find(function (r) { return r && r.error; });
+      if (anyError) {
+        showToast('Klarte ikke å lagre ny rekkefølge: ' + anyError.error.message, 'error');
+        loadServices(); // synkroniser tilbake til DB-state
+        return;
+      }
+      Services.invalidate();
+      logAudit('service_updated', null, {
+        change: 'sort_order_batch',
+        count: updates.length
+      });
+    }).catch(function (err) {
+      showToast('Feil ved sortering: ' + (err.message || String(err)), 'error');
+      loadServices();
+    });
+  }
+
+  // ----- Toggle active ------------------------------------------
+  function onToggleActive(svc) {
+    var nextActive = !svc.is_active;
+    var confirmFn = nextActive ? confirmReactivate : confirmDeactivate;
+    confirmFn(svc).then(function (ok) {
+      if (!ok) return;
+      Services.setActive(sb, svc.id, nextActive)
+        .then(function (updated) {
+          svc.is_active = updated.is_active;
+          render();
+          showToast(nextActive ? 'Tjenesten er aktivert' : 'Tjenesten er deaktivert', 'ok');
+          logAudit(nextActive ? 'service_reactivated' : 'service_deactivated', svc.id, {
+            slug: svc.slug, name: svc.name
+          });
+        })
+        .catch(function (err) {
+          showToast('Kunne ikke endre status: ' + (err.message || String(err)), 'error');
+        });
+    });
+  }
+  function confirmDeactivate(svc) {
+    return window.WestengenKlinikkAuth.confirmDestructive({
+      title: 'Deaktivér «' + svc.name + '»?',
+      message: 'Tjenesten skjules fra booking-siden, men eksisterende bookinger beholdes. Du kan reaktivere den senere.',
+      confirmLabel: 'Deaktivér',
+      cancelLabel: 'Avbryt'
+    });
+  }
+  function confirmReactivate(svc) {
+    return window.WestengenKlinikkAuth.confirmDestructive({
+      title: 'Aktivér «' + svc.name + '»?',
+      message: 'Tjenesten vises igjen på booking-siden.',
+      confirmLabel: 'Aktivér',
+      cancelLabel: 'Avbryt'
+    });
+  }
+
+  // ----- Editor sheet -------------------------------------------
+  function openEditor(svc, opts) {
+    opts = opts || {};
+    STATE.editing = svc; // null = ny tjeneste
+    $('editorTitle').textContent = svc ? 'Rediger tjeneste' : 'Ny tjeneste';
+    $('editorBody').innerHTML = renderEditorForm(svc);
+    bindEditorForm(svc);
+    $('editorOverlay').classList.add('open');
+    setTimeout(function () { $('editorSheet').classList.add('open'); }, 10);
+    if (opts.focusStaff) {
+      setTimeout(function () {
+        var firstCb = $('editorBody').querySelector('.staff-pickers input[type="checkbox"]');
+        if (firstCb) firstCb.focus();
+      }, 200);
+    }
+  }
+  function closeEditor() {
+    $('editorSheet').classList.remove('open');
+    setTimeout(function () { $('editorOverlay').classList.remove('open'); }, 220);
+    STATE.editing = null;
+  }
+
+  function renderEditorForm(svc) {
+    // eligibleStaffFor() filtrerer basert på svc.slug:
+    //   tom-* → kun Erik, ter-* → kun de 5 terapeutene, ellers → alle utenom paraplyen.
+    // For nye services (uten svc) brukes eligible-settet som default-assignment;
+    // det inkluderer alt utenom 'terapeut'-paraplyen (samme adferd som før).
+    var eligible = eligibleStaffFor(svc);
+    var assigned = svc ? (STATE.staffMap[svc.id] || []) : eligible.map(function (s) { return s.id; });
+    var assignedSet = {};
+    assigned.forEach(function (id) { assignedSet[id] = true; });
+
+    var staffRows = eligible.map(function (st) {
+      return '<label><input type="checkbox" name="staff" value="' + escapeHtml(st.id) + '"' +
+        (assignedSet[st.id] ? ' checked' : '') + '>' +
+        '<span>' + escapeHtml(st.name) + ' <span style="color:var(--muted);font-size:11px;">(' + escapeHtml(st.id) + ')</span></span>' +
+        '</label>';
+    }).join('');
+
+    // Liten kontekst-linje som forklarer hvorfor listen er begrenset.
+    var slug = (svc && svc.slug) ? svc.slug : '';
+    var staffHelp = '';
+    if (slug.indexOf('tom-') === 0) {
+      staffHelp = '<div class="form-help" style="margin-top:6px;">Erik-tjenester utføres kun av Erik selv.</div>';
+    } else if (slug.indexOf('ter-') === 0) {
+      staffHelp = '<div class="form-help" style="margin-top:6px;">Terapeut-tjenester utføres av terapeut-teamet (ikke Erik).</div>';
+    }
+
+    var defaultSortOrder = svc ? svc.sort_order : nextSortOrder();
+
+    return '' +
+      '<div id="editorError" class="form-error" style="display:none;"></div>' +
+      '<div class="form-row">' +
+        '<label for="fName">Navn *</label>' +
+        '<input type="text" id="fName" required maxlength="120" value="' + escapeHtml(svc ? svc.name : '') + '">' +
+      '</div>' +
+      // STEG 8 — URL-navn (slug) skjules: et auto-generert, internt felt
+      // ikke-tekniske brukere ikke trenger å se. <input> beholdes (skjult
+      // via #slugRow) så lagre-logikk, auto-slug og DB-kolonnen virker.
+      '<div class="form-row" id="slugRow">' +
+        '<label for="fSlug">URL-navn</label>' +
+        '<input type="text" id="fSlug" maxlength="80" value="' + escapeHtml(svc ? svc.slug : '') + '">' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<label for="fDesc">Beskrivelse</label>' +
+        '<textarea id="fDesc" maxlength="400">' + escapeHtml(svc && svc.description ? svc.description : '') + '</textarea>' +
+        '<div class="form-help">Vises på bestilling-siden under tjenestenavnet.</div>' +
+      '</div>' +
+      '<div class="form-row-2">' +
+        '<div class="form-row" style="margin:0;">' +
+          '<label for="fDuration">Varighet (min) *</label>' +
+          '<input type="number" id="fDuration" min="5" max="480" step="5" required value="' + (svc ? svc.duration_min : 30) + '">' +
+        '</div>' +
+        '<div class="form-row" style="margin:0;">' +
+          '<label for="fPrice">Pris (kr) *</label>' +
+          '<input type="number" id="fPrice" min="0" max="200000" step="50" required value="' + (svc ? svc.price_nok : 0) + '">' +
+        '</div>' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<label>Farge (valgfri)</label>' +
+        renderColorPicker(svc && svc.color) +
+      '</div>' +
+      // STEG 6 — Emoji-ikon skjules (ubrukt kundevendt). <input>
+      // beholdes i DOM-en, skjult via #iconRow, så lagre-logikken
+      // og DB-kolonnen virker uendret.
+      '<div class="form-row" id="iconRow">' +
+        '<label for="fIcon">Emoji-ikon</label>' +
+        '<input type="text" id="fIcon" maxlength="4" value="' + escapeHtml(svc && svc.icon ? svc.icon : '') + '">' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<label for="fSort">Rekkefølge</label>' +
+        '<input type="number" id="fSort" min="0" max="9999" step="1" value="' + defaultSortOrder + '">' +
+        '<div class="form-help">Lavere tall vises først. Bruk 10, 20, 30… så du har plass til å legge inn nye imellom.</div>' +
+      '</div>' +
+      // B5 — synlighet: is_public. Av = intern tjeneste (skjules fra
+      // kunde-bestillingen, men ansatte kan fortsatt booke den).
+      '<div class="form-row">' +
+        '<label class="vis-toggle"><input type="checkbox" id="fPublic"' +
+          ((!svc || svc.is_public !== false) ? ' checked' : '') + '>' +
+          '<span>Synlig for kunder (offentlig)</span>' +
+        '</label>' +
+        '<div class="form-help">Av = intern tjeneste: skjules fra kunde-bestillingen, men ansatte kan fortsatt booke den manuelt.</div>' +
+      '</div>' +
+      '<div class="staff-pickers">' +
+        '<h4>Hvem utfører denne?</h4>' +
+        staffRows +
+        staffHelp +
+      '</div>' +
+      '<div class="sheet-actions">' +
+        '<button type="button" class="btn-ghost" id="editorCancel">Avbryt</button>' +
+        '<button type="button" class="btn-primary" id="editorSave">' + (svc ? 'Lagre endringer' : 'Opprett tjeneste') + '</button>' +
+      '</div>' +
+      // Faresone — kun for eksisterende, AKTIVE tjenester. Arkiverer
+      // (is_active=false) i stedet for hard-delete: bookinger refererer tjenesten
+      // via slug uten FK, så sletting ville etterlatt ugyldige referanser. Krever
+      // at man skriver ARKIVER (knapp deaktivert til da). Gjenbruker
+      // Services.setActive — ingen ny migrasjon/RLS.
+      ((svc && svc.is_active) ?
+        '<div class="danger-zone">' +
+          '<h4>Faresone</h4>' +
+          '<p class="dz-text">Arkivér tjenesten for å fjerne den fra booking-siden og nye bestillinger. ' +
+            'Eksisterende bookinger beholdes uendret, og du kan reaktivere den senere fra tjeneste-lista. ' +
+            'Skriv <strong>ARKIVER</strong> nedenfor for å bekrefte.</p>' +
+          '<input type="text" id="dzConfirm" autocomplete="off" autocapitalize="characters" placeholder="Skriv ARKIVER">' +
+          '<button type="button" class="btn-danger" id="dzArchive" disabled>Arkivér tjeneste</button>' +
+        '</div>'
+        : '');
+  }
+
+  function renderColorPicker(currentColor) {
+    var presets = ['#464C8C', '#7A80B8', '#B8754A', '#6B7080', '#171A21', '#c0392b'];
+    var swatches = presets.map(function (c) {
+      return '<span class="color-swatch' + (currentColor === c ? ' selected' : '') +
+        '" data-color="' + escapeHtml(c) + '" style="background:' + escapeHtml(c) + ';"></span>';
+    }).join('');
+    return '<div class="color-picker">' + swatches +
+      '<button type="button" class="color-clear" id="colorClear" title="Ingen farge">×</button>' +
+      '<input type="hidden" id="fColor" value="' + escapeHtml(currentColor || '') + '">' +
+    '</div>';
+  }
+
+  function nextSortOrder() {
+    var maxOrder = 0;
+    STATE.services.forEach(function (s) {
+      if (s.sort_order > maxOrder) maxOrder = s.sort_order;
+    });
+    return maxOrder + 10;
+  }
+
+  function bindEditorForm(svc) {
+    var body = $('editorBody');
+
+    // Auto-slug: lagre om bruker har redigert slug manuelt — i så fall ikke overstyr.
+    var slugDirty = !!(svc && svc.slug);
+    var nameInput = body.querySelector('#fName');
+    var slugInput = body.querySelector('#fSlug');
+    nameInput.addEventListener('input', function () {
+      if (!slugDirty) {
+        slugInput.value = Services.slugify(nameInput.value);
+      }
+    });
+    slugInput.addEventListener('input', function () { slugDirty = true; });
+
+    // Color picker
+    body.querySelectorAll('.color-swatch').forEach(function (sw) {
+      sw.addEventListener('click', function () {
+        body.querySelectorAll('.color-swatch').forEach(function (x) { x.classList.remove('selected'); });
+        sw.classList.add('selected');
+        body.querySelector('#fColor').value = sw.getAttribute('data-color');
+      });
+    });
+    body.querySelector('#colorClear').addEventListener('click', function () {
+      body.querySelectorAll('.color-swatch').forEach(function (x) { x.classList.remove('selected'); });
+      body.querySelector('#fColor').value = '';
+    });
+
+    body.querySelector('#editorCancel').addEventListener('click', closeEditor);
+    body.querySelector('#editorSave').addEventListener('click', function () { onSaveEditor(svc); });
+
+    // Faresone: arkivér tjeneste (kun aktive). Knapp aktiveres først når
+    // brukeren har skrevet ARKIVER. Gjenbruker Services.setActive (samme kall
+    // som hurtig-toggelen) — arkiverer, sletter ikke.
+    var dzInput = body.querySelector('#dzConfirm');
+    var dzBtn = body.querySelector('#dzArchive');
+    if (dzInput && dzBtn && svc) {
+      var matches = function () { return dzInput.value.trim().toUpperCase() === 'ARKIVER'; };
+      dzInput.addEventListener('input', function () { dzBtn.disabled = !matches(); });
+      dzBtn.addEventListener('click', function () {
+        if (!matches()) return;
+        dzBtn.disabled = true; dzBtn.textContent = 'Arkiverer…';
+        Services.setActive(sb, svc.id, false)
+          .then(function (updated) {
+            svc.is_active = updated.is_active;
+            closeEditor();
+            render();
+            showToast('Tjenesten er arkivert', 'ok');
+            logAudit('service_deactivated', svc.id, { slug: svc.slug, name: svc.name, via: 'editor_faresone' });
+          })
+          .catch(function (err) {
+            dzBtn.disabled = false; dzBtn.textContent = 'Arkivér tjeneste';
+            showToast('Kunne ikke arkivere: ' + (err.message || String(err)), 'error');
+          });
+      });
+    }
+  }
+
+  function onSaveEditor(svc) {
+    var body = $('editorBody');
+    var errBox = body.querySelector('#editorError');
+    function fail(msg) {
+      errBox.textContent = msg;
+      errBox.style.display = '';
+      body.scrollTop = 0;
+    }
+    errBox.style.display = 'none';
+
+    var name = body.querySelector('#fName').value.trim();
+    var slug = body.querySelector('#fSlug').value.trim();
+    var description = body.querySelector('#fDesc').value.trim();
+    var duration_min = parseInt(body.querySelector('#fDuration').value, 10);
+    var price_nok = parseInt(body.querySelector('#fPrice').value, 10);
+    var color = (body.querySelector('#fColor').value || '').trim();
+    var icon  = body.querySelector('#fIcon').value.trim();
+    var sort_order = parseInt(body.querySelector('#fSort').value, 10);
+    var is_public = body.querySelector('#fPublic').checked;
+    var staffChecked = Array.prototype.slice.call(
+      body.querySelectorAll('.staff-pickers input[name="staff"]:checked')
+    ).map(function (cb) { return cb.value; });
+
+    if (!name) return fail('Navnet er påkrevd.');
+    if (!slug) return fail('Slug er påkrevd.');
+    if (!/^[a-z0-9-]+$/.test(slug)) return fail('Slug må bare inneholde a–z, 0–9 og bindestrek.');
+    if (!Number.isFinite(duration_min) || duration_min <= 0) return fail('Varighet må være større enn 0.');
+    if (!Number.isFinite(price_nok) || price_nok < 0) return fail('Pris kan ikke være negativ.');
+    if (!Number.isFinite(sort_order) || sort_order < 0) sort_order = 0;
+
+    // Duplicate slug?
+    var dupe = STATE.services.find(function (s) {
+      return s.slug === slug && (!svc || s.id !== svc.id);
+    });
+    if (dupe) return fail('Slug «' + slug + '» er allerede i bruk. Velg en annen.');
+
+    var payload = {
+      slug: slug, name: name, description: description || null,
+      duration_min: duration_min, price_nok: price_nok,
+      color: color || null, icon: icon || null,
+      sort_order: sort_order, is_active: svc ? svc.is_active : true,
+      is_public: is_public
+    };
+
+    var saveBtn = body.querySelector('#editorSave');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Lagrer…';
+
+    var op = svc
+      ? Services.updateService(sb, svc.id, payload).then(function (row) { return { row: row, isNew: false }; })
+      : Services.createService(sb, payload).then(function (row) { return { row: row, isNew: true }; });
+
+    op.then(function (result) {
+      var row = result.row;
+      // Sync staff_services mapping
+      return Services.setStaffForService(sb, row.id, staffChecked)
+        .then(function (diff) { return { row: row, isNew: result.isNew, diff: diff }; });
+    }).then(function (result) {
+      // Audit
+      logAudit(result.isNew ? 'service_created' : 'service_updated', result.row.id, {
+        slug: result.row.slug, name: result.row.name,
+        price_nok: result.row.price_nok, duration_min: result.row.duration_min
+      });
+      if (result.diff && (result.diff.added.length || result.diff.removed.length)) {
+        logAudit('staff_service_changed', result.row.id, {
+          slug: result.row.slug,
+          added: result.diff.added,
+          removed: result.diff.removed
+        });
+      }
+      showToast(result.isNew ? 'Tjeneste opprettet' : 'Endringer lagret', 'ok');
+      closeEditor();
+      loadServices();
+    }).catch(function (err) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = svc ? 'Lagre endringer' : 'Opprett tjeneste';
+      var msg = err && err.message ? err.message : String(err);
+      if (/duplicate key|23505/.test(msg)) {
+        fail('Slug er allerede i bruk i databasen. Velg en annen.');
+      } else {
+        fail('Klarte ikke å lagre: ' + msg);
+      }
+    });
+  }
+
+  // ----- Audit log helper ---------------------------------------
+  // Tynn wrapper på WestengenKlinikkAuth.auditLog som setter target_type = 'service'.
+  function logAudit(action, serviceId, metadata) {
+    if (!STATE.user) return;
+    window.WestengenKlinikkAuth.auditLog(sb, STATE.user, {
+      action: action,
+      target_type: 'service',
+      target_id: serviceId || null,
+      metadata: metadata || null
+    });
+  }
+
+  // ----- Toast --------------------------------------------------
+  var toastTimer = null;
+  function showToast(msg, kind) {
+    var el = $('toastEl');
+    el.textContent = msg;
+    el.className = 'toast shown' + (kind ? ' ' + kind : '');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      el.className = 'toast' + (kind ? ' ' + kind : '');
+    }, 2800);
+  }
+
+  // ----- Init ---------------------------------------------------
+  bindActions();
+})();
+</script>
+
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

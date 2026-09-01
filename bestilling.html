@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="theme-color" content="#171A21" />
+
+<!-- Content Security Policy
+     'unsafe-inline' for script er en bevisst avveining (kundens booking-flyt
+     bruker inline <script>-blokker for state-håndtering). All brukerdata
+     escapes/textContent-settes før innsetting i DOM. Hvis dette endres til
+     external scripts kan 'unsafe-inline' for script-src fjernes. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: https:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+
+<title data-i18n="page.book.title">Bestill time · Erik og terapeuter · Westengen Klinikk</title>
+<meta name="description" content="Bestill time hos Erik Westengen eller en av Eriks terapeuter. Time med Erik: konsultasjon kr 4 000, videre kr 3 000. Konsultasjon med terapeut kr 2 000, videre kr 1 500. Klinikk i Storgata 1, Oslo." />
+<meta name="robots" content="noindex, nofollow" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Bestill time hos Westengen Klinikk" />
+<meta property="og:description" content="Erik: konsultasjon kr 4 000, videre kr 3 000. Terapeut: kr 2 000 / kr 1 500. Klinikk i Oslo." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/components.css">
+<link rel="stylesheet" href="shared/booking-flow.css">
+<link rel="stylesheet" href="shared/i18n.css">
+<style>
+  :root {
+    --green: #464C8C;
+    --green-deep: #2F3463;
+    --green-soft: #7A80B8;
+    --green-tint: #E9EAF4;
+    --paper: #F7F8FA;
+    --paper-2: #EDEFF3;
+    --ink: #171A21;
+    --ink-2: #2E323C;
+    --muted: #6B7080;
+    --rule: #171a2622;
+    --clay: #B8754A;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    font-size: 16px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+  .serif { font-family: 'Fraunces', Georgia, serif; }
+  .mono  { font-family: 'JetBrains Mono', monospace; }
+  .container { width: min(1280px, 92vw); margin: 0 auto; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--green);
+  }
+
+  /* ============ HEADER (same as forsiden) ============ */
+  .nav-shell {
+    position: sticky; top: 0; z-index: 60;
+    background: var(--ink);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .nav {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 40px;
+    padding: 14px 0;
+  }
+  .brand { display: flex; align-items: center; flex-shrink: 0; }
+  .brand-img {
+    height: 72px;
+    width: auto;
+    display: block;
+    flex-shrink: 0;
+    max-width: none;
+  }
+  .nav-links {
+    display: flex; gap: 32px; justify-content: center;
+    font-size: 14px; font-weight: 500;
+  }
+  .nav-links a { color: rgba(255,255,255,0.85); padding: 6px 0; position: relative; }
+  .nav-links a:hover { color: #fff; }
+  .nav-links a.active { color: #fff; }
+  .nav-links a.active::after {
+    content:""; position:absolute; left:0; right:0; bottom:-2px;
+    height:2px; background: var(--paper);
+  }
+  .nav-cta { display: flex; align-items: center; gap: 14px; }
+  .nav-cta .btn-primary { background: var(--green); color: #fff; }
+  .nav-cta .btn-primary:hover { background: var(--green-soft); }
+  .phone { font-size: 13px; color: rgba(255,255,255,0.7); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  /* Skjul telefonnr på smalere desktop (finnes uansett i footer + kontakt). */
+  @media (max-width: 1400px) { .phone { display: none; } }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 22px;
+    font-weight: 600; font-size: 14px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all .15s ease;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--green); color: var(--paper); }
+  .btn-primary:hover { background: var(--green-deep); }
+  .btn-outline { background: transparent; border-color: var(--ink); color: var(--ink); }
+  .btn-outline:hover { background: var(--ink); color: var(--paper); }
+  .btn-arrow::after { content: "→"; font-weight: 400; }
+
+  /* ============ PAGE HERO ============ */
+  .page-hero {
+    padding: 80px 0 60px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .page-hero .breadcrumb {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 28px;
+    display: flex; gap: 10px; align-items: center;
+  }
+  .page-hero .breadcrumb a { color: var(--muted); }
+  .page-hero .breadcrumb a:hover { color: var(--green); }
+  .page-hero h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(48px, 6vw, 84px);
+    font-weight: 300;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    margin: 0 0 24px;
+    max-width: 18ch;
+  }
+  .page-hero h1 em { font-style: italic; color: var(--green); }
+  .page-hero .lede {
+    font-size: 19px;
+    color: var(--ink-2);
+    line-height: 1.55;
+    max-width: 56ch;
+    margin: 0 0 32px;
+  }
+  .page-hero-meta {
+    display: flex; gap: 32px; flex-wrap: wrap;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .page-hero-meta strong { color: var(--ink); font-weight: 600; }
+
+  /* ============ INFO GRID ============ */
+  .info {
+    padding: 80px 0;
+  }
+  .info-head { margin-bottom: 48px; }
+  .info-head h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(28px, 3vw, 38px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin: 14px 0 0;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .info-card {
+    background: var(--paper);
+    padding: 32px 28px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .info-card .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 14px;
+  }
+  .info-card h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin: 0 0 10px;
+    line-height: 1.15;
+  }
+  .info-card p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-2);
+    line-height: 1.55;
+  }
+  .info-card a.tel,
+  .info-card a.mail {
+    color: var(--green);
+    border-bottom: 1px solid var(--green-soft);
+    display: inline-block;
+    margin-top: 8px;
+  }
+  .info-card a.tel:hover, .info-card a.mail:hover { color: var(--green-deep); }
+  .info-card .ico {
+    width: 32px; height: 32px;
+    margin-bottom: 18px;
+    color: var(--green);
+  }
+
+  /* ============ EMBED SECTION ============ */
+  .embed-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 60px 0 0;
+  }
+  .embed-head {
+    text-align: center;
+    margin-bottom: 32px;
+    max-width: 60ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .embed-head .eyebrow { color: var(--green-tint); }
+  .embed-head h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(28px, 3vw, 36px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--paper);
+    margin: 14px 0 12px;
+  }
+  .embed-head h2 em { color: var(--green-tint); font-style: italic; }
+  .embed-head p {
+    color: rgba(255,255,255,.7);
+    margin: 0;
+    font-size: 15px;
+  }
+  .embed-frame-wrap {
+    background: var(--paper);
+    width: min(1200px, 96vw);
+    margin: 32px auto 0;
+    height: 720px;
+    position: relative;
+  }
+  .embed-frame {
+    width: 100%; height: 100%;
+    border: 0;
+    display: block;
+  }
+  .embed-loading {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    background: var(--paper);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .embed-flow-wrap { background: var(--paper); margin-top: 32px; max-width: 1080px; margin-left: auto; margin-right: auto; }
+  .embed-fallback {
+    display: none;
+    padding: 48px;
+    text-align: center;
+  }
+  .embed-fallback.active { display: block; }
+  .embed-fallback h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 28px;
+    color: var(--ink);
+    margin: 0 0 12px;
+    font-weight: 500;
+  }
+  .embed-fallback p {
+    color: var(--ink-2);
+    max-width: 50ch;
+    margin: 0 auto 28px;
+  }
+
+  /* ============ FOOTER ============ */
+  footer.foot {
+    background: var(--paper-2);
+    border-top: 1px solid var(--rule);
+    padding: 60px 0 32px;
+  }
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 2fr minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 48px;
+    margin-bottom: 48px;
+    align-items: start;
+  }
+  .foot-grid > * { min-width: 0; overflow-wrap: anywhere; }
+  .foot h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 16px;
+    font-weight: 500;
+  }
+  .foot ul { list-style: none; padding: 0; margin: 0; }
+  .foot li { margin-bottom: 10px; font-size: 14px; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+  .foot li a { color: var(--ink-2); overflow-wrap: anywhere; word-break: break-word; }
+  .foot li a:hover { color: var(--green); }
+  .foot-brand p {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 24px;
+    color: var(--ink);
+    margin: 0 0 12px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    max-width: 30ch;
+    line-height: 1.3;
+  }
+  .foot-brand .small {
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    color: var(--muted);
+  }
+  .foot-bottom {
+    border-top: 1px solid var(--rule);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ============ MOBILE HAMBURGER + OVERLAY-MENY ============ */
+  .nav-hamburger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: var(--paper);
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+  }
+  .nav-hamburger:hover { color: #fff; }
+  .nav-hamburger:focus-visible { outline: 2px solid var(--green-soft); outline-offset: 2px; }
+  .nav-hamburger svg { display: block; }
+  .nav-mobile {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px 40px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 150ms ease, visibility 0s linear 150ms;
+  }
+  .nav-mobile.open {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 150ms ease, visibility 0s linear 0s;
+  }
+  .nav-mobile-close {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: none; border: none;
+    color: var(--paper);
+    font-size: 32px; line-height: 1;
+    cursor: pointer;
+    padding: 8px 12px;
+    font-family: inherit;
+  }
+  .nav-mobile-close:hover { color: var(--green-soft); }
+  .nav-mobile-close:focus-visible { outline: 2px solid var(--green-soft); outline-offset: 2px; }
+  .nav-mobile-links {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .nav-mobile-links a {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(26px, 6vw, 34px);
+    color: var(--paper);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .nav-mobile-links a:hover { color: var(--green-soft); }
+  .nav-mobile-links a:focus-visible { outline: 2px solid var(--green-soft); outline-offset: 4px; }
+  .nav-mobile-cta { margin-top: 8px; }
+
+  /* ============ MOBILE ============ */
+  /* Header-kollaps til hamburger på TRANGE bredder (≤1024px) — hindrer at
+     nav-lenkene klemmer/brekker. «Bestill time» + språkvelger blir i baren. */
+  @media (max-width: 1024px) {
+    .nav { grid-template-columns: 1fr auto; }
+    .nav-links { display: none; }
+    .nav-hamburger { display: inline-flex; }
+  }
+  @media (max-width: 900px) {
+    .nav { grid-template-columns: 1fr auto; }
+    .nav-links { display: none; }
+    .nav-hamburger { display: inline-flex; }
+    .info-grid { grid-template-columns: 1fr 1fr; }
+    .foot-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .embed-frame-wrap { height: 600px; }
+    .page-hero { padding: 56px 0 40px; }
+    .info { padding: 56px 0; }
+  }
+  @media (max-width: 600px) {
+    .info-grid { grid-template-columns: 1fr; }
+    .foot-grid { grid-template-columns: 1fr; gap: 32px; }
+    body { padding-bottom: 80px; } /* mobile sticky CTA */
+  }
+
+  /* Issue R — unifiser mobil-headeren med landingssiden. bestilling.html
+     manglet alle header-overrides for smal mobil, så logoen ble 56px,
+     telefonnummeret synlig og nav-gap 40px — «helt merkelig» på telefon.
+     Speiler index.html sitt @media (max-width: 640px)-headeroppsett. */
+  @media (max-width: 640px) {
+    .phone { display: none; }
+    .nav-cta { gap: 8px; }
+    .nav-cta .btn-primary { padding: 10px 14px; font-size: 13px; white-space: nowrap; min-height: 44px; }
+    .nav-cta .tas-lang .lang-btn { padding: 8px 10px; font-size: 12px; min-height: 44px; }
+    .nav-hamburger { min-width: 44px; min-height: 44px; margin-right: -8px; }
+    .nav-shell .container { padding-left: 16px; padding-right: 16px; }
+    .nav { gap: 8px; padding: 10px 0; }
+    .brand-img { height: 44px; width: auto; }
+  }
+
+/* ===== DEL 4B — kundeside-polish (kun presentasjon, ingen funksjonsendring):
+   tydelig tastatur-fokus på knapper og lenker. De fleste manglet :focus-visible
+   (kun mobilmenyen var dekket). Eksisterende fokus-regler beholdes (høyere
+   specificity vinner). Endrer ikke layout/klikk-oppførsel. ===== */
+.btn:focus-visible,
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+</style>
+<link rel="stylesheet" href="shared/cookie-banner.css">
+<link rel="stylesheet" href="shared/header-nav.css">
+
+</head>
+<body data-screen-label="Bestilling">
+
+<!-- ============ HEADER ============ -->
+<header class="nav-shell">
+  <div class="container">
+    <nav class="nav">
+      <a href="index.html" class="brand" aria-label="Westengen Klinikk">
+        <span class="brand-wordmark"><strong>Westengen</strong><span>Klinikk</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="bestilling.html" class="active" data-i18n="nav.book_cta">Bestill time</a>
+        <a href="avbestill.html" data-i18n="nav.cancel">Avbestill time</a>
+        <a href="venteliste.html" data-i18n="nav.waitlist">Venteliste</a>
+        <a href="kontakt.html" data-i18n="nav.contact">Kontakt</a>
+        <a href="ansatt.html" data-i18n="nav.admin">Adminpanel</a>
+      </div>
+      <div class="nav-cta">
+        <div class="lang tas-lang">
+          <button class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="flag" data-current-lang>🇳🇴</span>
+            <span class="chev"></span>
+          </button>
+          <div class="lang-menu" role="listbox">
+            <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
+            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>
+            <button data-lang="de"><span>Deutsch</span><span class="code">🇩🇪</span></button>
+            <button data-lang="es"><span>Español</span><span class="code">🇪🇸</span></button>
+            <button data-lang="ar"><span>العربية</span><span class="code">🇸🇦</span></button>
+            <button data-lang="fa"><span>فارسی</span><span class="code">🇮🇷</span></button>
+          </div>
+        </div>
+        <a class="btn btn-primary btn-arrow" href="#" data-book="general" data-i18n="nav.book_cta">Bestill time</a>
+        <button class="nav-hamburger" type="button" aria-label="Meny" data-i18n-aria-label="nav.menu_aria" aria-expanded="false" aria-controls="navMobile">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="19" y2="6"/>
+            <line x1="3" y1="11" x2="19" y2="11"/>
+            <line x1="3" y1="16" x2="19" y2="16"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ MOBILE NAV OVERLAY ============ -->
+<div class="nav-mobile" id="navMobile" role="dialog" aria-modal="true" aria-label="Meny" hidden>
+  <button class="nav-mobile-close" type="button" aria-label="Lukk meny" data-i18n-aria-label="nav.menu_close_aria">×</button>
+  <nav class="nav-mobile-links" aria-label="Hovedmeny">
+    <a href="bestilling.html" class="active" data-i18n="nav.book_cta">Bestill time</a>
+    <a href="avbestill.html" data-i18n="nav.cancel">Avbestill time</a>
+    <a href="venteliste.html" data-i18n="nav.waitlist">Venteliste</a>
+    <a href="kontakt.html" data-i18n="nav.contact">Kontakt</a>
+    <a href="ansatt.html" data-i18n="nav.admin">Adminpanel</a>
+  </nav>
+  <div class="nav-mobile-cta">
+    <a class="btn btn-primary btn-arrow" href="#" data-book="general" data-i18n="nav.book_cta">Bestill time</a>
+  </div>
+</div>
+
+<!-- ============ PAGE HERO ============ -->
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html" data-i18n="nav.home">Forsiden</a>
+      <span>/</span>
+      <span data-i18n="page.book.breadcrumb">Bestilling</span>
+    </div>
+    <h1><span data-i18n="page.book.hero_title_pre">Bestill</span> <em data-i18n="page.book.hero_title_em">time</em><br/><span data-i18n="page.book.hero_title_post">hos Erik Westengen.</span></h1>
+    <p class="lede" data-i18n="page.book.lede">Erik selv tar deg gjennom en grundig vurdering med 40 års erfaring i ryggen. Terapeutene hans er opplært i samme metode og tilbyr behandling til lavere pris. Velg det som passer deg best.</p>
+    <div class="page-hero-meta">
+      <span><strong data-i18n="page.book.meta_address">Storgata 1</strong> &nbsp;<span data-i18n="page.book.meta_address_city">Oslo</span></span>
+      <span><span data-i18n="page.book.meta_hours_label">Man–Fre</span> <strong data-i18n="page.book.meta_hours_val">07:00–15:00</strong></span>
+      <span><span data-i18n="page.book.meta_phone_label">Telefon</span> <strong data-i18n="page.book.meta_phone_val">09:00 – 15:00</strong></span>
+      <span><span data-i18n="page.book.meta_cancel_label">Avbestilling</span> <strong data-i18n="page.book.meta_cancel_val">24 t</strong> <span data-i18n="page.book.meta_cancel_suffix">før</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FULL BOOKING ============ -->
+<section class="embed-section" id="full-booking">
+  <div class="container">
+    <div class="embed-head">
+      <span class="eyebrow" data-i18n="full_booking.eyebrow">Full kalender</span>
+      <h2><span data-i18n="full_booking.heading_pre">Vil du se</span> <em data-i18n="full_booking.heading_em">alle ledige tider</em><span data-i18n="full_booking.heading_post">?</span></h2>
+      <p data-i18n="full_booking.intro">Velg behandler, tjeneste og tid, alt direkte her på siden. Trygt og uten omveier.</p>
+    </div>
+    <div class="embed-flow-wrap">
+      <div id="inlineBookingFlow"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INFO GRID ============ -->
+<section class="info">
+  <div class="container">
+    <div class="info-head">
+      <span class="eyebrow" data-i18n="info.eyebrow">Praktisk info</span>
+      <h2 data-i18n="info.heading">Alt du trenger å vite før du kommer.</h2>
+    </div>
+    <div class="info-grid">
+      <div class="info-card">
+        <svg class="ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 4c5 0 10 4 10 10 0 7-10 14-10 14S6 21 6 14c0-6 5-10 10-10z"/><circle cx="16" cy="14" r="3.5"/></svg>
+        <div class="label" data-i18n="info.address_label">Adresse</div>
+        <h3 data-i18n="info.address_title">Storgata 1</h3>
+        <p data-i18n="info.address_body">0155 Oslo</p>
+        <p style="margin-top:8px;"><a class="mail" href="https://maps.google.com/?q=Storgata+1,+0155+Oslo" target="_blank" rel="noopener noreferrer" data-i18n="info.address_link">Vis i kart →</a></p>
+      </div>
+      <div class="info-card">
+        <svg class="ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="16" cy="16" r="11"/><path d="M16 9v7l5 3"/></svg>
+        <div class="label" data-i18n="info.hours_label">Åpningstider</div>
+        <h3 data-i18n="info.hours_title">Mandag – Fredag
+07:00 – 15:00</h3>
+        <p data-i18n="info.hours_body">Stengt lørdag og søndag
+Telefontid 09:00 – 15:00</p>
+      </div>
+      <div class="info-card">
+        <svg class="ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="6" width="20" height="20" rx="3"/><path d="M13 22V11h4a3 3 0 0 1 0 6h-4"/></svg>
+        <div class="label" data-i18n="info.parking_label">Parkering</div>
+        <h3 data-i18n="info.parking_title">Tre alternativer</h3>
+        <p data-i18n="info.parking_early">Før kl. 08:00: parkering rett utenfor inngangen.</p>
+        <p data-i18n="info.parking_handicap">Tre handicap-plasser til venstre for inngangen, på nedsiden av bygget.</p>
+        <p data-i18n="info.parking_other">For «alle andre»: parkering i området rundt, og man kan enkelt ha billett ved å bruke EasyPark i gaten.</p>
+      </div>
+      <div class="info-card">
+        <svg class="ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 4l4 6h-3a8 8 0 1 0 8-8"/><path d="M22 8l-3 3"/></svg>
+        <div class="label" data-i18n="info.cancel_label">Avbestilling</div>
+        <h3 data-i18n="info.cancel_title">24 timer</h3>
+        <p data-i18n="info.cancel_body">Avbestill senest 24 timer før timen. No-show faktureres.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <p>Westengen Klinikk<br/><em data-i18n="footer.brand_blurb_em">muskel- og nervebehandling</em> siden 1985.</p>
+        <p class="small" data-i18n="footer.brand_blurb_extra">Drevet av Erik Westengen og familien hans i Oslo. 40 års erfaring, fra idrettsutøvere til folk med vondt i ryggen etter en arbeidsdag.</p>
+      </div>
+      <div>
+        <h4 data-i18n="footer.clinic_heading">Klinikken</h4>
+        <ul>
+          <li>Storgata 1</li>
+          <li>0155 Oslo</li>
+          <li>Mandag – Fredag 07:00 – 15:00</li>
+        </ul>
+      </div>
+      <div>
+        <h4 data-i18n="footer.contact_heading">Kontakt</h4>
+        <ul>
+          <li><a href="tel:+47 400 00 000">+47 400 00 000</a></li>
+          <li><a href="mailto:post@westengenklinikk.example">post@westengenklinikk.example</a></li>
+          <li><a href="#" data-book="general" data-i18n="nav.book_cta">Bestill time</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 data-i18n="footer.legal_heading">Sider</h4>
+        <ul>
+          <li><a href="index.html" data-i18n="nav.home">Forsiden</a></li>
+          <li><a href="index.html#filosofi" data-i18n="nav.philosophy">Filosofi</a></li>
+          <li><a href="index.html#klienter" data-i18n="nav.clients">Klienter</a></li>
+          <li><a href="bestilling.html" data-i18n="nav.booking">Bestilling</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span data-i18n="footer.copyright">© 2026 Westengen Klinikk — demo med fiktive data · Nettside og system: Westengen Studio (Markus Westengen)</span>
+      <span><a href="personvern.html" data-i18n="footer.legal_privacy">Personvern</a> · <a href="personvern.html#cookies" data-i18n="footer.legal_cookies">Cookies</a></span>
+    </div>
+  </div>
+</footer>
+
+<!-- mobile sticky CTA -->
+<div class="tas-mobile-cta">
+  <a href="#" data-book="general" data-i18n="mobile_cta.book">Bestill time →</a>
+</div>
+
+<script src="i18n/i18n.js"></script>
+<script src="shared/booking-config.js"></script>
+<script src="shared/services.js"></script>
+<script src="shared/booking-engine.js"></script>
+<script src="shared/booking-flow.js"></script>
+<script src="shared/components.js"></script>
+<script>
+  (function () {
+    var host = document.getElementById('inlineBookingFlow');
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting && window.WestengenKlinikkBookingFlow) {
+          window.WestengenKlinikkBookingFlow.mount(host, {});
+          io.disconnect();
+        }
+      });
+    }, { rootMargin: '200px' });
+    io.observe(host);
+    // P2-10 fra audit 2026-05-15: rydd opp observer ved unload så vi ikke
+    // lar den ligge igjen hvis kunden navigerer bort før flow-en mountes.
+    window.addEventListener('beforeunload', function () { io.disconnect(); });
+  })();
+</script>
+
+<!-- Hamburger / mobile-meny toggle -->
+<script>
+(function(){
+  var hamburger = document.querySelector('.nav-hamburger');
+  var menu = document.getElementById('navMobile');
+  if (!hamburger || !menu) return;
+  var closeBtn = menu.querySelector('.nav-mobile-close');
+  var links = menu.querySelectorAll('.nav-mobile-links a, .nav-mobile-cta a');
+  var lastFocus = null;
+
+  function openMenu() {
+    if (menu.classList.contains('open')) return;
+    lastFocus = document.activeElement;
+    menu.removeAttribute('hidden');
+    void menu.offsetWidth;
+    menu.classList.add('open');
+    hamburger.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){
+      var first = menu.querySelector('.nav-mobile-links a');
+      if (first) first.focus();
+    }, 160);
+  }
+  function closeMenu() {
+    if (!menu.classList.contains('open')) return;
+    menu.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    setTimeout(function(){ menu.setAttribute('hidden', ''); }, 160);
+    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+    else hamburger.focus();
+  }
+  hamburger.addEventListener('click', function(){
+    if (menu.classList.contains('open')) closeMenu();
+    else openMenu();
+  });
+  closeBtn.addEventListener('click', closeMenu);
+  menu.addEventListener('click', function(e){
+    if (e.target === menu) closeMenu();
+  });
+  links.forEach(function(a){ a.addEventListener('click', closeMenu); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && menu.classList.contains('open')) closeMenu();
+  });
+})();
+</script>
+
+<script src="shared/cookie-banner.js" defer></script>
+
+
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

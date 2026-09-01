@@ -1,0 +1,163 @@
+/* ============================================================
+   Westengen Klinikk — Language dropdown + RTL overrides
+   Shared CSS so we can drop a .tas-lang dropdown into any page
+   without duplicating CSS from index.html. Pages that already
+   ship their own .lang/.lang-btn/.lang-menu definitions (index.html)
+   keep theirs; this file is additive and won't conflict.
+   ============================================================ */
+
+/* ---- baseline dropdown (matches index.html visuals) ---- */
+.tas-lang {
+  position: relative;
+  display: inline-block;
+}
+.tas-lang .lang-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.25);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: rgba(255,255,255,0.9);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.tas-lang .lang-btn .flag {
+  font-size: 16px;
+  line-height: 1;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Twemoji Mozilla', sans-serif;
+}
+.tas-lang .lang-btn:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
+.tas-lang .lang-btn .chev {
+  width: 8px; height: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform .2s ease;
+}
+.tas-lang.open .lang-btn .chev { transform: rotate(-135deg) translateY(0); }
+
+/* On light backgrounds (legal pages, topbars on paper) use ink colors */
+.tas-lang.tas-lang-light .lang-btn {
+  border-color: rgba(23, 26, 33,0.25);
+  color: var(--ink, #171A21);
+}
+.tas-lang.tas-lang-light .lang-btn:hover { border-color: var(--ink, #171A21); }
+
+.tas-lang .lang-menu {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--paper, #F7F8FA);
+  border: 1px solid var(--rule, #171a2622);
+  min-width: 220px;
+  box-shadow: 0 12px 32px -12px rgba(23, 26, 33,0.18);
+  opacity: 0; visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity .15s ease, transform .15s ease, visibility 0s linear .15s;
+  z-index: 70;
+}
+.tas-lang.open .lang-menu {
+  opacity: 1; visibility: visible;
+  transform: translateY(0);
+  transition: opacity .15s ease, transform .15s ease;
+}
+.tas-lang .lang-menu button {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none; border-bottom: 1px solid var(--rule, #171a2622);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; font-weight: 500;
+  color: var(--ink, #171A21);
+  cursor: pointer;
+  text-align: left;
+  transition: background .15s ease;
+}
+.tas-lang .lang-menu button:last-child { border-bottom: none; }
+.tas-lang .lang-menu button:hover { background: var(--paper-2, #EDEFF3); }
+.tas-lang .lang-menu button.active { color: var(--green, #464C8C); }
+.tas-lang .lang-menu button .code {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 18px;
+  line-height: 1;
+}
+.tas-lang .lang-menu[dir="rtl"] button { text-align: right; }
+
+/* ============================================================
+   RTL overrides — applied when <html dir="rtl">
+   Goal: flip horizontally without breaking visual rhythm. We
+   prefer flipping flex/grid direction over text-align unless
+   a specific element needs explicit right-alignment.
+   ============================================================ */
+html[dir="rtl"] body { text-align: right; }
+html[dir="rtl"] .nav-links,
+html[dir="rtl"] .nav-cta,
+html[dir="rtl"] .nav,
+html[dir="rtl"] .foot-grid,
+html[dir="rtl"] .foot-bottom,
+html[dir="rtl"] .foot-col {
+  direction: rtl;
+}
+html[dir="rtl"] .lang-menu {
+  left: 0; right: auto;
+}
+html[dir="rtl"] .breadcrumb,
+html[dir="rtl"] .topbar .container {
+  direction: rtl;
+}
+/* Arrow glyphs in CTAs render naturally LTR; keep them visually but
+   flip their direction relative to flex layout. */
+html[dir="rtl"] .btn-arrow::after { content: "←"; }
+html[dir="rtl"] .hist-back::before,
+html[dir="rtl"] .hist-back-bar a::before { content: ""; }
+html[dir="rtl"] .hist-back,
+html[dir="rtl"] .hist-back-bar a { direction: rtl; }
+
+/* Booking flow internals — keep numeric/calendar tables LTR so dates
+   and times don't reverse. Erik himself reads norsk dates so this is
+   intentional per the Markus brief. */
+html[dir="rtl"] .tabf-cal,
+html[dir="rtl"] .tabf-cal-head,
+html[dir="rtl"] .tabf-cal-row,
+html[dir="rtl"] .tabf-time-grid,
+html[dir="rtl"] .tabf-stepper {
+  direction: ltr;
+}
+html[dir="rtl"] .tabf-step-wrap,
+html[dir="rtl"] .tabf-summary,
+html[dir="rtl"] .tabf-confirm-sum,
+html[dir="rtl"] .tabf-form,
+html[dir="rtl"] .tabf-actions {
+  direction: rtl;
+}
+html[dir="rtl"] .tabf-form input,
+html[dir="rtl"] .tabf-form textarea,
+html[dir="rtl"] .tabf-summary dd,
+html[dir="rtl"] .tabf-confirm-sum dd {
+  text-align: right;
+}
+
+/* Chat widget anchored bottom-right by default; mirror in RTL. */
+html[dir="rtl"] .tas-chat { left: 24px; right: auto; }
+html[dir="rtl"] .tas-chat-panel { left: 0; right: auto; }
+
+/* ============================================================
+   Issue C — mobil: hold språkmenyen innenfor viewporten.
+   På smal mobil sitter .tas-lang midt i headeren (språk ·
+   "Bestill time" · hamburger), så en knappe-anker'et absolutt-
+   meny renner utenfor skjermkanten. Vi pinner den til viewporten
+   med position:fixed slik at fiksen er uavhengig av hvilken side
+   den brukes på. Scoped til .nav-cta så .topbar-varianten på
+   juridiske sider (egen, høyrejustert plassering) ikke berøres.
+   ============================================================ */
+@media (max-width: 640px) {
+  .nav-cta .tas-lang .lang-menu {
+    position: fixed;
+    top: 66px;           /* rett under den ~66px høye mobil-headeren */
+    right: 8px; left: auto;
+    max-width: calc(100vw - 16px);
+  }
+  html[dir="rtl"] .nav-cta .tas-lang .lang-menu {
+    left: 8px; right: auto;
+  }
+}

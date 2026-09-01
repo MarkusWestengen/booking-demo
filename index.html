@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: https:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+<meta name="theme-color" content="#171A21" />
+<title>Westengen Klinikk — booking- og journalsystem (demo)</title>
+<meta name="description" content="Arbeidsprøve: et komplett booking- og journalsystem for en liten klinikk. Kundevendt bestilling, kalender, kundekartotek, journal og audit-logg. Klinikken er oppdiktet." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Westengen Klinikk — booking- og journalsystem (demo)" />
+<meta property="og:description" content="Demonstrasjonsversjon med fiktive data. Innloggingen til adminpanelet er publisert på forsiden." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
+<link rel="manifest" href="manifest.json" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/public.css">
+<link rel="stylesheet" href="shared/i18n.css">
+<link rel="stylesheet" href="shared/cookie-banner.css">
+<link rel="stylesheet" href="shared/header-nav.css">
+
+<style>
+  /* ============================================================
+     Systemforsiden
+     ------------------------------------------------------------
+     Dette er ikke klinikkens forside. Klinikken er en kulisse; det
+     som skal vises fram er systemet bak den. Siden har derfor én
+     jobb: si på femten sekunder hva dette er, og gi to dører —
+     bookingflyten og adminpanelet — med innloggingen synlig.
+
+     Mørk flate, samme språk som headeren, så det leser som en
+     ramme rundt demoen og ikke som noe klinikken selv sier.
+     ============================================================ */
+  .lead {
+    background: var(--ink); color: var(--paper);
+    padding: 84px 0 76px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .lead-eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--green-soft); margin: 0 0 18px;
+  }
+  .lead h1 {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+    font-size: clamp(34px, 6vw, 60px); line-height: 1.04;
+    letter-spacing: -0.025em; margin: 0 0 22px; max-width: 17ch;
+  }
+  .lead h1 em { font-style: italic; color: var(--green-soft); }
+  .lead-body {
+    max-width: 54ch; font-size: 16.5px; line-height: 1.62;
+    color: rgba(247,248,250,0.74); margin: 0 0 14px;
+  }
+  .lead-body strong { color: var(--paper); font-weight: 500; }
+
+  .doors { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
+  .door {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-size: 15px; font-weight: 500; padding: 13px 22px;
+    text-decoration: none; transition: background .16s ease, border-color .16s ease;
+  }
+  .door-primary { background: var(--green); color: #fff; }
+  .door-primary:hover { background: var(--green-soft); }
+  .door-ghost { border: 1px solid rgba(255,255,255,0.24); color: var(--paper); }
+  .door-ghost:hover { border-color: var(--paper); }
+
+  /* ---------- Innlogging ---------- */
+  .creds { padding: 56px 0; background: var(--paper); }
+  .creds-head {
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    margin-bottom: 22px; padding-bottom: 12px;
+    border-bottom: 2px solid var(--green);
+  }
+  .creds-head h2 {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+    font-size: 26px; margin: 0; letter-spacing: -0.015em;
+  }
+  .creds-head p { margin: 0; font-size: 13.5px; color: var(--muted); }
+
+  .creds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .cred {
+    border: 1px solid var(--rule); background: #fff; padding: 18px 20px;
+  }
+  .cred-role {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--green); margin: 0 0 12px;
+  }
+  .cred-line { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; }
+  /* user-select:all — verdien skal kopieres med ett klikk, ikke leses. */
+  .cred-line code {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px; user-select: all;
+    background: var(--green-tint); color: var(--ink); padding: 4px 8px;
+  }
+  .cred-note { margin: 12px 0 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+
+  /* ---------- Hva som ligger bak ---------- */
+  .inventory { padding: 8px 0 72px; background: var(--paper); }
+  .inv-label {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 16px;
+  }
+  /* Seks kort i faste tre kolonner, ikke auto-fit. Auto-fit ga fem
+     kolonner på bred skjerm og lot den sjette cella stå tom — og
+     siden rutenettet bruker 1px gap som strek, ble hullet synlig. */
+  .inv-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--rule); border: 1px solid var(--rule);
+  }
+  @media (max-width: 900px) { .inv-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .inv-grid { grid-template-columns: 1fr; } }
+  .inv-item { background: var(--paper); padding: 16px 18px; }
+  .inv-item h3 {
+    font-size: 14px; font-weight: 600; margin: 0 0 5px;
+  }
+  .inv-item p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+
+  /* ---------- Rammenotat ---------- */
+  .colophon { padding: 34px 0 56px; background: var(--paper-2); }
+  .colophon p {
+    max-width: 72ch; margin: 0 0 10px; font-size: 13.5px; line-height: 1.6;
+    color: var(--ink-2);
+  }
+  .colophon a { color: var(--green); }
+
+  .site-footer { border-top: 1px solid var(--rule); padding: 24px 0; background: var(--paper-2); }
+  .footer-bottom { font-size: 12.5px; color: var(--muted); }
+
+  @media (max-width: 760px) {
+    .lead { padding: 56px 0 52px; }
+    .creds-grid { grid-template-columns: 1fr; }
+    .cred-line code { font-size: 11.5px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="nav-shell">
+  <div class="container">
+    <nav class="nav">
+      <a href="index.html" class="brand" aria-label="Westengen Klinikk">
+        <span class="brand-wordmark"><strong>Westengen</strong><span>Klinikk</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+        <a href="avbestill.html" data-i18n="nav.cancel">Avbestill time</a>
+        <a href="venteliste.html" data-i18n="nav.waitlist">Venteliste</a>
+        <a href="kontakt.html" data-i18n="nav.contact">Kontakt</a>
+        <a href="ansatt.html" data-i18n="nav.admin">Adminpanel</a>
+      </div>
+      <div class="nav-cta">
+        <div class="lang tas-lang">
+          <button class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="flag" data-current-lang>🇳🇴</span>
+            <span class="chev"></span>
+          </button>
+          <div class="lang-menu" role="listbox">
+            <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
+            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>
+            <button data-lang="de"><span>Deutsch</span><span class="code">🇩🇪</span></button>
+            <button data-lang="es"><span>Español</span><span class="code">🇪🇸</span></button>
+            <button data-lang="ar"><span>العربية</span><span class="code">🇸🇦</span></button>
+            <button data-lang="fa"><span>فارسی</span><span class="code">🇮🇷</span></button>
+          </div>
+        </div>
+        <a class="btn btn-primary btn-arrow" href="bestilling.html"><span data-i18n="nav.book_cta">Bestill time</span> <span>→</span></a>
+        <button class="nav-hamburger" type="button" aria-label="Meny" data-i18n-aria-label="nav.menu_aria" aria-expanded="false" aria-controls="navMobile">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="19" y2="6"/>
+            <line x1="3" y1="11" x2="19" y2="11"/>
+            <line x1="3" y1="16" x2="19" y2="16"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- MOBILMENY -->
+<div class="nav-mobile" id="navMobile" role="dialog" aria-modal="true" aria-label="Meny" hidden>
+  <button class="nav-mobile-close" type="button" aria-label="Lukk meny" data-i18n-aria-label="nav.menu_close_aria">×</button>
+  <nav class="nav-mobile-links" aria-label="Hovedmeny">
+    <a href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+    <a href="avbestill.html" data-i18n="nav.cancel">Avbestill time</a>
+    <a href="venteliste.html" data-i18n="nav.waitlist">Venteliste</a>
+    <a href="kontakt.html" data-i18n="nav.contact">Kontakt</a>
+    <a href="ansatt.html" data-i18n="nav.admin">Adminpanel</a>
+  </nav>
+  <div class="nav-mobile-cta">
+    <a class="btn btn-primary btn-arrow" href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+  </div>
+</div>
+
+<main>
+
+<!-- ============ HVA DETTE ER ============ -->
+<section class="lead">
+  <div class="container">
+    <p class="lead-eyebrow" data-i18n="landing.eyebrow">Arbeidsprøve</p>
+    <h1 data-i18n-html="landing.heading">Booking- og journalsystem <em>for en liten klinikk</em></h1>
+    <p class="lead-body" data-i18n-html="landing.body1">Kundevendt bestilling med ledig-tid-oppslag, avbestilling via lenke og venteliste. Bak innloggingen: kalender per behandler, kundekartotek, pasientjournal med samtykke og audit-logg, tjeneste- og behandleradministrasjon, meldingsinnboks og stengte tider.</p>
+    <p class="lead-body" data-i18n-html="landing.body2"><strong>Westengen Klinikk finnes ikke.</strong> Klinikken, behandlerne, kundene og alle bestillinger er oppdiktet. Kulissen er der bare fordi et bookingsystem trenger noen å booke hos.</p>
+    <div class="doors">
+      <a class="door door-primary" href="bestilling.html" data-i18n="landing.door_book">Prøv bookingflyten →</a>
+      <a class="door door-ghost" href="ansatt.html" data-i18n="landing.door_admin">Logg inn i adminpanelet</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INNLOGGING ============
+     Publisert med vilje. Sikkerheten ligger ikke i et hemmelig
+     passord, men i skrivesperren mot seed-data (migrasjon 0066) og
+     den nattlige nullstillingen (0067). -->
+<section class="creds" id="innlogging">
+  <div class="container">
+    <div class="creds-head">
+      <h2 data-i18n="landing.creds_heading">Innlogging</h2>
+      <p data-i18n="landing.creds_sub">Logg inn med begge for å se hva rollen avgjør.</p>
+    </div>
+
+    <div class="creds-grid">
+      <div class="cred">
+        <p class="cred-role" data-i18n="demo.role_admin">Administrator</p>
+        <div class="cred-line">
+          <code>admin@westengenklinikk.example</code>
+          <code>demo-admin-2026</code>
+        </div>
+        <p class="cred-note" data-i18n="demo.note_admin">Full tilgang: alle behandleres kalendere, kundekartotek, journal, tjenester, behandlere og audit-logg.</p>
+      </div>
+      <div class="cred">
+        <p class="cred-role" data-i18n="demo.role_therapist">Terapeut</p>
+        <div class="cred-line">
+          <code>terapeut@westengenklinikk.example</code>
+          <code>demo-terapeut-2026</code>
+        </div>
+        <p class="cred-note" data-i18n="demo.note_therapist">Begrenset tilgang: egen kalender og egne pasienter. Logg inn med begge for å se rolleskillet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HVA SOM LIGGER BAK ============ -->
+<section class="inventory">
+  <div class="container">
+    <p class="inv-label" data-i18n="landing.inv_label">I adminpanelet</p>
+    <div class="inv-grid">
+      <div class="inv-item">
+        <h3 data-i18n="landing.inv1_h">Kalender</h3>
+        <p data-i18n="landing.inv1_p">Dag, uke og behandler. Flytt, avlys eller opprett timer direkte i rutenettet.</p>
+      </div>
+      <div class="inv-item">
+        <h3 data-i18n="landing.inv2_h">Bestillinger</h3>
+        <p data-i18n="landing.inv2_p">Søk, filtrering, paginering og fargebar per behandler. Ufordelte gruppetimer skilles ut.</p>
+      </div>
+      <div class="inv-item">
+        <h3 data-i18n="landing.inv3_h">Kunder og journal</h3>
+        <p data-i18n="landing.inv3_p">Kundekort med historikk. Journalnotater krever registrert samtykke, og hvert oppslag logges.</p>
+      </div>
+      <div class="inv-item">
+        <h3 data-i18n="landing.inv4_h">Tjenester og behandlere</h3>
+        <p data-i18n="landing.inv4_p">Pris, varighet og synlighet per tjeneste. Behandlere deaktiveres, aldri slettes.</p>
+      </div>
+      <div class="inv-item">
+        <h3 data-i18n="landing.inv5_h">Meldinger og venteliste</h3>
+        <p data-i18n="landing.inv5_p">Innboks fra kontaktskjemaet, og en FIFO-kø som kan tildeles ledige timer.</p>
+      </div>
+      <div class="inv-item">
+        <h3 data-i18n="landing.inv6_h">Audit-logg</h3>
+        <p data-i18n="landing.inv6_p">Hvem gjorde hva, når. Kun synlig for admin, og kan ikke redigeres av noen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RAMMENOTAT ============ -->
+<section class="colophon">
+  <div class="container">
+    <p data-i18n="landing.colophon1">Du kan opprette, endre og slette dine egne rader fritt — hele CRUD-syklusen er demonstrerbar. Radene som fulgte med demoen er skrivebeskyttet i databasen: knappene virker, men lagringen avvises med en forklaring, slik at panelet ser likt ut for neste besøkende. Alt nullstilles hvert døgn.</p>
+    <p data-i18n-html="landing.colophon2">Ikke skriv inn ekte personopplysninger. Innloggingen over er offentlig, så alt du legger inn kan leses av hvem som helst. <a href="personvern.html">Mer om hva demoen lagrer</a>.</p>
+    <p data-i18n="landing.colophon3">Statisk frontend uten byggesteg, Supabase i bunn: PostgreSQL med Row-Level Security, Auth, Edge Functions og pg_cron. Seks språk, PWA-skall for de ansatte.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom" data-i18n="footer.copyright">© 2026 Westengen Klinikk — demo med fiktive data · Nettside og system: Westengen Studio (Markus Westengen)</div>
+  </div>
+</footer>
+
+<script src="i18n/i18n.js"></script>
+<script src="shared/header-mobile.js" defer></script>
+<script src="shared/cookie-banner.js" defer></script>
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

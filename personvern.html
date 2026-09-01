@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: https:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+<meta name="theme-color" content="#171A21" />
+<title>Personvern i demoen · Westengen Klinikk</title>
+<meta name="description" content="Hva demoversjonen av Westengen Klinikk lagrer, hvor lenge, og hvorfor du ikke bør legge inn ekte personopplysninger." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Felles stilark for de kundevendte sidene: header, mobilmeny,
+     språkvelger, knapper og footer. -->
+<link rel="stylesheet" href="shared/public.css">
+<link rel="stylesheet" href="shared/i18n.css">
+<link rel="stylesheet" href="shared/cookie-banner.css">
+<link rel="stylesheet" href="shared/header-nav.css">
+
+<style>
+  :root {
+    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8; --green-tint: #E9EAF4;
+    --paper: #F7F8FA; --paper-2: #EDEFF3;
+    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
+    --rule: #171a2622;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    background: var(--paper); color: var(--ink);
+    font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  /* Samme bredde som shared/public.css — headeren er dimensjonert
+     for den. Lesebredden styres av .p-doc, ikke av containeren. */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+  .p-hero { padding: 72px 0 8px; }
+  .p-eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--green); margin: 0 0 14px;
+  }
+  .p-hero h1 {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+    font-size: clamp(32px, 5vw, 50px); line-height: 1.08;
+    letter-spacing: -0.02em; margin: 0 0 14px; max-width: 20ch;
+  }
+  .p-updated {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.5px; letter-spacing: 0.08em; color: var(--muted); margin: 0;
+  }
+
+  /* Advarselen er sidens viktigste setning og skal leses først. */
+  .p-warning {
+    margin: 34px 0 0; padding: 20px 22px;
+    background: var(--ink); color: #F7F8FA;
+    border-left: 3px solid var(--green-soft);
+    font-size: 15px; line-height: 1.6;
+  }
+  .p-warning b { color: #fff; }
+
+  .p-body { padding: 40px 0 96px; }
+  .p-doc { max-width: 68ch; }
+  .p-doc h2 {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 500;
+    font-size: 21px; letter-spacing: -0.01em;
+    margin: 40px 0 10px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .p-doc h2:first-of-type { margin-top: 0; }
+  .p-doc p { margin: 0 0 14px; color: var(--ink-2); }
+  .p-doc ul { margin: 0 0 14px; padding-left: 20px; color: var(--ink-2); }
+  .p-doc li { margin-bottom: 7px; }
+  .p-doc strong { color: var(--ink); }
+  .p-doc a { color: var(--green); text-decoration: underline; text-underline-offset: 2px; }
+
+  .p-foot {
+    margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--rule);
+    font-size: 14px; color: var(--muted);
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--rule); padding: 26px 0; background: var(--paper-2);
+  }
+  .footer-bottom { font-size: 12.5px; color: var(--muted); }
+
+  @media (max-width: 620px) {
+    .p-hero { padding: 52px 0 4px; }
+    .p-body { padding: 30px 0 64px; }
+    .p-warning { padding: 16px 18px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="nav-shell">
+  <div class="container">
+    <nav class="nav">
+      <a href="index.html" class="brand" aria-label="Westengen Klinikk">
+        <span class="brand-wordmark"><strong>Westengen</strong><span>Klinikk</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+        <a href="avbestill.html" data-i18n="nav.cancel">Avbestill time</a>
+        <a href="venteliste.html" data-i18n="nav.waitlist">Venteliste</a>
+        <a href="kontakt.html" data-i18n="nav.contact">Kontakt</a>
+        <a href="ansatt.html" data-i18n="nav.admin">Adminpanel</a>
+      </div>
+      <div class="nav-cta">
+        <div class="lang tas-lang">
+          <button class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="flag" data-current-lang>🇳🇴</span>
+            <span class="chev"></span>
+          </button>
+          <div class="lang-menu" role="listbox">
+            <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
+            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>
+            <button data-lang="de"><span>Deutsch</span><span class="code">🇩🇪</span></button>
+            <button data-lang="es"><span>Español</span><span class="code">🇪🇸</span></button>
+            <button data-lang="ar"><span>العربية</span><span class="code">🇸🇦</span></button>
+            <button data-lang="fa"><span>فارسی</span><span class="code">🇮🇷</span></button>
+          </div>
+        </div>
+        <a class="btn btn-primary btn-arrow" href="bestilling.html"><span data-i18n="nav.book_cta">Bestill time</span> <span>→</span></a>
+        <button class="nav-hamburger" type="button" aria-label="Meny" data-i18n-aria-label="nav.menu_aria" aria-expanded="false" aria-controls="navMobile">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="19" y2="6"/>
+            <line x1="3" y1="11" x2="19" y2="11"/>
+            <line x1="3" y1="16" x2="19" y2="16"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- MOBILMENY -->
+<div class="nav-mobile" id="navMobile" role="dialog" aria-modal="true" aria-label="Meny" hidden>
+  <button class="nav-mobile-close" type="button" aria-label="Lukk meny" data-i18n-aria-label="nav.menu_close_aria">×</button>
+  <nav class="nav-mobile-links" aria-label="Hovedmeny">
+    <a href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+    <a href="avbestill.html" data-i18n="nav.cancel">Avbestill time</a>
+    <a href="venteliste.html" data-i18n="nav.waitlist">Venteliste</a>
+    <a href="kontakt.html" data-i18n="nav.contact">Kontakt</a>
+    <a href="ansatt.html" data-i18n="nav.admin">Adminpanel</a>
+  </nav>
+  <div class="nav-mobile-cta">
+    <a class="btn btn-primary btn-arrow" href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+  </div>
+</div>
+
+<main>
+
+<section class="p-hero">
+  <div class="container">
+    <p class="p-eyebrow" data-i18n="privacy.eyebrow">Personvern</p>
+    <h1 data-i18n="privacy.heading">Personvern i denne demoen</h1>
+    <p class="p-updated" data-i18n="privacy.updated">Sist oppdatert 1. september 2026</p>
+
+    <p class="p-warning" data-i18n-html="privacy.warning">
+      <b>Ikke legg inn ekte personopplysninger.</b> Innloggingen til adminpanelet er
+      publisert åpent på forsiden. Alt du skriver i et skjema her — navn, e-post,
+      telefonnummer, meldingstekst — kan leses av hvem som helst som logger inn.
+      Bruk oppdiktede opplysninger.
+    </p>
+  </div>
+</section>
+
+<section class="p-body">
+  <div class="container">
+    <div class="p-doc">
+
+      <h2 data-i18n="privacy.h1">Hva dette er</h2>
+      <p data-i18n="privacy.b1">Westengen Klinikk er en oppdiktet klinikk. Nettstedet er en arbeidsprøve som viser et komplett booking- og journalsystem: kundevendt bestilling, kalender, kundekartotek, journal, meldinger og audit-logg. Behandlerne, kundene, bestillingene og journalnotatene i demoen er konstruert, og gjelder ikke virkelige mennesker.</p>
+      <p data-i18n="privacy.b1b">Denne siden er derfor ikke en personvernerklæring for en helsetjeneste. Den beskriver hva demoen faktisk gjør med opplysninger du selv skriver inn mens du prøver den.</p>
+
+      <h2 data-i18n="privacy.h2">Hvem som står bak</h2>
+      <p data-i18n="privacy.b2">Demoen er laget og driftes av Westengen Studio (Markus Westengen). Spørsmål om demoen kan sendes via kontaktskjemaet på nettstedet. Kontaktopplysningene som vises som klinikkens — adresse, telefonnummer og e-post — er plassholdere og er ikke i bruk.</p>
+
+      <h2 data-i18n="privacy.h3">Hva demoen lagrer om deg</h2>
+      <p data-i18n="privacy.b3">Bare det du selv skriver inn. Konkret:</p>
+      <ul data-i18n-html="privacy.b3_ul">
+        <li><strong>Bestillinger:</strong> navn, e-post, telefonnummer, valgt tid og eventuelle notater du legger ved.</li>
+        <li><strong>Kontaktmeldinger:</strong> navn, e-post og meldingsteksten.</li>
+        <li><strong>Venteliste og anmeldelser:</strong> de feltene skjemaet ber om.</li>
+        <li><strong>Teknisk:</strong> IP-adressen din brukes til å begrense hvor mange skjemaer som kan sendes per time, og lagres ikke sammen med innholdet.</li>
+      </ul>
+      <p data-i18n="privacy.b3b">Dataene ligger hos Supabase i EU. Ingenting deles videre, selges eller brukes til markedsføring.</p>
+
+      <h2 data-i18n="privacy.h4">Hvor lenge det ligger der</h2>
+      <p data-i18n="privacy.b4">Kort. Demoen nullstilles automatisk hvert døgn: alt besøkende har lagt inn slettes, og oppsettet settes tilbake til utgangspunktet. Du kan også be om at noe fjernes umiddelbart via kontaktskjemaet.</p>
+
+      <h2 id="cookies" data-i18n="privacy.h5">Informasjonskapsler</h2>
+      <p data-i18n="privacy.b5">Nettstedet setter ingen sporings- eller markedsføringskapsler, og bruker ingen analyseverktøy. Det som lagres i nettleseren din er:</p>
+      <ul data-i18n-html="privacy.b5_ul">
+        <li>Språkvalget ditt og svaret ditt på samtykkebanneret.</li>
+        <li>En midlertidig kopi av en påbegynt bestilling, i tilfelle forbindelsen ryker underveis.</li>
+        <li>En innloggingsnøkkel fra Supabase Auth — bare hvis du logger inn i adminpanelet.</li>
+      </ul>
+      <p data-i18n="privacy.b5b">Alt dette ligger i din egen nettleser og forsvinner når du tømmer nettleserdataene.</p>
+
+      <h2 data-i18n="privacy.h6">Rettighetene dine</h2>
+      <p data-i18n="privacy.b6">Du kan be om innsyn i, retting av eller sletting av det du har lagt inn. Send en melding via kontaktskjemaet, så ordner vi det. Mener du at opplysninger håndteres feil, kan du klage til <a href="https://www.datatilsynet.no" target="_blank" rel="noopener noreferrer">Datatilsynet</a>.</p>
+
+      <h2 data-i18n="privacy.h7">Hva en ekte versjon ville hatt</h2>
+      <p data-i18n="privacy.b7">I en reell klinikkinstallasjon erstattes denne siden av en fullstendig personvernerklæring med behandlingsgrunnlag etter personvernforordningen, journalføring etter helsepersonelloven § 39, lagringstider, databehandleravtaler og rutine for innsyn. Systemet har allerede teknikken den erklæringen forutsetter: rollestyrt tilgang i databasen, samtykke som registreres ved bestilling, og audit-logg over all journaltilgang.</p>
+
+      <div class="p-foot" data-i18n="privacy.foot">
+        Spørsmål om personvern i demoen? Bruk kontaktskjemaet på nettstedet.
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom" data-i18n="footer.copyright">© 2026 Westengen Klinikk — demo med fiktive data · Nettside og system: Westengen Studio (Markus Westengen)</div>
+  </div>
+</footer>
+
+<script src="i18n/i18n.js"></script>
+<script src="shared/header-mobile.js" defer></script>
+<script src="shared/cookie-banner.js" defer></script>
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

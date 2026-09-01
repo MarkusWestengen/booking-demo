@@ -1,0 +1,12 @@
+# ============================================================
+# Westengen Klinikk — demo
+# ------------------------------------------------------------
+# Dette er en demonstrasjonsversjon med en oppdiktet klinikk og
+# fiktive data. Den skal ikke indekseres: en falsk klinikk med
+# falsk adresse har ingenting i et søkeresultat å gjøre, og
+# sidene bærer også <meta name="robots" content="noindex">.
+#
+# Sitemap-en er fjernet av samme grunn.
+# ============================================================
+User-agent: *
+Disallow: /

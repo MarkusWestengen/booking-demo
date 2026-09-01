@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<!-- Content Security Policy — samme mal som bestilling.html.
+     'unsafe-inline' for script/style er en bevisst avveining (inline
+     <script>-blokker og inline-stiler). Merk: frame-ancestors håndheves
+     ikke via <meta>-CSP, beholdes for paritet med admin-sidene. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: https:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+<title data-i18n="legal.terms.title">Vilkår · Westengen Klinikk</title>
+<meta name="description" content="Vilkår for behandling, bestilling og kjøp hos Westengen Klinikk." />
+<meta name="robots" content="noindex, nofollow" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Vilkår · Westengen Klinikk" />
+<meta property="og:description" content="Vilkår for behandling, bestilling og kjøp hos Westengen Klinikk." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' fill='%23F7F8FA' text-anchor='middle'%3EW%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/i18n.css">
+<style>
+  :root {
+    --green: #464C8C;
+    --green-deep: #2F3463;
+    --green-soft: #7A80B8;
+    --paper: #F7F8FA;
+    --paper-2: #EDEFF3;
+    --ink: #171A21;
+    --ink-2: #2E323C;
+    --muted: #6B7080;
+    --rule: #DCDFE6;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 16px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 760px; margin: 0 auto; padding: 0 32px; }
+
+  .topbar { background: var(--ink); color: var(--paper); padding: 16px 0; }
+  .topbar .container { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .topbar a { color: var(--paper); text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .topbar a:hover { color: var(--green-soft); }
+  .topbar .brand { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; letter-spacing: -0.01em; text-transform: none; }
+  .topbar .brand span { color: var(--green-soft); }
+
+  main { padding: 80px 0 120px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--green); }
+  h1 { font-family: 'Fraunces', serif; font-weight: 400; font-size: clamp(38px, 5.6vw, 56px); line-height: 1; letter-spacing: -0.02em; margin: 16px 0 24px; }
+  .updated { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding-bottom: 32px; border-bottom: 1px solid var(--rule); margin-bottom: 40px; }
+  /* Varselet skal leses før vilkårene, ikke etter dem. */
+  .terms-demo-note {
+    margin: 22px 0 30px; padding: 15px 17px;
+    background: var(--green-tint, #E9EAF4);
+    border-left: 3px solid var(--green, #464C8C);
+    font-size: 14px; line-height: 1.55;
+  }
+  h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 22px; margin: 48px 0 14px; letter-spacing: -0.01em; }
+  p { margin: 0 0 16px; color: var(--ink-2); }
+  ul { padding-left: 20px; margin: 0 0 16px; color: var(--ink-2); }
+  li { margin-bottom: 8px; }
+  a { color: var(--green); }
+  strong { color: var(--ink); font-weight: 600; }
+
+  .legal-foot { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--muted); }
+
+  @media (max-width: 600px) {
+    .container { padding: 0 20px; }
+    .topbar { padding: 12px 0; }
+    .topbar .container { flex-wrap: wrap; gap: 10px; }
+    .topbar .brand { font-size: 16px; }
+    main { padding: 48px 0 80px; }
+    h1 { font-size: clamp(26px, 7vw, 38px); }
+    h2 { font-size: 19px; margin: 36px 0 12px; }
+    .updated { padding-bottom: 24px; margin-bottom: 28px; }
+  }
+</style>
+<link rel="stylesheet" href="shared/cookie-banner.css">
+
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">
+    <a class="brand" href="index.html">Westengen<span>Klinikk</span></a>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <a href="index.html" data-i18n="legal.terms.back">← Tilbake til klinikken</a>
+      <div class="lang tas-lang">
+        <button class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span class="flag" data-current-lang>🇳🇴</span>
+          <span class="chev"></span>
+        </button>
+        <div class="lang-menu" role="listbox">
+          <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
+          <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>
+          <button data-lang="de"><span>Deutsch</span><span class="code">🇩🇪</span></button>
+          <button data-lang="es"><span>Español</span><span class="code">🇪🇸</span></button>
+          <button data-lang="ar"><span>العربية</span><span class="code">🇸🇦</span></button>
+          <button data-lang="fa"><span>فارسی</span><span class="code">🇮🇷</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="container">
+    <span class="eyebrow" data-i18n="legal.terms.eyebrow">Vilkår</span>
+    <h1 data-i18n="legal.terms.heading">Vilkår for bestilling og behandling.</h1>
+    <p class="updated" data-i18n="legal.terms.updated">Sist oppdatert: 8. mai 2026</p>
+
+    <p class="terms-demo-note">
+      <strong>Dette er en demo.</strong> Westengen Klinikk finnes ikke, og vilkårene under er derfor heller ikke bindende for noen. De står her fordi bestillingsflyten viser til dem, og fordi en klinikkinstallasjon trenger dem — teksten er et realistisk utgangspunkt, ikke juridisk rådgivning.
+    </p>
+
+    <p>Disse vilkårene gjelder for bestilling av behandling ved Westengen Klinikk. Avkryssingen i siste steg av bestillingsflyten viser hit.</p>
+
+    <h2>1. Om Westengen Klinikk</h2>
+    <p><strong>Westengen Klinikk</strong><br/>
+    Storgata 1, 0155 Oslo<br/>
+    E-post: <a href="mailto:post@westengenklinikk.example">post@westengenklinikk.example</a><br/>
+    Telefon: +47 400 00 000</p>
+
+    <h2>2. Bestilling av time</h2>
+    <p>Bestillinger gjøres via nettsiden eller telefon. Etter bestilling får du en bekreftelse på e-post med dato, tid og referansenummer. Bestillingen er bindende når bekreftelse er sendt.</p>
+    <p>Klinikken er åpen mandag til fredag kl. 07:00–15:00. Telefontid: mandag til fredag kl. 09:00–15:00.</p>
+
+    <h2>3. Avbestilling og endring</h2>
+    <ul>
+      <li>Avbestilling og endring må skje senest <strong>24 timer før</strong> avtalt time.</li>
+      <li>Avbestilling senere enn 24 timer før, eller manglende oppmøte, faktureres med full pris.</li>
+      <li>Avbestilling gjøres på e-post (<a href="mailto:post@westengenklinikk.example">post@westengenklinikk.example</a>) eller telefon.</li>
+    </ul>
+
+    <h2>4. Priser og betaling</h2>
+    <p>Gjeldende priser for behandling:</p>
+    <ul>
+      <li><strong>Time med Erik Westengen:</strong> Konsultasjon kr 4 000 · Videre behandling kr 3 000 (30 min).</li>
+      <li><strong>Time med terapeut:</strong> Konsultasjon kr 2 000 · Videre behandling kr 1 500 (30 min).</li>
+    </ul>
+    <p>Betaling skjer på klinikken med kort eller Vipps. Faktura kan utstedes på forespørsel.</p>
+
+    <h2>5. Klinikkens ansvar</h2>
+    <p>Erik Westengen er autorisert helsepersonell og følger gjeldende krav til faglig forsvarlighet. Behandlingen baseres på en grundig vurdering, og du blir informert om forventet effekt og eventuell risiko før behandling startes. Klinikken kan ikke garantere et spesifikt behandlingsresultat.</p>
+
+    <h2>6. Personvern</h2>
+    <p>Behandling av personopplysninger er beskrevet i vår <a href="personvern.html">personvernerklæring</a>.</p>
+
+    <h2>7. Tvister</h2>
+    <p>Klager rettes først til <a href="mailto:post@westengenklinikk.example">post@westengenklinikk.example</a>. Forbrukerklager kan også rettes til Forbrukertilsynet eller Forbrukerklageutvalget. Tvister som ikke løses i minnelighet, behandles av norske domstoler med Oslo tingrett som verneting.</p>
+
+    <h2>8. Endringer</h2>
+    <p>Vilkårene kan oppdateres. Gjeldende versjon vises her, med dato for siste oppdatering øverst.</p>
+
+    <div class="legal-foot">
+      <span data-i18n="legal.terms.foot">Spørsmål om vilkårene? Kontakt oss på</span> <a href="mailto:post@westengenklinikk.example">post@westengenklinikk.example</a>.
+    </div>
+  </div>
+</main>
+
+<script src="i18n/i18n.js"></script>
+<script src="shared/cookie-banner.js" defer></script>
+
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

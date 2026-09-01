@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+<!-- Content Security Policy — samme mal som bestilling.html.
+     'unsafe-inline' for script/style er en bevisst avveining (inline
+     <script>-blokker og inline-stiler). Merk: frame-ancestors håndheves
+     ikke via <meta>-CSP, beholdes for paritet med admin-sidene. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: https:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+<meta name="theme-color" content="#171A21" />
+<meta name="robots" content="noindex, nofollow" />
+<title data-i18n="cancel.title">Avbestill time · Westengen Klinikk</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8;
+    --green-tint: #E9EAF4;
+    --paper: #F7F8FA; --paper-2: #EDEFF3;
+    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
+    --rule: #171a2622; --danger: #c0392b;
+    --safe-bot: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--paper); color: var(--ink);
+    font-size: 15px; line-height: 1.55;
+  }
+  a { color: var(--green); }
+  .container { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+
+  /* ============ HEADER — delt nav ============
+     Speiler kundesidene. Basis-nav-chrome er inline her fordi denne siden
+     IKKE laster shared/public.css (ville kollidert med sidens egne
+     .btn/.card). «Mer»-dropdown + mobil-overlay-styling kommer fra
+     shared/header-nav.css, språkvelger fra shared/i18n.css, og
+     hamburger-toggle fra shared/header-mobile.js. */
+  .nav-shell {
+    position: sticky; top: 0; z-index: 60;
+    background: var(--ink);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  /* Header-baren er bredere enn det smale innholdssporet (720px) — speiler
+     kundesidenes brede header. */
+  .nav-shell .container { max-width: 1200px; }
+  .nav {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center; gap: 40px; padding: 14px 0;
+  }
+  .brand { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; }
+  .brand-img { height: 72px; width: auto; display: block; flex-shrink: 0; max-width: none; }
+  .nav-links {
+    display: flex; gap: 32px; justify-content: center;
+    font-size: 14px; font-weight: 500; white-space: nowrap;
+  }
+  .nav-links a { color: rgba(255,255,255,0.85); padding: 6px 0; position: relative; text-decoration: none; }
+  .nav-links a:hover, .nav-links a.active { color: #fff; }
+  .nav-links a.active::after {
+    content:""; position:absolute; left:0; right:0; bottom:-2px;
+    height:2px; background: var(--paper);
+  }
+  .nav-cta { display: flex; align-items: center; gap: 14px; }
+  .phone { font-size: 13px; color: rgba(255,255,255,0.7); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .nav-hamburger {
+    display: none; background: none; border: none; cursor: pointer;
+    padding: 8px; color: var(--paper); align-items: center; justify-content: center; border-radius: 2px;
+  }
+  .nav-hamburger:hover { color: #fff; }
+  .nav-hamburger:focus-visible { outline: 2px solid var(--green-soft); outline-offset: 2px; }
+  .nav-hamburger svg { display: block; }
+
+  /* Mobil-overlay basis (header-nav.css legger editorial-styling oppå). */
+  .nav-mobile {
+    position: fixed; inset: 0; z-index: 9000;
+    background: var(--ink); color: var(--paper);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 80px 24px 40px;
+    opacity: 0; visibility: hidden;
+    transition: opacity 150ms ease, visibility 0s linear 150ms;
+  }
+  .nav-mobile.open {
+    opacity: 1; visibility: visible;
+    transition: opacity 150ms ease, visibility 0s linear 0s;
+  }
+  .nav-mobile-close {
+    position: absolute; top: 20px; right: 20px;
+    background: none; border: none; color: var(--paper);
+    font-size: 32px; line-height: 1; cursor: pointer; padding: 8px 12px; font-family: inherit;
+  }
+  .nav-mobile-links { display: flex; flex-direction: column; gap: 28px; text-align: center; margin-bottom: 40px; }
+  .nav-mobile-links a {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: clamp(26px, 6vw, 34px); color: var(--paper);
+    text-decoration: none; letter-spacing: -0.01em; line-height: 1;
+  }
+  .nav-mobile-cta { margin-top: 8px; }
+
+  @media (max-width: 1024px) {
+    .nav { grid-template-columns: 1fr auto; }
+    .nav-links { display: none; }
+    .nav-hamburger { display: inline-flex; }
+  }
+  @media (max-width: 640px) {
+    .phone { display: none; }
+    .nav-cta { gap: 8px; }
+    .nav-cta .btn-primary { padding: 10px 14px; font-size: 13px; white-space: nowrap; }
+    .nav-cta .tas-lang .lang-btn { padding: 8px 10px; font-size: 12px; }
+    .nav-shell .container { padding-left: 16px; padding-right: 16px; }
+    .nav { gap: 8px; }
+    .brand-img { height: 44px; width: auto; }
+  }
+
+  /* Hero */
+  .page-hero { padding: 56px 0 36px; border-bottom: 1px solid var(--rule); }
+  .breadcrumb {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 20px;
+    display: flex; gap: 10px; align-items: center;
+  }
+  .breadcrumb a { color: var(--muted); }
+  .page-hero h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 300; font-size: clamp(34px, 7vw, 56px);
+    line-height: 1.05; letter-spacing: -0.02em; margin: 0;
+  }
+
+  /* Cancel flow */
+  .cancel-wrap { padding: 40px 0 calc(72px + var(--safe-bot)); }
+  .lede { color: var(--ink-2); font-size: 16px; margin: 0 0 24px; max-width: 52ch; }
+  .card {
+    background: #fff; border: 1px solid var(--rule);
+    padding: 28px 24px;
+  }
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-2); margin-bottom: 7px;
+  }
+  .field input {
+    width: 100%; font-family: inherit;
+    font-size: 16px; /* 16px hindrer iOS zoom-on-focus */
+    padding: 13px 14px; border: 1px solid var(--rule);
+    background: var(--paper); color: var(--ink); border-radius: 0;
+  }
+  .field input:focus { outline: 2px solid var(--green); outline-offset: -2px; border-color: var(--green); }
+  .field .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: inherit; font-size: 15px; font-weight: 600;
+    padding: 14px 24px; border: 1px solid transparent;
+    cursor: pointer; border-radius: 0; text-decoration: none;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .btn-primary { background: var(--green); color: #fff; }
+  .btn-primary:hover { background: var(--green-deep); }
+  .btn-primary[disabled] { opacity: .6; cursor: progress; }
+  .btn-ghost { background: transparent; border-color: var(--rule); color: var(--ink-2); }
+  .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { background: #a5311f; }
+  .btn-danger[disabled] { opacity: .6; cursor: progress; }
+
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .actions .btn { flex: 1 1 auto; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .btn.is-loading::before {
+    content: ""; display: inline-block;
+    width: 15px; height: 15px;
+    border: 2px solid rgba(255,255,255,0.45); border-top-color: #fff;
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+
+  .err {
+    background: #fdeaea; border-left: 3px solid var(--danger);
+    padding: 11px 14px; font-size: 14px; color: #7d2418;
+    margin-bottom: 18px;
+  }
+
+  /* Step 2 confirm */
+  .confirm-box {
+    background: var(--paper-2); border: 1px solid var(--rule);
+    padding: 18px 20px; margin-bottom: 20px;
+  }
+  .confirm-box .ref-line {
+    font-family: 'JetBrains Mono', monospace; font-size: 18px;
+    font-weight: 500; color: var(--ink); letter-spacing: 0.04em;
+    margin: 4px 0 0;
+  }
+  .confirm-warn { color: var(--danger); font-size: 14px; margin: 14px 0 0; }
+
+  /* Token-flyt (?token=) + hint nederst på ref-skjemaet */
+  #tokenSummary div { margin: 3px 0; font-size: 15px; }
+  .hint-line {
+    margin: 16px 0 0; text-align: center;
+    font-size: 13px; color: var(--muted); line-height: 1.5;
+  }
+  /* A8 — callout som gjør de to avbestillingsveiene tydelige (e-postknapp vs. skjema) */
+  .email-callout {
+    background: var(--green-tint); border: 1px solid var(--green-soft);
+    padding: 16px 18px; margin: 0 0 22px;
+  }
+  .email-callout h2 {
+    font-family: inherit; font-weight: 600; font-size: 16px;
+    margin: 0 0 6px; color: var(--green-deep);
+  }
+  .email-callout p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--green-deep); }
+
+  /* Step 3 done */
+  .done-icon {
+    width: 56px; height: 56px; margin-bottom: 18px;
+    color: var(--green);
+  }
+  .done-icon svg { width: 100%; height: 100%; }
+  .done h2 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 26px; margin: 0 0 10px; letter-spacing: -0.01em;
+  }
+  .done-detail {
+    background: var(--green-tint); padding: 14px 18px;
+    font-size: 15px; color: var(--green-deep); margin: 18px 0;
+  }
+  .done-detail .ref { font-family: 'JetBrains Mono', monospace; }
+
+  /* Footer */
+  .site-foot {
+    background: var(--ink); color: #ffffff99;
+    padding: 28px 0 calc(28px + var(--safe-bot));
+    font-size: 13px;
+  }
+  .site-foot a { color: var(--green-soft); }
+
+  @media (max-width: 600px) {
+    .container { padding: 0 18px; }
+    .page-hero { padding: 40px 0 28px; }
+    .cancel-wrap { padding: 28px 0 calc(56px + var(--safe-bot)); }
+    .card { padding: 22px 18px; }
+    .actions { flex-direction: column-reverse; }
+    .actions .btn { width: 100%; }
+  }
+</style>
+<link rel="stylesheet" href="shared/cookie-banner.css">
+<link rel="stylesheet" href="shared/i18n.css">
+<link rel="stylesheet" href="shared/header-nav.css">
+
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="nav-shell">
+  <div class="container">
+    <nav class="nav">
+      <a href="index.html" class="brand" aria-label="Westengen Klinikk">
+        <span class="brand-wordmark"><strong>Westengen</strong><span>Klinikk</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+        <a href="avbestill.html" class="active" data-i18n="nav.cancel">Avbestill time</a>
+        <a href="venteliste.html" data-i18n="nav.waitlist">Venteliste</a>
+        <a href="kontakt.html" data-i18n="nav.contact">Kontakt</a>
+        <a href="ansatt.html" data-i18n="nav.admin">Adminpanel</a>
+      </div>
+      <div class="nav-cta">
+        <div class="lang tas-lang">
+          <button class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="flag" data-current-lang>🇳🇴</span>
+            <span class="chev"></span>
+          </button>
+          <div class="lang-menu" role="listbox">
+            <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
+            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>
+            <button data-lang="de"><span>Deutsch</span><span class="code">🇩🇪</span></button>
+            <button data-lang="es"><span>Español</span><span class="code">🇪🇸</span></button>
+            <button data-lang="ar"><span>العربية</span><span class="code">🇸🇦</span></button>
+            <button data-lang="fa"><span>فارسی</span><span class="code">🇮🇷</span></button>
+          </div>
+        </div>
+        <a class="btn btn-primary btn-arrow" href="bestilling.html"><span data-i18n="nav.book_cta">Bestill time</span> <span>→</span></a>
+        <button class="nav-hamburger" type="button" aria-label="Meny" data-i18n-aria-label="nav.menu_aria" aria-expanded="false" aria-controls="navMobile">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="19" y2="6"/>
+            <line x1="3" y1="11" x2="19" y2="11"/>
+            <line x1="3" y1="16" x2="19" y2="16"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- MOBILE NAV OVERLAY -->
+<div class="nav-mobile" id="navMobile" role="dialog" aria-modal="true" aria-label="Meny" hidden>
+  <button class="nav-mobile-close" type="button" aria-label="Lukk meny" data-i18n-aria-label="nav.menu_close_aria">×</button>
+  <nav class="nav-mobile-links" aria-label="Hovedmeny">
+    <a href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+    <a href="avbestill.html" class="active" data-i18n="nav.cancel">Avbestill time</a>
+    <a href="venteliste.html" data-i18n="nav.waitlist">Venteliste</a>
+    <a href="kontakt.html" data-i18n="nav.contact">Kontakt</a>
+    <a href="ansatt.html" data-i18n="nav.admin">Adminpanel</a>
+  </nav>
+  <div class="nav-mobile-cta">
+    <a class="btn btn-primary btn-arrow" href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+  </div>
+</div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html" data-i18n="cancel.breadcrumb_home">Forsiden</a>
+      <span>/</span>
+      <span data-i18n="cancel.breadcrumb_self">Avbestilling</span>
+    </div>
+    <h1 data-i18n="cancel.heading">Avbestill time</h1>
+  </div>
+</section>
+
+<section class="cancel-wrap">
+  <div class="container">
+
+    <!-- STEG 1 — skjema -->
+    <div id="step1">
+      <!-- A8 — to tydelige veier: ett-klikks-knapp i e-posten, eller skjemaet under -->
+      <div class="email-callout">
+        <h2 data-i18n="cancel.email_callout_title">Enklest: avbestill rett fra e-posten</h2>
+        <p data-i18n="cancel.email_callout_body">Bekreftelses-e-posten din har en «Avbestill time»-knapp. Trykk på den, så avbestiller du med ett klikk — uten å taste inn referansekode. Eller bruk skjemaet under.</p>
+      </div>
+      <p class="lede" data-i18n="cancel.lede">Skriv inn referansekoden fra bekreftelsen din og e-postadressen du booket med, så finner vi timen din.</p>
+      <div class="card">
+        <div class="err" id="formErr" hidden></div>
+        <form id="cancelForm" novalidate>
+          <div class="field">
+            <label for="fRef" data-i18n="cancel.field_ref">Referansekode</label>
+            <input id="fRef" type="text" autocomplete="off" placeholder="TA-XXXX-XXXX" required />
+            <div class="hint" data-i18n="cancel.field_ref_hint">Står i bekreftelsen du fikk da du booket, f.eks. TA-K7F2-1042.</div>
+          </div>
+          <div class="field">
+            <label for="fEmail" data-i18n="cancel.field_email">E-postadresse</label>
+            <input id="fEmail" type="email" inputmode="email" autocomplete="email" placeholder="din@epost.example" required />
+          </div>
+          <div class="actions">
+            <button type="submit" class="btn btn-primary" data-i18n="cancel.btn_continue">Fortsett →</button>
+          </div>
+        </form>
+      </div>
+      <p class="hint-line" data-i18n="cancel.hint_line">Har du fått en avbestillings-lenke fra oss på e-post? Bruk den — da slipper du å taste inn referansekoden.</p>
+    </div>
+
+    <!-- STEG 2 — bekreft -->
+    <div id="step2" hidden>
+      <div class="card">
+        <div class="confirm-box">
+          <div data-i18n="cancel.confirm_intro">Du er i ferd med å avbestille timen med referanse:</div>
+          <p class="ref-line" id="confirmRef">—</p>
+          <p class="confirm-warn" data-i18n="cancel.confirm_warn">Dette kan ikke angres. Time-slotet blir frigjort for andre.</p>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-ghost" id="backBtn" data-i18n="cancel.btn_back">← Tilbake</button>
+          <button type="button" class="btn btn-danger" id="confirmBtn" data-i18n="cancel.btn_confirm">Bekreft avbestilling</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEG 3 — ferdig -->
+    <div id="step3" hidden>
+      <div class="card done">
+        <div class="done-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="24" cy="24" r="20" />
+            <path d="M14 24l7 7 14-15" />
+          </svg>
+        </div>
+        <h2 data-i18n="cancel.done_heading">Timen din er avbestilt</h2>
+        <p id="doneText" data-i18n="cancel.done_text">Vi har registrert avbestillingen.</p>
+        <div class="done-detail" id="doneDetail"></div>
+        <div class="actions">
+          <a class="btn btn-ghost" href="index.html" data-i18n="cancel.btn_to_home">Til forsiden</a>
+          <a class="btn btn-primary" href="bestilling.html" data-i18n="cancel.btn_book_new">Bestill ny time</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOKEN-FLYT — vises når avbestill.html?token=… åpnes -->
+    <div id="stepToken" hidden>
+      <div class="card">
+        <div id="tokenLoading">
+          <p class="lede" style="margin:0;" data-i18n="cancel.token_loading">Henter timedetaljer…</p>
+        </div>
+        <div id="tokenDetail" hidden>
+          <p class="lede" data-i18n="cancel.token_intro">Vil du avbestille denne timen?</p>
+          <div class="err" id="tokenErr" hidden></div>
+          <div class="confirm-box">
+            <div id="tokenSummary"></div>
+            <p class="confirm-warn" data-i18n="cancel.confirm_warn">Dette kan ikke angres. Time-slotet blir frigjort for andre.</p>
+          </div>
+          <div class="actions">
+            <a class="btn btn-ghost" href="index.html" data-i18n="cancel.token_back_to_home">Tilbake til forsiden</a>
+            <button type="button" class="btn btn-danger" id="tokenConfirmBtn" data-i18n="cancel.btn_confirm">Bekreft avbestilling</button>
+          </div>
+        </div>
+        <div id="tokenInfo" hidden>
+          <div class="done-detail" id="tokenInfoMsg"></div>
+          <div class="actions">
+            <a class="btn btn-ghost" href="index.html" data-i18n="cancel.btn_to_home">Til forsiden</a>
+            <a class="btn btn-primary" href="bestilling.html" data-i18n="cancel.btn_book_new">Bestill ny time</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-foot">
+  <div class="container" data-i18n-html="common.footer_address_html">
+    Westengen Klinikk · Storgata 1, 0155 Oslo · Tlf <a href="tel:+47 400 00 000">+47 400 00 000</a>
+  </div>
+</footer>
+
+<script src="shared/booking-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="i18n/i18n.js"></script>
+<script src="shared/header-mobile.js" defer></script>
+<script>
+(function () {
+  'use strict';
+
+  var CLINIC_PHONE = '+47 400 00 000';
+  var CFG = window.WestengenKlinikkBackend || {};
+  var sb = (window.supabase && CFG.supabaseUrl && CFG.supabaseAnonKey)
+    ? window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey)
+    : null;
+
+  // i18n-helpers (fallback til norsk hvis runtime ikke er lastet).
+  var I18N = window.WestengenKlinikkI18n;
+  function t(key, fallback) {
+    return (I18N && I18N.t) ? I18N.t(key, fallback) : fallback;
+  }
+  function tp(key, fallback) {
+    return t(key, fallback).replace('{phone}', CLINIC_PHONE);
+  }
+  var LOCALES = { no: 'no-NO', en: 'en-GB', de: 'de-DE', es: 'es-ES', ar: 'ar-SA', fa: 'fa-IR' };
+  function curLocale() {
+    var l = (I18N && I18N.getLanguage && I18N.getLanguage()) || 'no';
+    return LOCALES[l] || 'no-NO';
+  }
+
+  function $(id) { return document.getElementById(id); }
+  function show(step) {
+    ['step1', 'step2', 'step3', 'stepToken'].forEach(function (s) { $(s).hidden = (s !== step); });
+    window.scrollTo(0, 0);
+  }
+  function showErr(msg) { var e = $('formErr'); e.textContent = msg; e.hidden = false; }
+  function clearErr() { $('formErr').hidden = true; }
+
+  // Locale-aware dato fra ISO ('2026-06-15' → 'mandag 15. juni' / 'Monday 15 June' / …)
+  function formatDateNo(iso) {
+    try {
+      var d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString(curLocale(), { weekday: 'long', day: 'numeric', month: 'long' });
+    } catch (_) { return iso; }
+  }
+
+  function messageFor(reason) {
+    switch (reason) {
+      case 'not_found':         return t('cancel.err_not_found',         'Vi finner ingen booking. Sjekk at referansekoden og e-posten stemmer.');
+      case 'already_cancelled': return t('cancel.err_already_cancelled', 'Denne timen er allerede avbestilt.');
+      case 'already_completed': return t('cancel.err_already_completed', 'Denne timen har allerede vært.');
+      case 'too_late':          return tp('cancel.err_too_late',         'Du må avbestille senest 24 timer før timen. Ring oss: {phone}');
+      default:                  return tp('cancel.err_generic',          'Noe gikk galt. Prøv igjen, eller ring oss på {phone}.');
+    }
+  }
+
+  var pendingRef = '', pendingEmail = '';
+
+  // STEG 1 → STEG 2
+  $('cancelForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    clearErr();
+    var ref = $('fRef').value.trim().toUpperCase();
+    var email = $('fEmail').value.trim();
+    if (!ref || !email) {
+      showErr(t('cancel.err_missing_fields', 'Fyll inn både referansekode og e-postadresse.'));
+      return;
+    }
+    if (!sb) {
+      showErr(tp('cancel.err_service_unavailable', 'Avbestilling er midlertidig utilgjengelig. Ring oss på {phone}.'));
+      return;
+    }
+    pendingRef = ref;
+    pendingEmail = email;
+    $('confirmRef').textContent = ref;
+    show('step2');
+  });
+
+  // STEG 2 → tilbake
+  $('backBtn').addEventListener('click', function () { show('step1'); });
+
+  // STEG 2 → bekreft → RPC
+  $('confirmBtn').addEventListener('click', function () {
+    var btn = this;
+    var labelConfirm = t('cancel.btn_confirm', 'Bekreft avbestilling');
+    btn.disabled = true;
+    btn.classList.add('is-loading');
+    btn.textContent = t('cancel.btn_confirming', 'Avbestiller…');
+
+    function reset() {
+      btn.disabled = false;
+      btn.classList.remove('is-loading');
+      btn.textContent = labelConfirm;
+    }
+
+    sb.rpc('cancel_booking_by_ref', { p_ref: pendingRef, p_email: pendingEmail })
+      .then(function (res) {
+        reset();
+        if (res.error) {
+          show('step1');
+          showErr(messageFor(null));
+          console.error(res.error);
+          return;
+        }
+        var data = res.data || {};
+        if (!data.ok) {
+          show('step1');
+          showErr(messageFor(data.reason));
+          return;
+        }
+        // Suksess — bygg detaljene med DOM-noder (ingen innerHTML med
+        // DB-data, jf. escaping-disiplinen ellers i kodebasen).
+        var det = $('doneDetail');
+        det.textContent = formatDateNo(data.date) + ' ' + t('cancel.at_time', 'kl.') + ' ' + (data.time || '') +
+          ' ' + t('cancel.with_staff', 'hos') + ' ' + (data.staff_name || 'Westengen Klinikk');
+        det.appendChild(document.createElement('br'));
+        det.appendChild(document.createTextNode(t('cancel.label_ref', 'Referanse:') + ' '));
+        var refSpan = document.createElement('span');
+        refSpan.className = 'ref';
+        refSpan.textContent = data.ref || '';
+        det.appendChild(refSpan);
+        show('step3');
+      })
+      .catch(function (err) {
+        reset();
+        show('step1');
+        showErr(messageFor(null));
+        console.error(err);
+      });
+  });
+
+  // ============================================================
+  // TOKEN-FLYT (0024) — avbestill.html?token=… er et TILLEGG til
+  // ref + e-post-flyten over. Ref-skjemaet er uendret og brukes som
+  // fallback hvis token mangler eller er ugyldig.
+  // ============================================================
+  var urlToken = new URLSearchParams(window.location.search).get('token');
+
+  function tokenMessageFor(reason) {
+    if (reason === 'not_found') {
+      return tp('cancel.err_link_invalid', 'Avbestillings-lenken er ugyldig. Bruk skjemaet under, eller ring oss på {phone}.');
+    }
+    return messageFor(reason); // gjenbruk for already_cancelled/completed/too_late/generisk
+  }
+
+  function fillTokenSummary(data) {
+    var box = $('tokenSummary');
+    box.textContent = '';
+    function line(label, value) {
+      var d = document.createElement('div');
+      var s = document.createElement('strong');
+      s.textContent = label + ' ';
+      d.appendChild(s);
+      d.appendChild(document.createTextNode(value));
+      box.appendChild(d);
+    }
+    line(t('cancel.label_service', 'Tjeneste:'),  data.service_name || '—');
+    line(t('cancel.label_staff',   'Behandler:'), data.staff_name   || '—');
+    line(t('cancel.label_time',    'Tidspunkt:'),
+         formatDateNo(data.date) + ' ' + t('cancel.at_time', 'kl.') + ' ' + (data.time || ''));
+    line(t('cancel.label_ref',     'Referanse:'), data.ref || '');
+  }
+
+  function startTokenFlow(token) {
+    show('stepToken');
+    $('tokenLoading').hidden = false;
+    $('tokenDetail').hidden = true;
+    $('tokenInfo').hidden = true;
+    if (!sb) {
+      show('step1');
+      showErr(tp('cancel.err_service_unavailable', 'Avbestilling er midlertidig utilgjengelig. Ring oss på {phone}.'));
+      return;
+    }
+    sb.rpc('lookup_booking_by_token', { p_token: token })
+      .then(function (res) {
+        if (res.error) {
+          // Mest sannsynlig en ugyldig/feilformet token.
+          show('step1');
+          showErr(tokenMessageFor('not_found'));
+          console.error(res.error);
+          return;
+        }
+        var data = res.data || {};
+        if (!data.ok) {
+          show('step1');
+          showErr(tokenMessageFor(data.reason));
+          return;
+        }
+        $('tokenLoading').hidden = true;
+        if (data.status === 'confirmed') {
+          fillTokenSummary(data);
+          $('tokenDetail').hidden = false;
+        } else {
+          // Allerede avbestilt / gjennomført — ingen bekreft-knapp.
+          $('tokenInfoMsg').textContent = (data.status === 'cancelled')
+            ? t('cancel.err_already_cancelled', 'Denne timen er allerede avbestilt.')
+            : t('cancel.err_already_completed', 'Denne timen har allerede vært.');
+          $('tokenInfo').hidden = false;
+        }
+      })
+      .catch(function (err) {
+        show('step1');
+        showErr(tokenMessageFor(null));
+        console.error(err);
+      });
+  }
+
+  // TOKEN → bekreft → RPC
+  $('tokenConfirmBtn').addEventListener('click', function () {
+    var btn = this;
+    var labelConfirm = t('cancel.btn_confirm', 'Bekreft avbestilling');
+    btn.disabled = true;
+    btn.classList.add('is-loading');
+    btn.textContent = t('cancel.btn_confirming', 'Avbestiller…');
+    $('tokenErr').hidden = true;
+
+    function reset() {
+      btn.disabled = false;
+      btn.classList.remove('is-loading');
+      btn.textContent = labelConfirm;
+    }
+    function tokenErr(msg) {
+      $('tokenErr').textContent = msg;
+      $('tokenErr').hidden = false;
+    }
+
+    sb.rpc('cancel_booking_by_token', { p_token: urlToken })
+      .then(function (res) {
+        reset();
+        if (res.error) {
+          tokenErr(tokenMessageFor(null));
+          console.error(res.error);
+          return;
+        }
+        var data = res.data || {};
+        if (!data.ok) {
+          tokenErr(tokenMessageFor(data.reason));
+          return;
+        }
+        // Suksess — gjenbruk STEG 3 (ferdig-skjermen).
+        var det = $('doneDetail');
+        det.textContent = formatDateNo(data.date) + ' ' + t('cancel.at_time', 'kl.') + ' ' + (data.time || '') +
+          ' ' + t('cancel.with_staff', 'hos') + ' ' + (data.staff_name || 'Westengen Klinikk');
+        det.appendChild(document.createElement('br'));
+        det.appendChild(document.createTextNode(t('cancel.label_ref', 'Referanse:') + ' '));
+        var refSpan = document.createElement('span');
+        refSpan.className = 'ref';
+        refSpan.textContent = data.ref || '';
+        det.appendChild(refSpan);
+        show('step3');
+      })
+      .catch(function (err) {
+        reset();
+        tokenErr(tokenMessageFor(null));
+        console.error(err);
+      });
+  });
+
+  // Token i URL → start token-flyten. Ellers vises ref-skjemaet som før.
+  if (urlToken) {
+    startTokenFlow(urlToken);
+  }
+
+  // Hold document.title i sync med språk-bytte (data-i18n setter
+  // textContent på <title>, men nettlesere bruker document.title).
+  function syncTitle() {
+    document.title = t('cancel.title', 'Avbestill time · Westengen Klinikk');
+  }
+  if (I18N && I18N.onLanguageChange) I18N.onLanguageChange(syncTitle);
+  syncTitle();
+})();
+</script>
+<script src="shared/cookie-banner.js" defer></script>
+
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

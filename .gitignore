@@ -1,0 +1,51 @@
+# ============================================================
+# Booking-demo — .gitignore
+# ============================================================
+
+# --- OS-junk ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editor / IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Hemmeligheter (defensivt — ingen finnes i prosjektet i dag) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Logger ---
+*.log
+npm-debug.log*
+
+# --- Node.js (defensivt — ikke i bruk i dag) ---
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# --- Supabase CLI lokal state ---
+supabase/.branches/
+supabase/.temp/
+supabase/.env
+
+# --- Claude Code lokal config (per-utvikler, aldri delt) ---
+.claude/settings.local.json
+
+# --- Backup / temp ---
+*.bak
+*.tmp
+*.orig
+tmp/
+
+# --- Build output (defensivt) ---
+dist/
+build/
+.cache/

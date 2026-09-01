@@ -1,0 +1,660 @@
+/* ============================================================
+   WESTENGEN KLINIKK — delt CSS for de kundevendte sidene
+   ------------------------------------------------------------
+   Eier design-tokens, typografi, header, mobilmeny, språkvelger,
+   knapper og footer for bestilling, avbestilling, venteliste,
+   anmeldelser, kontakt og personvern.
+
+   Filen het kundehistorier.css og lå under kundehistorier/ fordi
+   den ble skrevet for de sidene først. Kundehistoriene er ute av
+   demoen — dette er ren systemdemo — så stilarket er flyttet hit
+   og har fått navnet det burde hatt hele tiden.
+   ============================================================ */
+
+:root {
+  --green: #464C8C;
+  --green-deep: #2F3463;
+  --green-soft: #7A80B8;
+  --green-tint: #E9EAF4;
+  --paper: #F7F8FA;
+  --paper-2: #EDEFF3;
+  --ink: #171A21;
+  --ink-2: #2E323C;
+  --muted: #6B7080;
+  --rule: #171a2622;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--paper); color: var(--ink); }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+.serif { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; }
+.mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 22px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600; font-size: 14px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all .2s ease;
+  letter-spacing: 0.01em;
+}
+.btn-primary { background: var(--green); color: #fff; }
+.btn-primary:hover { background: var(--green-deep); }
+.btn-outline {
+  background: transparent; color: var(--ink);
+  border-color: var(--ink);
+}
+.btn-outline:hover { background: var(--ink); color: var(--paper); }
+.btn-arrow span { display: inline-block; transition: transform .2s ease; }
+.btn-arrow:hover span { transform: translateX(4px); }
+
+/* ============ HEADER ============ */
+.nav-shell {
+  position: sticky; top: 0; z-index: 60;
+  background: var(--ink);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.nav {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 40px;
+  padding: 14px 0;
+}
+.brand { display: flex; align-items: center; flex-shrink: 0; }
+.brand-img { height: 72px; width: auto; display: block; flex-shrink: 0; max-width: none; }
+.nav-links {
+  display: flex; gap: 32px; justify-content: center;
+  font-size: 14px; font-weight: 500;
+  white-space: nowrap;
+}
+.nav-links a { color: rgba(255,255,255,0.85); padding: 6px 0; position: relative;
+  transition: color .18s ease; }
+.nav-links a:hover { color: #fff; }
+.nav-links a.active { color: #fff; }
+.nav-links a.active::after {
+  content:""; position:absolute; left:0; right:0; bottom:-2px;
+  height:2px; background: var(--paper);
+}
+.nav-cta { display: flex; align-items: center; gap: 14px; }
+.nav-cta .btn-primary { background: var(--green); color: #fff; }
+.nav-cta .btn-primary:hover { background: var(--green-soft); }
+.phone { font-size: 13px; color: rgba(255,255,255,0.7); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* Skjul telefonnr på smalere desktop (finnes uansett i footer + kontakt). */
+@media (max-width: 1400px) { .phone { display: none; } }
+
+/* ============ BACK BAR ============ */
+.hist-back-bar {
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--rule);
+  padding: 18px 0;
+}
+.hist-back {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green-deep);
+  transition: color .2s ease;
+}
+.hist-back:hover { color: var(--green); }
+
+/* ============ HERO ============ */
+.hist-hero { padding: 80px 0 0; }
+.hist-hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.hist-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green-soft);
+  margin-bottom: 32px;
+}
+.hist-meta .dot {
+  width: 4px; height: 4px;
+  background: var(--green-soft);
+  border-radius: 50%;
+  display: inline-block;
+}
+.hist-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 40px;
+  text-wrap: balance;
+}
+.hist-title em {
+  font-style: italic;
+  color: var(--green);
+  font-weight: 300;
+}
+.hist-byline {
+  border-top: 1px solid var(--rule);
+  padding-top: 24px;
+}
+.hist-name {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.hist-role {
+  font-size: 14px;
+  color: var(--muted);
+}
+.hist-hero-img {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--paper-2);
+}
+.hist-hero-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+/* ============ ARTICLE ============ */
+.hist-article {
+  padding: 100px 0 80px;
+}
+.hist-article-inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.hist-lead {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 48px;
+  text-wrap: pretty;
+}
+.hist-pullquote {
+  margin: 64px -40px;
+  padding: 48px 40px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+.hist-pullquote blockquote {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 24px;
+  text-wrap: balance;
+  position: relative;
+}
+.hist-pullquote .quote-mark {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2em;
+  color: var(--green);
+  margin-right: 4px;
+  font-style: normal;
+  line-height: 1;
+}
+.hist-pullquote figcaption {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+.hist-body p {
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  margin-bottom: 24px;
+  text-wrap: pretty;
+}
+.hist-toms-note {
+  margin-top: 64px;
+  padding: 32px;
+  background: var(--green-tint);
+  border-left: 3px solid var(--green);
+}
+.hist-toms-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green-deep);
+  margin-bottom: 12px;
+}
+.hist-toms-note p {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+/* ============ PDF SECTION ============ */
+.hist-pdf {
+  background: var(--paper-2);
+  padding: 80px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.hist-pdf-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+.hist-pdf .eyebrow { margin-bottom: 16px; display: inline-block; }
+.hist-pdf h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.hist-pdf p {
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+/* ============ PREV/NEXT ============ */
+.hist-nav {
+  border-top: 1px solid var(--rule);
+}
+.hist-nav .container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.hist-nav-card {
+  padding: 48px 32px;
+  border-right: 1px solid var(--rule);
+  transition: background .2s ease;
+}
+.hist-nav-card:last-child { border-right: none; }
+.hist-nav-card:hover { background: var(--paper-2); }
+.hist-nav-next { text-align: right; }
+.hist-nav-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 12px;
+}
+.hist-nav-name {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.hist-nav-role {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ============ CTA ============ */
+.hist-cta {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 100px 0;
+  text-align: center;
+}
+.hist-cta h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(36px, 4vw, 56px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  text-wrap: balance;
+}
+.hist-cta h2 em {
+  font-style: italic;
+  color: var(--green-soft);
+  font-weight: 300;
+}
+.hist-cta p {
+  color: rgba(255,255,255,0.7);
+  font-size: 16px;
+  max-width: 540px;
+  margin: 0 auto 40px;
+}
+.hist-cta-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.hist-cta .btn-outline {
+  color: #fff;
+  border-color: rgba(255,255,255,0.4);
+}
+.hist-cta .btn-outline:hover {
+  background: #fff;
+  color: var(--ink);
+}
+
+/* ============ OVERSIKT ============ */
+.hist-index-hero {
+  padding: 100px 0 80px;
+  border-bottom: 1px solid var(--rule);
+}
+.hist-index-hero h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(48px, 6vw, 88px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 24px 0 24px;
+  max-width: 14ch;
+  text-wrap: balance;
+}
+.hist-index-hero h1 em { font-style: italic; color: var(--green); font-weight: 300; }
+.hist-index-hero p {
+  font-size: 18px;
+  color: var(--muted);
+  max-width: 56ch;
+  line-height: 1.55;
+}
+.hist-index-grid {
+  padding: 80px 0 120px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px 32px;
+}
+.hist-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  cursor: pointer;
+}
+.hist-card-img {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--paper-2);
+}
+.hist-card-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform .6s ease;
+}
+.hist-card:hover .hist-card-img img { transform: scale(1.04); }
+.hist-card-badge {
+  position: absolute; top: 14px; left: 14px;
+  background: rgba(20,25,26,0.85);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  backdrop-filter: blur(6px);
+}
+.hist-card-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+.hist-card-quote {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 400;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.hist-card-byline {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hist-card-name {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 500;
+}
+.hist-card-role {
+  font-size: 13px;
+  color: var(--muted);
+}
+.hist-card-more {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-top: 4px;
+}
+.hist-card-more span { display: inline-block; transition: transform .2s ease; }
+.hist-card:hover .hist-card-more span { transform: translateX(4px); }
+
+/* ============ FOOTER ============ */
+footer.site-footer {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 80px 0 32px;
+  border-top: 1px solid var(--rule);
+}
+.footer-bottom {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ============ RESPONSIVE ============ */
+/* ============ MOBILE HAMBURGER + OVERLAY-MENY ============ */
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: var(--paper);
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+}
+.nav-hamburger:hover { color: #fff; }
+.nav-hamburger:focus-visible { outline: 2px solid var(--green-soft); outline-offset: 2px; }
+.nav-hamburger svg { display: block; }
+.nav-mobile {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 40px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 150ms ease, visibility 0s linear 150ms;
+}
+.nav-mobile.open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 150ms ease, visibility 0s linear 0s;
+}
+.nav-mobile-close {
+  position: absolute;
+  top: 20px; right: 20px;
+  background: none; border: none;
+  color: var(--paper);
+  font-size: 32px; line-height: 1;
+  cursor: pointer;
+  padding: 8px 12px;
+  font-family: inherit;
+}
+.nav-mobile-close:hover { color: var(--green-soft); }
+.nav-mobile-close:focus-visible { outline: 2px solid var(--green-soft); outline-offset: 2px; }
+.nav-mobile-links {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  text-align: center;
+  margin-bottom: 40px;
+}
+.nav-mobile-links a {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(26px, 6vw, 34px);
+  color: var(--paper);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.nav-mobile-links a:hover { color: var(--green-soft); }
+.nav-mobile-links a:focus-visible { outline: 2px solid var(--green-soft); outline-offset: 4px; }
+.nav-mobile-cta { margin-top: 8px; }
+
+/* Header-kollaps til hamburger på TRANGE bredder (≤1024px) — hindrer at de
+   7 nav-lenkene klemmer/brekker før ≤900px. «Bestill time» + språkvelger blir
+   stående i baren; lenkene flyttes til hamburger-overlayet. De kundehistorie-
+   spesifikke layout-reglene beholdes på 900px-blokken under (kun nav flyttes). */
+@media (max-width: 1024px) {
+  .nav { grid-template-columns: 1fr auto; }
+  .nav-links { display: none; }
+  .nav-hamburger { display: inline-flex; }
+}
+
+@media (max-width: 900px) {
+  .nav-hamburger { display: inline-flex; }
+  /* Issue G — header-paritet med landingssiden: kollaps nav til
+     brand | nav-cta når nav-links skjules. */
+  .nav { grid-template-columns: 1fr auto; }
+  .hist-hero { padding: 48px 0 0; }
+  .hist-hero-inner { grid-template-columns: 1fr; gap: 48px; }
+  .hist-hero-img { aspect-ratio: 4 / 3; }
+  .hist-article { padding: 64px 0 48px; }
+  .hist-pullquote { margin: 48px 0; padding: 32px 0; }
+  .hist-pdf { padding: 64px 0; }
+  .hist-cta { padding: 64px 0; }
+  .hist-toms-note { padding: 64px 0 48px; }
+  .hist-nav { padding: 48px 0 64px; }
+  .hist-nav .container { grid-template-columns: 1fr; }
+  .hist-nav-card { border-right: none; border-bottom: 1px solid var(--rule); padding: 32px; }
+  .hist-nav-card:last-child { border-bottom: none; }
+  .hist-nav-next { text-align: left; }
+  /* Issue H — 3 kolonner i 601–900px (nettbrett / stor mobil-landscape).
+     ≤600px overstyres til 2 kolonner i 600px-blokken lenger ned. */
+  .hist-index-grid { grid-template-columns: repeat(3, 1fr); gap: 28px 20px; }
+  .hist-card-quote { font-size: 18px; }
+  .nav-links { display: none; }
+}
+/* Issue G — header-paritet med landingssiden: krymp header-elementene
+   på smal mobil. Uten dette beholdt headeren full 56px-logo, 40px gap
+   og synlig telefonnummer, og «+47 400 00 000» ble klemt sammen
+   («nummer klumpet»). Speiler index.html sitt 640px-header-oppsett. */
+@media (max-width: 640px) {
+  .phone { display: none; }
+  .nav-cta { gap: 8px; }
+  .nav-cta .btn-primary { padding: 10px 14px; font-size: 13px; white-space: nowrap; }
+  .nav-cta .tas-lang .lang-btn { padding: 8px 10px; font-size: 12px; }
+  .nav-shell .container { padding-left: 16px; padding-right: 16px; }
+  .nav { gap: 8px; }
+  .brand-img { height: 44px; width: auto; }
+}
+
+@media (max-width: 600px) {
+  /* Issue H — 2 kolonner på smal mobil i stedet for 1-stack.
+     Tekst-skala ned så kortene ser ryddige ut i smale kolonner.
+     Bildene har object-fit: cover + aspect-ratio fra før. */
+  .hist-index-grid { grid-template-columns: 1fr 1fr; gap: 16px 12px; }
+  .hist-card { gap: 10px; }
+  .hist-card-quote { font-size: 15px; line-height: 1.35; }
+  .hist-card-name { font-size: 15px; }
+  .hist-article { padding: 48px 0 32px; }
+  .hist-pdf, .hist-cta, .hist-toms-note { padding: 48px 0; }
+  .hist-nav { padding: 32px 0 48px; }
+}
+
+/* ===== DEL 4B — kundeside-polish (kun presentasjon, ingen funksjonsendring):
+   tydelig tastatur-fokus på knapper og lenker. De fleste manglet :focus-visible
+   (kun mobilmenyen var dekket). Eksisterende fokus-regler beholdes (høyere
+   specificity vinner). Endrer ikke layout/klikk-oppførsel. ===== */
+.btn:focus-visible,
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+/* ===== Bildeløse kundehistorier (2026-07-30) ====================
+   Bildene uten dokumentert lisens/samtykke er arkivert til
+   _arkiv/ikke-lisensierte-bilder/. Containerne beholdes i markup;
+   `no-image`-klassen settes i malene (kundehistorier/index.html
+   og kundehistorie.js). Gjenoppretting = fjern klassen og sett
+   <img> tilbake.
+
+   Uten denne blokka står `.hist-card-img` og `.hist-hero-img`
+   igjen som tomme beige bokser med aspect-ratio — det leser som
+   «bilde lastet ikke». Her kollapser de i stedet.
+
+   Plassert sist i fila med vilje: media query-en på 900px setter
+   `aspect-ratio` på `.hist-hero-img`. Selektorene under er både
+   mer spesifikke og senere i kildeorden. ===== */
+
+/* Oversiktskort: boksen kollapser, badgen ut i normal flyt øverst
+   på kortet slik at kortet leser som et bevisst tekstkort. */
+.hist-card .hist-card-img.no-image {
+  aspect-ratio: auto;
+  background: none;
+  overflow: visible;
+  margin-bottom: 14px;
+}
+.hist-card .hist-card-img.no-image .hist-card-badge {
+  position: static;
+  display: inline-block;
+}
+
+/* Hero: bildekolonnen fjernes helt, og hero-gridet går fra
+   to kolonner til én så teksten ikke står igjen i en halv bredde. */
+.hist-hero-inner.no-image { grid-template-columns: 1fr; }
+.hist-hero-img.no-image { display: none; }

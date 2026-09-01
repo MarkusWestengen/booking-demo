@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<!-- Content Security Policy — samme mal som resten av de kundevendte
+     sidene. 'unsafe-inline' for script/style er et bevisst valg (inline
+     <script>-blokker og inline-stiler). frame-ancestors håndheves ikke
+     via <meta>, men beholdes for paritet; vercel.json og _headers setter
+     den skikkelig på server-nivå. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: https:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-src https://challenges.cloudflare.com;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+<meta name="theme-color" content="#171A21" />
+<title>Kontakt · Westengen Klinikk (demo)</title>
+<meta name="description" content="Kontaktside i demoversjonen av Westengen Klinikk. Klinikken er oppdiktet og kontaktopplysningene er plassholdere." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Felles stilark for de kundevendte sidene: header, mobilmeny,
+     språkvelger, knapper og footer. -->
+<link rel="stylesheet" href="shared/public.css">
+<link rel="stylesheet" href="shared/i18n.css">
+<link rel="stylesheet" href="shared/cookie-banner.css">
+<link rel="stylesheet" href="shared/header-nav.css">
+
+<style>
+  :root {
+    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8; --green-tint: #E9EAF4;
+    --paper: #F7F8FA; --paper-2: #EDEFF3;
+    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
+    --rule: #171a2622; --danger: #c0392b; --clay: #B8754A;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    background: var(--paper); color: var(--ink);
+    font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  /* Samme bredde som shared/public.css — headeren er dimensjonert
+     for den. Lesebredden styres av .k-grid, ikke av containeren. */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+  .serif { font-family: 'Fraunces', Georgia, serif; }
+
+  /* ---------- Topp ---------- */
+  .k-hero { padding: 72px 0 12px; }
+  .k-eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--green); margin: 0 0 14px;
+  }
+  .k-hero h1 {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+    font-size: clamp(34px, 5.4vw, 56px); line-height: 1.06;
+    letter-spacing: -0.02em; margin: 0 0 16px;
+  }
+  .k-hero h1 em { font-style: italic; color: var(--green); }
+  .k-lede { max-width: 56ch; font-size: 17px; color: var(--ink-2); margin: 0; }
+
+  /* ---------- Demo-varsel ---------- */
+  .k-notice {
+    margin: 32px 0 0; padding: 16px 18px;
+    background: var(--green-tint); border-left: 3px solid var(--green);
+    font-size: 14px; line-height: 1.55; color: var(--ink-2);
+  }
+  .k-notice strong { color: var(--ink); }
+
+  /* ---------- Innhold ---------- */
+  .k-body { padding: 44px 0 96px; }
+  .k-grid {
+    display: grid; grid-template-columns: 300px 1fr; gap: 56px; align-items: start;
+  }
+
+  .k-fact h2 {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+    font-size: 21px; line-height: 1.25; margin: 0 0 4px;
+  }
+  /* Kjeden er nummerert fordi rekkefolgen er poenget: hvert ledd
+     forutsetter det forrige, og det siste er innboksen i admin. */
+  .k-chain {
+    list-style: none; counter-reset: step; margin: 18px 0 0; padding: 0;
+  }
+  .k-chain li {
+    counter-increment: step; position: relative;
+    padding: 0 0 16px 34px; font-size: 14px; line-height: 1.55;
+    color: var(--ink-2);
+  }
+  .k-chain li::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute; left: 0; top: 1px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px; letter-spacing: 0.06em; color: var(--green);
+  }
+  /* Loddrett strek som binder leddene sammen, unntatt under det siste. */
+  .k-chain li:not(:last-child)::after {
+    content: ""; position: absolute; left: 8px; top: 20px; bottom: 4px;
+    width: 1px; background: var(--rule);
+  }
+  .k-chain b { color: var(--ink); font-weight: 600; }
+  .k-chain-foot {
+    margin: 6px 0 0; font-size: 13px; line-height: 1.55; color: var(--muted);
+  }
+  .k-chain-foot code {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px; background: var(--green-tint); padding: 2px 6px;
+    user-select: all;
+  }
+
+  /* ---------- Skjema ---------- */
+  .k-form-card { background: #fff; border: 1px solid var(--rule); padding: 28px; }
+  .k-form-card h2 {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+    font-size: 24px; margin: 0 0 6px;
+  }
+  .k-form-card > p { margin: 0 0 22px; font-size: 14px; color: var(--muted); }
+  .k-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .k-field { display: block; margin-bottom: 14px; }
+  .k-field > span {
+    display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px;
+  }
+  .k-field input, .k-field textarea {
+    width: 100%; font: inherit; font-size: 15px;
+    padding: 11px 12px; border: 1px solid var(--rule); background: var(--paper);
+    color: var(--ink); border-radius: 0;
+  }
+  .k-field textarea { resize: vertical; min-height: 132px; }
+  .k-field input:focus-visible, .k-field textarea:focus-visible {
+    outline: 2px solid var(--green); outline-offset: -1px; background: #fff;
+  }
+  /* Honeypot: skal aldri ses eller fokuseres av et menneske. */
+  .k-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .k-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 18px; }
+  .k-submit {
+    font: inherit; font-size: 15px; font-weight: 500;
+    background: var(--green); color: #fff; border: 0;
+    padding: 12px 22px; cursor: pointer;
+  }
+  .k-submit:hover { background: var(--green-deep); }
+  .k-submit:disabled { opacity: .55; cursor: not-allowed; }
+  .k-status { font-size: 14px; }
+  .k-status.ok { color: var(--green-deep); }
+  .k-status.err { color: var(--danger); }
+
+  /* ---------- Footer ---------- */
+  .site-footer {
+    border-top: 1px solid var(--rule); padding: 26px 0; background: var(--paper-2);
+  }
+  .footer-bottom { font-size: 12.5px; color: var(--muted); }
+
+  @media (max-width: 860px) {
+    .k-grid { grid-template-columns: 1fr; gap: 34px; }
+    /* Skjemaet er ærendet på mobil — det skal ligge først. */
+    .k-form-wrap { order: -1; }
+  }
+  @media (max-width: 620px) {
+    .k-hero { padding: 52px 0 8px; }
+    .k-body { padding: 32px 0 64px; }
+    .k-form-card { padding: 22px; }
+    .k-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="nav-shell">
+  <div class="container">
+    <nav class="nav">
+      <a href="index.html" class="brand" aria-label="Westengen Klinikk">
+        <span class="brand-wordmark"><strong>Westengen</strong><span>Klinikk</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+        <a href="avbestill.html" data-i18n="nav.cancel">Avbestill time</a>
+        <a href="venteliste.html" data-i18n="nav.waitlist">Venteliste</a>
+        <a href="kontakt.html" class="active" data-i18n="nav.contact">Kontakt</a>
+        <a href="ansatt.html" data-i18n="nav.admin">Adminpanel</a>
+      </div>
+      <div class="nav-cta">
+        <div class="lang tas-lang">
+          <button class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="flag" data-current-lang>🇳🇴</span>
+            <span class="chev"></span>
+          </button>
+          <div class="lang-menu" role="listbox">
+            <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
+            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>
+            <button data-lang="de"><span>Deutsch</span><span class="code">🇩🇪</span></button>
+            <button data-lang="es"><span>Español</span><span class="code">🇪🇸</span></button>
+            <button data-lang="ar"><span>العربية</span><span class="code">🇸🇦</span></button>
+            <button data-lang="fa"><span>فارسی</span><span class="code">🇮🇷</span></button>
+          </div>
+        </div>
+        <a class="btn btn-primary btn-arrow" href="bestilling.html"><span data-i18n="nav.book_cta">Bestill time</span> <span>→</span></a>
+        <button class="nav-hamburger" type="button" aria-label="Meny" data-i18n-aria-label="nav.menu_aria" aria-expanded="false" aria-controls="navMobile">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="19" y2="6"/>
+            <line x1="3" y1="11" x2="19" y2="11"/>
+            <line x1="3" y1="16" x2="19" y2="16"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- MOBILMENY -->
+<div class="nav-mobile" id="navMobile" role="dialog" aria-modal="true" aria-label="Meny" hidden>
+  <button class="nav-mobile-close" type="button" aria-label="Lukk meny" data-i18n-aria-label="nav.menu_close_aria">×</button>
+  <nav class="nav-mobile-links" aria-label="Hovedmeny">
+    <a href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+    <a href="avbestill.html" data-i18n="nav.cancel">Avbestill time</a>
+    <a href="venteliste.html" data-i18n="nav.waitlist">Venteliste</a>
+    <a href="kontakt.html" class="active" data-i18n="nav.contact">Kontakt</a>
+    <a href="ansatt.html" data-i18n="nav.admin">Adminpanel</a>
+  </nav>
+  <div class="nav-mobile-cta">
+    <a class="btn btn-primary btn-arrow" href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+  </div>
+</div>
+
+<main>
+
+<section class="k-hero">
+  <div class="container">
+    <p class="k-eyebrow" data-i18n="contact.eyebrow">Kontaktskjema</p>
+    <h1 data-i18n-html="contact.heading">Fra skjema til <em>innboks</em></h1>
+    <p class="k-lede" data-i18n="contact.lede">Denne siden er med i demoen fordi den er den ene enden av en kjede. Send en melding her, logg inn i adminpanelet, og se den ligge i innboksen.</p>
+
+    <p class="k-notice" data-i18n-html="contact.demo_notice">
+      <strong>Meldingen lagres på ekte.</strong> Den havner i demo-databasen og er
+      synlig for alle som logger inn med den publiserte innloggingen — så ikke
+      skriv noe du ikke vil at andre skal lese. Alt slettes ved neste nattlige
+      nullstilling.
+    </p>
+  </div>
+</section>
+
+<section class="k-body">
+  <div class="container">
+    <div class="k-grid">
+
+      <div class="k-facts">
+        <div class="k-fact">
+          <h2 data-i18n="contact.chain_heading">Hva som skjer når du trykker send</h2>
+        </div>
+        <ol class="k-chain">
+          <li data-i18n-html="contact.chain_1"><b>Nettleseren</b> sjekker felt og lengde, og lar en skjult honeypot avsløre roboter i stillhet.</li>
+          <li data-i18n-html="contact.chain_2"><b>En Edge Function</b> tar imot. Anon har ingen skriverett på tabellen, så skjemaet kan ikke misbrukes direkte mot databasen.</li>
+          <li data-i18n-html="contact.chain_3"><b>Turnstile og rate-limit</b> verifiseres på serversiden, per IP-adresse og per time.</li>
+          <li data-i18n-html="contact.chain_4"><b>Meldingen lagres</b> med service_role og dukker opp i innboksen i adminpanelet, med status ny, lest eller besvart.</li>
+        </ol>
+        <p class="k-chain-foot" data-i18n-html="contact.chain_foot">Logg inn som <code>admin@westengenklinikk.example</code> for å se den komme inn.</p>
+      </div>
+
+      <div class="k-form-wrap">
+        <div class="k-form-card">
+          <h2 data-i18n="contact.form_heading">Send en melding</h2>
+          <p data-i18n="contact.form_sub">Meldingen havner i innboksen i adminpanelet.</p>
+
+          <form id="contactForm" novalidate>
+            <div class="k-row">
+              <label class="k-field">
+                <span data-i18n="contact.field_name">Navn</span>
+                <input type="text" name="name" maxlength="200" required autocomplete="name" />
+              </label>
+              <label class="k-field">
+                <span data-i18n="contact.field_email">E-post</span>
+                <input type="email" name="email" maxlength="320" required autocomplete="email" />
+              </label>
+            </div>
+
+            <label class="k-field">
+              <span data-i18n="contact.field_message">Melding</span>
+              <textarea name="message" rows="6" maxlength="2000" required></textarea>
+            </label>
+
+            <!-- Honeypot. Et menneske ser aldri feltet; en bot fyller det ut,
+                 og da later vi som ingenting i stedet for å svare med en feil. -->
+            <div class="k-hp" aria-hidden="true">
+              <label>La dette feltet stå tomt
+                <input type="text" name="company" tabindex="-1" autocomplete="off" />
+              </label>
+            </div>
+
+            <!-- Turnstile. Nøkkelen under er Cloudflares dokumenterte
+                 TEST-nøkkel: den virker på et hvilket som helst domene og
+                 godkjenner alltid. Den er brukt her fordi demoen skal kunne
+                 kjøre hvor som helst — en ekte installasjon bytter den mot
+                 sin egen sitekey. -->
+            <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="light"></div>
+
+            <div class="k-actions">
+              <button type="submit" class="k-submit" data-i18n="contact.submit">Send melding</button>
+              <span class="k-status" id="contactStatus" role="status" aria-live="polite"></span>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom" data-i18n="footer.copyright">© 2026 Westengen Klinikk — demo med fiktive data · Nettside og system: Westengen Studio (Markus Westengen)</div>
+  </div>
+</footer>
+
+<script src="i18n/i18n.js"></script>
+<script src="shared/booking-config.js"></script>
+<script src="shared/header-mobile.js" defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script>
+/* ============================================================
+   Kontaktskjema
+   ------------------------------------------------------------
+   Innsending går via Edge Function «submit-contact», som gjør
+   Turnstile-verifisering, IP-rate-limit og selve inserten med
+   service_role. Anon har ingen INSERT-rett på contact_messages
+   (migrasjon 0058), så skjemaet kan ikke misbrukes direkte mot
+   PostgREST.
+
+   Klient-siden gjør bare tre ting: honeypot, lengdesjekk og
+   tilbakemelding til brukeren.
+   ============================================================ */
+(function () {
+  'use strict';
+
+  var CFG = window.WestengenKlinikkBackend || {};
+  var form = document.getElementById('contactForm');
+  var statusEl = document.getElementById('contactStatus');
+  if (!form || !statusEl) return;
+
+  function t(key, fallback) {
+    var I = window.WestengenKlinikkI18n;
+    return (I && typeof I.t === 'function') ? I.t(key, fallback) : fallback;
+  }
+  function say(msg, kind) {
+    statusEl.textContent = msg;
+    statusEl.className = 'k-status' + (kind ? ' ' + kind : '');
+  }
+  function resetCaptcha() {
+    try { if (window.turnstile) window.turnstile.reset(); } catch (_) {}
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var fd = new FormData(form);
+
+    // Honeypot utfylt → bot. Nullstill stille, ikke fortell hvorfor.
+    if ((fd.get('company') || '').trim()) { form.reset(); resetCaptcha(); return; }
+
+    var name    = (fd.get('name') || '').trim();
+    var email   = (fd.get('email') || '').trim();
+    var message = (fd.get('message') || '').trim();
+    var token   = (fd.get('cf-turnstile-response') || '').trim();
+
+    if (!name || !email || !message) {
+      return say(t('contact.err_required', 'Fyll inn navn, e-post og melding.'), 'err');
+    }
+    if (message.length > 2000) {
+      return say(t('contact.err_too_long', 'Meldingen er for lang (maks 2000 tegn).'), 'err');
+    }
+    if (!CFG.supabaseUrl || !CFG.supabaseAnonKey) {
+      return say(t('contact.err_offline', 'Skjemaet er ikke koblet til en database i dette oppsettet.'), 'err');
+    }
+
+    var btn = form.querySelector('button[type="submit"]');
+    var original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = t('contact.sending', 'Sender…');
+    say('');
+
+    fetch(CFG.supabaseUrl.replace(/\/+$/, '') + '/functions/v1/submit-contact', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + CFG.supabaseAnonKey,
+        'apikey': CFG.supabaseAnonKey
+      },
+      body: JSON.stringify({ name: name, email: email, message: message, token: token })
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        return { ok: res.ok, status: res.status, body: body };
+      });
+    }).then(function (r) {
+      if (r.ok) {
+        form.reset();
+        say(t('contact.ok', 'Takk! Meldingen er sendt.'), 'ok');
+      } else if (r.status === 429) {
+        say(t('contact.err_rate', 'For mange meldinger på kort tid. Prøv igjen om litt.'), 'err');
+      } else {
+        say(t('contact.err_generic', 'Meldingen kunne ikke sendes. Prøv igjen.'), 'err');
+      }
+    }).catch(function () {
+      say(t('contact.err_generic', 'Meldingen kunne ikke sendes. Prøv igjen.'), 'err');
+    }).then(function () {
+      btn.disabled = false;
+      btn.textContent = original;
+      resetCaptcha();
+    });
+  });
+})();
+</script>
+<script src="shared/cookie-banner.js" defer></script>
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+<!-- Content Security Policy — samme mal som bestilling.html.
+     'unsafe-inline' for script/style er en bevisst avveining (inline
+     <script>-blokker og inline-stiler). Merk: frame-ancestors håndheves
+     ikke via <meta>-CSP, beholdes for paritet med admin-sidene. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: https:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+<meta name="theme-color" content="#171A21" />
+<meta name="robots" content="noindex, nofollow" />
+<title data-i18n="reviews.title">Skriv en anmeldelse · Westengen Klinikk</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8;
+    --green-tint: #E9EAF4;
+    --paper: #F7F8FA; --paper-2: #EDEFF3;
+    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
+    --rule: #171a2622; --danger: #c0392b;
+    --safe-bot: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--paper); color: var(--ink);
+    font-size: 15px; line-height: 1.55;
+  }
+  a { color: var(--green); }
+  .container { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+
+  /* ============ HEADER — delt nav ============
+     Speiler kundesidene. Basis-nav-chrome er inline her fordi denne siden
+     IKKE laster shared/public.css (ville kollidert med sidens egne
+     .btn/.card). «Mer»-dropdown + mobil-overlay-styling kommer fra
+     shared/header-nav.css, språkvelger fra shared/i18n.css, og
+     hamburger-toggle fra shared/header-mobile.js. */
+  .nav-shell {
+    position: sticky; top: 0; z-index: 60;
+    background: var(--ink);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  /* Header-baren er bredere enn det smale innholdssporet (720px) — speiler
+     kundesidenes brede header. */
+  .nav-shell .container { max-width: 1200px; }
+  .nav {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center; gap: 40px; padding: 14px 0;
+  }
+  .brand { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; }
+  .brand-img { height: 72px; width: auto; display: block; flex-shrink: 0; max-width: none; }
+  .nav-links {
+    display: flex; gap: 32px; justify-content: center;
+    font-size: 14px; font-weight: 500; white-space: nowrap;
+  }
+  .nav-links a { color: rgba(255,255,255,0.85); padding: 6px 0; position: relative; text-decoration: none; }
+  .nav-links a:hover, .nav-links a.active { color: #fff; }
+  .nav-links a.active::after {
+    content:""; position:absolute; left:0; right:0; bottom:-2px;
+    height:2px; background: var(--paper);
+  }
+  .nav-cta { display: flex; align-items: center; gap: 14px; }
+  .phone { font-size: 13px; color: rgba(255,255,255,0.7); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .nav-hamburger {
+    display: none; background: none; border: none; cursor: pointer;
+    padding: 8px; color: var(--paper); align-items: center; justify-content: center; border-radius: 2px;
+  }
+  .nav-hamburger:hover { color: #fff; }
+  .nav-hamburger:focus-visible { outline: 2px solid var(--green-soft); outline-offset: 2px; }
+  .nav-hamburger svg { display: block; }
+
+  /* Mobil-overlay basis (header-nav.css legger editorial-styling oppå). */
+  .nav-mobile {
+    position: fixed; inset: 0; z-index: 9000;
+    background: var(--ink); color: var(--paper);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 80px 24px 40px;
+    opacity: 0; visibility: hidden;
+    transition: opacity 150ms ease, visibility 0s linear 150ms;
+  }
+  .nav-mobile.open {
+    opacity: 1; visibility: visible;
+    transition: opacity 150ms ease, visibility 0s linear 0s;
+  }
+  .nav-mobile-close {
+    position: absolute; top: 20px; right: 20px;
+    background: none; border: none; color: var(--paper);
+    font-size: 32px; line-height: 1; cursor: pointer; padding: 8px 12px; font-family: inherit;
+  }
+  .nav-mobile-links { display: flex; flex-direction: column; gap: 28px; text-align: center; margin-bottom: 40px; }
+  .nav-mobile-links a {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: clamp(26px, 6vw, 34px); color: var(--paper);
+    text-decoration: none; letter-spacing: -0.01em; line-height: 1;
+  }
+  .nav-mobile-cta { margin-top: 8px; }
+
+  @media (max-width: 1024px) {
+    .nav { grid-template-columns: 1fr auto; }
+    .nav-links { display: none; }
+    .nav-hamburger { display: inline-flex; }
+  }
+  @media (max-width: 640px) {
+    .phone { display: none; }
+    .nav-cta { gap: 8px; }
+    .nav-cta .btn-primary { padding: 10px 14px; font-size: 13px; white-space: nowrap; }
+    .nav-cta .tas-lang .lang-btn { padding: 8px 10px; font-size: 12px; }
+    .nav-shell .container { padding-left: 16px; padding-right: 16px; }
+    .nav { gap: 8px; }
+    .brand-img { height: 44px; width: auto; }
+  }
+
+  /* Hero */
+  .page-hero { padding: 56px 0 36px; border-bottom: 1px solid var(--rule); }
+  .breadcrumb {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 20px;
+    display: flex; gap: 10px; align-items: center;
+  }
+  .breadcrumb a { color: var(--muted); }
+  .page-hero h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 300; font-size: clamp(34px, 7vw, 56px);
+    line-height: 1.05; letter-spacing: -0.02em; margin: 0;
+  }
+
+  /* Flow */
+  .flow-wrap { padding: 40px 0 calc(72px + var(--safe-bot)); }
+  .lede { color: var(--ink-2); font-size: 16px; margin: 0 0 24px; max-width: 54ch; }
+  .card {
+    background: #fff; border: 1px solid var(--rule);
+    padding: 28px 24px;
+  }
+  .field { margin-bottom: 18px; }
+  .field label, .field-label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-2); margin-bottom: 7px;
+  }
+  .field input, .field textarea, .field select {
+    width: 100%; font-family: inherit;
+    font-size: 16px; /* 16px hindrer iOS zoom-on-focus */
+    padding: 13px 14px; border: 1px solid var(--rule);
+    background: var(--paper); color: var(--ink); border-radius: 0;
+  }
+  .field textarea { resize: vertical; min-height: 110px; }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    outline: 2px solid var(--green); outline-offset: -2px; border-color: var(--green);
+  }
+  .field .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: inherit; font-size: 15px; font-weight: 600;
+    padding: 14px 24px; border: 1px solid transparent;
+    cursor: pointer; border-radius: 0; text-decoration: none;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .btn-primary { background: var(--green); color: #fff; }
+  .btn-primary:hover { background: var(--green-deep); }
+  .btn-primary[disabled] { opacity: .6; cursor: progress; }
+  .btn-ghost { background: transparent; border-color: var(--rule); color: var(--ink-2); }
+  .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .actions .btn { flex: 1 1 auto; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .btn.is-loading::before {
+    content: ""; display: inline-block;
+    width: 15px; height: 15px;
+    border: 2px solid rgba(255,255,255,0.45); border-top-color: #fff;
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+
+  .err {
+    background: #fdeaea; border-left: 3px solid var(--danger);
+    padding: 11px 14px; font-size: 14px; color: #7d2418;
+    margin-bottom: 18px;
+  }
+
+  /* Ferdig-skjerm */
+  .done-icon { width: 56px; height: 56px; margin-bottom: 18px; color: var(--green); }
+  .done-icon svg { width: 100%; height: 100%; }
+  .done h2 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 26px; margin: 0 0 10px; letter-spacing: -0.01em;
+  }
+
+  /* Gating-visning (ugyldig/manglende token, allerede anmeldt, sjekker…) */
+  .gate-card h2 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 24px; margin: 0 0 12px; letter-spacing: -0.01em;
+  }
+  .gate-card p { color: var(--ink-2); font-size: 16px; margin: 0 0 22px; max-width: 52ch; }
+
+  /* Footer */
+  .site-foot {
+    background: var(--ink); color: #ffffff99;
+    padding: 28px 0 calc(28px + var(--safe-bot));
+    font-size: 13px;
+  }
+  .site-foot a { color: var(--green-soft); }
+
+  @media (max-width: 600px) {
+    .container { padding: 0 18px; }
+    .page-hero { padding: 40px 0 28px; }
+    .flow-wrap { padding: 28px 0 calc(56px + var(--safe-bot)); }
+    .card { padding: 22px 18px; }
+    .actions { flex-direction: column-reverse; }
+    .actions .btn { width: 100%; }
+  }
+</style>
+<link rel="stylesheet" href="shared/cookie-banner.css">
+<link rel="stylesheet" href="shared/i18n.css">
+<link rel="stylesheet" href="shared/header-nav.css">
+
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="nav-shell">
+  <div class="container">
+    <nav class="nav">
+      <a href="index.html" class="brand" aria-label="Westengen Klinikk">
+        <span class="brand-wordmark"><strong>Westengen</strong><span>Klinikk</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+        <a href="avbestill.html" data-i18n="nav.cancel">Avbestill time</a>
+        <a href="venteliste.html" data-i18n="nav.waitlist">Venteliste</a>
+        <a href="kontakt.html" data-i18n="nav.contact">Kontakt</a>
+        <a href="ansatt.html" data-i18n="nav.admin">Adminpanel</a>
+      </div>
+      <div class="nav-cta">
+        <div class="lang tas-lang">
+          <button class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="flag" data-current-lang>🇳🇴</span>
+            <span class="chev"></span>
+          </button>
+          <div class="lang-menu" role="listbox">
+            <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
+            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>
+            <button data-lang="de"><span>Deutsch</span><span class="code">🇩🇪</span></button>
+            <button data-lang="es"><span>Español</span><span class="code">🇪🇸</span></button>
+            <button data-lang="ar"><span>العربية</span><span class="code">🇸🇦</span></button>
+            <button data-lang="fa"><span>فارسی</span><span class="code">🇮🇷</span></button>
+          </div>
+        </div>
+        <a class="btn btn-primary btn-arrow" href="bestilling.html"><span data-i18n="nav.book_cta">Bestill time</span> <span>→</span></a>
+        <button class="nav-hamburger" type="button" aria-label="Meny" data-i18n-aria-label="nav.menu_aria" aria-expanded="false" aria-controls="navMobile">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="19" y2="6"/>
+            <line x1="3" y1="11" x2="19" y2="11"/>
+            <line x1="3" y1="16" x2="19" y2="16"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- MOBILE NAV OVERLAY -->
+<div class="nav-mobile" id="navMobile" role="dialog" aria-modal="true" aria-label="Meny" hidden>
+  <button class="nav-mobile-close" type="button" aria-label="Lukk meny" data-i18n-aria-label="nav.menu_close_aria">×</button>
+  <nav class="nav-mobile-links" aria-label="Hovedmeny">
+    <a href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+    <a href="avbestill.html" data-i18n="nav.cancel">Avbestill time</a>
+    <a href="venteliste.html" data-i18n="nav.waitlist">Venteliste</a>
+    <a href="kontakt.html" data-i18n="nav.contact">Kontakt</a>
+    <a href="ansatt.html" data-i18n="nav.admin">Adminpanel</a>
+  </nav>
+  <div class="nav-mobile-cta">
+    <a class="btn btn-primary btn-arrow" href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+  </div>
+</div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html" data-i18n="cancel.breadcrumb_home">Forsiden</a>
+      <span>/</span>
+      <span data-i18n="reviews.breadcrumb_self">Skriv en anmeldelse</span>
+    </div>
+    <h1 data-i18n="reviews.heading">Anmeldelser</h1>
+  </div>
+</section>
+
+<section class="flow-wrap">
+  <div class="container">
+
+    <!-- VIEW: gating (vises ved manglende/ugyldig token, allerede anmeldt, eller mens
+         lenken sjekkes). Skjemaet vises KUN med gyldig token fra e-post-lenken. -->
+    <div id="view-gate">
+      <div class="card gate-card">
+        <h2 data-i18n="reviews.notoken_heading">Anmeldelser er for kundene våre</h2>
+        <p id="gateBody">Sjekker lenken…</p>
+        <div class="actions">
+          <a class="btn btn-ghost" href="index.html" data-i18n="reviews.btn_to_home">Til forsiden</a>
+          <a class="btn btn-primary" href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: skjema (skjult til token er validert) -->
+    <div id="view-form" hidden>
+      <p class="lede" data-i18n="reviews.lede">Har du vært til behandling hos oss? Vi setter pris på om du deler erfaringen din. Anmeldelsen vurderes før den publiseres.</p>
+      <div class="card">
+        <div class="err" id="formErr" hidden></div>
+        <form id="reviewForm" novalidate>
+
+          <!-- Honeypot anti-spam. Skjult for mennesker, synlig for bots. -->
+          <div aria-hidden="true" style="display:none;">
+            <label for="hpWebsite">Website</label>
+            <input id="hpWebsite" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="fName" data-i18n="reviews.field_name">Navn</label>
+            <input id="fName" type="text" autocomplete="name" maxlength="80" required />
+          </div>
+
+          <div class="field">
+            <label for="fRating" data-i18n="reviews.field_rating">Vurdering</label>
+            <select id="fRating" required>
+              <option value="" data-i18n="reviews.rating_choose">Velg…</option>
+              <option value="5">★★★★★ (5)</option>
+              <option value="4">★★★★ (4)</option>
+              <option value="3">★★★ (3)</option>
+              <option value="2">★★ (2)</option>
+              <option value="1">★ (1)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="fBody" data-i18n="reviews.field_body">Din anmeldelse</label>
+            <textarea id="fBody" maxlength="1000" required data-i18n-placeholder="reviews.field_body_placeholder" placeholder="Fortell kort om opplevelsen din."></textarea>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-primary" id="submitBtn" data-i18n="reviews.btn_submit">Send anmeldelse</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- VIEW: takk -->
+    <div id="view-done" hidden>
+      <div class="card done">
+        <div class="done-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="24" cy="24" r="20" />
+            <path d="M14 24l7 7 14-15" />
+          </svg>
+        </div>
+        <h2 data-i18n="reviews.done_heading">Takk for anmeldelsen!</h2>
+        <p data-i18n="reviews.done_body">Anmeldelsen din vurderes før publisering. Takk for at du tok deg tid.</p>
+        <div class="actions">
+          <a class="btn btn-ghost" href="index.html" data-i18n="reviews.btn_to_home">Til forsiden</a>
+          <a class="btn btn-primary" href="bestilling.html" data-i18n="nav.book_cta">Bestill time</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-foot">
+  <div class="container" data-i18n-html="common.footer_address_html">
+    Westengen Klinikk · Storgata 1, 0155 Oslo · Tlf <a href="tel:+47 400 00 000">+47 400 00 000</a>
+  </div>
+</footer>
+
+<script src="shared/booking-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="i18n/i18n.js"></script>
+<script src="shared/header-mobile.js" defer></script>
+<script>
+(function () {
+  'use strict';
+
+  var CLINIC_PHONE = '+47 400 00 000';
+  var CFG = window.WestengenKlinikkBackend || {};
+  var sb = (window.supabase && CFG.supabaseUrl && CFG.supabaseAnonKey)
+    ? window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey)
+    : null;
+
+  var I18N = window.WestengenKlinikkI18n;
+  function t(key, fallback) {
+    return (I18N && I18N.t) ? I18N.t(key, fallback) : fallback;
+  }
+  function tp(key, fallback) {
+    return t(key, fallback).replace('{phone}', CLINIC_PHONE);
+  }
+  function $(id) { return document.getElementById(id); }
+
+  // Token fra e-post-lenken (anmeldelser.html?token=…). Anmeldelser er gated:
+  // skjemaet vises kun med gyldig token mot en avsluttet booking (0042).
+  var REVIEW_TOKEN = '';
+  try { REVIEW_TOKEN = (new URLSearchParams(window.location.search).get('token') || '').trim(); } catch (_) {}
+
+  function showForm() { $('view-gate').hidden = true; $('view-done').hidden = true; $('view-form').hidden = false; window.scrollTo(0, 0); }
+  function showDone() { $('view-gate').hidden = true; $('view-form').hidden = true; $('view-done').hidden = false; window.scrollTo(0, 0); }
+
+  // Gating-visning. gateBodyKey re-oversettes ved språkbytte (data-i18n er
+  // bevisst fjernet fra #gateBody så i18n-boot ikke overskriver JS-teksten).
+  var gateBodyKey = 'reviews.checking';
+  var gateBodyFallback = 'Sjekker lenken…';
+  function applyGateBody() { $('gateBody').textContent = t(gateBodyKey, gateBodyFallback); }
+  function showGate(bodyKey, fallback) {
+    gateBodyKey = bodyKey; gateBodyFallback = fallback;
+    $('view-form').hidden = true; $('view-done').hidden = true; $('view-gate').hidden = false;
+    applyGateBody();
+    window.scrollTo(0, 0);
+  }
+  function showErr(msg) { var e = $('formErr'); e.textContent = msg; e.hidden = false; }
+  function clearErr() { $('formErr').hidden = true; }
+
+  // RPC-reason → gating-melding (skjema-tilgang nektet).
+  function gateForReason(reason) {
+    if (reason === 'already_reviewed') showGate('reviews.token_already', 'Du har allerede sendt inn en anmeldelse for denne timen. Tusen takk!');
+    else if (reason === 'too_early') showGate('reviews.token_too_early', 'Du kan legge igjen en anmeldelse etter at timen din er gjennomført.');
+    else showGate('reviews.token_invalid', 'Denne anmeldelse-lenken er ugyldig eller utløpt.');
+  }
+
+  $('reviewForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    clearErr();
+
+    // Honeypot: fylt = bot → vis falsk takk uten DB-insert.
+    var hp = $('reviewForm').querySelector('[name="website"]');
+    if (hp && hp.value) { setTimeout(function () { showDone(); }, 600); return; }
+
+    var name = $('fName').value.trim();
+    var rating = parseInt($('fRating').value, 10);
+    var body = $('fBody').value.trim();
+
+    if (!name) { showErr(t('reviews.err_no_name', 'Fyll inn navnet ditt.')); return; }
+    if (!(rating >= 1 && rating <= 5)) { showErr(t('reviews.err_no_rating', 'Velg en vurdering fra 1 til 5 stjerner.')); return; }
+    if (!body) { showErr(t('reviews.err_no_body', 'Skriv noen ord om opplevelsen din.')); return; }
+    if (!sb) { showErr(tp('reviews.err_service_unavailable', 'Anmeldelser er midlertidig utilgjengelig. Ring oss på {phone}.')); return; }
+
+    if (!REVIEW_TOKEN) { gateForReason('not_found'); return; }
+
+    var btn = $('submitBtn');
+    var label = t('reviews.btn_submit', 'Send anmeldelse');
+    btn.disabled = true; btn.classList.add('is-loading');
+    btn.textContent = t('reviews.btn_sending', 'Sender…');
+    function resetBtn() { btn.disabled = false; btn.classList.remove('is-loading'); btn.textContent = label; }
+
+    // Innsending går via SECURITY DEFINER-RPC (0042). Anon har ikke lenger
+    // direkte INSERT på reviews — RPC-en validerer token + setter status=pending.
+    sb.rpc('submit_review_by_token', { p_token: REVIEW_TOKEN, p_name: name, p_rating: rating, p_body: body })
+      .then(function (res) {
+        resetBtn();
+        if (res.error) { showErr(tp('reviews.err_generic', 'Noe gikk galt. Prøv igjen, eller ring oss på {phone}.')); console.error(res.error); return; }
+        var d = res.data || {};
+        if (d.ok) { showDone(); return; }
+        if (d.reason === 'no_body') { showErr(t('reviews.err_no_body', 'Skriv noen ord om opplevelsen din.')); return; }
+        if (d.reason === 'bad_rating') { showErr(t('reviews.err_no_rating', 'Velg en vurdering fra 1 til 5 stjerner.')); return; }
+        // token-relaterte avvisninger (allerede anmeldt / ugyldig / for tidlig)
+        // → bytt til gating-visning, skjemaet er ikke lenger gyldig.
+        gateForReason(d.reason);
+      }).catch(function (err) {
+        resetBtn();
+        showErr(tp('reviews.err_generic', 'Noe gikk galt. Prøv igjen, eller ring oss på {phone}.'));
+        console.error(err);
+      });
+  });
+
+  function syncTitle() { document.title = t('reviews.title', 'Skriv en anmeldelse · Westengen Klinikk'); }
+  function onLang() { syncTitle(); if (!$('view-gate').hidden) applyGateBody(); }
+  if (I18N && I18N.onLanguageChange) I18N.onLanguageChange(onLang);
+  syncTitle();
+
+  // ---- Init: valider token og bestem visning ----
+  function initGate() {
+    if (!REVIEW_TOKEN) {
+      showGate('reviews.notoken_body', 'Anmeldelser er kun for kunder som har hatt time — du får en lenke på e-post ~1 time etter timen din.');
+      return;
+    }
+    showGate('reviews.checking', 'Sjekker lenken…');
+    if (!sb) { showForm(); return; } // uten backend: la dem prøve, submit feiler pent
+    sb.rpc('lookup_review_by_token', { p_token: REVIEW_TOKEN })
+      .then(function (res) {
+        if (res.error || !res.data) { showForm(); return; } // nettverksfeil → la dem prøve (submit re-validerer)
+        if (res.data.ok) { showForm(); }
+        else { gateForReason(res.data.reason); }
+      })
+      .catch(function () { showForm(); });
+  }
+  initGate();
+})();
+</script>
+<script src="shared/cookie-banner.js" defer></script>
+
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

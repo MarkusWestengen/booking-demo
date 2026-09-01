@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#171A21">
+
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+
+<title>Audit-logg · Westengen Klinikk</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8; --green-tint: #E9EAF4;
+    --paper: #F7F8FA; --paper-2: #EDEFF3;
+    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
+    --rule: #171a2622; --danger: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink); background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+    /* Issue W — inkluder iOS safe-area så innhold ikke gjemmes bak
+       den fixed bottom-nav-en på telefoner med home-indicator. */
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .topbar { position: sticky; top: 0; z-index: 30;
+    background: var(--ink); color: var(--paper);
+    border-bottom: 3px solid var(--green); }
+  .topbar-inner { display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px; max-width: 1300px; margin: 0 auto; }
+  .brand { font-family: 'Fraunces', serif; font-size: 22px; flex: 1; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand em { font-style: italic; color: var(--green-soft);
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .who-chip { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--green); color: #fff; padding: 4px 8px; }
+  .topbar a, .topbar button { color: var(--paper); background: transparent;
+    border: 1px solid rgba(247, 248, 250,.22); padding: 6px 10px;
+    font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
+  .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
+
+  .shell { max-width: 1300px; margin: 0 auto; padding: 18px; }
+  h1 { font-family: 'Fraunces', serif; font-weight: 400; font-size: 26px; margin: 0 0 4px; }
+  .lede { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+
+  /* Filter bar */
+  .filters { background: #fff; border: 1px solid var(--rule);
+    padding: 14px; margin-bottom: 14px; display: grid;
+    grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: end; }
+  .filters .field { display: flex; flex-direction: column; gap: 4px; }
+  .filters label { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); }
+  .filters input, .filters select { padding: 8px 10px;
+    font: inherit; font-size: 13px;
+    border: 1px solid var(--rule); background: #fff; }
+  .filters input:focus, .filters select:focus { outline: 2px solid var(--green); outline-offset: -2px; }
+
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .toolbar .count { color: var(--muted); font-size: 13px; flex: 1; }
+  .btn { background: transparent; color: var(--ink); border: 1px solid var(--rule);
+    padding: 8px 14px; font: inherit; font-size: 13px; cursor: pointer; }
+  .btn:hover { border-color: var(--ink); }
+  .btn[disabled] { opacity: 0.4; cursor: default; }
+  .btn-primary { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn-primary:hover { background: var(--green-deep); border-color: var(--green-deep); }
+
+  /* Table — #tableHost gir horisontal scroll på mobil, table.audit har
+     min-width så cellene ikke kollapser når 5 kolonner ikke fitter. */
+  #tableHost { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.audit { width: 100%; border-collapse: collapse; background: #fff;
+    border: 1px solid var(--rule); font-size: 12px; min-width: 640px; }
+  table.audit th, table.audit td { padding: 8px 10px; border-bottom: 1px solid var(--rule);
+    text-align: left; vertical-align: top; }
+  table.audit th { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+    font-weight: 500; background: var(--paper-2); position: sticky; top: 0; }
+  table.audit td.when { font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+  table.audit td.action { font-family: 'JetBrains Mono', monospace; }
+  table.audit td.meta pre { margin: 0; font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; white-space: pre-wrap; word-wrap: break-word; color: var(--ink-2);
+    max-width: 360px; }
+  .action-tag { display: inline-block; padding: 2px 6px;
+    background: var(--paper-2); border: 1px solid var(--rule); font-size: 11px; }
+  .action-tag.gdpr_pseudonymize { background: #fdeaea; color: #7d2418; border-color: #e8a098; }
+  .action-tag.gdpr_export { background: #fff7d6; color: #4a3a00; border-color: #d9c98e; }
+  .action-tag.login_failed { background: #fdeaea; color: #7d2418; border-color: #e8a098; }
+  .action-tag.login_success { background: var(--green-tint); color: var(--green-deep); border-color: var(--green-soft); }
+
+  .loader { text-align: center; padding: 36px; color: var(--muted); }
+  .spinner { width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--rule); border-top-color: var(--green);
+    animation: spin 0.8s linear infinite;
+    display: inline-block; vertical-align: middle; margin-right: 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; padding: 36px; color: var(--muted);
+    background: #fff; border: 1px solid var(--rule); }
+
+  /* Bottom nav */
+  .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0;
+    background: #fff; border-top: 1px solid var(--rule);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0); z-index: 40; }
+  .bn-btn { flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 4px; padding: 10px 8px;
+    background: transparent; border: 0; border-top: 3px solid transparent;
+    font: inherit; font-size: 11px; color: var(--ink-2);
+    text-decoration: none; cursor: pointer; position: relative; }
+  .bn-btn .bn-ico { font-size: 18px; line-height: 1; }
+  .bn-btn.active { color: var(--green-deep); border-top-color: var(--green); }
+  .bn-btn.disabled { opacity: 0.45; pointer-events: none; }
+  .bn-soon { position: absolute; top: 4px; right: 8px;
+    background: var(--green-soft); color: #fff;
+    font-family: 'JetBrains Mono', monospace; font-size: 8px;
+    padding: 1px 4px; letter-spacing: 0.08em; }
+
+  @media (max-width: 800px) {
+    .filters { grid-template-columns: 1fr 1fr; }
+    table.audit td.meta pre { max-width: 200px; }
+  }
+  @media (max-width: 500px) {
+    .filters { grid-template-columns: 1fr; }
+    h1 { font-size: 22px; }
+    table.audit { font-size: 11px; min-width: 560px; }
+    table.audit td.meta pre { max-width: 160px; }
+    .toolbar { gap: 8px; }
+    .toolbar .btn { flex: 1 1 calc(50% - 4px); min-width: 0; }
+    .toolbar .count { flex: 1 1 100%; }
+  }
+  /* Issue V — skjul sidetittel-em i admin-headeren på smal mobil.
+     "Westengen Klinikk AUDIT" fikk ikke plass og ble avkuttet; bottom-nav
+     viser uansett hvilken side man er på. */
+  @media (max-width: 600px) { .brand em { display: none; } }
+
+  /* ===== DEL 4A — admin-polish (kun presentasjon, ingen funksjonsendring) =====
+     8-punkts bottom-nav scroller horisontalt på smale skjermer (<=560px) i stedet
+     for å klemmes; tydeligere fokus-tilstand for tastatur-navigasjon. */
+  .bottom-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 560px) {
+    .bottom-nav .bn-btn { flex: 0 0 auto; min-width: 64px; }
+  }
+  .btn:focus-visible, .bn-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+  /* DEL 7 — forklarings-legende */
+  .legend { background: #fff; border: 1px solid var(--rule); margin-bottom: 18px; }
+  .legend > summary { cursor: pointer; padding: 11px 14px; list-style: none;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-2); }
+  .legend > summary::-webkit-details-marker { display: none; }
+  .legend > summary::before { content: "▸ "; color: var(--green); }
+  .legend[open] > summary::before { content: "▾ "; }
+  .legend > summary:hover { color: var(--ink); }
+  .legend[open] > summary { border-bottom: 1px solid var(--rule); }
+  .legend-list { margin: 0; padding: 14px; display: grid; grid-template-columns: auto 1fr;
+    gap: 7px 16px; font-size: 13px; }
+  .legend-list dt { font-weight: 600; color: var(--ink); }
+  .legend-list dd { margin: 0; color: var(--ink-2); }
+
+  /* DEL 7 — audit-rader som kort på mobil (samme problem/mønster som meldinger).
+     Tabellen tvang min-width 560-640px + horisontal scroll; nå stables hver rad
+     som et kort der lange detaljer/JSON wrapper. Vinner over ≤500/≤800-reglene
+     over siden den står sist i kilden. */
+  @media (max-width: 600px) {
+    #tableHost { overflow-x: visible; }
+    table.audit { min-width: 0; border: 0; background: transparent; font-size: 13px; }
+    table.audit thead { position: absolute; width: 1px; height: 1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    table.audit tr { display: block; background: #fff; border: 1px solid var(--rule);
+      margin-bottom: 12px; }
+    table.audit td { display: block; max-width: 100%;
+      padding: 9px 14px; border-bottom: 1px solid var(--rule);
+      white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+    table.audit td:last-child { border-bottom: 0; }
+    table.audit td::before { content: attr(data-label);
+      display: block; margin-bottom: 3px;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    table.audit td.when { white-space: normal; }
+    table.audit td.meta pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .legend-list { grid-template-columns: 1fr; gap: 2px 0; }
+    .legend-list dd { margin-bottom: 9px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">Westengen Klinikk <em>audit</em></div>
+    <span class="who-chip" id="whoChip" style="display:none;">Admin</span>
+    <div id="topActions"></div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <div id="bootView" class="loader">
+    <span class="spinner"></span>Sjekker tilgang…
+  </div>
+
+  <div id="appView" style="display:none;">
+    <h1 class="adm-accent">Audit-logg</h1>
+    <p class="lede">Append-only logg over alle journal- og administrasjons-handlinger. Brukes til Datatilsynet-rapportering og intern revisjon.</p>
+
+    <!-- DEL 7 — forklarings-legende. Hjelper ikke-tekniske ansatte å forstå
+         hva hver handling betyr. Teksten speiler ACTION_LABELS. -->
+    <details class="legend">
+      <summary>Hva betyr handlingene?</summary>
+      <dl class="legend-list">
+        <dt>Åpnet pasientjournal</dt><dd>En behandler åpnet og leste en pasients journal.</dd>
+        <dt>Opprettet pasientjournal</dt><dd>En behandler skrev en ny journaloppføring.</dd>
+        <dt>Endret status på en time</dt><dd>Status på en booking ble endret (f.eks. til bekreftet eller avbestilt).</dd>
+        <dt>Eksporterte kundedata (GDPR)</dt><dd>All lagret data om en kunde ble lastet ned — vanligvis på kundens egen forespørsel.</dd>
+        <dt>Anonymiserte kundedata (GDPR)</dt><dd>En kundes personopplysninger ble anonymisert/slettet — vanligvis på kundens egen forespørsel.</dd>
+        <dt>Logget inn</dt><dd>En ansatt logget inn i adminpanelet.</dd>
+        <dt>Mislykket innlogging</dt><dd>Et innloggingsforsøk feilet (f.eks. feil passord). Aktør står som «Ikke innlogget».</dd>
+      </dl>
+    </details>
+
+    <div class="filters">
+      <div class="field">
+        <label for="fDateFrom">Fra dato</label>
+        <input id="fDateFrom" type="date">
+      </div>
+      <div class="field">
+        <label for="fDateTo">Til dato</label>
+        <input id="fDateTo" type="date">
+      </div>
+      <div class="field">
+        <label for="fActor">Aktør</label>
+        <select id="fActor">
+          <option value="">Alle aktører</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fAction">Handling</label>
+        <select id="fAction">
+          <option value="">Alle handlinger</option>
+          <option value="journal_view">Åpnet pasientjournal</option>
+          <option value="journal_create">Opprettet pasientjournal</option>
+          <option value="booking_status_change">Endret status på en time</option>
+          <option value="gdpr_export">Eksporterte kundedata (GDPR)</option>
+          <option value="gdpr_pseudonymize">Anonymiserte kundedata (GDPR)</option>
+          <option value="login_success">Logget inn</option>
+          <option value="login_failed">Mislykket innlogging</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="count" id="resultCount">—</div>
+      <button class="btn" id="resetBtn">Tilbakestill</button>
+      <button class="btn btn-primary" id="csvBtn">Eksporter CSV</button>
+    </div>
+
+    <div id="tableHost">
+      <div class="empty">Velg filtre og last inn.</div>
+    </div>
+
+    <div class="toolbar" style="justify-content:center; margin-top: 12px;">
+      <button class="btn" id="prevBtn">← Forrige</button>
+      <span class="count" id="pageInfo" style="flex:0; text-align:center;">Side 1</span>
+      <button class="btn" id="nextBtn">Neste →</button>
+    </div>
+  </div>
+
+  <div id="forbiddenView" class="empty" style="display:none;">
+    <p>Du har ikke tilgang til audit-loggen.</p>
+    <p><a href="kalender.html">← Tilbake til kalender</a></p>
+  </div>
+
+</div>
+
+<nav class="bottom-nav">
+  <a class="bn-btn" href="kalender.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>Kalender</a>
+  <a class="bn-btn" href="kunder.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-1a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Kunder</a>
+  <a class="bn-btn" href="booking-admin.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span>Oversikt</a>
+  <a class="bn-btn" data-admin-only href="tjenester.html" style="display:none;"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></span>Tjenester</a>
+  <a class="bn-btn" data-admin-only href="behandlere.html" style="display:none;"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Behandlere</a>
+  <a class="bn-btn" href="dokumenter.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></span>Dokumenter</a>
+  <a class="bn-btn" href="meldinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>Meldinger</a>
+  <a class="bn-btn" href="innstillinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></span>Innstillinger</a>
+</nav>
+
+<script src="shared/booking-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="shared/auth.js"></script>
+<script src="shared/admin-nav.js" defer></script>
+<script>
+(function () {
+  'use strict';
+
+  if (!window.WestengenKlinikkAuth || !window.WestengenKlinikkAuth.requireAuth()) return;
+
+  var CFG = window.WestengenKlinikkBackend || {};
+  // Uten nokler ville createClient('') kastet, og sida ville sett ut
+  // som om den hang. Vi sier heller tydelig fra hva som mangler.
+  if (!CFG.supabaseUrl || !CFG.supabaseAnonKey) {
+    var _cfgTarget = document.getElementById('bootView') || document.body;
+    _cfgTarget.innerHTML =
+      '<div class="auth-wrap"><div class="login"><h1>Konfigurasjon mangler</h1>' +
+      '<p>Denne kopien er ikke koblet til en database ennå. Fyll inn Supabase-URL ' +
+      'og anon-nøkkel i <code>shared/booking-config.js</code> — se ' +
+      '<code>DEMO_SETUP.md</code>.</p></div></div>';
+    return;
+  }
+  var sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
+    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
+  });
+
+  function $(id) { return document.getElementById(id); }
+  var escapeHtml = window.WestengenKlinikkAuth.escapeHtml;
+
+  var STATE = { user: null, page: 0, pageSize: 50, totalCount: 0, rows: [] };
+
+  // B2 — lesbare norske etiketter for de tekniske action-kodene. Rå kode beholdes
+  // i CSV-eksporten og som CSS-klasse + tooltip. Ukjent kode faller tilbake til rå verdi.
+  // DEL 7: enda klarere klartekst (de ansatte er ikke tekniske). Legenden i
+  // markupen forklarer hver handling i én setning.
+  var ACTION_LABELS = {
+    journal_view: 'Åpnet pasientjournal',
+    journal_create: 'Opprettet pasientjournal',
+    booking_status_change: 'Endret status på en time',
+    gdpr_export: 'Eksporterte kundedata (GDPR)',
+    gdpr_pseudonymize: 'Anonymiserte kundedata (GDPR)',
+    login_success: 'Logget inn',
+    login_failed: 'Mislykket innlogging'
+  };
+  function actionLabel(code) { return ACTION_LABELS[code] || code || '—'; }
+
+  // DEL 7 — aktør-visning: rå verdier → klart norsk. Rå verdi beholdes uendret
+  // i CSV-eksporten (B2-mønsteret). «Anonym pre-auth»/'unknown' = en som ikke
+  // var innlogget (f.eks. et mislykket innloggingsforsøk).
+  function actorLabel(r) {
+    var name = (r.actor_staff_name || '').trim();
+    var id = (r.actor_staff_id || '').trim();
+    if (name === 'Anonym pre-auth' || id === 'unknown' || (!name && !id)) return 'Ikke innlogget';
+    if (id === 'admin' || name === 'Admin') return 'Admin';
+    return name || id; // behandlernavn
+  }
+
+  function show(id) {
+    ['bootView', 'appView', 'forbiddenView'].forEach(function (v) {
+      $(v).style.display = v === id ? '' : 'none';
+    });
+  }
+  function setTopActions(html) { $('topActions').innerHTML = html; }
+
+  function parseSessionUser(session) {
+    if (!session || !session.user) return null;
+    var u = session.user;
+    var meta = (u.app_metadata || {});
+    if (meta.role !== 'admin') return null;
+    return { userId: u.id, email: u.email, role: 'admin', staffId: meta.staff_id || 'admin', staffName: meta.staff_name || 'Admin' };
+  }
+  function handleSession(session) {
+    if (!session) { window.location.replace('ansatt.html'); return; }
+    var parsed = parseSessionUser(session);
+    if (!parsed) { show('forbiddenView'); return; }
+    STATE.user = parsed;
+    setTopActions('<a href="innstillinger.html">Innstillinger</a> <button id="logoutBtn">Logg ut</button>');
+    $('whoChip').style.display = '';
+    window.WestengenKlinikkAuth.applyRoleGates(parsed.role);
+    if (window.WestengenKlinikkAuth) window.WestengenKlinikkAuth.installSessionTimeout(sb);
+    loadActors();
+    show('appView');
+    runQuery();
+  }
+  sb.auth.getSession().then(function (res) { handleSession(res.data && res.data.session); })
+    .catch(function () { window.location.replace('ansatt.html'); });
+  sb.auth.onAuthStateChange(function (event, session) {
+    if (event === 'TOKEN_REFRESHED' && STATE.user && session && session.user.id === STATE.user.userId) return;
+    handleSession(session);
+  });
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'logoutBtn') window.WestengenKlinikkAuth.logoutAndRedirect(sb);
+  });
+
+  // ----- Filter dropdowns -----
+  function loadActors() {
+    // Henter unike aktører — PostgREST har ingen DISTINCT, så vi tar 1000 nyeste rader
+    // og deduper klient-side. Godt nok for typisk audit-volum.
+    sb.from('audit_log').select('actor_staff_id, actor_staff_name')
+      .order('created_at', { ascending: false }).limit(1000)
+      .then(function (res) {
+        if (res.error) return;
+        var seen = {};
+        var list = [];
+        (res.data || []).forEach(function (r) {
+          var k = r.actor_staff_id || '';
+          if (!k || seen[k]) return;
+          seen[k] = true;
+          list.push({ id: k, name: r.actor_staff_name || k });
+        });
+        list.sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
+        var sel = $('fActor');
+        list.forEach(function (a) {
+          var opt = document.createElement('option');
+          opt.value = a.id; opt.textContent = a.name;
+          sel.appendChild(opt);
+        });
+      })
+      .catch(function (err) {
+        // Aktør-filteret blir stående tomt — ikke kritisk, bare logg.
+        console.error('Lasting av aktør-filter feilet:', err);
+      });
+  }
+
+  // ----- Query -----
+  function buildQuery(forCount) {
+    var q = sb.from('audit_log').select('*', forCount ? { count: 'exact', head: false } : undefined);
+    var from = $('fDateFrom').value;
+    var to = $('fDateTo').value;
+    var actor = $('fActor').value;
+    var action = $('fAction').value;
+    if (from) q = q.gte('created_at', from + 'T00:00:00Z');
+    if (to)   q = q.lte('created_at', to + 'T23:59:59Z');
+    if (actor)  q = q.eq('actor_staff_id', actor);
+    if (action) q = q.eq('action', action);
+    return q.order('created_at', { ascending: false });
+  }
+  function runQuery() {
+    $('tableHost').innerHTML = '<div class="loader"><span class="spinner"></span>Henter…</div>';
+    var from = STATE.page * STATE.pageSize;
+    var to = from + STATE.pageSize - 1;
+    var q = buildQuery(true).range(from, to);
+    q.then(function (res) {
+      if (res.error) {
+        $('tableHost').innerHTML = '<div class="empty">Feil: ' + escapeHtml(res.error.message) + '</div>';
+        return;
+      }
+      STATE.rows = res.data || [];
+      STATE.totalCount = res.count != null ? res.count : STATE.rows.length;
+      renderTable();
+      renderPager();
+    })
+    .catch(function (err) {
+      console.error('Audit-spørring feilet:', err);
+      $('tableHost').innerHTML = '<div class="empty">Kunne ikke hente audit-logg. Sjekk nettverkstilkoblingen og prøv igjen.</div>';
+    });
+  }
+  function renderTable() {
+    if (STATE.rows.length === 0) {
+      $('tableHost').innerHTML = '<div class="ui-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><p>Ingen rader matcher filterene.</p></div>';
+      $('resultCount').textContent = '0 rader';
+      return;
+    }
+    $('resultCount').textContent = STATE.totalCount + ' rader';
+    var html = '<table class="audit"><thead><tr>' +
+      '<th>Tidspunkt</th><th>Aktør</th><th>Handling</th><th>Gjelder</th><th>Detaljer</th>' +
+      '</tr></thead><tbody>';
+    STATE.rows.forEach(function (r) {
+      var when = r.created_at ? new Date(r.created_at).toLocaleString('no-NO') : '—';
+      var actor = actorLabel(r);
+      var actionCls = 'action-tag ' + (r.action || '');
+      var target = (r.target_type || '—') + (r.target_id ? ' / ' + r.target_id : '');
+      var meta = r.metadata ? JSON.stringify(r.metadata, null, 2) : '';
+      html += '<tr>' +
+        '<td class="when" data-label="Tidspunkt">' + escapeHtml(when) + '</td>' +
+        '<td data-label="Aktør">' + escapeHtml(actor) + '</td>' +
+        '<td class="action" data-label="Handling"><span class="' + actionCls + '" title="' + escapeHtml(r.action || '') + '">' + escapeHtml(actionLabel(r.action)) + '</span></td>' +
+        '<td data-label="Gjelder">' + escapeHtml(target) + '</td>' +
+        '<td class="meta" data-label="Detaljer">' + (meta ? '<pre>' + escapeHtml(meta) + '</pre>' : '—') + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table>';
+    $('tableHost').innerHTML = html;
+  }
+  function renderPager() {
+    var totalPages = Math.max(1, Math.ceil(STATE.totalCount / STATE.pageSize));
+    $('pageInfo').textContent = 'Side ' + (STATE.page + 1) + ' av ' + totalPages;
+    $('prevBtn').disabled = STATE.page === 0;
+    $('nextBtn').disabled = STATE.page >= totalPages - 1;
+  }
+
+  // ----- Filter wiring -----
+  ['fDateFrom', 'fDateTo', 'fActor', 'fAction'].forEach(function (id) {
+    $(id).addEventListener('change', function () { STATE.page = 0; runQuery(); });
+  });
+  $('resetBtn').addEventListener('click', function () {
+    ['fDateFrom', 'fDateTo', 'fActor', 'fAction'].forEach(function (id) { $(id).value = ''; });
+    STATE.page = 0;
+    runQuery();
+  });
+  $('prevBtn').addEventListener('click', function () {
+    if (STATE.page > 0) { STATE.page--; runQuery(); }
+  });
+  $('nextBtn').addEventListener('click', function () {
+    var totalPages = Math.ceil(STATE.totalCount / STATE.pageSize);
+    if (STATE.page < totalPages - 1) { STATE.page++; runQuery(); }
+  });
+
+  // ----- CSV export -----
+  // Celler som starter med =+-@/tab/CR prefikses med apostrof så Excel/
+  // Sheets aldri tolker input som formel (CSV-formel-injection,
+  // revisjon 2026-06-12 D-MEDIUM).
+  function csvEscape(v) {
+    if (v == null) return '';
+    var s = (typeof v === 'object') ? JSON.stringify(v) : String(v);
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1 || s.indexOf('\r') !== -1) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+  $('csvBtn').addEventListener('click', function () {
+    var btn = this; btn.disabled = true; btn.textContent = 'Bygger CSV…';
+    // Hent inntil 10 000 rader som matcher filterne (P2-9 fra audit 2026-05-15:
+    // dokumentert grense — eldre rader droppes stille hvis filterne treffer mer.
+    // Når klinikken vokser: implementer chunked eksport via flere range()-kall.)
+    buildQuery(false).range(0, 9999).then(function (res) {
+      btn.disabled = false; btn.textContent = 'Eksporter CSV';
+      if (res.error) { alert('CSV-eksport feilet: ' + res.error.message); return; }
+      var rows = res.data || [];
+      if (rows.length === 10000) {
+        // Heads-up til operatør om at vi traff grensen.
+        console.warn('CSV-eksport: 10 000-grensen ble truffet. Eldre rader er ikke inkludert. Filtrér på dato for full historikk.');
+      }
+      var header = ['id','created_at','actor_staff_id','actor_staff_name','action','target_type','target_id','metadata'];
+      var lines = [header.join(',')];
+      rows.forEach(function (r) {
+        lines.push(header.map(function (k) { return csvEscape(r[k]); }).join(','));
+      });
+      var blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'audit-logg-' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    })
+    .catch(function (err) {
+      btn.disabled = false; btn.textContent = 'Eksporter CSV';
+      console.error('CSV-eksport feilet:', err);
+      alert('CSV-eksport feilet. Sjekk nettverkstilkoblingen og prøv igjen.');
+    });
+  });
+
+})();
+</script>
+
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

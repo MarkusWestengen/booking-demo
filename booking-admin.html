@@ -1,0 +1,3925 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#171A21" />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Westengen Klinikk">
+
+<!-- Content Security Policy
+     'unsafe-inline' for script er en bevisst avveining (alle våre
+     admin-sider har store inline <script>-blokker). All brukerdata
+     escapes med escapeHtml() før innsetting i innerHTML.
+     Forms-action='self' lar email/password-skjemaet POSTe (selv om
+     den faktisk håndteres av JS — defense in depth). -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+
+<title>Oversikt · Westengen Klinikk</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/booking-flow.css">
+<style>
+  :root {
+    --green: #464C8C;
+    --green-deep: #2F3463;
+    --green-soft: #7A80B8;
+    --green-tint: #E9EAF4;
+    --paper: #F7F8FA;
+    --paper-2: #EDEFF3;
+    --ink: #171A21;
+    --ink-2: #2E323C;
+    --muted: #6B7080;
+    --rule: #171a2622;
+    --danger: #c0392b;
+    --info: #2C5F8B;
+    --info-tint: #E5EEF5;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 28px; }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 16px 0;
+    border-bottom: 3px solid var(--green);
+  }
+  .topbar .container {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  }
+  .brand {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 20px; letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .brand em {
+    color: var(--green-soft); font-style: italic; font-weight: 400;
+    font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .role-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    background: var(--green); color: #fff;
+    padding: 4px 10px;
+    /* Admin-modus accent: lett oransje pulse første gang siden lastes,
+       så Erik/Henrik husker at de er i admin-modus. */
+    box-shadow: inset 0 -2px 0 var(--info);
+  }
+  .role-badge.therapist {
+    background: var(--green-soft);
+    box-shadow: none;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .topbar-right .who { font-size: 13px; color: rgba(247, 248, 250,.7); }
+  .topbar a, .topbar button {
+    color: var(--paper);
+    background: transparent;
+    border: 1px solid rgba(247, 248, 250,.2);
+    padding: 8px 14px;
+    font-family: inherit; font-size: 13px;
+    cursor: pointer; text-decoration: none;
+  }
+  .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
+
+  /* ===== Login ===== */
+  .auth-wrap { min-height: calc(100vh - 60px); display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+  .login {
+    width: 100%; max-width: 420px;
+    padding: 40px;
+    background: #fff;
+    border: 1px solid var(--rule);
+  }
+  .login h1 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 32px; letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+  .login p { color: var(--muted); margin: 0 0 24px; font-size: 14px; }
+  .login label {
+    display: block; font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-2); margin-bottom: 6px;
+  }
+  .login input {
+    width: 100%; font-family: inherit; font-size: 15px;
+    padding: 12px 14px; border: 1px solid var(--rule);
+    background: var(--paper); margin-bottom: 16px;
+  }
+  .login input:focus { outline: 2px solid var(--green); outline-offset: -2px; }
+  .login .err {
+    background: #fdeaea; border-left: 3px solid var(--danger);
+    padding: 10px 14px; font-size: 13px; color: #7d2418; margin-bottom: 16px;
+  }
+  .btn-primary {
+    background: var(--green); color: #fff; border: 0;
+    padding: 12px 20px; font-family: inherit; font-size: 14px; font-weight: 500;
+    cursor: pointer; letter-spacing: 0.02em;
+  }
+  .btn-primary:hover { background: var(--green-deep); }
+  .btn-primary[disabled] { opacity: .5; cursor: progress; }
+
+  /* ===== Boot ===== */
+  .boot {
+    text-align: center; color: var(--muted); padding: 80px 20px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .boot .spinner {
+    width: 28px; height: 28px; margin: 0 auto 14px;
+    border: 2px solid var(--rule); border-top-color: var(--green);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== Admin shell ===== */
+  /* Issue W — bunn-padding inkluderer iOS safe-area så innhold ikke
+     gjemmes bak den fixed bottom-nav-en på telefoner m/ home-indicator. */
+  .admin-shell { padding: 28px 0 calc(80px + env(safe-area-inset-bottom, 0px)); }
+
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--rule); margin-bottom: 28px; flex-wrap: wrap; }
+  .tab {
+    padding: 12px 22px;
+    background: transparent; border: 0; border-bottom: 2px solid transparent;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--ink); border-bottom-color: var(--green); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .panel-head {
+    display: flex; justify-content: space-between; align-items: end; gap: 16px;
+    margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--rule);
+    flex-wrap: wrap;
+  }
+  .panel-head h2 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 30px; letter-spacing: -0.02em; margin: 0;
+  }
+  /* flex-wrap: rotårsak til mobil-overflow var at denne knapperaden IKKE
+     wrappet — den admin-only «Eksporter alle bookinger (CSV)»-knappen (205px)
+     stakk forbi viewporten på telefon. Wrapping = knappene flyter til neste
+     linje i stedet for å dytte siden bredere. */
+  .panel-head .panel-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* ===== Filter bar ===== */
+  .filter-bar {
+    display: flex; gap: 12px; align-items: center;
+    margin-bottom: 22px; flex-wrap: wrap;
+  }
+  .filter-bar .filter-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .filter-bar select, .filter-bar input {
+    font-family: inherit; font-size: 13px;
+    padding: 8px 12px; border: 1px solid var(--rule); background: #fff;
+    color: var(--ink);
+  }
+  .filter-bar select:focus, .filter-bar input:focus {
+    outline: 2px solid var(--green); outline-offset: -2px;
+  }
+  .filter-bar input[type="search"] { min-width: 220px; }
+  .filter-bar input[type="date"] { font-family: 'JetBrains Mono', monospace; }
+
+  /* ===== Placeholder panels ===== */
+  .placeholder-panel {
+    background: var(--info-tint); color: var(--info);
+    border-left: 3px solid var(--info);
+    padding: 18px 22px; font-size: 13px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em;
+  }
+
+  /* ===== Settings card ===== */
+  .settings-card {
+    background: #fff; border: 1px solid var(--rule);
+    padding: 28px; max-width: 560px;
+  }
+  .settings-card h3 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 22px; margin: 0 0 18px;
+  }
+  .session-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 14px;
+  }
+  .session-table td {
+    padding: 12px 0; border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  .session-table tr:last-child td { border-bottom: 0; }
+  .session-table td:first-child {
+    width: 140px; color: var(--muted);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .session-table td:last-child {
+    color: var(--ink); font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    word-break: break-all;
+  }
+  .settings-hint {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: var(--paper-2);
+    border-left: 3px solid var(--green-soft);
+    font-size: 13px; color: var(--ink-2); line-height: 1.55;
+  }
+
+  /* ===== Bookings table ===== */
+  .booking-table-wrap { background: #fff; border: 1px solid var(--rule); overflow-x: auto; }
+  .booking-table { width: 100%; border-collapse: collapse; min-width: 780px; }
+  .booking-table th, .booking-table td {
+    padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--rule);
+    font-size: 14px; vertical-align: top;
+  }
+  .booking-table th {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); background: var(--paper-2);
+    cursor: pointer; user-select: none; white-space: nowrap;
+    position: sticky; top: 0;
+  }
+  .booking-table th:hover { color: var(--ink); }
+  .booking-table th.sorted { color: var(--ink); }
+  .booking-table th .sort-arrow { display: inline-block; margin-left: 4px; opacity: 0.4; font-size: 10px; }
+  .booking-table th.sorted .sort-arrow { opacity: 1; color: var(--green); }
+  .booking-table tbody tr:last-child td { border-bottom: 0; }
+  .booking-table tbody tr:hover td { background: var(--paper); }
+  .booking-table .when-date { color: var(--ink); white-space: nowrap; }
+  .booking-table .when-time { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+  .booking-table .name strong { display: block; font-weight: 500; }
+  .booking-table .name small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .booking-table .price { font-family: 'JetBrains Mono', monospace; font-size: 13px; white-space: nowrap; }
+  .booking-table .service-meta { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+  /* ===== Status pills ===== */
+  .pill {
+    display: inline-block; padding: 3px 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .pill-confirmed { background: var(--green-tint); color: var(--green-deep); }
+  .pill-completed { background: var(--info-tint); color: var(--info); }
+  .pill-cancelled { background: #fdeaea; color: var(--danger); }
+  .pill-no_show   { background: #eaeaea; color: #4A4F5C; }
+
+  /* ===== Skeleton ===== */
+  .skeleton-row {
+    padding: 16px; border-bottom: 1px solid var(--rule);
+    display: grid; grid-template-columns: 110px 60px 1fr 110px 1fr 80px 90px 80px;
+    gap: 16px; align-items: center;
+  }
+  .skeleton-row:last-child { border-bottom: 0; }
+  .skeleton-bar {
+    height: 12px;
+    background: linear-gradient(90deg, var(--paper-2) 0%, #E4E7EC 50%, var(--paper-2) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ===== Empty / error states ===== */
+  .state-card {
+    background: #fff; border: 1px solid var(--rule);
+    padding: 60px 30px; text-align: center;
+  }
+  .state-card h3 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 22px; color: var(--ink); margin: 0 0 8px;
+  }
+  .state-card p { color: var(--muted); margin: 0; font-size: 14px; }
+  /* Bølge 3 — diskret ikon over tom-tilstanden (harmonisert med .ui-empty). */
+  .state-card svg { width: 32px; height: 32px; color: var(--green-soft); opacity: 0.85; margin-bottom: 16px; }
+  .error-banner {
+    background: #fdeaea; border-left: 3px solid var(--danger);
+    padding: 14px 18px; color: #7d2418; font-size: 14px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    flex-wrap: wrap;
+  }
+  .error-banner button {
+    background: transparent; border: 1px solid #c0392b80; color: var(--danger);
+    padding: 6px 14px; font-family: inherit; font-size: 13px; cursor: pointer;
+  }
+  .error-banner button:hover { background: var(--danger); color: #fff; }
+
+  /* ===== btn-ghost (used in table actions) ===== */
+  .btn-ghost {
+    background: transparent; color: var(--ink-2);
+    border: 1px solid var(--rule);
+    padding: 6px 14px; font-family: inherit; font-size: 12px; cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+  /* P1 — «inkluder notater»-avkrysning ved CSV-eksport-knappen. */
+  .export-notes-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--ink-2); cursor: pointer; white-space: nowrap;
+  }
+  .export-notes-toggle input { width: 15px; height: 15px; accent-color: var(--green); }
+  .btn-danger {
+    background: transparent; color: var(--danger);
+    border: 1px solid #c0392b80;
+    padding: 8px 14px; font-family: inherit; font-size: 13px; cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+  .btn-danger[disabled] { opacity: 0.5; cursor: progress; pointer-events: none; }
+  .modal-foot-actions { display: flex; gap: 10px; align-items: center; }
+
+  /* ===== Refresh button ===== */
+  .btn-refresh {
+    background: transparent; border: 1px solid var(--rule);
+    padding: 8px 12px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 16px; line-height: 1; color: var(--ink-2);
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 38px;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .btn-refresh:hover:not([disabled]) { border-color: var(--ink); color: var(--ink); }
+  .btn-refresh[disabled] { cursor: progress; opacity: 0.7; }
+  .btn-refresh .refresh-icon { display: inline-block; }
+  .btn-refresh.loading .refresh-icon {
+    animation: refresh-spin 0.8s linear infinite;
+  }
+  .btn-refresh.success {
+    color: var(--green); border-color: var(--green); background: var(--green-tint);
+  }
+  @keyframes refresh-spin {
+    100% { transform: rotate(360deg); }
+  }
+
+  /* ===== Detail modal ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(23, 26, 33, .72);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+    overflow-x: hidden;   /* aldri horisontal forskyvning av modal-laget */
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-card {
+    background: #fff; max-width: 640px; width: 100%;
+    max-height: 90vh; display: flex; flex-direction: column;
+    border: 1px solid var(--rule);
+  }
+  .modal-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 20px 28px; border-bottom: 1px solid var(--rule);
+  }
+  .modal-head h3 { font-family: 'Fraunces', serif; font-weight: 400; font-size: 22px; margin: 0; }
+  .modal-head .ref-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.1em; color: var(--green);
+  }
+  .modal-close {
+    background: transparent; border: 0;
+    font-size: 26px; cursor: pointer; color: var(--muted);
+    padding: 4px 8px; line-height: 1;
+  }
+  .modal-close:hover { color: var(--ink); }
+  /* Kun vertikal scroll i modal-innholdet. overflow-x: hidden er
+     eksplisitt — uten den gjør overflow-y:auto at overflow-x beregnes til
+     auto, så en bred streng ville gitt horisontal scroll-drag inni modalen. */
+  .modal-body { padding: 22px 28px; overflow-y: auto; overflow-x: hidden; flex: 1; }
+  .modal-body table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .modal-body td {
+    padding: 11px 0; border-bottom: 1px solid var(--rule); vertical-align: top;
+  }
+  .modal-body tr:last-child td { border-bottom: 0; }
+  .modal-body td:first-child {
+    width: 130px; color: var(--muted);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .modal-body a { color: var(--green); text-decoration: none; border-bottom: 1px solid var(--rule); }
+  .modal-body a:hover { border-bottom-color: var(--green); }
+  .copyable { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .copy-btn {
+    background: transparent; border: 1px solid var(--rule);
+    padding: 3px 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+  }
+  .copy-btn:hover { border-color: var(--green); color: var(--green); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); background: var(--green-tint); }
+  .modal-body .notes {
+    font-style: italic; color: var(--ink-2);
+    padding: 12px 16px; background: var(--paper-2);
+    border-left: 3px solid var(--green-soft);
+    margin-top: 6px;
+  }
+  .modal-foot {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    padding: 16px 28px; border-top: 1px solid var(--rule); background: var(--paper);
+    flex-wrap: wrap;
+  }
+  .modal-gdpr {
+    padding: 14px 28px 16px; border-top: 1px solid var(--rule);
+    background: #F7F8FA;
+  }
+  .modal-gdpr h4 {
+    margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2);
+  }
+  .modal-gdpr .gdpr-hint { margin: 0 0 10px; font-size: 12px; color: var(--ink-2); }
+  .modal-gdpr .gdpr-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .status-control { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .status-control label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2);
+  }
+  .status-control select {
+    padding: 8px 12px; border: 1px solid var(--rule); background: #fff;
+    font-family: inherit; font-size: 14px;
+  }
+  .save-feedback {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    display: none;
+  }
+  .save-feedback.shown { display: inline; }
+  .save-feedback.saving { color: var(--muted); }
+  .save-feedback.ok     { color: var(--green); }
+  .save-feedback.error  { color: var(--danger); }
+
+  /* ===== Availability ===== */
+  .slot-day-head {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 12px;
+  }
+  .slot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+  .slot {
+    background: #fff; border: 1px solid var(--rule);
+    padding: 14px 8px; text-align: center;
+    font-family: 'JetBrains Mono', monospace; cursor: pointer;
+    transition: border-color .15s, background .15s, color .15s;
+  }
+  .slot strong { display: block; font-size: 14px; margin-bottom: 4px; color: var(--ink); }
+  .slot small {
+    display: block; font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .slot:hover { border-color: var(--green); background: var(--green-tint); }
+  .slot:hover small { color: var(--green-deep); }
+  .slot.booked {
+    background: var(--green); color: #fff;
+    border-color: var(--green-deep); cursor: pointer;
+  }
+  .slot.booked strong, .slot.booked small { color: #fff; }
+  .slot.booked:hover { background: var(--green-deep); }
+  .slot.blocked {
+    background: repeating-linear-gradient(45deg, var(--paper-2) 0 7px, #fff 7px 14px);
+    color: var(--muted);
+  }
+  .slot.blocked:hover { border-color: var(--danger); }
+  .slot.blocked:hover small { color: var(--danger); }
+  .slot.past {
+    opacity: 0.45; cursor: not-allowed;
+    background: var(--paper-2);
+  }
+  .slot.past:hover { border-color: var(--rule); background: var(--paper-2); }
+
+  .slot-legend {
+    display: flex; gap: 18px; margin-top: 18px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.08em; color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .slot-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .slot-legend .swatch {
+    width: 14px; height: 14px; border: 1px solid var(--rule);
+  }
+  .slot-legend .sw-free    { background: #fff; }
+  .slot-legend .sw-booked  { background: var(--green); border-color: var(--green-deep); }
+  .slot-legend .sw-blocked { background: repeating-linear-gradient(45deg, var(--paper-2) 0 4px, #fff 4px 8px); }
+  .slot-legend .sw-past    { background: var(--paper-2); opacity: 0.6; }
+
+  .holidays-section {
+    margin-top: 40px; padding-top: 28px;
+    border-top: 1px solid var(--rule);
+  }
+  .holidays-section h3 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 18px; margin: 0 0 6px;
+  }
+  .holidays-section .lead {
+    color: var(--muted); font-size: 13px; margin: 0 0 18px;
+  }
+  .holiday-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; background: var(--paper-2);
+    border: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    margin: 0 8px 8px 0;
+  }
+  .holiday-chip button {
+    background: transparent; border: 0; color: var(--danger);
+    font-size: 18px; cursor: pointer; padding: 0 2px; line-height: 1;
+  }
+  .holiday-chip button:hover { color: #7d2418; }
+  .holidays-empty {
+    color: var(--muted); font-size: 13px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em;
+  }
+
+  /* ===== Wide modal variant for booking flow ===== */
+  .modal-card.modal-card--wide { max-width: 820px; }
+  .modal-card.modal-card--wide .modal-body { padding: 0; }
+  .modal-card.modal-card--wide .modal-body .tabf-host {
+    padding: 22px 28px 28px;
+  }
+
+  /* ===== Toast ===== */
+  .toast {
+    position: fixed; bottom: 28px; right: 28px;
+    z-index: 2000;
+    background: var(--green); color: #fff;
+    padding: 14px 20px;
+    font-size: 14px; line-height: 1.4;
+    max-width: 420px;
+    box-shadow: 0 6px 24px rgba(23, 26, 33,.18);
+    transform: translateY(140%); opacity: 0;
+    transition: transform .3s ease, opacity .3s ease;
+    pointer-events: none;
+  }
+  .toast.shown { transform: translateY(0); opacity: 1; pointer-events: auto; }
+  .toast.error { background: var(--danger); }
+  /* Inline time used only on mobile (hidden on desktop) */
+  .when-time-inline { display: none; }
+
+  /* ===== Bottom-nav (matcher kalender/kunder/etc admin-mønster) ===== */
+  .bottom-nav {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: #fff; border-top: 1px solid var(--rule);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    display: flex; z-index: 40;
+  }
+  .bn-btn {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+    background: transparent; border: 0; border-top: 3px solid transparent;
+    padding: 10px 4px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-2); text-decoration: none; cursor: pointer;
+    line-height: 1; min-height: 48px;
+  }
+  .bn-btn .bn-ico { font-size: 18px; line-height: 1; }
+  .bn-btn.active { color: var(--green-deep); border-top-color: var(--green); }
+  .bn-btn:hover:not(.active) { color: var(--ink); }
+
+  /* ===== Auth-error overlay (when role missing) ===== */
+  .auth-error {
+    background: #fdeaea; border-left: 3px solid var(--danger);
+    padding: 14px 18px; font-size: 14px; color: #7d2418;
+    margin: 0 0 20px;
+  }
+  .auth-error strong { display: block; margin-bottom: 4px; }
+
+  /* ============================================================
+     Mobile (< 768px) — card layout for tables, denser controls
+     ============================================================ */
+  @media (max-width: 768px) {
+    .container { padding: 0 14px; }
+
+    /* Topbar */
+    .topbar { padding: 12px 0; }
+    .topbar .container { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .topbar-right { width: 100%; justify-content: space-between; gap: 8px; }
+    .topbar-right .who { font-size: 12px; flex: 1; min-width: 0;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .brand { font-size: 18px; gap: 8px; }
+    .brand em { font-size: 11px; }
+    .role-badge { font-size: 9px; padding: 3px 7px; }
+
+    /* Login */
+    .login { padding: 24px; }
+    .login h1 { font-size: 26px; }
+
+    /* DEL 5 — ryddig fane-presentasjon på mobil. Jevn 2-kolonners grid:
+       lange labels (TILGJENGELIGHET) får plass uten å overflyte, og ingen
+       horisontal scroll/strip. min-width:0 lar grid-cellen begrense bredden
+       (ikke innholdet). Redusert font-size + letter-spacing for at den
+       lengste labelen fortsatt får plass ned mot 320px. «Innstillinger» er
+       alltid siste fane og alene på sin rad (3 faner for terapeut, 5 for
+       admin) — den fyller derfor hele bunnraden. 44px touch-mål beholdt. */
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+      overflow-x: visible; border-bottom: 0; margin-bottom: 22px; }
+    .tab {
+      min-width: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 8px; min-height: 44px;
+      font-size: 10px; letter-spacing: 0.04em; text-align: center; white-space: nowrap;
+      border: 1px solid var(--rule);
+      margin-bottom: 0;
+    }
+    .tab:last-child { grid-column: 1 / -1; }
+    .tab.active {
+      color: var(--ink); border-color: var(--green);
+      background: rgba(70, 76, 140, 0.10);
+    }
+
+    /* Ingen horisontal forskyvning av siden på mobil. Trygt her: den
+       sticky desktop-tabellheaderen er deaktivert i kort-layouten (<=768px),
+       så body som x-scroll-container bryter ingen sticky. */
+    body { overflow-x: hidden; }
+
+    /* Panel head */
+    .admin-shell { padding: 18px 0 calc(80px + env(safe-area-inset-bottom, 0px)); }
+    .panel-head { flex-direction: column; align-items: stretch; gap: 12px; padding-bottom: 12px; }
+    .panel-head h2 { font-size: 24px; }
+    .panel-head .panel-actions { width: 100%; }
+    .panel-head .panel-actions .btn-primary { width: 100%; }
+
+    /* Filter bar */
+    .filter-bar { gap: 8px; }
+    .filter-bar .filter-label { width: 100%; margin-bottom: 0; }
+    .filter-bar select { flex: 1 1 calc(50% - 4px); min-width: 0; }
+    .filter-bar input[type="search"] { flex: 1 1 100%; min-width: 0; }
+    .filter-bar input[type="date"] { flex: 1 1 calc(50% - 4px); min-width: 0; }
+    .filter-bar #markHolidayBtn { margin-left: 0 !important; flex: 1 1 100%; }
+
+    /* Booking table → card layout */
+    .booking-table-wrap { background: transparent; border: 0; overflow: visible; }
+    .booking-table { display: block; min-width: 0; }
+    .booking-table thead { display: none; }
+    .booking-table tbody, .booking-table tr { display: block; }
+    .booking-table tr {
+      background: #fff; border: 1px solid var(--rule);
+      padding: 14px 16px; margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        "when status"
+        "name name"
+        "staff price"
+        "service service"
+        "actions actions";
+      gap: 6px 12px; align-items: start;
+    }
+    .booking-table tbody tr:hover td { background: transparent; }
+    .booking-table tbody tr:last-child { margin-bottom: 0; }
+    .booking-table td { display: block; padding: 0; border: 0; vertical-align: baseline; }
+    .booking-table td.col-date    { grid-area: when; font-size: 14px; }
+    .booking-table td.col-time    { display: none; }
+    .booking-table td.col-name    { grid-area: name; }
+    .booking-table .name strong   { font-size: 15px; }
+    .booking-table .name small    { font-size: 12px; }
+    .booking-table td.col-staff   { grid-area: staff; color: var(--muted); font-size: 13px; }
+    .booking-table td.col-service { grid-area: service; color: var(--muted); font-size: 13px; }
+    .booking-table .service-meta  { display: inline; margin-left: 6px; }
+    .booking-table td.col-price   { grid-area: price; text-align: right; }
+    .booking-table td.col-status  { grid-area: status; text-align: right; }
+    .booking-table td.col-actions {
+      grid-area: actions; padding-top: 10px; margin-top: 4px;
+      border-top: 1px solid var(--rule); text-align: right;
+    }
+    .when-time-inline { display: inline; color: var(--muted); margin-left: 4px;
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+
+    /* Slot grid — denser cells */
+    .slot-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+    .slot { padding: 10px 6px; }
+    .slot strong { font-size: 13px; }
+    .slot small { font-size: 9px; }
+    .slot-legend { font-size: 10px; gap: 12px; }
+
+    /* Detail modal — tighter on mobile */
+    .modal-overlay { padding: 0; align-items: flex-end; }
+    .modal-card { max-height: 92vh; }
+    .modal-head { padding: 16px 20px; }
+    .modal-head h3 { font-size: 18px; }
+    .modal-body { padding: 18px 20px; }
+    .modal-body td:first-child { width: 110px; font-size: 11px; }
+    .modal-body td:last-child  { font-size: 13px; }
+    .modal-foot {
+      padding: 14px 20px;
+      flex-direction: column; align-items: stretch; gap: 12px;
+    }
+    .modal-foot .status-control { justify-content: space-between; }
+    .modal-foot-actions { width: 100%; justify-content: space-between; }
+    .modal-foot-actions .btn-danger,
+    .modal-foot-actions .btn-ghost { flex: 1; }
+
+    /* Wide booking-flow modal */
+    .modal-card.modal-card--wide .modal-body .tabf-host { padding: 16px 18px 20px; }
+
+    /* Toast */
+    .toast { right: 12px; left: 12px; bottom: 16px; max-width: none; }
+
+    /* Holiday chips */
+    .holiday-chip { font-size: 11px; padding: 6px 10px; }
+
+    /* Settings card */
+    .settings-card { padding: 22px; }
+    .session-table td:first-child { width: 110px; font-size: 11px; }
+    .session-table td:last-child { font-size: 13px; }
+
+    /* State cards */
+    .state-card { padding: 36px 20px; }
+    .state-card h3 { font-size: 18px; }
+  }
+
+  /* Very small phones */
+  @media (max-width: 380px) {
+    .filter-bar select,
+    .filter-bar input[type="date"] { flex: 1 1 100%; }
+    .booking-table tr {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "when"
+        "status"
+        "name"
+        "staff"
+        "service"
+        "price"
+        "actions";
+    }
+    .booking-table td.col-status,
+    .booking-table td.col-price { text-align: left; }
+  }
+
+  /* ---- Ufordelte bookinger + terapeut-tildeling (STEG 5) ---- */
+  .unassigned-section {
+    border: 1px solid var(--warn, #C97A2A);
+    background: var(--warn-tint, #EDEFF3);
+    padding: 16px 18px;
+    margin-bottom: 20px;
+  }
+  .unassigned-title {
+    margin: 0 0 4px; font-size: 15px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .unassigned-count {
+    background: var(--warn, #C97A2A); color: #fff;
+    font-size: 12px; font-weight: 600;
+    border-radius: 999px; padding: 1px 9px;
+  }
+  .unassigned-lead { margin: 0 0 12px; font-size: 13px; color: var(--ink-2); }
+  .unassigned-list { display: flex; flex-direction: column; gap: 8px; }
+  .unassigned-card {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: #fff; border: 1px solid var(--rule);
+    padding: 10px 14px;
+  }
+  .unassigned-card .uc-main { flex: 1; min-width: 200px; }
+  .unassigned-card .uc-name { font-weight: 600; }
+  .unassigned-card .uc-meta { font-size: 13px; color: var(--ink-2); }
+  .unassigned-card .btn-primary { flex-shrink: 0; }
+
+  .assign-intro { margin: 0 0 14px; font-size: 13px; color: var(--ink-2); }
+  .assign-options { display: flex; flex-direction: column; gap: 8px; }
+  .assign-option {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; width: 100%;
+    padding: 12px 14px; font: inherit; font-size: 14px;
+    background: #fff; border: 1px solid var(--rule);
+    /* Eksplisitt color: .assign-option er en <button>, og iOS Safari
+       rendrer ufarget knappetekst i system-tinten (blå) — samme bug
+       som Issue D og M. Uten dette ble terapeut-navnene blå. */
+    color: var(--ink);
+    cursor: pointer; text-align: left;
+  }
+  .assign-option:hover:not(:disabled) { border-color: var(--green); }
+  .assign-option:disabled { opacity: 0.5; cursor: not-allowed; }
+  .assign-option.is-current { border-color: var(--green); }
+  .assign-option .ao-tag {
+    font-size: 11px; color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+
+  /* ---- Venteliste (Jobb B STEG 5) ---- */
+  .wl-section { margin-bottom: 24px; }
+  .wl-section-title {
+    margin: 0 0 4px; font-size: 15px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .wl-count {
+    background: var(--green); color: #fff;
+    font-size: 12px; font-weight: 600;
+    border-radius: 999px; padding: 1px 9px;
+  }
+  .wl-section-lead { margin: 0 0 12px; font-size: 13px; color: var(--ink-2); }
+  .wl-empty {
+    background: var(--paper-2); border: 1px solid var(--rule);
+    padding: 14px 18px; font-size: 13px; color: var(--muted);
+  }
+  .wl-list { display: flex; flex-direction: column; gap: 8px; }
+  .wl-card {
+    display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap;
+    background: #fff; border: 1px solid var(--rule); padding: 12px 14px;
+  }
+  .wl-card .wl-main { flex: 1; min-width: 220px; }
+  .wl-card .wl-name { font-weight: 600; }
+  .wl-card .wl-meta { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+  .wl-card .wl-sub {
+    font-size: 11px; color: var(--muted); margin-top: 5px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em;
+    word-break: break-word;
+  }
+  .wl-card .wl-notes {
+    font-size: 13px; color: var(--ink-2); margin-top: 7px;
+    background: var(--paper-2); padding: 6px 9px; white-space: pre-wrap;
+  }
+  .wl-card-actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+
+  /* Tildel-modal: skjema */
+  .wl-field { margin-bottom: 16px; }
+  .wl-field label {
+    display: block; font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-2); margin-bottom: 6px;
+  }
+  .wl-field select, .wl-field input {
+    width: 100%; font-family: inherit; font-size: 15px;
+    padding: 10px 12px; border: 1px solid var(--rule);
+    background: #fff; color: var(--ink); border-radius: 0;
+  }
+  .wl-field select:focus, .wl-field input:focus {
+    outline: 2px solid var(--green); outline-offset: -2px; border-color: var(--green);
+  }
+  .wl-field select:disabled { background: var(--paper-2); color: var(--muted); }
+  .wl-consent {
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 13px; color: var(--ink-2); margin: 4px 0 18px;
+    cursor: pointer;
+  }
+  .wl-consent input { width: 18px; height: 18px; flex: none; margin-top: 1px; accent-color: var(--green); }
+  .wl-assign-err {
+    background: #fdeaea; border-left: 3px solid var(--danger);
+    padding: 10px 13px; font-size: 13px; color: #7d2418; margin-bottom: 14px;
+  }
+  .wl-assign-foot { display: flex; gap: 10px; justify-content: flex-end; }
+  @media (max-width: 600px) {
+    .wl-card-actions { width: 100%; }
+    .wl-card-actions button { flex: 1; }
+    .wl-assign-foot button { flex: 1; }
+  }
+
+  /* Issue V — skjul sidetittel-em i admin-headeren på smal mobil.
+     "Westengen Klinikk ADMIN" fikk ikke plass og ble avkuttet; bottom-nav
+     viser uansett hvilken side man er på. */
+  @media (max-width: 600px) { .brand em { display: none; } }
+
+  /* ===== DEL 4A — admin-polish (kun presentasjon, ingen funksjonsendring) =====
+     8-punkts bottom-nav scroller horisontalt på smale skjermer (<=560px) i stedet
+     for å klemmes; tydeligere fokus-tilstand for tastatur-navigasjon. */
+  .bottom-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 560px) {
+    .bottom-nav .bn-btn { flex: 0 0 auto; min-width: 64px; }
+  }
+  .btn:focus-visible, .bn-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+  /* ===== Kompakt + ryddet bestillingsliste (2026-06-12) =====
+     Dato+Tid i én kolonne, Tjeneste/Pris flyttet til Detaljer,
+     behandler-fargebar først i raden (--sc settes per rad fra
+     staff_members.color; nøytral fallback uten farge). Ligger SIST
+     i stilarket for å overstyre basis-reglene. */
+  .booking-table th, .booking-table td { padding: 7px 12px; }
+  .booking-table .name strong { display: inline; }
+  .booking-table .name small { display: inline; margin-left: 8px; margin-top: 0; }
+  .booking-table td .btn-ghost { padding: 4px 10px; font-size: 12px; }
+  .booking-table th.col-bar, .booking-table td.col-bar {
+    width: 6px; padding: 6px 0 6px 10px; }
+  .booking-table td.col-bar span { display: block; width: 4px; height: 100%;
+    min-height: 26px; border-radius: 4px;
+    background: var(--sc, var(--rule)); }
+  .booking-table .when-date { color: var(--ink); }
+  .booking-table .when-time { font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+  @media (max-width: 768px) {
+    .booking-table tr {
+      padding: 9px 12px 9px 14px; margin-bottom: 7px; gap: 3px 10px;
+      grid-template-areas:
+        "when status"
+        "name name"
+        "staff actions";
+      /* Fargebaren på mobil: venstrekant i behandlerens farge
+         (erstatter kolonne-baren, som skjules). */
+      border-left: 4px solid var(--sc, var(--rule));
+    }
+    .booking-table td.col-bar { display: none; }
+    .booking-table td.col-actions { padding-top: 0; margin-top: 0; border-top: 0;
+      grid-area: actions; text-align: right; }
+    .booking-table .name strong { font-size: 14px; }
+  }
+
+  /* ===== DEL 3: «Ny booking»-veiviseren — gjennomført redesign =====
+     (2026-06-12) Klinikkens tokens: --green/--green-deep/--green-tint,
+     Fraunces for navn, JetBrains Mono for etiketter, myke skygger.
+     Avrundede kort og pills er bevisst — moderne verktøy-følelse i
+     admin, samme palett. Kun visuelt; logikken er urørt. */
+  .nb-plus { font-size: 17px; font-weight: 700; line-height: 1; margin-right: 2px; }
+
+  /* --- Innramming + pusterom (finpuss 2026-06-12) ---
+     Veiviser-modalen får tydelig ramme, runde hjørner og romslig
+     innvendig padding så innholdet ikke klistrer seg til kantene. */
+  #newBookingModal .modal-card { border-radius: 14px; overflow: hidden;
+    box-shadow: 0 24px 64px rgba(23, 26, 33,.30); max-width: 680px; }
+  #newBookingModal .modal-head { padding: 20px 30px; }
+  #newBookingModal .modal-body { padding: 26px 30px 32px; }
+  @media (max-width: 768px) {
+    #newBookingModal { padding: 14px; }
+    #newBookingModal .modal-head { padding: 16px 20px; }
+    #newBookingModal .modal-body { padding: 20px 18px 24px; }
+  }
+
+  /* --- Progresjons-indikator: sirkler + gjennomgående linje --- */
+  .nb-steps { display: flex; align-items: center; margin: 4px 0 26px; }
+  .nb-step { display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+  .nb-step-line { flex: 1 1 18px; height: 2px; margin: 0 10px;
+    background: var(--rule); border-radius: 2px; min-width: 12px; }
+  .nb-step-line.done { background: var(--green-soft); }
+  .nb-step-num { display: grid; place-items: center; width: 30px; height: 30px;
+    border-radius: 50%; border: 1.5px solid var(--rule); background: #fff;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted);
+    flex-shrink: 0; transition: all .2s ease; }
+  .nb-step-label { font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+    white-space: nowrap; }
+  .nb-step.active .nb-step-num { background: var(--green); border-color: var(--green);
+    color: #fff; font-weight: 700; box-shadow: 0 0 0 4px var(--green-tint, #E9EAF4); }
+  .nb-step.active .nb-step-label { color: var(--ink); font-weight: 600; }
+  .nb-step.done .nb-step-num { background: var(--green-tint, #E9EAF4);
+    border-color: var(--green-soft); color: var(--green-deep); font-weight: 700; }
+  .nb-step.done .nb-step-label { color: var(--green-deep); }
+
+  .nb-h { font-family: 'Fraunces', serif; font-weight: 500; font-size: 21px;
+    letter-spacing: -0.01em; margin: 0 0 16px; }
+  .nb-group-label { display: flex; align-items: center; gap: 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-deep);
+    margin: 22px 0 10px; }
+  .nb-group-label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .nb-group-label:first-of-type { margin-top: 6px; }
+
+  /* --- Kort (tjenester, terapeuter, kunder) --- */
+  .nb-list { display: grid; gap: 11px; }
+  .nb-item { display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    width: 100%; min-height: 58px; padding: 15px 18px;
+    border: 1px solid var(--rule); border-radius: 10px; background: #fff;
+    box-shadow: 0 1px 2px rgba(23, 26, 33,.04);
+    font: inherit; font-size: 14px; text-align: left; cursor: pointer;
+    /* Eksplisitt tekstfarge: mobil-Safari/Chrome gir <button> blå
+       UA-farge når ingen er satt (bug: blå tjenestenavn på telefon). */
+    color: var(--ink);
+    -webkit-appearance: none; appearance: none;
+    transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+  .nb-item:hover { border-color: var(--green-soft);
+    box-shadow: 0 8px 20px rgba(23, 26, 33,.09); transform: translateY(-2px); }
+  .nb-item.selected { border: 1.5px solid var(--green);
+    background: var(--green-tint, #E9EAF4); box-shadow: none; transform: none; }
+  .nb-item .nb-meta { color: var(--muted); font-size: 12px; }
+  .nb-item-name { font-family: 'Fraunces', serif; font-weight: 500; font-size: 16px;
+    letter-spacing: -0.01em; display: block;
+    /* Lange, ubrytelige strenger (pseudonym-ID-er) wrapper i stedet for å
+       flyte utenfor. I kunde-kortet trunkeres navnet i stedet med ellipsis
+       (egen regel under) — full ID vises i detalj-panelet. */
+    min-width: 0; overflow-wrap: anywhere; }
+  .nb-item-side { display: flex; flex-direction: column; align-items: flex-end;
+    gap: 4px; flex-shrink: 0; }
+  .nb-price { font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+    font-weight: 600; color: var(--green-deep); white-space: nowrap;
+    background: var(--green-tint, #E9EAF4); border-radius: 999px; padding: 3px 11px; }
+  .nb-dur { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+    white-space: nowrap; }
+
+  /* --- Kunde-steget --- */
+  .nb-search-wrap { position: relative; margin-bottom: 12px; }
+  .nb-search-wrap svg { position: absolute; left: 13px; top: 50%;
+    transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .nb-search { width: 100%; min-height: 46px; padding: 11px 13px 11px 40px;
+    border: 1px solid var(--rule); border-radius: 10px; background: var(--paper);
+    font: inherit; font-size: 14px; }
+  .nb-search:focus { outline: 2px solid var(--green); outline-offset: -2px; background: #fff; }
+  /* Kunde-kort: kollapset = avatar + navn (én linje, ellipsis) + chevron.
+     Kortet er en kolonne-container; detaljene avdekkes under raden via
+     chevron — holder kortet lavt og hindrer at lang sekundærtekst flyter
+     ut på mobil. */
+  .nb-item-kunde { flex-direction: column; align-items: stretch; gap: 0;
+    padding: 0; cursor: default; }
+  .nb-kunde-row { display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px; min-height: 58px; }
+  .nb-kunde-select { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px;
+    background: transparent; border: 0; padding: 0; margin: 0; font: inherit;
+    color: var(--ink); text-align: left; cursor: pointer;
+    -webkit-appearance: none; appearance: none; }
+  .nb-item-kunde .nb-item-name { flex: 1; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nb-avatar { display: grid; place-items: center; width: 36px; height: 36px;
+    border-radius: 50%; background: var(--green-tint, #E9EAF4);
+    border: 1px solid var(--green-soft); color: var(--green-deep);
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; flex-shrink: 0; }
+  .nb-kunde-main { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .nb-kunde-main .nb-meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Chevron = detalj-toggle (IKKE redigering). Eget tap-mål, roterer ved
+     utvidelse. stopPropagation i JS hindrer at tapp velger kunden. */
+  .nb-chevron { flex-shrink: 0; display: grid; place-items: center;
+    width: 40px; min-height: 44px; padding: 0; margin: 0;
+    background: transparent; border: 0; cursor: pointer;
+    -webkit-appearance: none; appearance: none;
+    color: var(--muted); font-size: 22px; line-height: 1;
+    transition: transform .18s ease, color .15s ease; }
+  .nb-chevron:hover { color: var(--ink); }
+  .nb-item-kunde.expanded .nb-chevron { transform: rotate(90deg); color: var(--green-deep); }
+  /* Detalj-panel: tynn skillelinje + muted tekst, innrykket under navnet
+     (16px rad-pad + 36px avatar + 12px gap = 64px). Wrapper alt. */
+  /* Ingen display-egenskap her: lar [hidden] styre synligheten (en
+     display:flex med klasse-spesifisitet ville overstyrt [hidden]). Synlig
+     = blokk; de to linjene (navn/ID + kontakt) stables naturlig. */
+  .nb-kunde-detail { padding: 10px 16px 13px 64px; border-top: 1px solid var(--rule);
+    color: var(--muted); font-size: 12.5px; line-height: 1.45; overflow-wrap: anywhere; }
+  .nb-kunde-detail > div + div { margin-top: 2px; }
+  .nb-item-new { border: 1.5px dashed var(--green-soft); background: #f7faf6;
+    justify-content: flex-start; }
+  .nb-item-new:hover { border-color: var(--green); background: var(--green-tint, #E9EAF4);
+    transform: none; box-shadow: none; }
+  .nb-item-new .nb-item-name { color: var(--green-deep); }
+  .nb-new-ico { display: grid; place-items: center; width: 36px; height: 36px;
+    border-radius: 50%; background: var(--green); color: #fff;
+    font-size: 20px; font-weight: 600; line-height: 1; flex-shrink: 0; }
+
+  /* --- Terapeut og tid --- */
+  .nb-date { width: 100%; min-width: 0; min-height: 46px; padding: 11px 13px;
+    border: 1px solid var(--rule); border-radius: 10px; background: var(--paper);
+    font: inherit; font-size: 14px;
+    /* iOS Safari gir <input type=date> en intrinsisk min-bredde og ignorerer
+       width:100% med mindre native appearance nulles ut → boksen stakk
+       utenfor skjermen til høyre (bredere enn .nb-item-kortene). appearance:
+       none + min-width:0 tvinger den til samme container-bredde som kortene. */
+    -webkit-appearance: none; appearance: none; }
+  .nb-date:focus { outline: 2px solid var(--green); outline-offset: -2px; background: #fff; }
+  .nb-time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+    gap: 8px; }
+  .nb-time-status { grid-column: 1 / -1; color: var(--muted); font-size: 13px;
+    margin: 2px 0; }
+  .nb-time-pill { min-height: 44px; padding: 10px 6px;
+    border: 1px solid var(--rule); border-radius: 999px; background: #fff;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink-2);
+    cursor: pointer; transition: all .12s ease; }
+  .nb-time-pill:hover { border-color: var(--green); color: var(--green-deep); }
+  .nb-time-pill.selected { background: var(--green); border-color: var(--green);
+    color: #fff; font-weight: 700; }
+
+  /* --- "Se kalender": kompakt dag-visning i steg 3 --- */
+  .nb-cal-toggle { margin: 2px 0 10px; padding: 8px 14px;
+    border: 1px solid var(--rule); border-radius: 999px; background: #fff;
+    font: inherit; font-size: 13px; color: var(--ink-2); cursor: pointer;
+    transition: all .12s ease; }
+  .nb-cal-toggle:hover { border-color: var(--green); color: var(--green-deep); }
+  .nb-cal-toggle.active { background: var(--green-tint);
+    border-color: var(--green-soft); color: var(--green-deep); }
+  .nb-cal-panel { border: 1px solid var(--rule); border-radius: 12px;
+    background: var(--paper); padding: 12px; margin-bottom: 12px; }
+  .nb-cal-nav { display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 12px; }
+  .nb-cal-nav button { width: 40px; height: 40px; border: 1px solid var(--rule);
+    border-radius: 10px; background: #fff; font-size: 18px; line-height: 1;
+    cursor: pointer; color: var(--ink-2); }
+  .nb-cal-nav button:hover:not(:disabled) { border-color: var(--green); color: var(--green-deep); }
+  .nb-cal-nav button:disabled { opacity: .4; cursor: not-allowed; }
+  .nb-cal-day { flex: 1; text-align: center; font-size: 15px; font-weight: 600; color: var(--ink); }
+  .nb-cal-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+  .nb-cal-chips .nb-time-status { grid-column: 1 / -1; }
+
+  /* --- Skjemafelter (Ny kunde) --- */
+  #newBookingHost .wl-field { margin-bottom: 14px; }
+  #newBookingHost .wl-field label { display: block;
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2);
+    margin-bottom: 7px; }
+  #newBookingHost .wl-field input { width: 100%; min-height: 46px;
+    padding: 11px 13px; border: 1px solid var(--rule); border-radius: 10px;
+    background: var(--paper); font: inherit; font-size: 14px; }
+  #newBookingHost .wl-field input:focus { outline: 2px solid var(--green);
+    outline-offset: -2px; background: #fff; }
+
+  /* --- Oppsummering --- */
+  .nb-sum { border: 1px solid var(--rule); border-radius: 12px; overflow: hidden;
+    box-shadow: 0 6px 24px rgba(23, 26, 33,.07); background: #fff; }
+  .nb-sum-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px;
+    background: var(--green); padding: 18px 20px; }
+  .nb-sum-when { font-family: 'Fraunces', serif; font-weight: 500; font-size: 19px;
+    color: #fff; letter-spacing: -0.01em; }
+  .nb-sum-staff { font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-tint, #E9EAF4); }
+  .nb-sum-body { padding: 4px 20px; }
+  .nb-sum-row { display: flex; justify-content: space-between; align-items: baseline;
+    gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--rule); font-size: 14px; }
+  .nb-sum-row:last-child { border-bottom: 0; }
+  .nb-sum-row > span:first-child { font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); flex-shrink: 0; }
+  .nb-consent { display: grid; grid-template-columns: 20px 1fr; gap: 12px;
+    align-items: start; margin-top: 14px; padding: 13px 15px;
+    background: var(--paper-2, #EDEFF3); border-left: 3px solid var(--green);
+    border-radius: 0 10px 10px 0; font-size: 13px; color: var(--ink-2);
+    line-height: 1.5; cursor: pointer; }
+  .nb-consent input { margin-top: 2px; width: 16px; height: 16px; accent-color: var(--green); }
+
+  /* --- Footer-knapper --- */
+  .nb-foot { display: flex; justify-content: space-between; align-items: center;
+    gap: 10px; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--rule); }
+  .nb-foot .btn-primary { border-radius: 10px; min-height: 46px; padding: 12px 26px;
+    font-weight: 600; box-shadow: 0 2px 8px rgba(70, 76, 140,.28); }
+  .nb-foot .btn-primary:hover { background: var(--green-deep, #2F3463); }
+  .nb-foot .btn-ghost { border-radius: 10px; min-height: 46px; padding: 12px 18px;
+    font-size: 13px; }
+  .nb-err { background: #fdeaea; border-left: 3px solid #c0392b;
+    border-radius: 0 8px 8px 0; padding: 10px 13px; font-size: 13px;
+    color: #7d2418; margin-top: 12px; }
+  .nb-hint { color: var(--muted); font-size: 12.5px; line-height: 1.5; margin-top: 10px; }
+
+  /* --- Mobil --- */
+  @media (max-width: 560px) {
+    .nb-step:not(.active) .nb-step-label { display: none; }
+    .nb-step-line { margin: 0 7px; }
+    .nb-item { padding: 12px 13px; }
+    .nb-item-name { font-size: 15px; }
+    .nb-time-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+    .nb-foot .btn-primary, .nb-foot .btn-ghost { flex: 1; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">
+    <div class="brand">
+      Westengen Klinikk <em>admin</em>
+      <span id="roleBadge" class="role-badge" style="display:none;"></span>
+    </div>
+    <div class="topbar-right" id="topbarRight">
+      <a href="index.html">← Hovedsiden</a>
+    </div>
+  </div>
+</div>
+
+<!-- Boot state — shown briefly while session is being checked -->
+<div id="bootView">
+  <div class="boot">
+    <div class="spinner"></div>
+    Sjekker session…
+  </div>
+</div>
+
+<!-- Auth-error overlay (injected dynamically by showAuthError) -->
+<!-- The loginView+loginForm was removed in audit #5 cleanup — handleSession
+     redirects to ansatt.html on !session so login always happens via the
+     auth-gateway, never inline here. Authorization errors (missing role,
+     missing staff metadata) now use an overlay toast for the 1.5s before
+     logoutAndRedirect fires. -->
+
+<!-- Authenticated view -->
+<div id="adminView" class="admin-shell" style="display:none;">
+  <div class="container">
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="bookings"     role="tab">Bestillinger</button>
+      <button class="tab"        data-tab="availability" role="tab">Tilgjengelighet</button>
+      <button class="tab"        data-tab="waitlist"     role="tab" data-admin-only>Venteliste</button>
+      <button class="tab"        data-tab="reviews"      role="tab" data-admin-only>Anmeldelser</button>
+      <button class="tab"        data-tab="settings"     role="tab">Innstillinger</button>
+    </div>
+
+    <!-- ========== BESTILLINGER ========== -->
+    <div class="tab-panel active" data-panel="bookings">
+      <div class="panel-head">
+        <h2 id="bookingsTitle">Bestillinger</h2>
+        <div class="panel-actions">
+          <button class="btn-refresh" id="refreshBookingsBtn"
+                  aria-label="Oppdater bestillinger fra server"
+                  title="Oppdater fra server"><span class="refresh-icon">↻</span></button>
+          <button class="btn-primary" id="newBookingBtn"><span class="nb-plus" aria-hidden="true">+</span> Ny booking</button>
+          <!-- P1 — bulk CSV-eksport (kun admin; data-admin-only skjuler for terapeut). -->
+          <label class="export-notes-toggle" data-admin-only style="display:none;">
+            <input type="checkbox" id="exportIncludeNotes">
+            <span data-i18n="admin.export_include_notes">Inkluder notater</span>
+          </label>
+          <button class="btn-ghost" id="exportCsvBtn" data-admin-only style="display:none;"
+                  data-i18n="admin.export_csv">Eksporter alle bookinger (CSV)</button>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <span class="filter-label">Filtrer:</span>
+
+        <select id="filterRange" aria-label="Datoområde">
+          <option value="upcoming">Kommende</option>
+          <option value="today">I dag</option>
+          <option value="week">Denne uken</option>
+          <option value="all">Alle</option>
+          <option value="custom">Egendefinert…</option>
+        </select>
+
+        <input id="filterDateFrom" type="date" style="display:none;" aria-label="Fra dato" />
+        <input id="filterDateTo"   type="date" style="display:none;" aria-label="Til dato" />
+
+        <select id="filterStaff" aria-label="Behandler" data-admin-only>
+          <option value="">Alle behandlere</option>
+        </select>
+
+        <select id="filterStatus" aria-label="Status">
+          <option value="">Alle statuser</option>
+          <option value="confirmed">Bekreftet</option>
+          <option value="completed">Fullført</option>
+          <option value="cancelled">Avlyst</option>
+          <option value="no_show">No-show</option>
+        </select>
+
+        <input id="searchInput" type="search" placeholder="Søk navn, e-post, tlf, ref…" />
+      </div>
+
+      <!-- Ufordelte "Eriks terapeuter"-bookinger (STEG 5) — rendres
+           kun for admin, og kun når det finnes ufordelte. -->
+      <div id="unassignedWrap"></div>
+
+      <div id="bookingsListWrap"></div>
+    </div>
+
+    <!-- ========== TILGJENGELIGHET ========== -->
+    <div class="tab-panel" data-panel="availability">
+      <div class="panel-head">
+        <h2 id="availabilityTitle">Tilgjengelighet</h2>
+      </div>
+
+      <div class="filter-bar">
+        <span class="filter-label">Behandler:</span>
+        <select id="availStaff" aria-label="Velg behandler" data-admin-only>
+          <option value="">Velg behandler…</option>
+        </select>
+        <span id="availStaffStatic" style="display:none; font-family:'Inter',sans-serif; font-size:14px; color:var(--ink-2);"></span>
+
+        <span class="filter-label" style="margin-left:18px;">Dato:</span>
+        <input id="availDate" type="date" />
+
+        <button class="btn-refresh" id="refreshAvailBtn"
+                aria-label="Oppdater tilgjengelighet fra server"
+                title="Oppdater fra server"
+                style="margin-left:auto;"><span class="refresh-icon">↻</span></button>
+        <button class="btn-primary" id="markHolidayBtn"
+                data-admin-only>+ Marker stengt dag</button>
+      </div>
+
+      <div id="availSlotGrid"></div>
+
+      <div class="holidays-section">
+        <h3>Stengte dager</h3>
+        <p class="lead" id="holidaysLead">Helligdager, ferieuker eller andre dager hele klinikken er stengt.</p>
+        <div id="holidayChips"></div>
+      </div>
+    </div>
+
+    <!-- ========== VENTELISTE (Jobb B STEG 5) ========== -->
+    <div class="tab-panel" data-panel="waitlist">
+      <div class="panel-head">
+        <h2>Venteliste</h2>
+        <div class="panel-actions">
+          <button class="btn-refresh" id="refreshWaitlistBtn"
+                  aria-label="Oppdater venteliste fra server"
+                  title="Oppdater fra server"><span class="refresh-icon">↻</span></button>
+        </div>
+      </div>
+      <div id="waitlistWrap"></div>
+    </div>
+
+    <!-- ========== ANMELDELSER (P2 — moderering) ========== -->
+    <div class="tab-panel" data-panel="reviews">
+      <div class="panel-head">
+        <h2>Anmeldelser</h2>
+        <div class="panel-actions">
+          <button class="btn-refresh" id="refreshReviewsBtn"
+                  aria-label="Oppdater anmeldelser fra server"
+                  title="Oppdater fra server"><span class="refresh-icon">↻</span></button>
+        </div>
+      </div>
+      <div id="reviewsWrap"></div>
+    </div>
+
+    <!-- ========== INNSTILLINGER ========== -->
+    <div class="tab-panel" data-panel="settings">
+      <div class="panel-head">
+        <h2>Innstillinger</h2>
+      </div>
+
+      <div class="settings-card">
+        <h3>Min konto</h3>
+        <table class="session-table">
+          <tr><td>E-post</td>    <td id="setEmail">—</td></tr>
+          <tr><td>Rolle</td>     <td id="setRole">—</td></tr>
+          <tr id="setStaffRow" style="display:none;">
+            <td>Behandler</td>   <td id="setStaff">—</td>
+          </tr>
+          <tr><td>User-ID</td>   <td id="setUserId">—</td></tr>
+        </table>
+        <div class="settings-hint">
+          Brukerkontoen administreres i Supabase Auth. Endring av e-post, passord
+          eller rolle gjøres av en administrator i Supabase Dashboard — ikke her.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <a class="bn-btn" href="kalender.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>Kalender</a>
+    <a class="bn-btn" href="kunder.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-1a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Kunder</a>
+    <a class="bn-btn active" aria-current="page"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span>Oversikt</a>
+    <a class="bn-btn" data-admin-only href="tjenester.html" style="display:none;"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></span>Tjenester</a>
+    <a class="bn-btn" data-admin-only href="behandlere.html" style="display:none;"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Behandlere</a>
+    <a class="bn-btn" href="dokumenter.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></span>Dokumenter</a>
+    <a class="bn-btn" href="meldinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>Meldinger</a>
+    <a class="bn-btn" href="innstillinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></span>Innstillinger</a>
+  </nav>
+</div>
+
+<!-- ===== Booking detail modal ===== -->
+<div class="modal-overlay" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="modalTitle">Booking-detaljer <span class="ref-tag" id="modalRef"></span></h3>
+      <button class="modal-close" id="modalClose" aria-label="Lukk">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <!-- GDPR-handlinger: admin-only, vises kun når currentUser.role === 'admin' -->
+    <div class="modal-gdpr" id="modalGdpr" hidden>
+      <h4>GDPR-handlinger</h4>
+      <p class="gdpr-hint">Påvirker alle bookinger og journaler knyttet til denne pasientens e-post.</p>
+      <div class="gdpr-actions">
+        <button class="btn-ghost" id="gdprExportBtn" type="button">Eksporter pasientdata</button>
+        <button class="btn-danger" id="gdprPseudonymizeBtn" type="button">Anonymiser pasient</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="status-control">
+        <label for="modalStatus">Status</label>
+        <select id="modalStatus">
+          <option value="confirmed">Bekreftet</option>
+          <option value="completed">Fullført</option>
+          <option value="cancelled">Avlyst</option>
+          <option value="no_show">No-show</option>
+        </select>
+        <span class="save-feedback" id="saveFeedback"></span>
+      </div>
+      <div class="modal-foot-actions">
+        <button class="btn-ghost" id="modalAssignBtn" hidden>Endre terapeut</button>
+        <button class="btn-danger" id="modalDeleteBtn">Slett booking</button>
+        <button class="btn-ghost" id="modalCloseFoot">Lukk</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Tildel terapeut-modal (STEG 5) ===== -->
+<div class="modal-overlay" id="assignModal" role="dialog" aria-modal="true" aria-labelledby="assignTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="assignTitle">Velg terapeut</h3>
+      <button class="modal-close" id="assignClose" aria-label="Lukk">×</button>
+    </div>
+    <div class="modal-body" id="assignBody"></div>
+  </div>
+</div>
+
+<!-- ===== Tildel time fra venteliste-modal (Jobb B STEG 5) ===== -->
+<div class="modal-overlay" id="waitlistAssignModal" role="dialog" aria-modal="true" aria-labelledby="wlAssignTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="wlAssignTitle">Tildel time fra venteliste</h3>
+      <button class="modal-close" id="wlAssignClose" aria-label="Lukk">×</button>
+    </div>
+    <div class="modal-body" id="wlAssignBody"></div>
+  </div>
+</div>
+
+<!-- ===== Ny booking-modal ===== -->
+<div class="modal-overlay" id="newBookingModal" role="dialog" aria-modal="true" aria-labelledby="newBookingTitle">
+  <div class="modal-card modal-card--wide">
+    <div class="modal-head">
+      <h3 id="newBookingTitle">Ny booking</h3>
+      <button class="modal-close" id="newBookingClose" aria-label="Lukk">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="newBookingHost"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div class="toast" id="toastEl" role="status" aria-live="polite"></div>
+
+<script src="shared/booking-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="shared/services.js"></script>
+<script src="shared/booking-engine.js"></script>
+<script src="shared/booking-flow.js"></script>
+<script src="shared/auth.js"></script>
+<script src="shared/admin-nav.js" defer></script>
+<script src="shared/gdpr.js"></script>
+<script src="shared/admin-booking.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // AUTH-GATEWAY: redirect til ansatt.html hvis ingen session-token finnes.
+  if (!window.WestengenKlinikkAuth || !window.WestengenKlinikkAuth.requireAuth()) return;
+
+  // ============================================================
+  // XSS-merknad: alle innsettinger til .innerHTML i denne filen
+  // går gjennom escapeHtml() på brukerdata. Verifisert manuelt.
+  // Tekst-bare innhold settes med .textContent.
+  // ============================================================
+  // Pasientdata-merknad: ingen console.log() med pasientdata i denne
+  // filen. Hold det slik — feilmeldinger er trygt, rådata er ikke.
+  // ============================================================
+
+  // ---------- Init ----------
+  var CFG = window.WestengenKlinikkBackend || {};
+  if (!CFG.supabaseUrl || !CFG.supabaseAnonKey) {
+    document.getElementById('bootView').innerHTML =
+      '<div class="auth-wrap"><div class="login"><h1>Konfigurasjon mangler</h1>' +
+      '<p>Supabase-URL og anon-nøkkel må være satt i <code>shared/booking-config.js</code>.</p></div></div>';
+    return;
+  }
+  if (!window.supabase || !window.supabase.createClient) {
+    document.getElementById('bootView').innerHTML =
+      '<div class="auth-wrap"><div class="login"><h1>SDK-feil</h1>' +
+      '<p>Supabase JS SDK kunne ikke lastes fra CDN. Sjekk nettverk.</p></div></div>';
+    return;
+  }
+  var sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+  });
+
+  // Globals
+  var currentUser = null;
+
+  // ---------- View switching ----------
+  // Only bootView + adminView. loginView was removed in audit #5 cleanup —
+  // login happens at ansatt.html (auth-gateway), and handleSession redirects
+  // there on !session, so we never need to render an inline login here.
+  function show(view) {
+    ['bootView', 'adminView'].forEach(function (id) {
+      document.getElementById(id).style.display = id === view ? '' : 'none';
+    });
+  }
+
+  function setTopbarRight(html) {
+    document.getElementById('topbarRight').innerHTML = html;
+  }
+  function setRoleBadge(role, staffName) {
+    var badge = document.getElementById('roleBadge');
+    if (!role) { badge.style.display = 'none'; return; }
+    badge.style.display = '';
+    badge.className = 'role-badge' + (role === 'therapist' ? ' therapist' : '');
+    badge.textContent = role === 'admin' ? 'Admin' : ('Terapeut' + (staffName ? ': ' + staffName : ''));
+  }
+
+  // ---------- Role parsing ----------
+  function parseSessionUser(session) {
+    if (!session || !session.user) return null;
+    var meta = session.user.app_metadata || {};
+    var role = meta.role;
+    if (role !== 'admin' && role !== 'therapist') {
+      return { error: 'missing_role', email: session.user.email, raw: meta };
+    }
+    if (role === 'therapist' && (!meta.staff_id || !meta.staff_name)) {
+      return { error: 'missing_staff', email: session.user.email, raw: meta };
+    }
+    return {
+      userId: session.user.id,
+      email: session.user.email,
+      role: role,
+      staffId: meta.staff_id || null,
+      staffName: meta.staff_name || null,
+      raw: meta
+    };
+  }
+
+  // Show a transient overlay banner for authorization errors (missing role,
+  // missing staff metadata, invalid session). logoutAndShow redirects to
+  // ansatt.html 1.5s later — overlay is destroyed by the redirect.
+  function showAuthError(message, raw) {
+    setRoleBadge(null);
+    setTopbarRight('<a href="ansatt.html">← Ansattportal</a>');
+    var existing = document.getElementById('__authErrorOverlay');
+    if (existing) existing.remove();
+    var overlay = document.createElement('div');
+    overlay.id = '__authErrorOverlay';
+    overlay.setAttribute('role', 'alert');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(23, 26, 33,.85);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Inter,system-ui,sans-serif;';
+    overlay.innerHTML =
+      '<div style="background:#fff;max-width:420px;width:100%;padding:24px;border:1px solid #171a2622;">' +
+        '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 12px;color:#171A21;">Tilgang nektet</h3>' +
+        '<div style="margin:0;color:#2E323C;font-size:14px;line-height:1.5;">' + (message || 'Du har ikke tilgang.') + '</div>' +
+        (raw ? '<pre style="margin:16px 0 0;padding:10px;background:#F7F8FA;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#9c4a3f;white-space:pre-wrap;word-break:break-all;border:1px solid #1d211e11;">app_metadata: ' + escapeHtml(JSON.stringify(raw)) + '</pre>' : '') +
+        '<p style="margin:14px 0 0;color:#6B7080;font-size:12px;">Du blir sendt tilbake til ansattportalen om et øyeblikk.</p>' +
+      '</div>';
+    document.body.appendChild(overlay);
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+
+  // Login handler removed in audit #5 cleanup. The loginForm DOM is gone
+  // and handleSession redirects to ansatt.html on !session, so signIn
+  // always happens via the auth-gateway. No inline login needed.
+
+  // ---------- Logout helper ----------
+  function logoutAndShow(message, raw) {
+    if (message) {
+      // Vis feilmeldingen kort før vi logger ut og redirecter — slik at admin
+      // ser hvorfor de ble kastet ut (manglende rolle, ugyldig session, etc.).
+      showAuthError(message, raw);
+      setTimeout(function () {
+        if (window.WestengenKlinikkAuth) window.WestengenKlinikkAuth.logoutAndRedirect(sb);
+        else sb.auth.signOut().then(function () { window.location.replace('ansatt.html'); });
+      }, 1500);
+      return;
+    }
+    if (window.WestengenKlinikkAuth) window.WestengenKlinikkAuth.logoutAndRedirect(sb);
+    else sb.auth.signOut().then(function () { window.location.replace('ansatt.html'); });
+  }
+
+  // Bind logout button (delegated since it's added dynamically)
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'logoutBtn') {
+      logoutAndShow();
+    }
+  });
+
+  // ---------- Role helpers ----------
+  function isAdmin()      { return !!(currentUser && currentUser.role === 'admin'); }
+  function isTherapist()  { return !!(currentUser && currentUser.role === 'therapist'); }
+  function getMyStaffId() { return currentUser ? currentUser.staffId : null; }
+
+  // ---------- Tab switching ----------
+  function activateTab(name) {
+    document.querySelectorAll('.tab').forEach(function (t) {
+      t.classList.toggle('active', t.dataset.tab === name);
+    });
+    document.querySelectorAll('.tab-panel').forEach(function (p) {
+      p.classList.toggle('active', p.dataset.panel === name);
+    });
+  }
+  document.querySelectorAll('.tab').forEach(function (t) {
+    t.addEventListener('click', function () { activateTab(t.dataset.tab); });
+  });
+
+  // ---------- Custom date range toggle ----------
+  document.getElementById('filterRange').addEventListener('change', function (e) {
+    var custom = e.target.value === 'custom';
+    document.getElementById('filterDateFrom').style.display = custom ? '' : 'none';
+    document.getElementById('filterDateTo').style.display   = custom ? '' : 'none';
+  });
+
+  // ---------- Apply role-based UI variation ----------
+  function applyRoleUI(user) {
+    var adminOnly = document.querySelectorAll('[data-admin-only]');
+    adminOnly.forEach(function (el) { el.style.display = user.role === 'admin' ? '' : 'none'; });
+
+    // Bookings panel title
+    document.getElementById('bookingsTitle').textContent =
+      user.role === 'admin' ? 'Alle bookinger' : 'Mine bookinger';
+
+    // Availability panel title + static staff label for therapists
+    var availTitle = document.getElementById('availabilityTitle');
+    var availStatic = document.getElementById('availStaffStatic');
+    if (user.role === 'admin') {
+      availTitle.textContent = 'Tilgjengelighet';
+      availStatic.style.display = 'none';
+    } else {
+      availTitle.textContent = 'Min kalender';
+      availStatic.style.display = '';
+      availStatic.textContent = user.staffName || '—';
+    }
+  }
+
+  // ---------- Render authorized view ----------
+  function renderAuthorized(user) {
+    currentUser = user;
+    setRoleBadge(user.role, user.staffName);
+    setTopbarRight(
+      '<a href="kalender.html">Min kalender →</a>' +
+      '<span class="who">' + escapeHtml(user.email) + '</span>' +
+      '<button id="logoutBtn">Logg ut</button>'
+    );
+
+    applyRoleUI(user);
+
+    // Settings panel
+    document.getElementById('setEmail').textContent  = user.email;
+    document.getElementById('setRole').textContent   = user.role === 'admin' ? 'Admin (sekretær)' : 'Terapeut';
+    document.getElementById('setUserId').textContent = user.userId;
+    var staffRow = document.getElementById('setStaffRow');
+    if (user.role === 'therapist') {
+      staffRow.style.display = '';
+      document.getElementById('setStaff').textContent = user.staffName + (user.staffId ? ' · ' + user.staffId : '');
+    } else {
+      staffRow.style.display = 'none';
+    }
+
+    // Default to bookings tab on each fresh login
+    activateTab('bookings');
+
+    show('adminView');
+
+    // Prefill fra kalender: klikk på en ledig slot la {staffId, staffName,
+    // date, time} i sessionStorage og navigerte hit. Åpne veiviseren én
+    // gang (forbrukes umiddelbart) med slot-en forhåndsutfylt.
+    try {
+      var pf = sessionStorage.getItem('__ta_nb_prefill');
+      if (pf) {
+        sessionStorage.removeItem('__ta_nb_prefill');
+        openNewBookingPrefilled(JSON.parse(pf));
+      }
+    } catch (_) {}
+
+    // Session timeout — 15 min idle → signOut. Installeres etter render.
+    if (window.WestengenKlinikkAuth) window.WestengenKlinikkAuth.installSessionTimeout(sb);
+  }
+
+  // ---------- Session router ----------
+  function handleSession(session) {
+    if (!session) {
+      // Auth-gateway: ingen session → tilbake til ansatt-portalen.
+      currentUser = null;
+      window.location.replace('ansatt.html');
+      return;
+    }
+    var parsed = parseSessionUser(session);
+    if (!parsed) { logoutAndShow('Ugyldig session.'); return; }
+    if (parsed.error === 'missing_role') {
+      logoutAndShow('Brukeren mangler rolle. Kontakt administrator.', parsed.raw);
+      return;
+    }
+    if (parsed.error === 'missing_staff') {
+      logoutAndShow('Terapeut-bruker mangler staff_id eller staff_name. Kontakt administrator.', parsed.raw);
+      return;
+    }
+    renderAuthorized(parsed);
+  }
+
+  // ---------- Boot ----------
+  sb.auth.getSession().then(function (res) {
+    handleSession(res.data && res.data.session);
+  }).catch(function () {
+    window.location.replace('ansatt.html');
+  });
+
+  // Persistent listener — handles login, logout, token refresh, multi-tab sync
+  sb.auth.onAuthStateChange(function (event, session) {
+    // Alle re-fyringer med SAMME innloggede bruker ignoreres — ikke bare
+    // TOKEN_REFRESHED: supabase-js fyrer også SIGNED_IN ved fane-/app-
+    // refokus (særlig mobil). Uten denne garden kjørte handleSession →
+    // renderAuthorized → activateTab('bookings') midt i arbeid, som rev
+    // brukeren ut av åpne modaler/faner (bug: «tildeling hopper vekk»).
+    // Utlogging (session=null) og brukerbytte håndteres fortsatt.
+    if (currentUser && session && session.user && session.user.id === currentUser.userId) {
+      return;
+    }
+    handleSession(session);
+  });
+
+  // ============================================================
+  // BESTILLINGER-FANEN — load, filter, sort, render, detail modal
+  // ============================================================
+  var DATA = { bookings: [] };
+  // Behandler-farger: leses fra staff_members.color (migrasjon 0049).
+  // Hardkodet fallback-palett brukes når kolonnen mangler eller raden
+  // ikke har farge; ukjent behandler → '' → CSS-fallback (nøytral grå).
+  var STAFF_FALLBACK_COLORS = {
+    erik: '#464C8C', sofie: '#B8754A', henrik: '#5B7DB1',
+    jonas: '#8E6FA8', amina: '#C2A14D', petter: '#4D9D9A',
+    lena: '#A85C5C', nora: '#D87FA0'
+  };
+  var STAFF_COLORS = Object.assign({}, STAFF_FALLBACK_COLORS);
+  var staffColorsPromise = null;
+  function loadStaffColorsOnce() {
+    if (staffColorsPromise) return staffColorsPromise;
+    staffColorsPromise = sb.from('staff_members').select('staff_id, color')
+      .then(function (res) {
+        // Feil (f.eks. kolonnen finnes ikke før 0049) → behold fallback.
+        if (res.error || !res.data) return;
+        res.data.forEach(function (r) {
+          if (r.color) STAFF_COLORS[r.staff_id] = r.color;
+        });
+      })
+      .catch(function () { /* fallback-paletten står */ });
+    return staffColorsPromise;
+  }
+  function staffColor(staffId) {
+    return (staffId && STAFF_COLORS[staffId]) || '';
+  }
+  var sortKey = 'date';
+  var sortDir = 'asc';
+  var activeBookingId = null;
+
+  // ---------- Date / format helpers ----------
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+  function ymdAddDays(s, n) {
+    var p = s.split('-');
+    var d = new Date(+p[0], +p[1] - 1, +p[2]);
+    d.setDate(d.getDate() + n);
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+  var DAYS_NO  = ['søn','man','tir','ons','tor','fre','lør'];
+  var MONTHS_NO = ['januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember'];
+  function formatDateNo(dateStr) {
+    if (!dateStr) return '—';
+    var p = dateStr.split('-');
+    var d = new Date(+p[0], +p[1] - 1, +p[2]);
+    return DAYS_NO[d.getDay()] + ' ' + d.getDate() + '. ' + MONTHS_NO[d.getMonth()];
+  }
+  function formatTimeShort(t) { return (t || '').slice(0, 5); }
+  function formatPrice(n) { return 'kr ' + (n || 0).toLocaleString('no-NO').replace(/,/g, ' '); }
+  function formatCreatedAt(iso) {
+    if (!iso) return '—';
+    var d = new Date(iso);
+    return d.toLocaleString('no-NO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+  function statusLabel(s) {
+    return ({ confirmed: 'Bekreftet', completed: 'Fullført', cancelled: 'Avlyst', no_show: 'No-show' })[s] || s || '—';
+  }
+
+  // ---------- Loading / error / skeleton ----------
+  function renderSkeleton() {
+    var rows = '';
+    for (var i = 0; i < 5; i++) {
+      rows += '<div class="skeleton-row">' +
+        '<div class="skeleton-bar" style="width:80%;"></div>' +
+        '<div class="skeleton-bar" style="width:55%;"></div>' +
+        '<div class="skeleton-bar" style="width:90%;"></div>' +
+        '<div class="skeleton-bar" style="width:70%;"></div>' +
+        '<div class="skeleton-bar" style="width:80%;"></div>' +
+        '<div class="skeleton-bar" style="width:50%;"></div>' +
+        '<div class="skeleton-bar" style="width:60%;"></div>' +
+        '<div class="skeleton-bar" style="width:50%;"></div>' +
+        '</div>';
+    }
+    return '<div class="booking-table-wrap">' + rows + '</div>';
+  }
+
+  function showLoadError(err) {
+    var wrap = document.getElementById('bookingsListWrap');
+    var msg = (err && (err.message || err.error_description)) || String(err || 'Ukjent feil');
+    wrap.innerHTML =
+      '<div class="error-banner">' +
+        '<span><strong>Kunne ikke laste bookinger.</strong> ' + escapeHtml(msg) + '</span>' +
+        '<button id="retryLoadBtn">Prøv igjen</button>' +
+      '</div>';
+    document.getElementById('retryLoadBtn').addEventListener('click', loadBookings);
+  }
+
+  // ---------- Load bookings via SDK (authenticated) ----------
+  function loadBookings() {
+    var wrap = document.getElementById('bookingsListWrap');
+    if (!wrap) return Promise.resolve();
+    wrap.innerHTML = renderSkeleton();
+    // Behandler-fargene må være klare før radene rendres (engangs-last,
+    // kjedet så første render ikke racer fargene).
+    return loadStaffColorsOnce().then(function () {
+      return sb.from('bookings').select('*')
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
+    })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        DATA.bookings = res.data || [];
+        populateStaffFilter();
+        renderUnassigned();
+        renderBookings();
+      })
+      .catch(showLoadError);
+  }
+
+  // ---------- Populate dynamic staff filter (admin only) ----------
+  function populateStaffFilter() {
+    if (!isAdmin()) return;
+    var sel = document.getElementById('filterStaff');
+    var current = sel.value;
+    var unique = {};
+    DATA.bookings.forEach(function (b) {
+      if (b.staff_id && b.staff_name) unique[b.staff_id] = b.staff_name;
+    });
+    // "Eriks terapeuter" er paraply-navnet på gruppe-bookinger (staff_id
+    // 'terapeut' eller NULL pre-0020). Skjules fra admin-filteret fordi
+    // ufordelte bookinger har egen seksjon (renderUnassigned); de
+    // navngitte terapeutene listes individuelt her.
+    var ids = Object.keys(unique)
+      .filter(function (id) { return unique[id] !== 'Eriks terapeuter'; })
+      .sort(function (a, b) {
+        return unique[a].localeCompare(unique[b], 'no');
+      });
+    sel.innerHTML = '<option value="">Alle behandlere</option>' +
+      ids.map(function (id) {
+        return '<option value="' + escapeHtml(id) + '">' + escapeHtml(unique[id]) + '</option>';
+      }).join('');
+    if (current && unique[current]) sel.value = current;
+  }
+
+  // ---------- Filter ----------
+  function getFilteredBookings() {
+    var range    = document.getElementById('filterRange').value;
+    var staff    = document.getElementById('filterStaff').value;
+    var status   = document.getElementById('filterStatus').value;
+    var search   = document.getElementById('searchInput').value.trim().toLowerCase();
+    var dateFrom = document.getElementById('filterDateFrom').value;
+    var dateTo   = document.getElementById('filterDateTo').value;
+    var t = todayStr();
+    var weekEnd = ymdAddDays(t, 7);
+
+    return DATA.bookings.filter(function (b) {
+      // Date range
+      if (range === 'upcoming')      { if (b.date < t) return false; }
+      else if (range === 'today')    { if (b.date !== t) return false; }
+      else if (range === 'week')     { if (b.date < t || b.date > weekEnd) return false; }
+      else if (range === 'custom')   {
+        if (dateFrom && b.date < dateFrom) return false;
+        if (dateTo   && b.date > dateTo)   return false;
+      }
+      // 'all' — no filter
+
+      if (staff  && b.staff_id !== staff) return false;
+      if (status && b.status !== status)  return false;
+
+      if (search) {
+        var hay = ((b.name || '') + ' ' + (b.email || '') + ' ' + (b.phone || '') + ' ' + (b.ref || '')).toLowerCase();
+        if (hay.indexOf(search) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  // ---------- Sort ----------
+  function sortBookings(rows) {
+    rows.sort(function (a, b) {
+      var av, bv;
+      switch (sortKey) {
+        case 'date':    av = (a.date || '') + ' ' + (a.time || ''); bv = (b.date || '') + ' ' + (b.time || ''); break;
+        case 'time':    av = a.time || '';        bv = b.time || ''; break;
+        case 'name':    av = (a.name || '').toLowerCase(); bv = (b.name || '').toLowerCase(); break;
+        case 'staff':   av = a.staff_name || '';  bv = b.staff_name || ''; break;
+        case 'service': av = a.service_name || ''; bv = b.service_name || ''; break;
+        case 'price':   av = a.price || 0;        bv = b.price || 0; break;
+        case 'status':  av = a.status || '';      bv = b.status || ''; break;
+        default:        av = a.date || '';        bv = b.date || '';
+      }
+      if (av < bv) return sortDir === 'asc' ? -1 : 1;
+      if (av > bv) return sortDir === 'asc' ?  1 : -1;
+      return 0;
+    });
+    return rows;
+  }
+
+  // ---------- Render table ----------
+  function headerCells() {
+    // DEL 2 (2026-06-12): ryddet tabell — Dato+Tid slått sammen,
+    // Tjeneste og Pris flyttet til Detaljer-visningen (var der fra
+    // før), fargebar-kolonne (behandler-farge) først.
+    var cols = [
+      { k: null,      label: '', bar: true },
+      { k: 'date',    label: 'Dato/tid' },
+      { k: 'name',    label: 'Klient' },
+      { k: 'staff',   label: 'Behandler' },
+      { k: 'status',  label: 'Status' },
+      { k: null,      label: '' }
+    ];
+    return cols.map(function (c) {
+      if (!c.k) return c.bar ? '<th class="col-bar"></th>' : '<th></th>';
+      var arrow = sortKey === c.k ? (sortDir === 'asc' ? '↑' : '↓') : '↕';
+      var cls = sortKey === c.k ? ' class="sorted"' : '';
+      return '<th data-sort="' + c.k + '"' + cls + '>' + c.label + '<span class="sort-arrow">' + arrow + '</span></th>';
+    }).join('');
+  }
+
+  function renderRow(b) {
+    var pillCls = 'pill pill-' + (b.status || 'confirmed');
+    var time = escapeHtml(formatTimeShort(b.time));
+    var sc = staffColor(b.staff_id);
+    return '<tr' + (sc ? ' style="--sc:' + escapeHtml(sc) + '"' : '') + '>' +
+      '<td class="col-bar"><span></span></td>' +
+      '<td class="col-date"><span class="when-date">' + escapeHtml(formatDateNo(b.date)) +
+        ' · </span><span class="when-time">' + time + '</span></td>' +
+      '<td class="col-name"><div class="name"><strong>' + escapeHtml(b.name || '—') + '</strong>' +
+        '<small>' + escapeHtml(b.email || '') + '</small></div></td>' +
+      '<td class="col-staff">' + escapeHtml(b.staff_name || '—') + '</td>' +
+      '<td class="col-status"><span class="' + pillCls + '">' + escapeHtml(statusLabel(b.status)) + '</span></td>' +
+      '<td class="col-actions"><button class="btn-ghost" data-detail="' + escapeHtml(b.id) + '">Detaljer</button></td>' +
+      '</tr>';
+  }
+
+  function renderBookings() {
+    var wrap = document.getElementById('bookingsListWrap');
+    if (!wrap) return;
+
+    if (DATA.bookings.length === 0) {
+      wrap.innerHTML =
+        '<div class="state-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><h3>Ingen bookinger registrert</h3>' +
+        '<p>Når noen booker en time vil den dukke opp her.</p></div>';
+      return;
+    }
+
+    var rows = sortBookings(getFilteredBookings());
+    if (rows.length === 0) {
+      wrap.innerHTML =
+        '<div class="state-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><h3>Ingen bookinger matcher filteret</h3>' +
+        '<p>Endre filterinnstillingene eller fjern søket for å se flere.</p></div>';
+      return;
+    }
+
+    var html = '<div class="booking-table-wrap"><table class="booking-table">' +
+      '<thead><tr>' + headerCells() + '</tr></thead><tbody>' +
+      rows.map(renderRow).join('') +
+      '</tbody></table></div>';
+    wrap.innerHTML = html;
+
+    wrap.querySelectorAll('th[data-sort]').forEach(function (th) {
+      th.addEventListener('click', function () {
+        var key = th.dataset.sort;
+        if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        else { sortKey = key; sortDir = 'asc'; }
+        renderBookings();
+      });
+    });
+    wrap.querySelectorAll('button[data-detail]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openDetailModal(btn.dataset.detail); });
+    });
+  }
+
+  // ---------- Ufordelte bookinger + terapeut-tildeling (STEG 5) ----------
+  // "Ufordelt" = staff_id NULL (ny modell) eller 'terapeut' (eldre
+  // bookinger / admin-opprettede via FAB). Kun admin kan tildele —
+  // RLS lar bare admin UPDATE-e staff_id på vilkårlig rad.
+  function isUnassignedBooking(b) {
+    return !!b && (b.staff_id == null || b.staff_id === 'terapeut');
+  }
+  function poolContains(staffId) {
+    var pool = (window.WestengenKlinikkBookingEngine && window.WestengenKlinikkBookingEngine.THERAPIST_POOL) || [];
+    return pool.indexOf(staffId) !== -1;
+  }
+
+  function renderUnassigned() {
+    var wrap = document.getElementById('unassignedWrap');
+    if (!wrap) return;
+    if (!isAdmin()) { wrap.innerHTML = ''; return; }
+    var list = DATA.bookings.filter(function (b) {
+      return b.status === 'confirmed' && isUnassignedBooking(b);
+    }).sort(function (a, b) {
+      return ((a.date || '') + (a.time || '')) < ((b.date || '') + (b.time || '')) ? -1 : 1;
+    });
+    if (list.length === 0) { wrap.innerHTML = ''; return; }
+    wrap.innerHTML =
+      '<div class="unassigned-section">' +
+        '<h3 class="unassigned-title">Ufordelte bookinger' +
+          '<span class="unassigned-count">' + list.length + '</span></h3>' +
+        '<p class="unassigned-lead">Bookinger hos «Eriks terapeuter» som ikke er tildelt en terapeut ennå.</p>' +
+        '<div class="unassigned-list">' +
+          list.map(function (b) {
+            return '<div class="unassigned-card">' +
+              '<div class="uc-main">' +
+                '<div class="uc-name">' + escapeHtml(b.name || '—') + '</div>' +
+                '<div class="uc-meta">' + escapeHtml(formatDateNo(b.date)) + ' kl. ' +
+                  escapeHtml(formatTimeShort(b.time)) + ' · ' +
+                  escapeHtml(b.service_name || '—') + '</div>' +
+              '</div>' +
+              '<button class="btn-primary" data-assign="' + escapeHtml(b.id) + '">Tildel terapeut</button>' +
+            '</div>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+    wrap.querySelectorAll('button[data-assign]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openAssignModal(btn.dataset.assign); });
+    });
+  }
+
+  // De 5 pool-terapeutene med ledig/opptatt-status for én booking sin
+  // (date, time). Ledig = ingen ANNEN aktiv booking på samme slot.
+  // Risiko 3-mitigering: opptatte terapeuter blir disablet i dropdownen.
+  function therapistOptionsFor(booking) {
+    var E = window.WestengenKlinikkBookingEngine || {};
+    var pool = E.THERAPIST_POOL || [];
+    var staffList = E.STAFF || [];
+    return pool.map(function (tid) {
+      var occupied = DATA.bookings.some(function (x) {
+        return x.id !== booking.id
+          && x.staff_id === tid
+          && x.date === booking.date
+          && x.time === booking.time
+          && (x.status === 'confirmed' || x.status === 'completed');
+      });
+      var staff = staffList.find(function (s) { return s.id === tid; });
+      return { id: tid, name: staff ? staff.name : tid, free: !occupied };
+    });
+  }
+
+  function openAssignModal(bookingId) {
+    var b = DATA.bookings.find(function (x) { return x.id === bookingId; });
+    if (!b || !isAdmin()) return;
+    var opts = therapistOptionsFor(b);
+    var body = document.getElementById('assignBody');
+    body.innerHTML =
+      '<p class="assign-intro">' + escapeHtml(b.name || '') + ' · ' +
+        escapeHtml(formatDateNo(b.date)) + ' kl. ' + escapeHtml(formatTimeShort(b.time)) + '</p>' +
+      '<div class="assign-options">' +
+        opts.map(function (o) {
+          var isCurrent = (b.staff_id === o.id);
+          var disabled = (!o.free && !isCurrent);
+          var tag = isCurrent ? 'Nåværende' : (o.free ? 'Ledig' : 'Opptatt');
+          return '<button class="assign-option' + (isCurrent ? ' is-current' : '') + '"' +
+            (disabled ? ' disabled' : '') +
+            ' data-therapist="' + escapeHtml(o.id) + '"' +
+            ' data-therapist-name="' + escapeHtml(o.name) + '">' +
+            '<span>' + escapeHtml(o.name) + '</span>' +
+            '<span class="ao-tag">' + tag + '</span></button>';
+        }).join('') +
+      '</div>';
+    body.querySelectorAll('button[data-therapist]').forEach(function (btn) {
+      if (btn.disabled) return;
+      btn.addEventListener('click', function () {
+        assignTherapist(bookingId, btn.getAttribute('data-therapist'), btn.getAttribute('data-therapist-name'));
+      });
+    });
+    document.getElementById('assignModal').classList.add('open');
+    setTimeout(function () { document.getElementById('assignClose').focus(); }, 0);
+  }
+  function closeAssignModal() {
+    document.getElementById('assignModal').classList.remove('open');
+  }
+
+  function assignTherapist(bookingId, staffId, staffName) {
+    var b = DATA.bookings.find(function (x) { return x.id === bookingId; });
+    if (!b) return;
+    if (b.staff_id === staffId) { closeAssignModal(); return; } // no-op
+    sb.from('bookings').update({ staff_id: staffId, staff_name: staffName })
+      .eq('id', bookingId)
+      .then(function (res) {
+        if (res.error) throw res.error;
+        closeAssignModal();
+        closeDetailModal();
+        showToast('Terapeut tildelt ✓');
+        loadBookings();
+      })
+      .catch(function (err) {
+        // Risiko 3-fallback: bookings_active_slot_unique (23505) hvis
+        // terapeuten ble booket på slotet mellom render og klikk.
+        var code = (err && err.code) ? String(err.code) : '';
+        var msg  = (err && err.message) ? String(err.message) : '';
+        if (code === '23505' || msg.indexOf('23505') !== -1
+            || msg.indexOf('bookings_active_slot_unique') !== -1) {
+          showToast('Terapeuten er ikke tilgjengelig på denne tiden', true);
+        } else {
+          showToast('Kunne ikke tildele terapeut. Prøv igjen.', true);
+          console.error(err);
+        }
+      });
+  }
+
+  document.getElementById('assignClose').addEventListener('click', closeAssignModal);
+  document.getElementById('assignModal').addEventListener('click', function (e) {
+    if (e.target === this) closeAssignModal();
+  });
+  document.getElementById('modalAssignBtn').addEventListener('click', function () {
+    if (activeBookingId) openAssignModal(activeBookingId);
+  });
+
+  // ---------- Filter event handlers ----------
+  function debounce(fn, ms) {
+    var t;
+    return function () {
+      clearTimeout(t);
+      var ctx = this, args = arguments;
+      t = setTimeout(function () { fn.apply(ctx, args); }, ms);
+    };
+  }
+  ['filterRange', 'filterStaff', 'filterStatus', 'filterDateFrom', 'filterDateTo']
+    .forEach(function (id) {
+      document.getElementById(id).addEventListener('change', renderBookings);
+    });
+  document.getElementById('searchInput').addEventListener('input', debounce(renderBookings, 200));
+
+  // ---------- Detail modal ----------
+  function openDetailModal(id) {
+    var b = DATA.bookings.find(function (x) { return x.id === id; });
+    if (!b) return;
+    activeBookingId = id;
+
+    document.getElementById('modalRef').textContent = b.ref || '';
+    document.getElementById('modalBody').innerHTML = renderModalBody(b);
+    document.getElementById('modalStatus').value = b.status || 'confirmed';
+    setSaveState('idle');
+
+    // Reset delete button — defensive in case a prior delete left it stuck.
+    var deleteBtn = document.getElementById('modalDeleteBtn');
+    deleteBtn.disabled = false;
+    deleteBtn.textContent = 'Slett booking';
+
+    // GDPR-seksjon: admin-only. Skjules ellers.
+    var gdprBox = document.getElementById('modalGdpr');
+    if (isAdmin() && b.email) {
+      gdprBox.hidden = false;
+      // Reset knapper i tilfelle en tidligere handling lot dem stå disabled
+      document.getElementById('gdprExportBtn').disabled = false;
+      document.getElementById('gdprExportBtn').textContent = 'Eksporter pasientdata';
+      document.getElementById('gdprPseudonymizeBtn').disabled = false;
+      document.getElementById('gdprPseudonymizeBtn').textContent = 'Anonymiser pasient';
+    } else {
+      gdprBox.hidden = true;
+    }
+
+    // Terapeut-tildeling: vis "Tildel/Endre terapeut" for pool-bookinger
+    // (ufordelt eller tildelt en av de 5). Skjult for Erik-bookinger.
+    var assignBtn = document.getElementById('modalAssignBtn');
+    if (assignBtn) {
+      var canAssign = isAdmin() && (isUnassignedBooking(b) || poolContains(b.staff_id));
+      assignBtn.hidden = !canAssign;
+      assignBtn.textContent = isUnassignedBooking(b) ? 'Tildel terapeut' : 'Endre terapeut';
+    }
+
+    document.getElementById('detailModal').classList.add('open');
+    setTimeout(function () { document.getElementById('modalClose').focus(); }, 0);
+
+    // Wire copy buttons (re-attached each open)
+    document.getElementById('modalBody').querySelectorAll('.copy-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { copyToClipboard(btn.dataset.copy, btn); });
+    });
+  }
+  function closeDetailModal() {
+    document.getElementById('detailModal').classList.remove('open');
+    activeBookingId = null;
+  }
+  function renderModalBody(b) {
+    return '<table>' +
+      '<tr><td>Dato</td><td>' + escapeHtml(formatDateNo(b.date)) + ' kl. ' + escapeHtml(formatTimeShort(b.time)) + '</td></tr>' +
+      '<tr><td>Behandler</td><td>' + escapeHtml(b.staff_name || '—') + '</td></tr>' +
+      '<tr><td>Tjeneste</td><td>' + escapeHtml(b.service_name || '—') + ' · ' + (b.duration || '—') + ' min · ' + escapeHtml(formatPrice(b.price)) + '</td></tr>' +
+      '<tr><td>Klient</td><td>' + escapeHtml(b.name || '—') + '</td></tr>' +
+      '<tr><td>E-post</td><td><div class="copyable">' +
+        '<a href="mailto:' + escapeHtml(b.email || '') + '">' + escapeHtml(b.email || '—') + '</a>' +
+        (b.email ? '<button class="copy-btn" data-copy="' + escapeHtml(b.email) + '">Kopier</button>' : '') +
+        '</div></td></tr>' +
+      '<tr><td>Telefon</td><td><div class="copyable">' +
+        '<a href="tel:' + escapeHtml(b.phone || '') + '">' + escapeHtml(b.phone || '—') + '</a>' +
+        (b.phone ? '<button class="copy-btn" data-copy="' + escapeHtml(b.phone) + '">Kopier</button>' : '') +
+        '</div></td></tr>' +
+      (b.notes ? '<tr><td>Notater</td><td><div class="notes">' + escapeHtml(b.notes) + '</div></td></tr>' : '') +
+      '<tr><td>Bestilt</td><td>' + escapeHtml(formatCreatedAt(b.created_at)) + '</td></tr>' +
+      '</table>';
+  }
+  function copyToClipboard(text, btn) {
+    var done = function () {
+      var orig = btn.textContent;
+      btn.textContent = 'Kopiert ✓';
+      btn.classList.add('copied');
+      setTimeout(function () { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function () {
+        btn.textContent = 'Kopier feilet';
+      });
+    } else {
+      // Fallback
+      var ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (_) { btn.textContent = 'Kopier feilet'; }
+      document.body.removeChild(ta);
+    }
+  }
+
+  // ---------- Status save (optimistic UI) ----------
+  function setSaveState(state, msg) {
+    var fb = document.getElementById('saveFeedback');
+    fb.classList.remove('shown', 'saving', 'ok', 'error');
+    if (state === 'idle') return;
+    fb.classList.add('shown', state);
+    fb.textContent =
+      state === 'saving' ? 'Lagrer…' :
+      state === 'ok'     ? 'Lagret ✓' :
+      state === 'error'  ? ('Lagring feilet' + (msg ? ': ' + msg : '')) : '';
+  }
+
+  document.getElementById('modalStatus').addEventListener('change', function () {
+    if (!activeBookingId) return;
+    var selEl = this;
+    var newStatus = selEl.value;
+    var booking = DATA.bookings.find(function (b) { return b.id === activeBookingId; });
+    if (!booking) return;
+    var oldStatus = booking.status;
+    if (newStatus === oldStatus) return;
+
+    // Destruktive transisjoner krever bekreftelse
+    var needsConfirm = (newStatus === 'cancelled' || newStatus === 'no_show');
+    var proceed = needsConfirm && window.WestengenKlinikkAuth
+      ? window.WestengenKlinikkAuth.confirmDestructive({
+          title: newStatus === 'cancelled' ? 'Avlys booking?' : 'Marker som no-show?',
+          message: newStatus === 'cancelled'
+            ? 'Bookingen blir markert som avlyst. Kunden får ingen automatisk e-post.'
+            : 'Bookingen blir markert som no-show.',
+          confirmLabel: newStatus === 'cancelled' ? 'Avlys' : 'Marker no-show'
+        })
+      : Promise.resolve(true);
+
+    proceed.then(function (ok) {
+      if (!ok) { selEl.value = oldStatus; return; }
+
+      // Optimistic update
+      booking.status = newStatus;
+      renderBookings();
+      renderUnassigned();
+      if (document.querySelector('[data-panel="availability"].active')) {
+        renderSlotGrid();
+      }
+      setSaveState('saving');
+
+      sb.from('bookings').update({ status: newStatus }).eq('id', activeBookingId)
+        .then(function (res) {
+          if (res.error) throw res.error;
+          setSaveState('ok');
+          // Audit-log (fire-and-forget). Ingen pasientdata i metadata.
+          if (window.WestengenKlinikkAuth) {
+            window.WestengenKlinikkAuth.auditLog(sb, currentUser, {
+              action: 'booking_status_change',
+              target_type: 'booking',
+              target_id: activeBookingId,
+              metadata: { from_status: oldStatus, to_status: newStatus }
+            });
+          }
+          setTimeout(function () {
+            if (document.getElementById('saveFeedback').classList.contains('ok')) setSaveState('idle');
+          }, 2000);
+        })
+        .catch(function (err) {
+          booking.status = oldStatus;
+          selEl.value = oldStatus;
+          renderBookings();
+          renderUnassigned();
+          if (document.querySelector('[data-panel="availability"].active')) {
+            renderSlotGrid();
+          }
+          setSaveState('error', (err && err.message) || '');
+        });
+    });
+  });
+
+  // ---------- Delete (permanent) ----------
+  // P2-6 + P2-7 fra audit 2026-05-15: confirmDestructive med requireTyping
+  // erstatter native confirm() (modal med tastet 'SLETT'-bekreftelse istedenfor
+  // tråd-blokkering). Feil vises nå som generisk melding + console.error med
+  // detalj, slik at evt. constraint-/schema-info ikke lekker til sluttbruker.
+  document.getElementById('modalDeleteBtn').addEventListener('click', function () {
+    if (!activeBookingId) return;
+    var booking = DATA.bookings.find(function (b) { return b.id === activeBookingId; });
+    if (!booking) return;
+
+    var btn = this;
+    var origLabel = btn.textContent;
+    var idToDelete = activeBookingId;
+    var bookingLabel = booking.name + ' — ' + formatDateNo(booking.date) +
+      ' kl. ' + formatTimeShort(booking.time) + ' (ref ' + booking.ref + ')';
+
+    var doConfirm = window.WestengenKlinikkAuth && window.WestengenKlinikkAuth.confirmDestructive
+      ? window.WestengenKlinikkAuth.confirmDestructive({
+          title: 'Slette booking permanent?',
+          message: bookingLabel + '. Dette kan ikke angres.',
+          requireTyping: 'SLETT',
+          confirmLabel: 'Slett'
+        })
+      : Promise.resolve(window.confirm('Slette denne bookingen permanent?\n\n' + bookingLabel + '\n\nDette kan ikke angres.'));
+
+    doConfirm.then(function (confirmed) {
+      if (!confirmed) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Sletter…';
+
+      // Chain .select() so PostgREST returns the actually-deleted rows.
+      // Required to detect RLS-denied silent no-ops: PostgREST returns 204
+      // for both "row deleted" and "RLS filtered to 0 rows", with no error.
+      return sb.from('bookings').delete().eq('id', idToDelete).select()
+        .then(function (res) {
+          if (res.error) throw res.error;
+          if (!res.data || res.data.length === 0) {
+            throw new Error(
+              'Ingen rad ble slettet. Mulige årsaker: bookingen er allerede fjernet av en annen bruker, ' +
+              'eller admin-rollen mangler DELETE-policy på bookings-tabellen.'
+            );
+          }
+          DATA.bookings = DATA.bookings.filter(function (b) { return b.id !== idToDelete; });
+          closeDetailModal();
+          renderBookings();
+          // The deleted slot is now free in availability — re-render if visible
+          if (document.querySelector('[data-panel="availability"].active')) {
+            renderSlotGrid();
+          }
+          showToast('Booking slettet permanent');
+        })
+        .catch(function (err) {
+          // Generisk melding til bruker (P2-7); detalj kun til konsoll
+          // slik at vi ikke lekker SQL-constraint-navn eller schema-info.
+          console.error('Booking-sletting feilet:', err);
+          alert('Kunne ikke slette bookingen. Prøv igjen, eller kontakt admin hvis problemet vedvarer.');
+        })
+        .finally(function () {
+          // Always restore the button — whether the delete succeeded, was rejected
+          // by RLS, or threw mid-flight — so the next modal open isn't stuck.
+          btn.disabled = false;
+          btn.textContent = origLabel;
+        });
+    });
+  });
+
+  // Modal dismiss handlers
+  document.getElementById('modalClose').addEventListener('click', closeDetailModal);
+  document.getElementById('modalCloseFoot').addEventListener('click', closeDetailModal);
+  document.getElementById('detailModal').addEventListener('click', function (e) {
+    if (e.target === this) closeDetailModal();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.getElementById('detailModal').classList.contains('open')) {
+      closeDetailModal();
+    }
+  });
+
+  // ============================================================
+  // GDPR-handlinger (V7 + V8) — admin-only
+  // Logikken er flyttet til shared/gdpr.js så samme funksjoner kan brukes
+  // fra kunde-detalj.html også. Denne fila wirer bare knapp-handlere.
+  // ============================================================
+  function getActivePatientEmail() {
+    if (!activeBookingId) return null;
+    var b = DATA.bookings.find(function (x) { return x.id === activeBookingId; });
+    return (b && b.email) ? String(b.email).trim().toLowerCase() : null;
+  }
+
+  // ===== P1: bulk CSV-eksport av bookinger (kun admin) =====
+  // csvEscape: quote-wrap ved komma/anførselstegn/linjeskift (samme mønster
+  // som audit-logg.html). Celler som starter med =+-@/tab/CR prefikses med
+  // apostrof så Excel/Sheets aldri tolker kunde-input som formel
+  // (CSV-formel-injection, revisjon 2026-06-12 D-MEDIUM).
+  function csvEscape(v) {
+    if (v == null) return '';
+    var s = String(v);
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1 || s.indexOf('\r') !== -1) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+
+  function exportBookingsCsv() {
+    // Forsvar i dybden: knappen er admin-only i UI, men blokker funksjonen
+    // hardt for ikke-admin også (en therapist skal aldri kunne masse-eksportere).
+    if (!isAdmin()) { showToast('Kun admin kan eksportere bookinger.', true); return; }
+
+    var includeNotes = !!document.getElementById('exportIncludeNotes').checked;
+    var btn = document.getElementById('exportCsvBtn');
+    var origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Bygger CSV…';
+
+    // notes hentes KUN hvis admin aktivt huket av (fritekst = mest sensitivt).
+    var cols = ['ref', 'date', 'time', 'staff_name', 'service_name', 'name',
+                'email', 'phone', 'status', 'newsletter_opt_in', 'created_at'];
+    if (includeNotes) cols.push('notes');
+
+    // Nyeste 10 000 (samme grense som audit-CSV). Admin-RLS dekker SELECT av
+    // alle bookinger — ingen policy svekkes, ingen mellomlagring, ingen SW-cache.
+    sb.from('bookings')
+      .select(cols.join(','))
+      .order('created_at', { ascending: false })
+      .range(0, 9999)
+      .then(function (res) {
+        btn.disabled = false;
+        btn.textContent = origText;
+        if (res.error) { showToast('CSV-eksport feilet: ' + res.error.message, true); return; }
+        var rows = res.data || [];
+        if (!rows.length) { showToast('Ingen bookinger å eksportere.', true); return; }
+        if (rows.length === 10000) {
+          showToast('Eksporten traff grensen på 10 000 rader — kun de nyeste er med. Filtrér for full historikk.', true);
+        }
+
+        // Header bruker lesbare navn (dato/tid for date/time-kolonnene).
+        var headerMap = { date: 'dato', time: 'tid' };
+        var header = cols.map(function (c) { return headerMap[c] || c; });
+        var lines = [header.map(csvEscape).join(',')];
+        rows.forEach(function (r) {
+          lines.push(cols.map(function (c) { return csvEscape(r[c]); }).join(','));
+        });
+
+        // UTF-8 BOM så Excel viser æøå riktig; CRLF mellom rader (Excel-vennlig).
+        var csv = '﻿' + lines.join('\r\n');
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'bookinger_eksport_' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+
+        // Audit (fire-and-forget). Ingen pasientdata i metadata — kun antall + flagg.
+        if (window.WestengenKlinikkAuth) {
+          window.WestengenKlinikkAuth.auditLog(sb, currentUser, {
+            action: 'export_bookings_csv',
+            target_type: 'bookings',
+            target_id: null,
+            metadata: { row_count: rows.length, include_notes: includeNotes }
+          });
+        }
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        btn.textContent = origText;
+        showToast('CSV-eksport feilet. Prøv igjen.', true);
+        console.error('CSV-eksport feilet:', err);
+      });
+  }
+
+  function gdprExportPatient() {
+    if (!isAdmin()) return;
+    var email = getActivePatientEmail();
+    if (!email) { showToast('Mangler e-post på denne bookingen', true); return; }
+    if (!window.WestengenKlinikkGdpr) { showToast('GDPR-modulen er ikke lastet', true); return; }
+
+    var btn = document.getElementById('gdprExportBtn');
+    btn.disabled = true; btn.textContent = 'Henter data…';
+    window.WestengenKlinikkGdpr.exportPatient(sb, currentUser, email, {
+      onSuccess: function (msg) { showToast(msg); },
+      onError: function (msg) { showToast(msg, true); }
+    }).then(function () {
+      btn.disabled = false; btn.textContent = 'Eksporter pasientdata';
+    });
+  }
+
+  function gdprPseudonymizePatient() {
+    if (!isAdmin()) return;
+    var email = getActivePatientEmail();
+    if (!email) { showToast('Mangler e-post på denne bookingen', true); return; }
+    if (!window.WestengenKlinikkGdpr) { showToast('GDPR-modulen er ikke lastet', true); return; }
+
+    var btn = document.getElementById('gdprPseudonymizeBtn');
+    btn.disabled = true; btn.textContent = 'Anonymiserer…';
+    window.WestengenKlinikkGdpr.pseudonymizePatient(sb, currentUser, email, {
+      onSuccess: function (msg) {
+        showToast(msg);
+        closeDetailModal();
+        loadBookings();
+      },
+      onError: function (msg) { showToast(msg, true); }
+    }).then(function () {
+      btn.disabled = false; btn.textContent = 'Anonymiser pasient';
+    });
+  }
+
+  document.getElementById('gdprExportBtn').addEventListener('click', gdprExportPatient);
+  document.getElementById('gdprPseudonymizeBtn').addEventListener('click', gdprPseudonymizePatient);
+
+  // ---------- Refresh button helper ----------
+  // Visualises loading + brief success state on a refresh button.
+  function runRefresh(btn, fn) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.classList.remove('success');
+    btn.classList.add('loading');
+    Promise.resolve()
+      .then(fn)
+      .then(function () {
+        btn.classList.remove('loading');
+        btn.classList.add('success');
+        btn.querySelector('.refresh-icon').textContent = '✓';
+        setTimeout(function () {
+          btn.classList.remove('success');
+          btn.querySelector('.refresh-icon').textContent = '↻';
+          btn.disabled = false;
+        }, 1000);
+      })
+      .catch(function (err) {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+        showToast('Kunne ikke oppdatere: ' + ((err && err.message) || err), true);
+      });
+  }
+
+  document.getElementById('refreshBookingsBtn').addEventListener('click', function () {
+    var btn = this;
+    runRefresh(btn, function () { return loadBookings(); });
+  });
+
+  // ============================================================
+  // TILGJENGELIGHET-FANEN — slot grid, blocked slots, holidays
+  // ============================================================
+  var availData = { blocked: [], holidays: [] };
+  var availStaffLoaded = null; // staffId we last fetched blocked-slots for
+
+  var HOURS_BY_DOW = {
+    1: { open: '07:00', close: '15:00' }, 2: { open: '07:00', close: '15:00' },
+    3: { open: '07:00', close: '15:00' }, 4: { open: '07:00', close: '15:00' },
+    5: { open: '07:00', close: '15:00' }
+  };
+  var SLOT_STEP_MIN = 30;
+  function timeToMin(t) { var p = t.split(':'); return (+p[0]) * 60 + (+p[1]); }
+  function minToTime(m) { return pad2(Math.floor(m / 60)) + ':' + pad2(m % 60); }
+
+  function getCurrentAvailStaffId() {
+    if (isTherapist()) return getMyStaffId();
+    return document.getElementById('availStaff').value || '';
+  }
+  function getCurrentAvailStaffName() {
+    var id = getCurrentAvailStaffId();
+    if (isTherapist()) return currentUser ? currentUser.staffName : '';
+    var sel = document.getElementById('availStaff');
+    var opt = sel.options[sel.selectedIndex];
+    return opt ? opt.textContent : '';
+  }
+
+  function populateAvailStaffSelector() {
+    if (!isAdmin()) return;
+    var sel = document.getElementById('availStaff');
+    var current = sel.value;
+    var unique = {};
+    DATA.bookings.forEach(function (b) {
+      if (b.staff_id && b.staff_name) unique[b.staff_id] = b.staff_name;
+    });
+    var ids = Object.keys(unique).sort(function (a, b) {
+      return unique[a].localeCompare(unique[b], 'no');
+    });
+    sel.innerHTML = '<option value="">Velg behandler…</option>' +
+      ids.map(function (id) {
+        return '<option value="' + escapeHtml(id) + '">' + escapeHtml(unique[id]) + '</option>';
+      }).join('');
+    if (current && unique[current]) sel.value = current;
+    else if (ids.length) sel.value = ids[0];
+  }
+
+  function initAvailability() {
+    if (isAdmin()) populateAvailStaffSelector();
+    var dateInput = document.getElementById('availDate');
+    if (!dateInput.value) dateInput.value = todayStr();
+    loadAndRenderAvailability();
+  }
+
+  function loadAndRenderAvailability() {
+    var staffId = getCurrentAvailStaffId();
+    var wrap = document.getElementById('availSlotGrid');
+    var chipsWrap = document.getElementById('holidayChips');
+
+    if (!staffId) {
+      wrap.innerHTML =
+        '<div class="state-card"><h3>Velg en behandler</h3>' +
+        '<p>Velg en behandler i menyen over for å se tilgjengelighet.</p></div>';
+      chipsWrap.innerHTML = '';
+      return;
+    }
+
+    wrap.innerHTML = '<div class="boot"><div class="spinner"></div>Laster tilgjengelighet…</div>';
+    var loadPromise;
+
+    // If we already have blocked-slots for this staff, only refresh holidays
+    if (availStaffLoaded === staffId) {
+      loadPromise = sb.from('holidays').select('date').order('date', { ascending: true })
+        .then(function (res) {
+          if (res.error) throw res.error;
+          availData.holidays = (res.data || []).map(function (r) { return r.date; });
+        });
+    } else {
+      loadPromise = Promise.all([
+        sb.from('blocked_slots').select('*').eq('staff_id', staffId),
+        sb.from('holidays').select('date').order('date', { ascending: true })
+      ]).then(function (results) {
+        if (results[0].error) throw results[0].error;
+        if (results[1].error) throw results[1].error;
+        availData.blocked = (results[0].data || []).map(function (r) {
+          return { staffId: r.staff_id, date: r.date, time: (r.time || '').slice(0, 5) };
+        });
+        availData.holidays = (results[1].data || []).map(function (r) { return r.date; });
+        availStaffLoaded = staffId;
+      });
+    }
+
+    loadPromise.then(function () {
+      renderSlotGrid();
+      renderHolidayChips();
+    }).catch(function (err) {
+      wrap.innerHTML =
+        '<div class="error-banner"><span><strong>Kunne ikke laste tilgjengelighet.</strong> ' +
+        escapeHtml((err && err.message) || String(err)) + '</span>' +
+        '<button id="retryAvailBtn">Prøv igjen</button></div>';
+      document.getElementById('retryAvailBtn').addEventListener('click', loadAndRenderAvailability);
+    });
+  }
+
+  function renderSlotGrid() {
+    var staffId = getCurrentAvailStaffId();
+    var dateStr = document.getElementById('availDate').value;
+    var wrap = document.getElementById('availSlotGrid');
+    if (!staffId || !dateStr) return;
+
+    var p = dateStr.split('-');
+    var date = new Date(+p[0], +p[1] - 1, +p[2]);
+    var dow = date.getDay();
+    var hrs = HOURS_BY_DOW[dow];
+
+    var headerHtml = '<div class="slot-day-head">' +
+      escapeHtml(getCurrentAvailStaffName()) + ' · ' + escapeHtml(formatDateNo(dateStr)) +
+      '</div>';
+
+    if (availData.holidays.indexOf(dateStr) !== -1) {
+      wrap.innerHTML = headerHtml +
+        '<div class="state-card"><h3>Klinikken er stengt</h3>' +
+        '<p>Denne datoen er markert som stengt for hele klinikken. Fjern markeringen i listen under for å åpne dagen.</p></div>';
+      return;
+    }
+    if (!hrs) {
+      wrap.innerHTML = headerHtml +
+        '<div class="state-card"><h3>Stengt</h3>' +
+        '<p>Klinikken er stengt på ' + escapeHtml(['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'][dow]) + 'er.</p></div>';
+      return;
+    }
+
+    var startMin = timeToMin(hrs.open), endMin = timeToMin(hrs.close);
+    var nowDate = new Date();
+    var isToday = (todayStr() === dateStr);
+    var nowMin = isToday ? (nowDate.getHours() * 60 + nowDate.getMinutes()) : -Infinity;
+
+    var bookedMap = {};
+    DATA.bookings.forEach(function (b) {
+      if (b.staff_id === staffId && b.date === dateStr &&
+          (b.status === 'confirmed' || b.status === 'completed')) {
+        bookedMap[(b.time || '').slice(0,5)] = b;
+      }
+    });
+    var blockedSet = {};
+    availData.blocked.forEach(function (b) {
+      if (b.staffId === staffId && b.date === dateStr) blockedSet[b.time] = true;
+    });
+
+    var slots = '';
+    for (var m = startMin; m + SLOT_STEP_MIN <= endMin; m += SLOT_STEP_MIN) {
+      var t = minToTime(m);
+      var booking = bookedMap[t];
+      var isBlocked = blockedSet[t];
+      var isPast = (m + SLOT_STEP_MIN) <= nowMin;
+
+      var cls = 'slot';
+      var label, dataAttrs = ' data-time="' + t + '"';
+      if (booking) {
+        cls += ' booked';
+        var firstName = (booking.name || '').split(' ')[0];
+        label = 'Booket' + (firstName ? ' · ' + firstName : '');
+        dataAttrs += ' data-booked-id="' + escapeHtml(booking.id) + '"';
+      } else if (isPast) {
+        cls += ' past';
+        label = 'Passert';
+      } else if (isBlocked) {
+        cls += ' blocked';
+        label = 'Blokkert';
+      } else {
+        label = 'Ledig';
+      }
+
+      slots += '<button type="button" class="' + cls + '"' + dataAttrs + '>' +
+        '<strong>' + t + '</strong><small>' + escapeHtml(label) + '</small></button>';
+    }
+
+    wrap.innerHTML = headerHtml +
+      '<div class="slot-grid">' + slots + '</div>' +
+      '<div class="slot-legend">' +
+        '<span><span class="swatch sw-free"></span>Ledig</span>' +
+        '<span><span class="swatch sw-booked"></span>Booket — klikk for detaljer</span>' +
+        '<span><span class="swatch sw-blocked"></span>Blokkert — klikk for å frigjøre</span>' +
+        '<span><span class="swatch sw-past"></span>Passert</span>' +
+      '</div>';
+
+    wrap.querySelectorAll('.slot').forEach(function (slot) {
+      slot.addEventListener('click', function () {
+        if (slot.classList.contains('past')) return;
+        if (slot.classList.contains('booked')) {
+          var bid = slot.dataset.bookedId;
+          if (bid) openDetailModal(bid);
+          return;
+        }
+        if (slot.classList.contains('blocked')) {
+          unblockSlotAction(staffId, dateStr, slot.dataset.time);
+        } else {
+          blockSlotAction(staffId, dateStr, slot.dataset.time);
+        }
+      });
+    });
+  }
+
+  function renderHolidayChips() {
+    var wrap = document.getElementById('holidayChips');
+    var canEdit = isAdmin();
+    var holidays = availData.holidays.slice().sort();
+    if (!holidays.length) {
+      wrap.innerHTML = '<div class="holidays-empty">Ingen stengte dager registrert.</div>';
+      return;
+    }
+    wrap.innerHTML = holidays.map(function (d) {
+      return '<span class="holiday-chip">' +
+        escapeHtml(formatDateNo(d)) +
+        (canEdit ? ' <button data-remove="' + escapeHtml(d) + '" aria-label="Fjern stengt-markering for ' + escapeHtml(formatDateNo(d)) + '">×</button>' : '') +
+        '</span>';
+    }).join('');
+    if (canEdit) {
+      wrap.querySelectorAll('button[data-remove]').forEach(function (btn) {
+        btn.addEventListener('click', function () { removeHolidayAction(btn.dataset.remove); });
+      });
+    }
+  }
+
+  // ---------- Block / unblock (optimistic) ----------
+  function blockSlotAction(staffId, date, time) {
+    availData.blocked.push({ staffId: staffId, date: date, time: time });
+    renderSlotGrid();
+
+    sb.from('blocked_slots').insert({ staff_id: staffId, date: date, time: time })
+      .then(function (res) {
+        if (res.error) throw res.error;
+      })
+      .catch(function (err) {
+        availData.blocked = availData.blocked.filter(function (b) {
+          return !(b.staffId === staffId && b.date === date && b.time === time);
+        });
+        renderSlotGrid();
+        alert('Kunne ikke blokkere ' + time + ': ' + ((err && err.message) || err));
+      });
+  }
+  function unblockSlotAction(staffId, date, time) {
+    var removed = availData.blocked.filter(function (b) {
+      return b.staffId === staffId && b.date === date && b.time === time;
+    });
+    availData.blocked = availData.blocked.filter(function (b) {
+      return !(b.staffId === staffId && b.date === date && b.time === time);
+    });
+    renderSlotGrid();
+
+    sb.from('blocked_slots').delete()
+      .eq('staff_id', staffId).eq('date', date).eq('time', time)
+      .then(function (res) {
+        if (res.error) throw res.error;
+      })
+      .catch(function (err) {
+        availData.blocked.push.apply(availData.blocked, removed);
+        renderSlotGrid();
+        alert('Kunne ikke frigjøre ' + time + ': ' + ((err && err.message) || err));
+      });
+  }
+
+  // ---------- Holiday add / remove (optimistic) ----------
+  function addHolidayAction(date) {
+    if (availData.holidays.indexOf(date) !== -1) return;
+    availData.holidays.push(date); availData.holidays.sort();
+    renderHolidayChips();
+    renderSlotGrid();
+
+    sb.from('holidays').insert({ date: date })
+      .then(function (res) {
+        if (res.error) throw res.error;
+      })
+      .catch(function (err) {
+        availData.holidays = availData.holidays.filter(function (d) { return d !== date; });
+        renderHolidayChips();
+        renderSlotGrid();
+        alert('Kunne ikke markere som stengt: ' + ((err && err.message) || err));
+      });
+  }
+  function removeHolidayAction(date) {
+    if (!confirm('Fjerne stengt-markering for ' + formatDateNo(date) +
+                 '? Klinikken vil da være åpen den dagen.')) return;
+
+    availData.holidays = availData.holidays.filter(function (d) { return d !== date; });
+    renderHolidayChips();
+    renderSlotGrid();
+
+    sb.from('holidays').delete().eq('date', date)
+      .then(function (res) {
+        if (res.error) throw res.error;
+      })
+      .catch(function (err) {
+        availData.holidays.push(date); availData.holidays.sort();
+        renderHolidayChips();
+        renderSlotGrid();
+        alert('Kunne ikke fjerne stengt-markering: ' + ((err && err.message) || err));
+      });
+  }
+
+  // ---------- Event handlers ----------
+  document.getElementById('availStaff').addEventListener('change', function () {
+    availStaffLoaded = null; // force re-fetch of blocked slots for new staff
+    loadAndRenderAvailability();
+  });
+  document.getElementById('refreshAvailBtn').addEventListener('click', function () {
+    var btn = this;
+    runRefresh(btn, function () {
+      availStaffLoaded = null; // bust the blocked-slots cache so we re-fetch
+      // Also re-fetch bookings since the slot-grid reads from DATA.bookings
+      return loadBookings().then(function () {
+        return loadAndRenderAvailability();
+      });
+    });
+  });
+  document.getElementById('availDate').addEventListener('change', renderSlotGrid);
+  document.getElementById('markHolidayBtn').addEventListener('click', function () {
+    var date = document.getElementById('availDate').value;
+    if (!date) { alert('Velg en dato først.'); return; }
+    if (availData.holidays.indexOf(date) !== -1) {
+      alert('Denne datoen er allerede markert som stengt.');
+      return;
+    }
+    if (!confirm('Marker ' + formatDateNo(date) + ' som stengt for hele klinikken?')) return;
+    addHolidayAction(date);
+  });
+
+  // ---------- Hook into auth lifecycle ----------
+  // Augment renderAuthorized to also kick off booking load.
+  var _origRenderAuthorized = renderAuthorized;
+  renderAuthorized = function (user) {
+    _origRenderAuthorized(user);
+    loadBookings();
+  };
+  // Clear cached bookings + availability on logout
+  var _origLogoutAndShow = logoutAndShow;
+  logoutAndShow = function (message, raw) {
+    DATA.bookings = [];
+    activeBookingId = null;
+    availData.blocked = []; availData.holidays = [];
+    availStaffLoaded = null;
+    closeDetailModal();
+    _origLogoutAndShow(message, raw);
+  };
+  // Lazy-init Tilgjengelighet on tab switch
+  var _origActivateTab = activateTab;
+  activateTab = function (name) {
+    _origActivateTab(name);
+    if (name === 'availability') initAvailability();
+  };
+
+  // ============================================================
+  // VENTELISTE-FANEN (Jobb B STEG 5) — kø-visning + manuell tildeling
+  // Ventelista forvaltes av admin (RLS er admin-only). To FIFO-køer:
+  // staff_id='erik' = Eriks kø, staff_id=NULL = terapeut-kø. "Tildel
+  // time" er en mini-booking-flyt som gjenbruker adminCreateBooking.
+  // ============================================================
+  var WAITLIST = { rows: [] };
+
+  function wlFormatDateRange(from, to) {
+    if (!from) return '—';
+    if (to && to !== from) return formatDateNo(from) + ' – ' + formatDateNo(to);
+    return 'fra ' + formatDateNo(from);
+  }
+  function wlFormatTimePref(from, to) {
+    var f = from ? formatTimeShort(from) : '';
+    var tt = to ? formatTimeShort(to) : '';
+    if (f && tt) return 'kl. ' + f + '–' + tt;
+    if (f) return 'fra kl. ' + f;
+    if (tt) return 'innen kl. ' + tt;
+    return 'tid: fleksibel';
+  }
+
+  function loadWaitlist() {
+    var wrap = document.getElementById('waitlistWrap');
+    if (!wrap) return Promise.resolve();
+    if (!isAdmin()) { wrap.innerHTML = ''; return Promise.resolve(); }
+    wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">Laster venteliste…</p>';
+    return sb.from('waitlist').select('*')
+      .eq('status', 'waiting')
+      .order('created_at', { ascending: true })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        WAITLIST.rows = res.data || [];
+        renderWaitlist();
+      })
+      .catch(function (err) {
+        wrap.innerHTML =
+          '<div class="error-banner"><span><strong>Kunne ikke laste venteliste.</strong> ' +
+          escapeHtml((err && err.message) || String(err)) + '</span>' +
+          '<button id="wlRetryBtn">Prøv igjen</button></div>';
+        var rb = document.getElementById('wlRetryBtn');
+        if (rb) rb.addEventListener('click', loadWaitlist);
+      });
+  }
+
+  function wlCardHtml(w) {
+    var notes = (w.notes || '').trim();
+    return '<div class="wl-card">' +
+        '<div class="wl-main">' +
+          '<div class="wl-name">' + escapeHtml(w.name || '—') + '</div>' +
+          '<div class="wl-meta">Ønsket: ' +
+            escapeHtml(wlFormatDateRange(w.preferred_date_from, w.preferred_date_to)) +
+            ' · ' + escapeHtml(wlFormatTimePref(w.preferred_time_from, w.preferred_time_to)) + '</div>' +
+          '<div class="wl-sub">' + escapeHtml(w.ref || '') + ' · ' +
+            escapeHtml(w.phone || '') + ' · ' + escapeHtml(w.email || '') +
+            ' · meldt på ' + escapeHtml(formatCreatedAt(w.created_at)) + '</div>' +
+          (notes ? '<div class="wl-notes">' + escapeHtml(notes) + '</div>' : '') +
+        '</div>' +
+        '<div class="wl-card-actions">' +
+          '<button class="btn-primary" data-wl-assign="' + escapeHtml(w.id) + '">Tildel time</button>' +
+          '<button class="btn-ghost" data-wl-remove="' + escapeHtml(w.id) + '">Fjern</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderWaitlistSection(title, lead, rows) {
+    var inner = rows.length === 0
+      ? '<div class="wl-empty">Ingen i denne køen.</div>'
+      : '<div class="wl-list">' + rows.map(wlCardHtml).join('') + '</div>';
+    return '<div class="wl-section">' +
+        '<h3 class="wl-section-title">' + escapeHtml(title) +
+          '<span class="wl-count">' + rows.length + '</span></h3>' +
+        '<p class="wl-section-lead">' + escapeHtml(lead) + '</p>' +
+        inner +
+      '</div>';
+  }
+
+  function renderWaitlist() {
+    var wrap = document.getElementById('waitlistWrap');
+    if (!wrap) return;
+    if (!isAdmin()) { wrap.innerHTML = ''; return; }
+    var tomQueue      = WAITLIST.rows.filter(function (w) { return w.staff_id === 'erik'; });
+    var terapeutQueue = WAITLIST.rows.filter(function (w) { return w.staff_id == null; });
+    wrap.innerHTML =
+      renderWaitlistSection('Eriks kø',
+        'Kunder som venter på time hos Erik Westengen.', tomQueue) +
+      renderWaitlistSection('Terapeut-kø',
+        'Kunder som venter på time hos Eriks terapeuter.', terapeutQueue);
+    wrap.querySelectorAll('button[data-wl-assign]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openWaitlistAssignModal(btn.dataset.wlAssign); });
+    });
+    wrap.querySelectorAll('button[data-wl-remove]').forEach(function (btn) {
+      btn.addEventListener('click', function () { removeFromWaitlist(btn.dataset.wlRemove); });
+    });
+  }
+
+  function removeFromWaitlist(id) {
+    var w = WAITLIST.rows.find(function (x) { return x.id === id; });
+    if (!w || !isAdmin()) return;
+    if (!confirm('Fjerne ' + (w.name || 'denne kunden') + ' fra ventelista?')) return;
+    sb.from('waitlist').update({ status: 'cancelled' }).eq('id', id)
+      .then(function (res) {
+        if (res.error) throw res.error;
+        showToast('Fjernet fra ventelista');
+        loadWaitlist();
+      })
+      .catch(function (err) {
+        showToast('Kunne ikke fjerne. Prøv igjen.', true);
+        console.error(err);
+      });
+  }
+
+  // ---------- Tildel time-modal (mini-booking-flyt) ----------
+  function openWaitlistAssignModal(id) {
+    var w = WAITLIST.rows.find(function (x) { return x.id === id; });
+    if (!w || !isAdmin()) return;
+    var E = window.WestengenKlinikkBookingEngine;
+    if (!E) { showToast('Booking-motor ikke lastet. Last siden på nytt.', true); return; }
+    var body = document.getElementById('wlAssignBody');
+    body.innerHTML = '<p style="color:var(--muted);font-size:13px;">Laster tjeneste-katalog…</p>';
+    document.getElementById('waitlistAssignModal').classList.add('open');
+    setTimeout(function () { document.getElementById('wlAssignClose').focus(); }, 0);
+    // Sikre at tjeneste-katalogen er lastet før vi bygger skjemaet.
+    var ensure = (typeof E.ensureLoaded === 'function') ? E.ensureLoaded() : Promise.resolve();
+    ensure.then(function () { buildWaitlistAssignForm(w); })
+          .catch(function () { buildWaitlistAssignForm(w); });
+  }
+
+  function buildWaitlistAssignForm(w) {
+    var E = window.WestengenKlinikkBookingEngine || {};
+    var isTomQueue = (w.staff_id === 'erik');
+    var body = document.getElementById('wlAssignBody');
+
+    var html = '';
+    html += '<p class="assign-intro">' + escapeHtml(w.name || '') + ' · ønsket ' +
+      escapeHtml(wlFormatDateRange(w.preferred_date_from, w.preferred_date_to)) + ' · ' +
+      escapeHtml(wlFormatTimePref(w.preferred_time_from, w.preferred_time_to)) + '</p>';
+    html += '<div class="wl-assign-err" id="wlAssignErr" hidden></div>';
+
+    if (!isTomQueue) {
+      var pool = E.THERAPIST_POOL || [];
+      var staffList = E.STAFF || [];
+      html += '<div class="wl-field"><label for="wlAssignTherapist">Terapeut</label>' +
+        '<select id="wlAssignTherapist"><option value="">Velg terapeut…</option>' +
+        pool.map(function (tid) {
+          var st = staffList.find(function (s) { return s.id === tid; });
+          return '<option value="' + escapeHtml(tid) + '">' +
+            escapeHtml(st ? st.name : tid) + '</option>';
+        }).join('') + '</select></div>';
+    }
+
+    // Tjeneste-velger: for Erik-køen fylles den fra SERVICES['erik']
+    // med en gang; for terapeut-køen fylles den fra den valgte
+    // terapeutens egen katalog (SERVICES[therapistId]) — slik at
+    // serviceId garantert validerer i adminCreateBooking.
+    html += '<div class="wl-field"><label for="wlAssignService">Tjeneste</label>' +
+      '<select id="wlAssignService"' + (isTomQueue ? '' : ' disabled') + '>' +
+      '<option value="">' + (isTomQueue ? 'Velg tjeneste…' : 'Velg terapeut først…') +
+      '</option></select></div>';
+
+    var defaultDate = (w.preferred_date_from && w.preferred_date_from >= todayStr())
+      ? w.preferred_date_from : todayStr();
+    html += '<div class="wl-field"><label for="wlAssignDate">Dato</label>' +
+      '<input type="date" id="wlAssignDate" min="' + escapeHtml(todayStr()) +
+      '" value="' + escapeHtml(defaultDate) + '" /></div>';
+
+    html += '<div class="wl-field"><label for="wlAssignTime">Tid</label>' +
+      '<select id="wlAssignTime" disabled><option value="">Velg dato' +
+      (isTomQueue ? '' : ' og terapeut') + ' først…</option></select></div>';
+
+    html += '<label class="wl-consent"><input type="checkbox" id="wlAssignConsent" />' +
+      '<span>Pasienten har samtykket muntlig til at det føres journal i ' +
+      'forbindelse med behandlingen.</span></label>';
+
+    html += '<div class="wl-assign-foot">' +
+      '<button class="btn-ghost" type="button" id="wlAssignCancel">Avbryt</button>' +
+      '<button class="btn-primary" type="button" id="wlAssignSubmit">Tildel time</button>' +
+      '</div>';
+
+    body.innerHTML = html;
+
+    // Fyller tjeneste-velgeren fra en gitt staff-katalog-nøkkel.
+    function populateServices(staffKey) {
+      var sel = document.getElementById('wlAssignService');
+      var services = (E.SERVICES && E.SERVICES[staffKey]) || [];
+      if (services.length === 0) {
+        sel.innerHTML = '<option value="">Ingen aktive tjenester funnet</option>';
+        sel.disabled = true;
+        return;
+      }
+      sel.innerHTML = '<option value="">Velg tjeneste…</option>' +
+        services.map(function (sv) {
+          return '<option value="' + escapeHtml(sv.id) + '">' +
+            escapeHtml(sv.name) + ' · ' + escapeHtml(formatPrice(sv.price)) +
+            ' · ' + escapeHtml(String(sv.duration)) + ' min</option>';
+        }).join('');
+      sel.disabled = false;
+    }
+
+    // Tid-velgeren: avhenger av dato (+ terapeut for terapeut-køen).
+    function refreshTimes() {
+      var timeEl = document.getElementById('wlAssignTime');
+      var date = document.getElementById('wlAssignDate').value;
+      var staffId = isTomQueue ? 'erik'
+        : (document.getElementById('wlAssignTherapist').value || '');
+      if (!date || !staffId) {
+        timeEl.disabled = true;
+        timeEl.innerHTML = '<option value="">Velg dato' +
+          (isTomQueue ? '' : ' og terapeut') + ' først…</option>';
+        return;
+      }
+      timeEl.disabled = true;
+      timeEl.innerHTML = '<option value="">Laster ledige tider…</option>';
+      E.generateSlotsForDay(staffId, date).then(function (slots) {
+        var free = (slots || []).filter(function (s) { return s.available; });
+        if (free.length === 0) {
+          timeEl.innerHTML = '<option value="">Ingen ledige tider denne dagen</option>';
+          timeEl.disabled = true;
+          return;
+        }
+        timeEl.innerHTML = '<option value="">Velg tid…</option>' +
+          free.map(function (s) {
+            return '<option value="' + escapeHtml(s.time) + '">' +
+              escapeHtml(s.time) + '</option>';
+          }).join('');
+        timeEl.disabled = false;
+      }).catch(function (err) {
+        timeEl.innerHTML = '<option value="">Kunne ikke laste tider</option>';
+        timeEl.disabled = true;
+        console.error(err);
+      });
+    }
+
+    document.getElementById('wlAssignDate').addEventListener('change', refreshTimes);
+    if (!isTomQueue) {
+      document.getElementById('wlAssignTherapist').addEventListener('change', function () {
+        var tid = this.value;
+        if (tid) {
+          populateServices(tid);
+        } else {
+          var sel = document.getElementById('wlAssignService');
+          sel.innerHTML = '<option value="">Velg terapeut først…</option>';
+          sel.disabled = true;
+        }
+        refreshTimes();
+      });
+    }
+    document.getElementById('wlAssignCancel').addEventListener('click', closeWaitlistAssignModal);
+    document.getElementById('wlAssignSubmit').addEventListener('click', function () {
+      submitWaitlistAssign(w, isTomQueue);
+    });
+
+    // Erik-køen: staff er gitt → fyll tjenester + tider for default-dato.
+    if (isTomQueue) {
+      populateServices('erik');
+      refreshTimes();
+    }
+  }
+
+  function wlAssignShowErr(msg) {
+    var e = document.getElementById('wlAssignErr');
+    if (e) { e.textContent = msg; e.hidden = false; }
+  }
+
+  function closeWaitlistAssignModal() {
+    document.getElementById('waitlistAssignModal').classList.remove('open');
+    document.getElementById('wlAssignBody').innerHTML = '';
+  }
+
+  function submitWaitlistAssign(w, isTomQueue) {
+    var therapistId = isTomQueue ? 'erik'
+      : (document.getElementById('wlAssignTherapist').value || '');
+    var serviceId = document.getElementById('wlAssignService').value || '';
+    var date = document.getElementById('wlAssignDate').value || '';
+    var time = document.getElementById('wlAssignTime').value || '';
+    var consent = document.getElementById('wlAssignConsent').checked;
+
+    if (!therapistId) { wlAssignShowErr('Velg en terapeut.'); return; }
+    if (!serviceId)   { wlAssignShowErr('Velg en tjeneste.'); return; }
+    if (!date)        { wlAssignShowErr('Velg en dato.'); return; }
+    if (!time)        { wlAssignShowErr('Velg en tid.'); return; }
+    if (!consent)     { wlAssignShowErr('Bekreft at pasienten har samtykket muntlig til journalføring.'); return; }
+
+    var btn = document.getElementById('wlAssignSubmit');
+    btn.disabled = true;
+    btn.textContent = 'Oppretter…';
+    function resetBtn() { btn.disabled = false; btn.textContent = 'Tildel time'; }
+
+    var payload = {
+      staffId: therapistId,
+      serviceId: serviceId,
+      date: date,
+      time: time,
+      name: w.name,
+      email: w.email,
+      phone: w.phone,
+      notes: w.notes || '',
+      journalConsent: true,
+      journalConsentAt: new Date().toISOString()
+    };
+
+    adminCreateBooking(payload).then(function (res) {
+      if (!res || !res.ok) {
+        resetBtn();
+        wlAssignShowErr((res && (res.message || res.error)) || 'Kunne ikke opprette booking.');
+        return;
+      }
+      // Booking opprettet → marker ventelista-raden som akseptert.
+      sb.from('waitlist').update({ status: 'accepted' }).eq('id', w.id)
+        .then(function (upd) {
+          resetBtn();
+          closeWaitlistAssignModal();
+          if (upd.error) {
+            showToast('Booking opprettet, men ventelista ble ikke oppdatert — fjern oppføringen manuelt.', true);
+            console.error(upd.error);
+          } else {
+            showToast('Time tildelt ✓ — booking opprettet for ' + (w.name || ''));
+          }
+          loadWaitlist();
+          loadBookings();
+        })
+        .catch(function (err) {
+          resetBtn();
+          closeWaitlistAssignModal();
+          showToast('Booking opprettet, men ventelista ble ikke oppdatert.', true);
+          console.error(err);
+          loadBookings();
+        });
+    }).catch(function (err) {
+      resetBtn();
+      wlAssignShowErr('Noe gikk galt. Prøv igjen.');
+      console.error(err);
+    });
+  }
+
+  // Modal- og fane-wiring for ventelista.
+  document.getElementById('wlAssignClose').addEventListener('click', closeWaitlistAssignModal);
+  document.getElementById('waitlistAssignModal').addEventListener('click', function (e) {
+    if (e.target === this) closeWaitlistAssignModal();
+  });
+  document.getElementById('refreshWaitlistBtn').addEventListener('click', loadWaitlist);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' &&
+        document.getElementById('waitlistAssignModal').classList.contains('open')) {
+      closeWaitlistAssignModal();
+    }
+  });
+
+  // Lazy-init ventelista ved fane-bytte (laster ferske data hver gang).
+  var _origActivateTabWl = activateTab;
+  activateTab = function (name) {
+    _origActivateTabWl(name);
+    if (name === 'waitlist') loadWaitlist();
+  };
+
+  // Tøm venteliste-cache ved logout.
+  var _origLogoutWl = logoutAndShow;
+  logoutAndShow = function (message, raw) {
+    WAITLIST.rows = [];
+    closeWaitlistAssignModal();
+    _origLogoutWl(message, raw);
+  };
+
+  // ===== P2: anmeldelser-moderering (kun admin) =====
+  var REVIEWS = { rows: [] };
+
+  function revStars(n) {
+    n = Math.max(0, Math.min(5, parseInt(n, 10) || 0));
+    return '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n);
+  }
+
+  function loadReviews() {
+    var wrap = document.getElementById('reviewsWrap');
+    if (!wrap) return Promise.resolve();
+    // Hard admin-guard (i tillegg til data-admin-only på fanen).
+    if (!isAdmin()) { wrap.innerHTML = ''; return Promise.resolve(); }
+    wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">Laster anmeldelser…</p>';
+    return sb.from('reviews').select('*')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        REVIEWS.rows = res.data || [];
+        renderReviews();
+      })
+      .catch(function (err) {
+        wrap.innerHTML =
+          '<div class="error-banner"><span><strong>Kunne ikke laste anmeldelser.</strong> ' +
+          escapeHtml((err && err.message) || String(err)) + '</span>' +
+          '<button id="revRetryBtn">Prøv igjen</button></div>';
+        var rb = document.getElementById('revRetryBtn');
+        if (rb) rb.addEventListener('click', loadReviews);
+      });
+  }
+
+  function revCardHtml(r) {
+    var body = (r.body || '').trim();
+    return '<div class="wl-card">' +
+        '<div class="wl-main">' +
+          '<div class="wl-name">' + escapeHtml(r.name || '—') +
+            ' <span style="color:var(--green);letter-spacing:2px;">' + revStars(r.rating) + '</span></div>' +
+          '<div class="wl-sub">meldt ' + escapeHtml(formatCreatedAt(r.created_at)) + '</div>' +
+          (body ? '<div class="wl-notes">' + escapeHtml(body) + '</div>' : '') +
+        '</div>' +
+        '<div class="wl-card-actions">' +
+          '<button class="btn-primary" data-rev-approve="' + escapeHtml(r.id) + '">Godkjenn</button>' +
+          '<button class="btn-ghost" data-rev-reject="' + escapeHtml(r.id) + '">Avvis</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderReviews() {
+    var wrap = document.getElementById('reviewsWrap');
+    if (!wrap) return;
+    if (!isAdmin()) { wrap.innerHTML = ''; return; }
+    if (REVIEWS.rows.length === 0) {
+      wrap.innerHTML = '<div class="wl-empty">Ingen anmeldelser venter på godkjenning.</div>';
+      return;
+    }
+    wrap.innerHTML =
+      '<div class="wl-section"><h3 class="wl-section-title">Venter på godkjenning' +
+        '<span class="wl-count">' + REVIEWS.rows.length + '</span></h3>' +
+        '<p class="wl-section-lead">Godkjente anmeldelser vises offentlig på forsiden. Avviste skjules.</p>' +
+        '<div class="wl-list">' + REVIEWS.rows.map(revCardHtml).join('') + '</div></div>';
+    wrap.querySelectorAll('button[data-rev-approve]').forEach(function (btn) {
+      btn.addEventListener('click', function () { moderateReview(btn.dataset.revApprove, 'approved'); });
+    });
+    wrap.querySelectorAll('button[data-rev-reject]').forEach(function (btn) {
+      btn.addEventListener('click', function () { moderateReview(btn.dataset.revReject, 'rejected'); });
+    });
+  }
+
+  function moderateReview(id, newStatus) {
+    if (!isAdmin()) return;
+    var patch = {
+      status: newStatus,
+      approved_by: currentUser ? currentUser.userId : null,
+      approved_at: new Date().toISOString()
+    };
+    sb.from('reviews').update(patch).eq('id', id)
+      .then(function (res) {
+        if (res.error) throw res.error;
+        showToast(newStatus === 'approved' ? 'Anmeldelse godkjent ✓' : 'Anmeldelse avvist');
+        if (window.WestengenKlinikkAuth) {
+          window.WestengenKlinikkAuth.auditLog(sb, currentUser, {
+            action: newStatus === 'approved' ? 'review_approved' : 'review_rejected',
+            target_type: 'review', target_id: id, metadata: {}
+          });
+        }
+        loadReviews();
+      })
+      .catch(function (err) {
+        showToast('Kunne ikke oppdatere anmeldelsen. Prøv igjen.', true);
+        console.error(err);
+      });
+  }
+
+  document.getElementById('refreshReviewsBtn').addEventListener('click', loadReviews);
+
+  // Lazy-init anmeldelser ved fane-bytte.
+  var _origActivateTabRev = activateTab;
+  activateTab = function (name) {
+    _origActivateTabRev(name);
+    if (name === 'reviews') loadReviews();
+  };
+
+  // Tøm anmeldelse-cache ved logout.
+  var _origLogoutRev = logoutAndShow;
+  logoutAndShow = function (message, raw) {
+    REVIEWS.rows = [];
+    _origLogoutRev(message, raw);
+  };
+
+  // ============================================================
+  // "+ NY BOOKING" — admin/therapist creates booking manually
+  // Reuses booking-flow.js mounted into admin modal,
+  // overrides createBooking to insert via SDK (authenticated session)
+  // ============================================================
+  function showToast(message, isError) {
+    var t = document.getElementById('toastEl');
+    t.textContent = message;
+    t.classList.toggle('error', !!isError);
+    t.classList.add('shown');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function () { t.classList.remove('shown'); }, 4500);
+  }
+
+  // Lift-ed til shared/admin-booking.js for å gjenbrukes fra kalender.html FAB.
+  function adminCreateBooking(payload) {
+    if (!window.WestengenKlinikkAdminBooking) {
+      return Promise.resolve({ ok: false, error: 'admin-booking-modulen er ikke lastet.' });
+    }
+    return window.WestengenKlinikkAdminBooking.create(sb, payload);
+  }
+
+  // ---------- Setmore-stil «Ny booking»-veiviser (DEL 3, 2026-06-13) ----------
+  // Raskt admin-verktøy i 4 steg: TJENESTE → KUNDE (eksisterende, søkbar,
+  // eller «+ Ny kunde») → TERAPEUT + TID (direkte tildelt, ingen «tildel
+  // senere») → OPPSUMMERING. Erstatter den monterte kunde-bestillings-
+  // flyten i denne modalen — bestilling.html (kundeflyten) er urørt.
+  // Lagring gjenbruker adminCreateBooking/WestengenKlinikkAdminBooking.create:
+  // konfliktsjekk, tom e-post/telefon lagres som '' (brekker ikke
+  // kunder.html), reminder_sent_at settes ved tom e-post, og 0047-
+  // triggeren sørger for at ingen bekreftelse forsøkes uten e-post.
+  var NB = null; // veiviser-state
+
+  function nbCustomersFromBookings() {
+    // Kunderegister fra eksisterende bookinger: unik per e-post, ellers
+    // per telefon (samme nøkkel-logikk som kunder.html, pluss tlf-only).
+    var map = {};
+    DATA.bookings.forEach(function (b) {
+      var key = (b.email || '').toLowerCase() || (b.phone ? 'tlf:' + b.phone : '');
+      if (!key) return;
+      var c = map[key] || (map[key] = { name: b.name || '—', email: b.email || '', phone: b.phone || '', last: '' });
+      var seen = (b.date || '');
+      if (seen >= c.last) {
+        c.last = seen;
+        if (b.name) c.name = b.name;
+        if (b.phone) c.phone = b.phone;
+      }
+    });
+    return Object.keys(map).map(function (k) { return map[k]; })
+      .sort(function (a, b) { return a.last < b.last ? 1 : -1; });
+  }
+
+  function nbStepsHtml() {
+    var labels = ['Tjeneste', 'Kunde', 'Terapeut og tid', 'Bekreft'];
+    return '<div class="nb-steps">' + labels.map(function (l, i) {
+      var n = i + 1;
+      var cls = n === NB.step ? ' active' : (n < NB.step ? ' done' : '');
+      var line = i > 0
+        ? '<span class="nb-step-line' + (n <= NB.step ? ' done' : '') + '" aria-hidden="true"></span>'
+        : '';
+      return line + '<div class="nb-step' + cls + '">' +
+        '<span class="nb-step-num">' + (n < NB.step ? '✓' : n) + '</span>' +
+        '<span class="nb-step-label">' + l + '</span></div>';
+    }).join('') + '</div>';
+  }
+
+  function nbFootHtml(videreId, videreLabel) {
+    return '<div class="nb-foot">' +
+      (NB.step > 1 ? '<button type="button" class="btn-ghost" id="nbBack">← Tilbake</button>' : '<span></span>') +
+      (videreId ? '<button type="button" class="btn-primary" id="' + videreId + '">' + videreLabel + '</button>' : '') +
+      '</div>';
+  }
+
+  function nbErr(msg) {
+    var e = document.getElementById('nbErr');
+    if (e) { e.textContent = msg; e.hidden = false; }
+  }
+
+  function nbRender() {
+    var host = document.getElementById('newBookingHost');
+    var E = window.WestengenKlinikkBookingEngine || {};
+    var html = nbStepsHtml();
+
+    if (NB.step === 1) {
+      // ---- STEG 1: TJENESTE ----
+      var groups;
+      if (isTherapist()) {
+        var myId = getMyStaffId();
+        var myKey = (myId && E.SERVICES && E.SERVICES[myId]) ? myId : 'terapeut';
+        groups = [{ key: myKey, label: 'Mine tjenester' }];
+      } else {
+        groups = [{ key: 'erik', label: 'Hos Erik' }, { key: 'terapeut', label: 'Hos terapeut' }];
+      }
+      html += '<h4 class="nb-h">Velg tjeneste</h4>';
+      groups.forEach(function (g) {
+        var services = (E.SERVICES && E.SERVICES[g.key]) || [];
+        if (!services.length) return;
+        html += '<div class="nb-group-label">' + escapeHtml(g.label) + '</div><div class="nb-list">' +
+          services.map(function (sv) {
+            return '<button type="button" class="nb-item nb-item-service" data-nb-service="' + escapeHtml(sv.id) +
+              '" data-nb-group="' + escapeHtml(g.key) + '">' +
+              '<span class="nb-item-name">' + escapeHtml(sv.name) + '</span>' +
+              '<span class="nb-item-side"><span class="nb-price">' + escapeHtml(formatPrice(sv.price)) + '</span>' +
+              '<span class="nb-dur">' + escapeHtml(String(sv.duration)) + ' min</span></span></button>';
+          }).join('') + '</div>';
+      });
+      html += nbFootHtml(null, null);
+    }
+
+    else if (NB.step === 2) {
+      // ---- STEG 2: KUNDE ----
+      html += '<h4 class="nb-h">Velg kunde</h4>';
+      if (NB.nyKunde) {
+        html += '<div class="wl-field"><label for="nbName">Navn *</label>' +
+          '<input type="text" id="nbName" maxlength="200" value="' + escapeHtml(NB.kunde.name || '') + '" /></div>' +
+          '<div class="wl-field"><label for="nbEmail">E-post (valgfritt)</label>' +
+          '<input type="email" id="nbEmail" maxlength="254" value="' + escapeHtml(NB.kunde.email || '') + '" /></div>' +
+          '<div class="wl-field"><label for="nbPhone">Telefon (valgfritt)</label>' +
+          '<input type="tel" id="nbPhone" maxlength="30" value="' + escapeHtml(NB.kunde.phone || '') + '" /></div>' +
+          '<p class="nb-hint">Uten e-post sendes ingen bekreftelse, og kunden vises ikke i kunderegisteret (som grupperer på e-post).</p>' +
+          '<div class="nb-err" id="nbErr" hidden></div>' +
+          nbFootHtml('nbKundeVidere', 'Videre →');
+      } else {
+        html += '<div class="nb-search-wrap">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>' +
+          '<input type="search" class="nb-search" id="nbSearch" placeholder="Søk navn, e-post eller telefon…" value="' + escapeHtml(NB.sok || '') + '" /></div>' +
+          '<div class="nb-list">' +
+          '<button type="button" class="nb-item nb-item-new" id="nbNyKunde">' +
+          '<span class="nb-new-ico" aria-hidden="true">+</span>' +
+          '<span class="nb-item-name">Ny kunde</span></button>' +
+          '<div id="nbKundeListe" class="nb-list"></div></div>' +
+          nbFootHtml(null, null);
+      }
+    }
+
+    else if (NB.step === 3) {
+      // ---- STEG 3: TERAPEUT + TID (direkte tildeling) ----
+      html += '<h4 class="nb-h">Velg terapeut og tid</h4>';
+      var laast = NB.serviceGroup === 'erik' || isTherapist();
+      if (laast) {
+        var laastNavn = NB.serviceGroup === 'erik' ? 'Erik Westengen'
+          : (currentUser && currentUser.staffName) || 'meg';
+        NB.staffId = NB.serviceGroup === 'erik' ? 'erik' : (getMyStaffId() || 'terapeut');
+        NB.staffName = laastNavn;
+        html += '<div class="nb-group-label">Terapeut</div>' +
+          '<div class="nb-list"><div class="nb-item selected"><span>' + escapeHtml(laastNavn) + '</span>' +
+          '<span class="nb-meta">gitt av tjenesten</span></div></div>';
+      } else {
+        var pool = E.THERAPIST_POOL || [];
+        var staffList = E.STAFF || [];
+        html += '<div class="nb-group-label">Terapeut</div><div class="nb-list">' +
+          pool.map(function (tid) {
+            var st = staffList.find(function (s) { return s.id === tid; });
+            var navn = st ? st.name : tid;
+            var sel = NB.staffId === tid ? ' selected' : '';
+            return '<button type="button" class="nb-item' + sel + '" data-nb-staff="' + escapeHtml(tid) +
+              '" data-nb-staff-name="' + escapeHtml(navn) + '"><span>' + escapeHtml(navn) + '</span>' +
+              (sel ? '<span class="nb-meta">valgt</span>' : '') + '</button>';
+          }).join('') + '</div>';
+      }
+      html += '<div class="nb-group-label" style="margin-top:18px;">Dato</div>' +
+        '<input type="date" class="nb-date" id="nbDate" min="' + escapeHtml(todayStr()) + '" value="' + escapeHtml(NB.date || '') + '" />' +
+        '<div class="nb-group-label">Ledige tider</div>' +
+        '<button type="button" class="nb-cal-toggle" id="nbCalToggle">Se kalender</button>' +
+        '<div class="nb-cal-panel" id="nbCalPanel" hidden></div>' +
+        '<div class="nb-time-grid" id="nbTimeGrid">' +
+        '<p class="nb-time-status">Velg ' + (laast ? '' : 'terapeut og ') + 'dato først.</p></div>' +
+        '<div class="nb-err" id="nbErr" hidden></div>' +
+        nbFootHtml('nbTidVidere', 'Videre →');
+    }
+
+    else {
+      // ---- STEG 4: OPPSUMMERING ----
+      var kontakt = [NB.kunde.email, NB.kunde.phone].filter(Boolean).join(' · ') || 'ingen kontaktinfo';
+      html += '<h4 class="nb-h">Bekreft booking</h4>' +
+        '<div class="nb-sum">' +
+        '<div class="nb-sum-head">' +
+          '<span class="nb-sum-when">' + escapeHtml(formatDateNo(NB.date)) + ' kl. ' + escapeHtml(NB.time) + '</span>' +
+          '<span class="nb-sum-staff">hos ' + escapeHtml(NB.staffName) + '</span>' +
+        '</div>' +
+        '<div class="nb-sum-body">' +
+        '<div class="nb-sum-row"><span>Kunde</span><strong>' + escapeHtml(NB.kunde.name) + '</strong></div>' +
+        '<div class="nb-sum-row"><span>Kontakt</span><span>' + escapeHtml(kontakt) + '</span></div>' +
+        '<div class="nb-sum-row"><span>Tjeneste</span><span>' + escapeHtml(NB.service.name) + '</span></div>' +
+        '<div class="nb-sum-row"><span>Varighet · pris</span><span>' +
+          escapeHtml(String(NB.service.duration)) + ' min · ' + escapeHtml(formatPrice(NB.service.price)) + '</span></div>' +
+        '</div></div>' +
+        (!NB.kunde.email ? '<p class="nb-hint">Ingen e-post — kunden får ikke bekreftelse eller påminnelse. Avtal muntlig.</p>' : '') +
+        '<label class="nb-consent"><input type="checkbox" id="nbConsent"' + (NB.consent ? ' checked' : '') + ' />' +
+        '<span>Pasienten har samtykket muntlig til at det føres journal i forbindelse med behandlingen.</span></label>' +
+        '<div class="nb-err" id="nbErr" hidden></div>' +
+        nbFootHtml('nbOpprett', 'Opprett booking');
+    }
+
+    host.innerHTML = html;
+    nbWire();
+  }
+
+  function nbRenderKundeListe() {
+    var el = document.getElementById('nbKundeListe');
+    if (!el) return;
+    var q = (NB.sok || '').toLowerCase();
+    var alle = nbCustomersFromBookings().filter(function (c) {
+      if (!q) return true;
+      return (c.name + ' ' + c.email + ' ' + c.phone).toLowerCase().indexOf(q) !== -1;
+    });
+    var vis = alle.slice(0, 30);
+    el.innerHTML = vis.map(function (c, i) {
+      var meta = [c.email, c.phone].filter(Boolean).join(' · ') || 'uten kontaktinfo';
+      var initial = (c.name || '?').trim().charAt(0).toUpperCase() || '?';
+      // Kollapset: kun avatar + navn (ellipsis) + chevron. Detaljene (fullt
+      // navn / pseudonym-ID + kontakt, wrappet) avdekkes via chevron.
+      return '<div class="nb-item nb-item-kunde">' +
+        '<div class="nb-kunde-row">' +
+          '<button type="button" class="nb-kunde-select" data-nb-kunde="' + i + '">' +
+            '<span class="nb-avatar" aria-hidden="true">' + escapeHtml(initial) + '</span>' +
+            '<span class="nb-item-name">' + escapeHtml(c.name) + '</span>' +
+          '</button>' +
+          '<button type="button" class="nb-chevron" data-nb-toggle="' + i + '" ' +
+            'aria-expanded="false" aria-controls="nbKD' + i + '" aria-label="Vis kontaktinfo">›</button>' +
+        '</div>' +
+        '<div class="nb-kunde-detail" id="nbKD' + i + '" hidden>' +
+          '<div>' + escapeHtml(c.name) + '</div>' +
+          '<div>' + escapeHtml(meta) + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('') + (alle.length > vis.length
+      ? '<p class="nb-hint">Viser ' + vis.length + ' av ' + alle.length + ' — søk for å begrense.</p>' : '');
+    NB._kundeListe = vis;
+    // Tapp på raden (select-knappen dekker alt unntatt chevron) → velg + videre.
+    el.querySelectorAll('button[data-nb-kunde]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var c = NB._kundeListe[Number(btn.getAttribute('data-nb-kunde'))];
+        if (!c) return;
+        NB.kunde = { name: c.name, email: c.email, phone: c.phone };
+        NB.step = 3; nbRender();
+      });
+    });
+    // Chevron → utvid/kollaps detaljer. stopPropagation så valg ikke trigges.
+    el.querySelectorAll('button[data-nb-toggle]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var card = btn.closest('.nb-item-kunde');
+        var detail = card && card.querySelector('.nb-kunde-detail');
+        if (!detail) return;
+        var open = card.classList.toggle('expanded');
+        detail.hidden = !open;
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    });
+  }
+
+  function nbRefreshTimes() {
+    // Tids-rutenett av klikkbare pills (visuelt — state er fortsatt
+    // NB.time, samme som da dette var en <select>).
+    var grid = document.getElementById('nbTimeGrid');
+    if (!grid) return;
+    var E = window.WestengenKlinikkBookingEngine || {};
+    NB.date = document.getElementById('nbDate').value;
+    if (!NB.date || !NB.staffId) {
+      grid.innerHTML = '<p class="nb-time-status">Velg terapeut og dato først.</p>';
+      return;
+    }
+    grid.innerHTML = '<p class="nb-time-status">Laster ledige tider…</p>';
+    E.generateSlotsForDay(NB.staffId, NB.date).then(function (slots) {
+      var free = (slots || []).filter(function (s) { return s.available; });
+      if (!free.length) {
+        grid.innerHTML = '<p class="nb-time-status">Ingen ledige tider denne dagen — prøv en annen dato.</p>';
+        return;
+      }
+      grid.innerHTML = free.map(function (s) {
+        var sel = NB.time === s.time ? ' selected' : '';
+        return '<button type="button" class="nb-time-pill' + sel + '" data-nb-time="' +
+          escapeHtml(s.time) + '">' + escapeHtml(s.time) + '</button>';
+      }).join('');
+      grid.querySelectorAll('button[data-nb-time]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          NB.time = btn.getAttribute('data-nb-time');
+          grid.querySelectorAll('.nb-time-pill').forEach(function (b) { b.classList.remove('selected'); });
+          btn.classList.add('selected');
+        });
+      });
+    }).catch(function (err) {
+      grid.innerHTML = '<p class="nb-time-status">Kunne ikke laste tider. Prøv igjen.</p>';
+      console.error(err);
+    });
+  }
+
+  // "Se kalender": kompakt dag-visning i steg 3. Egen lokal dato-state
+  // (NBCAL.date) som starter på valgt dato eller i dag. Gjenbruker samme
+  // tilgjengelighets-logikk som tids-pillene (generateSlotsForDay, eller
+  // getGroupAvailability for den ufordelte "terapeut"-poolen). Tapp på en
+  // chip fyller NB.date + NB.time, synker hoved-tidsrutenettet og lukker
+  // panelet.
+  var NBCAL = { date: null };
+  function nbCalShift(n) {
+    var E = window.WestengenKlinikkBookingEngine;
+    if (!E) return;
+    var d = E.parseYMD(NBCAL.date || todayStr());
+    d.setDate(d.getDate() + n);
+    var ns = E.ymd(d);
+    if (ns < todayStr()) ns = todayStr();
+    NBCAL.date = ns;
+    nbCalRender();
+  }
+  function nbCalRender() {
+    var panel = document.getElementById('nbCalPanel');
+    if (!panel) return;
+    var E = window.WestengenKlinikkBookingEngine || {};
+    if (!NB.staffId) { panel.innerHTML = '<p class="nb-time-status">Velg terapeut først.</p>'; return; }
+    if (!NBCAL.date) NBCAL.date = NB.date || todayStr();
+    var dateStr = NBCAL.date;
+    var atToday = dateStr <= todayStr();
+    panel.innerHTML =
+      '<div class="nb-cal-nav">' +
+        '<button type="button" id="nbCalPrev" aria-label="Forrige dag"' + (atToday ? ' disabled' : '') + '>‹</button>' +
+        '<span class="nb-cal-day">' + escapeHtml(formatDateNo(dateStr)) + '</span>' +
+        '<button type="button" id="nbCalNext" aria-label="Neste dag">›</button>' +
+      '</div>' +
+      '<div class="nb-cal-chips" id="nbCalChips"><p class="nb-time-status">Laster ledige tider…</p></div>';
+    var prev = document.getElementById('nbCalPrev'), next = document.getElementById('nbCalNext');
+    if (prev) prev.addEventListener('click', function () { nbCalShift(-1); });
+    if (next) next.addEventListener('click', function () { nbCalShift(1); });
+
+    var fetcher = (NB.staffId === 'terapeut')
+      ? E.getGroupAvailability(dateStr)
+      : E.generateSlotsForDay(NB.staffId, dateStr);
+    fetcher.then(function (slots) {
+      var chips = document.getElementById('nbCalChips');
+      if (!chips) return;
+      var free = (slots || []).filter(function (s) { return s.available; });
+      if (!free.length) {
+        chips.innerHTML = '<p class="nb-time-status">Ingen ledige tider denne dagen.</p>';
+        return;
+      }
+      chips.innerHTML = free.map(function (s) {
+        var sel = (dateStr === NB.date && NB.time === s.time) ? ' selected' : '';
+        return '<button type="button" class="nb-time-pill' + sel + '" data-nbcal-time="' +
+          escapeHtml(s.time) + '">' + escapeHtml(s.time) + '</button>';
+      }).join('');
+      chips.querySelectorAll('button[data-nbcal-time]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          NB.date = dateStr;
+          NB.time = btn.getAttribute('data-nbcal-time');
+          var dateInput = document.getElementById('nbDate');
+          if (dateInput) dateInput.value = NB.date;
+          nbRefreshTimes();          // synk hoved-rutenett + markering
+          panel.hidden = true;       // lukk panelet
+          var toggle = document.getElementById('nbCalToggle');
+          if (toggle) toggle.classList.remove('active');
+        });
+      });
+    }).catch(function (err) {
+      var chips = document.getElementById('nbCalChips');
+      if (chips) chips.innerHTML = '<p class="nb-time-status">Kunne ikke laste tider. Prøv igjen.</p>';
+      console.error(err);
+    });
+  }
+
+  function nbWire() {
+    var host = document.getElementById('newBookingHost');
+    var back = document.getElementById('nbBack');
+    if (back) back.addEventListener('click', function () {
+      // Fra kunde-skjemaet («Ny kunde») går Tilbake til kundelista først.
+      if (NB.step === 2 && NB.nyKunde) { NB.nyKunde = false; }
+      else { NB.step = Math.max(1, NB.step - 1); }
+      nbRender();
+    });
+
+    if (NB.step === 1) {
+      host.querySelectorAll('button[data-nb-service]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var E = window.WestengenKlinikkBookingEngine || {};
+          NB.serviceGroup = btn.getAttribute('data-nb-group');
+          NB.serviceId = btn.getAttribute('data-nb-service');
+          NB.service = ((E.SERVICES && E.SERVICES[NB.serviceGroup]) || [])
+            .find(function (sv) { return sv.id === NB.serviceId; });
+          if (!NB.service) return;
+          NB.step = 2; nbRender();
+        });
+      });
+    }
+
+    else if (NB.step === 2) {
+      if (NB.nyKunde) {
+        document.getElementById('nbKundeVidere').addEventListener('click', function () {
+          var name = document.getElementById('nbName').value.trim();
+          var email = document.getElementById('nbEmail').value.trim();
+          var phone = document.getElementById('nbPhone').value.trim();
+          if (!name) { nbErr('Skriv inn kundens navn.'); return; }
+          if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { nbErr('E-postadressen er ikke gyldig.'); return; }
+          if (phone && phone.replace(/\D/g, '').length < 8) { nbErr('Telefonnummeret må ha minst 8 sifre (eller stå tomt).'); return; }
+          NB.kunde = { name: name, email: email, phone: phone };
+          NB.step = 3; nbRender();
+        });
+      } else {
+        document.getElementById('nbNyKunde').addEventListener('click', function () {
+          NB.nyKunde = true; NB.kunde = { name: '', email: '', phone: '' }; nbRender();
+        });
+        var sok = document.getElementById('nbSearch');
+        sok.addEventListener('input', debounce(function () {
+          NB.sok = sok.value; nbRenderKundeListe();
+        }, 150));
+        nbRenderKundeListe();
+        setTimeout(function () { sok.focus(); }, 0);
+      }
+    }
+
+    else if (NB.step === 3) {
+      host.querySelectorAll('button[data-nb-staff]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          NB.staffId = btn.getAttribute('data-nb-staff');
+          NB.staffName = btn.getAttribute('data-nb-staff-name');
+          NB.time = '';
+          host.querySelectorAll('button[data-nb-staff]').forEach(function (b) { b.classList.remove('selected'); });
+          btn.classList.add('selected');
+          nbRefreshTimes();
+        });
+      });
+      document.getElementById('nbDate').addEventListener('change', function () { NB.time = ''; nbRefreshTimes(); });
+      if (NB.staffId && NB.date) nbRefreshTimes();
+      var calToggle = document.getElementById('nbCalToggle');
+      if (calToggle) calToggle.addEventListener('click', function () {
+        if (!NB.staffId) { nbErr('Velg en terapeut først.'); return; }
+        var panel = document.getElementById('nbCalPanel');
+        var willOpen = panel.hidden;
+        panel.hidden = !willOpen;
+        calToggle.classList.toggle('active', willOpen);
+        if (willOpen) { NBCAL.date = NB.date || todayStr(); nbCalRender(); }
+      });
+      document.getElementById('nbTidVidere').addEventListener('click', function () {
+        if (!NB.staffId) { nbErr('Velg en terapeut.'); return; }
+        if (!NB.date)    { nbErr('Velg en dato.'); return; }
+        if (!NB.time)    { nbErr('Velg en ledig tid.'); return; }
+        NB.step = 4; nbRender();
+      });
+    }
+
+    else if (NB.step === 4) {
+      document.getElementById('nbConsent').addEventListener('change', function () {
+        NB.consent = this.checked;
+      });
+      document.getElementById('nbOpprett').addEventListener('click', function () {
+        if (!NB.consent) { nbErr('Bekreft at pasienten har samtykket muntlig til journalføring.'); return; }
+        var btn = this;
+        btn.disabled = true; btn.textContent = 'Oppretter…';
+        adminCreateBooking({
+          staffId: NB.staffId,
+          serviceId: NB.serviceId,
+          date: NB.date,
+          time: NB.time,
+          name: NB.kunde.name,
+          email: NB.kunde.email,
+          phone: NB.kunde.phone,
+          notes: '',
+          journalConsent: true,
+          journalConsentAt: new Date().toISOString()
+        }).then(function (res) {
+          if (!res || !res.ok) {
+            btn.disabled = false; btn.textContent = 'Opprett booking';
+            nbErr((res && (res.message || res.error)) || 'Kunne ikke opprette booking.');
+            return;
+          }
+          closeNewBookingModal();
+          showToast('Booking opprettet for ' + NB.kunde.name + ' — ' +
+                    formatDateNo(NB.date) + ' kl. ' + NB.time + ' hos ' + NB.staffName);
+          loadBookings();
+          availStaffLoaded = null;
+          if (document.querySelector('[data-panel="availability"].active')) {
+            loadAndRenderAvailability();
+          }
+        }).catch(function (err) {
+          btn.disabled = false; btn.textContent = 'Opprett booking';
+          nbErr('Noe gikk galt. Prøv igjen.');
+          console.error(err);
+        });
+      });
+    }
+  }
+
+  function openNewBookingModal() {
+    var E = window.WestengenKlinikkBookingEngine;
+    if (!E || !window.WestengenKlinikkAdminBooking) {
+      showToast('Booking-motor ikke lastet. Last siden på nytt.', true);
+      return;
+    }
+    NB = { step: 1, sok: '', nyKunde: false, kunde: { name: '', email: '', phone: '' },
+           serviceGroup: null, serviceId: null, service: null,
+           staffId: null, staffName: null, date: '', time: '', consent: false };
+    var host = document.getElementById('newBookingHost');
+    host.innerHTML = '<p style="color:var(--muted);font-size:13px;">Laster tjeneste-katalog…</p>';
+    document.getElementById('newBookingModal').classList.add('open');
+    document.body.style.overflow = 'hidden';   // lås bakgrunns-scroll mens modalen er åpen
+    var ensure = (typeof E.ensureLoaded === 'function') ? E.ensureLoaded() : Promise.resolve();
+    ensure.then(nbRender).catch(nbRender);
+    setTimeout(function () { document.getElementById('newBookingClose').focus(); }, 0);
+  }
+
+  // Åpner veiviseren forhåndsutfylt fra et klikk på en ledig slot i
+  // kalender.html (terapeut + dato + tid via sessionStorage). Veiviseren
+  // er tjeneste-først, så vi starter på steg 1 (tjeneste er påkrevd) med
+  // terapeut/dato/tid allerede satt — steg 3 er da forhåndsutfylt, og
+  // etter tjeneste-valget lander man på pasient-steget.
+  function openNewBookingPrefilled(d) {
+    var E = window.WestengenKlinikkBookingEngine;
+    if (!E || !window.WestengenKlinikkAdminBooking) {
+      showToast('Booking-motor ikke lastet. Last siden på nytt.', true);
+      return;
+    }
+    NB = { step: 1, sok: '', nyKunde: false, kunde: { name: '', email: '', phone: '' },
+           serviceGroup: null, serviceId: null, service: null,
+           staffId: d.staffId || null, staffName: d.staffName || null,
+           date: d.date || '', time: d.time || '', consent: false };
+    var host = document.getElementById('newBookingHost');
+    host.innerHTML = '<p style="color:var(--muted);font-size:13px;">Laster tjeneste-katalog…</p>';
+    document.getElementById('newBookingModal').classList.add('open');
+    document.body.style.overflow = 'hidden';   // lås bakgrunns-scroll mens modalen er åpen
+    var ensure = (typeof E.ensureLoaded === 'function') ? E.ensureLoaded() : Promise.resolve();
+    ensure.then(nbRender).catch(nbRender);
+    setTimeout(function () { document.getElementById('newBookingClose').focus(); }, 0);
+  }
+
+  function closeNewBookingModal() {
+    document.getElementById('newBookingModal').classList.remove('open');
+    document.getElementById('newBookingHost').innerHTML = '';
+    document.body.style.overflow = '';   // lås opp bakgrunns-scroll
+  }
+
+  // Wire up
+  document.getElementById('newBookingBtn').addEventListener('click', openNewBookingModal);
+  // P1 — CSV-eksport (funksjonen guard'er isAdmin() i tillegg til UI-skjuling).
+  document.getElementById('exportCsvBtn').addEventListener('click', exportBookingsCsv);
+  document.getElementById('newBookingClose').addEventListener('click', closeNewBookingModal);
+  document.getElementById('newBookingModal').addEventListener('click', function (e) {
+    if (e.target === this) closeNewBookingModal();
+  });
+  // Esc — share with detail modal handler; check which is open
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (document.getElementById('newBookingModal').classList.contains('open')) {
+      closeNewBookingModal();
+    }
+  });
+})();
+</script>
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>

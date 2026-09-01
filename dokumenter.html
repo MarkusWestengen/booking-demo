@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#171A21">
+
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+
+<title>Dokumenter · Westengen Klinikk</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8; --green-tint: #E9EAF4;
+    --paper: #F7F8FA; --paper-2: #EDEFF3;
+    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
+    --rule: #171a2622; --danger: #c0392b; --clay: #B8754A;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink); background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .topbar { position: sticky; top: 0; z-index: 30;
+    background: var(--ink); color: var(--paper);
+    border-bottom: 3px solid var(--green); }
+  .topbar-inner { display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px; max-width: 1100px; margin: 0 auto; }
+  .brand { font-family: 'Fraunces', serif; font-size: 22px; flex: 1; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand em { font-style: italic; color: var(--green-soft);
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .who-chip { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--green); color: #fff; padding: 4px 8px; }
+  .topbar a, .topbar button { color: var(--paper); background: transparent;
+    border: 1px solid rgba(247, 248, 250,.22); padding: 6px 10px;
+    font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
+  .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
+
+  .shell { max-width: 1100px; margin: 0 auto; padding: 18px; }
+  h1 { font-family: 'Fraunces', serif; font-weight: 400; font-size: 26px; margin: 0 0 4px; }
+  .lede { color: var(--muted); font-size: 13px; margin: 0 0 18px; max-width: 70ch; }
+
+  .btn { background: transparent; color: var(--ink); border: 1px solid var(--rule);
+    padding: 8px 14px; font: inherit; font-size: 13px; cursor: pointer; }
+  .btn:hover { border-color: var(--ink); }
+  .btn[disabled] { opacity: 0.4; cursor: default; }
+  .btn-primary { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn-primary:hover { background: var(--green-deep); border-color: var(--green-deep); }
+  .btn-danger { color: var(--danger); border-color: #e3b4ae; }
+  .btn-danger:hover { background: #fdeaea; border-color: var(--danger); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+  /* Opplastings-kort (admin) */
+  .upload-card { background: #fff; border: 1px solid var(--rule); padding: 18px;
+    margin-bottom: 24px; }
+  .upload-card h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 17px; margin: 0 0 14px; }
+  .upl-grid { display: grid; grid-template-columns: 1fr 180px; gap: 12px; }
+  .upl-field { display: flex; flex-direction: column; gap: 5px; }
+  .upl-field label, .upload-card label.lbl { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); }
+  .upl-field input, .upl-field select, .upload-card input[type="file"] {
+    padding: 9px 11px; font: inherit; font-size: 13px;
+    border: 1px solid var(--rule); background: #fff; width: 100%; }
+  .upl-field input:focus, .upl-field select:focus { outline: 2px solid var(--green); outline-offset: -2px; }
+  .upl-foot { display: flex; align-items: center; gap: 14px; margin-top: 14px; flex-wrap: wrap; }
+  .upl-status { font-size: 13px; }
+  .upl-status.ok { color: var(--green); } .upl-status.err { color: var(--clay); }
+
+  /* Kategori-seksjoner */
+  .cat { margin-bottom: 22px; }
+  .cat-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px;
+    border-bottom: 1px solid var(--rule); padding-bottom: 6px; }
+  .cat-head h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 18px; margin: 0; }
+  .cat-head .n { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .cat-empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
+
+  .doc { background: #fff; border: 1px solid var(--rule); padding: 12px 14px; margin-bottom: 8px; }
+  .doc-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .doc-main { flex: 1; min-width: 200px; }
+  .doc-title { font-size: 15px; font-weight: 600; }
+  .doc-file { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 3px;
+    word-break: break-all; }
+  .doc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .doc-send { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--rule);
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .doc-send input { padding: 7px 10px; font: inherit; font-size: 13px;
+    border: 1px solid var(--rule); background: #fff; min-width: 220px; }
+  .doc-send input:focus { outline: 2px solid var(--green); outline-offset: -2px; }
+  .send-status { font-size: 12px; }
+  .send-status.ok { color: var(--green); } .send-status.err { color: var(--clay); }
+
+  .loader { text-align: center; padding: 36px; color: var(--muted); }
+  .spinner { width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--rule); border-top-color: var(--green);
+    animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; padding: 36px; color: var(--muted);
+    background: #fff; border: 1px solid var(--rule); }
+
+  .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0;
+    background: #fff; border-top: 1px solid var(--rule);
+    display: flex; padding-bottom: env(safe-area-inset-bottom, 0); z-index: 40; }
+  .bn-btn { flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 4px; padding: 10px 4px;
+    background: transparent; border: 0; border-top: 3px solid transparent;
+    font: inherit; font-size: 10px; color: var(--ink-2);
+    text-decoration: none; cursor: pointer; position: relative; }
+  .bn-btn .bn-ico { font-size: 18px; line-height: 1; }
+  .bn-btn.active { color: var(--green-deep); border-top-color: var(--green); }
+
+  @media (max-width: 640px) {
+    .brand em { display: none; }
+    h1 { font-size: 22px; }
+    .upl-grid { grid-template-columns: 1fr; }
+    .bn-btn { font-size: 9px; }
+  }
+
+  /* ===== DEL 4A — admin-polish (kun presentasjon, ingen funksjonsendring) =====
+     8-punkts bottom-nav scroller horisontalt på smale skjermer (<=560px) i stedet
+     for å klemmes; tydeligere fokus-tilstand for tastatur-navigasjon. */
+  .bottom-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 560px) {
+    .bottom-nav .bn-btn { flex: 0 0 auto; min-width: 64px; }
+  }
+  .btn:focus-visible, .bn-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">Westengen Klinikk <em>dokumenter</em></div>
+    <span class="who-chip" id="whoChip" style="display:none;">—</span>
+    <div id="topActions"></div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <div id="bootView" class="loader">
+    <span class="spinner"></span>Sjekker tilgang…
+  </div>
+
+  <div id="appView" style="display:none;">
+    <h1 class="adm-accent">Dokumenter</h1>
+    <p class="lede">Øvelser og dokumenter (PDF/video) til oppfølging. Admin laster opp; alle ansatte kan sende et dokument til en kunde. Sendte nedlastingslenker er gyldige i 30 dager.</p>
+
+    <!-- Opplasting (kun admin) -->
+    <div class="upload-card" data-admin-only style="display:none;">
+      <h2>Last opp nytt dokument</h2>
+      <div class="upl-grid">
+        <div class="upl-field">
+          <label for="upTitle">Tittel</label>
+          <input id="upTitle" type="text" maxlength="200" placeholder="F.eks. «Nakkeøvelser – nivå 1»">
+        </div>
+        <div class="upl-field">
+          <label for="upCategory">Kategori</label>
+          <select id="upCategory"></select>
+        </div>
+      </div>
+      <div class="upl-field" style="margin-top:12px;">
+        <label for="upFile">Fil (PDF / video)</label>
+        <input id="upFile" type="file" accept=".pdf,video/*,image/*">
+      </div>
+      <div class="upl-foot">
+        <button class="btn btn-primary" id="upBtn">Last opp</button>
+        <span class="upl-status" id="upStatus"></span>
+      </div>
+    </div>
+
+    <div id="catHost">
+      <div class="loader"><span class="spinner"></span>Henter…</div>
+    </div>
+
+    <!-- B3 — e-postforslag fra eksisterende bookinger. Fylles av loadBookingEmails().
+         Delt av alle «Kundens e-post»-felt via list="bookingEmails". Fritekst fortsatt mulig. -->
+    <datalist id="bookingEmails"></datalist>
+  </div>
+
+  <div id="forbiddenView" class="empty" style="display:none;">
+    <p>Du har ikke tilgang til dokumenter.</p>
+    <p><a href="kalender.html">← Tilbake til kalender</a></p>
+  </div>
+
+</div>
+
+<nav class="bottom-nav">
+  <a class="bn-btn" href="kalender.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>Kalender</a>
+  <a class="bn-btn" href="kunder.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-1a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Kunder</a>
+  <a class="bn-btn" href="booking-admin.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span>Oversikt</a>
+  <a class="bn-btn" data-admin-only href="tjenester.html" style="display:none;"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></span>Tjenester</a>
+  <a class="bn-btn" data-admin-only href="behandlere.html" style="display:none;"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Behandlere</a>
+  <a class="bn-btn active" href="dokumenter.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></span>Dokumenter</a>
+  <a class="bn-btn" href="meldinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>Meldinger</a>
+  <a class="bn-btn" href="innstillinger.html"><span class="bn-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></span>Innstillinger</a>
+</nav>
+
+<script src="shared/booking-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="shared/auth.js"></script>
+<script src="shared/admin-nav.js" defer></script>
+<script>
+(function () {
+  'use strict';
+
+  if (!window.WestengenKlinikkAuth || !window.WestengenKlinikkAuth.requireAuth()) return;
+
+  var CFG = window.WestengenKlinikkBackend || {};
+  // Uten nokler ville createClient('') kastet, og sida ville sett ut
+  // som om den hang. Vi sier heller tydelig fra hva som mangler.
+  if (!CFG.supabaseUrl || !CFG.supabaseAnonKey) {
+    var _cfgTarget = document.getElementById('bootView') || document.body;
+    _cfgTarget.innerHTML =
+      '<div class="auth-wrap"><div class="login"><h1>Konfigurasjon mangler</h1>' +
+      '<p>Denne kopien er ikke koblet til en database ennå. Fyll inn Supabase-URL ' +
+      'og anon-nøkkel i <code>shared/booking-config.js</code> — se ' +
+      '<code>DEMO_SETUP.md</code>.</p></div></div>';
+    return;
+  }
+  var sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
+    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
+  });
+
+  function $(id) { return document.getElementById(id); }
+  var escapeHtml = window.WestengenKlinikkAuth.escapeHtml;
+
+  var BUCKET = 'exercise-documents';
+  var SIGNED_URL_TTL = 60 * 60 * 24 * 30; // 30 dager
+  var CATEGORIES = [
+    { key: 'nakke',   label: '01 Nakke' },
+    { key: 'skulder', label: '02 Skulder' },
+    { key: 'hofte',   label: '03 Hofte' },
+    { key: 'kne',     label: '04 Kne' },
+    { key: 'ankel',   label: '05 Ankel' },
+    { key: 'fot',     label: '06 Fot' }
+  ];
+  var STATE = { user: null, docs: [] };
+
+  function show(id) {
+    ['bootView', 'appView', 'forbiddenView'].forEach(function (v) {
+      $(v).style.display = v === id ? '' : 'none';
+    });
+  }
+  function setTopActions(html) { $('topActions').innerHTML = html; }
+  function isAdmin() { return !!(STATE.user && STATE.user.role === 'admin'); }
+
+  function parseSessionUser(session) {
+    if (!session || !session.user) return null;
+    var u = session.user;
+    var meta = (u.app_metadata || {});
+    var role = meta.role;
+    if (role !== 'admin' && role !== 'therapist') return null;
+    return {
+      userId: u.id, email: u.email, role: role,
+      staffId: meta.staff_id || (role === 'admin' ? 'admin' : null),
+      staffName: meta.staff_name || (role === 'admin' ? 'Admin' : '')
+    };
+  }
+  function handleSession(session) {
+    if (!session) { window.location.replace('ansatt.html'); return; }
+    var parsed = parseSessionUser(session);
+    if (!parsed) { show('forbiddenView'); return; }
+    STATE.user = parsed;
+    setTopActions('<a href="innstillinger.html">Innstillinger</a> <button id="logoutBtn">Logg ut</button>');
+    var chip = $('whoChip');
+    chip.textContent = parsed.staffName || (parsed.role === 'admin' ? 'Admin' : 'Terapeut');
+    chip.style.display = '';
+    window.WestengenKlinikkAuth.applyRoleGates(parsed.role);
+    window.WestengenKlinikkAuth.installSessionTimeout(sb);
+    fillCategorySelect();
+    show('appView');
+    loadDocs();
+    loadBookingEmails();
+  }
+  sb.auth.getSession().then(function (res) { handleSession(res.data && res.data.session); })
+    .catch(function () { window.location.replace('ansatt.html'); });
+  sb.auth.onAuthStateChange(function (event, session) {
+    if (event === 'TOKEN_REFRESHED' && STATE.user && session && session.user.id === STATE.user.userId) return;
+    handleSession(session);
+  });
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'logoutBtn') window.WestengenKlinikkAuth.logoutAndRedirect(sb);
+  });
+
+  function fillCategorySelect() {
+    $('upCategory').innerHTML = CATEGORIES.map(function (c) {
+      return '<option value="' + c.key + '">' + escapeHtml(c.label) + '</option>';
+    }).join('');
+  }
+
+  // ----- Last inn dokumenter -----
+  // B3 — fyll datalist med e-postadresser fra bookinger som forslag ved utsending.
+  // Ansatt er authenticated og har lesetilgang til bookings via RLS. Forslag er
+  // valgfritt: feiler spørringen, faller vi stille tilbake til ren fritekst.
+  function loadBookingEmails() {
+    var host = $('bookingEmails');
+    if (!host) return;
+    sb.from('bookings').select('email')
+      .not('email', 'is', null)
+      .limit(2000)
+      .then(function (res) {
+        if (res.error || !res.data) return;
+        var seen = {};
+        var emails = [];
+        res.data.forEach(function (row) {
+          var e = (row.email || '').trim().toLowerCase();
+          if (!e || seen[e]) return;
+          seen[e] = true;
+          emails.push(e);
+        });
+        emails.sort();
+        host.innerHTML = emails.map(function (e) {
+          return '<option value="' + escapeHtml(e) + '"></option>';
+        }).join('');
+      })
+      .catch(function () { /* stille — forslag er valgfritt */ });
+  }
+
+  function loadDocs() {
+    $('catHost').innerHTML = '<div class="loader"><span class="spinner"></span>Henter…</div>';
+    sb.from('exercise_documents').select('*')
+      .order('category', { ascending: true })
+      .order('created_at', { ascending: false })
+      .then(function (res) {
+        if (res.error) {
+          $('catHost').innerHTML = '<div class="empty">Kunne ikke hente dokumenter: ' + escapeHtml(res.error.message) + '</div>';
+          return;
+        }
+        STATE.docs = res.data || [];
+        renderCats();
+      })
+      .catch(function (err) {
+        console.error('Lasting av dokumenter feilet:', err);
+        $('catHost').innerHTML = '<div class="empty">Kunne ikke hente dokumenter. Sjekk nettverkstilkoblingen og prøv igjen.</div>';
+      });
+  }
+
+  function docHtml(d) {
+    var admin = isAdmin();
+    var when = d.created_at ? new Date(d.created_at).toLocaleDateString('no-NO') : '';
+    var fileLine = [escapeHtml(d.file_name || ''), when].filter(Boolean).join(' · ');
+    return '<div class="doc" data-doc="' + escapeHtml(d.id) + '">' +
+      '<div class="doc-row">' +
+        '<div class="doc-main">' +
+          '<div class="doc-title">' + escapeHtml(d.title || '(uten tittel)') + '</div>' +
+          '<div class="doc-file">' + fileLine + '</div>' +
+        '</div>' +
+        '<div class="doc-actions">' +
+          '<button class="btn btn-sm send-btn" data-id="' + escapeHtml(d.id) + '" data-title="' + escapeHtml(d.title || '') + '" data-path="' + escapeHtml(d.storage_path) + '">Send til kunde</button>' +
+          (admin ? '<button class="btn btn-sm btn-danger del-btn" data-id="' + escapeHtml(d.id) + '" data-path="' + escapeHtml(d.storage_path) + '" data-title="' + escapeHtml(d.title || '') + '">Slett</button>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="doc-send" hidden>' +
+        '<input type="email" class="send-email" list="bookingEmails" maxlength="320" placeholder="Kundens e-post">' +
+        '<button class="btn btn-sm btn-primary send-go">Send</button>' +
+        '<button class="btn btn-sm send-cancel">Avbryt</button>' +
+        '<span class="send-status"></span>' +
+      '</div>' +
+    '</div>';
+  }
+  function renderCats() {
+    var html = CATEGORIES.map(function (c) {
+      var docs = STATE.docs.filter(function (d) { return d.category === c.key; });
+      var body = docs.length
+        ? docs.map(docHtml).join('')
+        : '<div class="ui-empty compact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><p>Ingen dokumenter ennå.</p></div>';
+      return '<div class="cat">' +
+        '<div class="cat-head"><h3>' + escapeHtml(c.label) + '</h3><span class="n">' + docs.length + '</span></div>' +
+        body +
+      '</div>';
+    }).join('');
+    $('catHost').innerHTML = html;
+  }
+
+  // ----- Opplasting (admin) -----
+  function uid() {
+    try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (_) {}
+    return 'd' + Date.now() + Math.floor(Math.random() * 1e6);
+  }
+  function safeName(name) {
+    return (name || 'fil').replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80);
+  }
+  $('upBtn').addEventListener('click', function () {
+    if (!isAdmin()) { alert('Kun admin kan laste opp dokumenter.'); return; }
+    var title = ($('upTitle').value || '').trim();
+    var category = $('upCategory').value;
+    var file = $('upFile').files && $('upFile').files[0];
+    var statusEl = $('upStatus'); statusEl.className = 'upl-status';
+    if (!title) { statusEl.textContent = 'Skriv en tittel.'; statusEl.classList.add('err'); return; }
+    if (!file)  { statusEl.textContent = 'Velg en fil.'; statusEl.classList.add('err'); return; }
+
+    var path = category + '/' + uid() + '-' + safeName(file.name);
+    var btn = $('upBtn'); btn.disabled = true;
+    statusEl.textContent = 'Laster opp…';
+
+    sb.storage.from(BUCKET).upload(path, file, { contentType: file.type || undefined, upsert: false })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        return sb.from('exercise_documents').insert({
+          title: title, category: category, storage_path: path,
+          file_name: file.name, mime_type: file.type || null,
+          uploaded_by: STATE.user.userId, uploaded_by_name: STATE.user.staffName
+        });
+      })
+      .then(function (res) {
+        btn.disabled = false;
+        if (res && res.error) {
+          // Rydd opp lastet fil hvis rad-insert feilet (unngå foreldreløst objekt).
+          sb.storage.from(BUCKET).remove([path]).catch(function () {});
+          throw res.error;
+        }
+        statusEl.textContent = 'Lastet opp ✓'; statusEl.classList.add('ok');
+        $('upTitle').value = ''; $('upFile').value = '';
+        loadDocs();
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        console.error('Opplasting feilet:', err);
+        statusEl.textContent = 'Opplasting feilet: ' + (err && err.message ? err.message : 'ukjent feil');
+        statusEl.classList.add('err');
+      });
+  });
+
+  // ----- Send til kunde + slett (event-delegert) -----
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || !t.classList) return;
+
+    // Åpne/lukk send-skjema
+    if (t.classList.contains('send-btn')) {
+      var doc = t.closest('.doc');
+      var form = doc.querySelector('.doc-send');
+      form.hidden = !form.hidden;
+      if (!form.hidden) { var inp = form.querySelector('.send-email'); if (inp) inp.focus(); }
+      return;
+    }
+    if (t.classList.contains('send-cancel')) {
+      t.closest('.doc-send').hidden = true; return;
+    }
+
+    // Utfør sending
+    if (t.classList.contains('send-go')) {
+      var sendBtn = t.closest('.doc').querySelector('.send-btn');
+      var form2 = t.closest('.doc-send');
+      var emailInp = form2.querySelector('.send-email');
+      var st = form2.querySelector('.send-status'); st.className = 'send-status';
+      var email = (emailInp.value || '').trim();
+      if (!email || email.indexOf('@') === -1) { st.textContent = 'Skriv en gyldig e-post.'; st.classList.add('err'); return; }
+      var path = sendBtn.getAttribute('data-path');
+      var docId = sendBtn.getAttribute('data-id');
+      var title = sendBtn.getAttribute('data-title');
+      t.disabled = true; st.textContent = 'Sender…';
+
+      sb.storage.from(BUCKET).createSignedUrl(path, SIGNED_URL_TTL)
+        .then(function (res) {
+          if (res.error || !res.data || !res.data.signedUrl) throw (res.error || new Error('Kunne ikke lage lenke'));
+          return sb.from('document_sends').insert({
+            document_id: docId, document_title: title, customer_email: email,
+            link_url: res.data.signedUrl,
+            sent_by: STATE.user.userId, sent_by_name: STATE.user.staffName
+          });
+        })
+        .then(function (res) {
+          t.disabled = false;
+          if (res && res.error) throw res.error;
+          st.textContent = 'Sendt ✓ (lenke gyldig i 30 dager)'; st.classList.add('ok');
+          emailInp.value = '';
+        })
+        .catch(function (err) {
+          t.disabled = false;
+          console.error('Sending feilet:', err);
+          st.textContent = 'Sending feilet: ' + (err && err.message ? err.message : 'ukjent feil');
+          st.classList.add('err');
+        });
+      return;
+    }
+
+    // Slett (admin) — fjern storage-objekt + rad
+    if (t.classList.contains('del-btn')) {
+      if (!isAdmin()) return;
+      var dTitle = t.getAttribute('data-title') || 'dokumentet';
+      if (!window.confirm('Slette «' + dTitle + '»? Dette fjerner filen permanent.')) return;
+      var dPath = t.getAttribute('data-path');
+      var dId = t.getAttribute('data-id');
+      t.disabled = true;
+      sb.storage.from(BUCKET).remove([dPath])
+        .then(function () { return sb.from('exercise_documents').delete().eq('id', dId); })
+        .then(function (res) {
+          if (res && res.error) throw res.error;
+          loadDocs();
+        })
+        .catch(function (err) {
+          t.disabled = false;
+          console.error('Sletting feilet:', err);
+          alert('Sletting feilet: ' + (err && err.message ? err.message : 'ukjent feil'));
+        });
+      return;
+    }
+  });
+
+})();
+</script>
+
+<script src="shared/demo-mode.js" defer></script>
+</body>
+</html>
