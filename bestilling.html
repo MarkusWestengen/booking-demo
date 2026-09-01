@@ -125,7 +125,12 @@
   .embed-section {
     background: var(--ink);
     color: var(--paper);
-    padding: 60px 0 0;
+    /* Bunn-paddingen er ikke pynt. Uten den gaar det lyse
+       bookingpanelet helt ned til seksjonskanten, og neste seksjon,
+       som ogsaa er lys, begynner rett under. De to leste som én
+       blokk. Naa rammer den moerke flaten panelet paa alle fire
+       sider og lukker seg selv. */
+    padding: 60px 0 64px;
   }
   .embed-frame-wrap {
     background: var(--paper);
@@ -336,6 +341,7 @@ button:focus-visible {
 <link rel="stylesheet" href="shared/cookie-banner.css">
 <link rel="stylesheet" href="shared/header-nav.css">
 <link rel="stylesheet" href="shared/demo-ui.css">
+<link rel="stylesheet" href="shared/choice.css">
 
 </head>
 <body data-screen-label="Bestilling">

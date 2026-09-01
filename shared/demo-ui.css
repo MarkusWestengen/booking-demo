@@ -170,9 +170,12 @@
    i en tabell, ikke i dekorerte kort — og en tabell tvinger fram
    korte, etterproevbare verdier i stedet for prosa om et bygg.
    ============================================================ */
+/* Ingen strek paa toppen: seksjonen over er en moerk flate som
+   allerede skiller. En haarstrek i tillegg blir en strek uten jobb.
+   Luften over er stoerre enn under, saa overskriften faar en tydelig
+   start. */
 .spec {
-  padding: 64px 0 72px;
-  border-top: 1px solid var(--hair);
+  padding: 88px 0 72px;
   background: var(--paper);
 }
 .spec h2 {

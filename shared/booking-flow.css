@@ -441,28 +441,16 @@
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
-/* Samtykke-rader: felles boks-grunnstil så nyhetsbrev (valgfri) og
-   vilkår/journal (påkrevd) ser ut som søsken. Kun aksenten skiller:
-   nøytral kant på nyhetsbrev, grønn fremheving på det juridiske. */
-.tabf-consent {
-  display: grid;
-  grid-template-columns: 20px 1fr;
-  gap: 12px;
-  align-items: start;
-  font-size: 13px;
-  color: var(--ink-2);
-  line-height: 1.5;
-  cursor: pointer;
+/* Samtykkeradene er den felles valgraden (shared/choice.css). Her
+   staar bare rammen rundt gruppen: de to avkryssingene hoerer sammen
+   og skal lese som én blokk under avbestillingssetningen. */
+.tabf-consent-group {
+  gap: 2px;
+  margin-top: 6px;
+  padding: 4px 12px;
   background: var(--paper-2, #dde8f3);
-  border-left: 3px solid var(--rule, rgba(11,26,43,.16));
-  padding: 10px 12px;
-  margin-top: 4px;
+  border-left: 3px solid var(--green, #064789);
 }
-.tabf-consent input { margin-top: 2px; }
-.tabf-consent-journal {
-  border-left-color: var(--green, #064789);
-}
-.tabf-consent-journal a { color: var(--green, #064789); }
 /* Avbestillingsvarsel rett over den obligatoriske avkrysningen. */
 .tabf-terms-notice {
   font-size: 13px;

@@ -175,18 +175,9 @@
   .field-row .field { flex: 1; }
 
   /* Staff-gruppe-valg */
-  .choice-group { display: grid; gap: 10px; margin-bottom: 4px; }
-  .choice {
-    display: flex; align-items: flex-start; gap: 12px;
-    border: 1px solid var(--rule); padding: 14px 16px;
-    cursor: pointer; background: var(--paper);
-    transition: border-color .12s ease, background .12s ease;
-  }
-  .choice:hover { border-color: var(--green-soft); }
-  .choice.is-selected { border-color: var(--green); background: var(--green-tint); }
-  .choice input { width: 19px; height: 19px; margin: 1px 0 0; flex: none; accent-color: var(--green); }
-  .choice .c-title { font-weight: 600; color: var(--ink); }
-  .choice .c-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  /* Valgradene kommer fra shared/choice.css. Her staar bare den
+     avstanden gruppen trenger i dette skjemaet. */
+  .wk-choice-group { margin-bottom: 4px; }
 
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -261,6 +252,7 @@
 <link rel="stylesheet" href="shared/i18n.css">
 <link rel="stylesheet" href="shared/header-nav.css">
 <link rel="stylesheet" href="shared/demo-ui.css">
+<link rel="stylesheet" href="shared/choice.css">
 
 </head>
 <body>
@@ -349,19 +341,19 @@
 
           <div class="field">
             <span class="field-label" data-i18n="waitlist.field_who">Hvem ønsker du time hos?</span>
-            <div class="choice-group" id="groupChoices">
-              <label class="choice" data-group="markus">
+            <div class="wk-choice-group" id="groupChoices">
+              <label class="wk-choice" data-group="markus">
                 <input type="radio" name="grp" value="markus" />
-                <span>
-                  <span class="c-title" data-i18n="waitlist.staff_markus_title">Markus Westengen</span>
-                  <span class="c-sub" data-i18n="waitlist.staff_markus_sub">Behandling hos Markus selv</span>
+                <span class="wk-choice-text">
+                  <span class="wk-choice-title" data-i18n="waitlist.staff_markus_title">Markus Westengen</span>
+                  <span class="wk-choice-sub" data-i18n="waitlist.staff_markus_sub">Behandling hos Markus selv</span>
                 </span>
               </label>
-              <label class="choice" data-group="terapeut">
+              <label class="wk-choice" data-group="terapeut">
                 <input type="radio" name="grp" value="terapeut" />
-                <span>
-                  <span class="c-title" data-i18n="waitlist.staff_therapist_title">Markus' terapeuter</span>
-                  <span class="c-sub" data-i18n="waitlist.staff_therapist_sub">Behandling hos en av Markus' dyktige terapeuter</span>
+                <span class="wk-choice-text">
+                  <span class="wk-choice-title" data-i18n="waitlist.staff_therapist_title">Markus' terapeuter</span>
+                  <span class="wk-choice-sub" data-i18n="waitlist.staff_therapist_sub">Behandling hos en av Markus' dyktige terapeuter</span>
                 </span>
               </label>
             </div>
@@ -610,15 +602,8 @@
   fillTimeSelect($('fTimeFrom'));
   fillTimeSelect($('fTimeTo'));
 
-  // ---- Staff-gruppe-valg: marker valgt kort --------------------
-  var choices = $('groupChoices').querySelectorAll('.choice');
-  Array.prototype.forEach.call(choices, function (c) {
-    c.addEventListener('change', function () {
-      Array.prototype.forEach.call(choices, function (x) {
-        x.classList.toggle('is-selected', x.querySelector('input').checked);
-      });
-    });
-  });
+  // Markeringen av valgt rad ligger i shared/choice.css
+  // (:has(> input:checked)) og trenger ingen JS.
 
   // ---- Navigasjon mellom views ---------------------------------
   $('toCancel').addEventListener('click', function () { clearErr('cancelErr'); show('view-cancel'); });

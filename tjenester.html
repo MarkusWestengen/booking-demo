@@ -26,6 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+<link rel="stylesheet" href="shared/choice.css">
 <style>
   :root {
     --green: #064789; --green-deep: #04315b; --green-soft: #8fc1e0; --green-tint: #cfe0f0;
@@ -895,9 +896,11 @@
     assigned.forEach(function (id) { assignedSet[id] = true; });
 
     var staffRows = eligible.map(function (st) {
-      return '<label><input type="checkbox" name="staff" value="' + escapeHtml(st.id) + '"' +
+      return '<label class="wk-choice wk-choice-plain">' +
+             '<input type="checkbox" name="staff" value="' + escapeHtml(st.id) + '"' +
         (assignedSet[st.id] ? ' checked' : '') + '>' +
-        '<span>' + escapeHtml(st.name) + ' <span style="color:var(--muted);font-size:11px;">(' + escapeHtml(st.id) + ')</span></span>' +
+        '<span class="wk-choice-text">' + escapeHtml(st.name) +
+        ' <span style="color:var(--muted);font-size:11px;">(' + escapeHtml(st.id) + ')</span></span>' +
         '</label>';
     }).join('');
 
@@ -959,9 +962,9 @@
       // B5 — synlighet: is_public. Av = intern tjeneste (skjules fra
       // kunde-bestillingen, men ansatte kan fortsatt booke den).
       '<div class="form-row">' +
-        '<label class="vis-toggle"><input type="checkbox" id="fPublic"' +
+        '<label class="vis-toggle wk-choice wk-choice-plain"><input type="checkbox" id="fPublic"' +
           ((!svc || svc.is_public !== false) ? ' checked' : '') + '>' +
-          '<span>Synlig for kunder (offentlig)</span>' +
+          '<span class="wk-choice-text">Synlig for kunder (offentlig)</span>' +
         '</label>' +
         '<div class="form-help">Av = intern tjeneste: skjules fra kunde-bestillingen, men ansatte kan fortsatt booke den manuelt.</div>' +
       '</div>' +

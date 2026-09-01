@@ -60,6 +60,7 @@ var SHELL_ASSETS = [
   './shared/booking-engine.js',
   './shared/booking-flow.js',
   './shared/booking-flow.css',
+  './shared/choice.css',
   './shared/components.js',
   './shared/components.css',
   './shared/gdpr.js',

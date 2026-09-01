@@ -33,6 +33,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared/booking-flow.css">
+<link rel="stylesheet" href="shared/choice.css">
 <style>
   :root {
     --green: #064789;
@@ -1233,9 +1234,9 @@
                   title="Oppdater fra server"><span class="refresh-icon">↻</span></button>
           <button class="btn-primary" id="newBookingBtn"><span class="nb-plus" aria-hidden="true">+</span> Ny booking</button>
           <!-- P1 — bulk CSV-eksport (kun admin; data-admin-only skjuler for terapeut). -->
-          <label class="export-notes-toggle" data-admin-only style="display:none;">
+          <label class="export-notes-toggle wk-choice wk-choice-plain" data-admin-only style="display:none;">
             <input type="checkbox" id="exportIncludeNotes">
-            <span data-i18n="admin.export_include_notes">Inkluder notater</span>
+            <span class="wk-choice-text" data-i18n="admin.export_include_notes">Inkluder notater</span>
           </label>
           <button class="btn-ghost" id="exportCsvBtn" data-admin-only style="display:none;"
                   data-i18n="admin.export_csv">Eksporter alle bookinger (CSV)</button>
@@ -3121,8 +3122,9 @@
       '<select id="wlAssignTime" disabled><option value="">Velg dato' +
       (isTomQueue ? '' : ' og terapeut') + ' først…</option></select></div>';
 
-    html += '<label class="wl-consent"><input type="checkbox" id="wlAssignConsent" />' +
-      '<span>Pasienten har samtykket muntlig til at det føres journal i ' +
+    html += '<label class="wl-consent wk-choice wk-choice-plain">' +
+      '<input type="checkbox" id="wlAssignConsent" />' +
+      '<span class="wk-choice-text">Pasienten har samtykket muntlig til at det føres journal i ' +
       'forbindelse med behandlingen.</span></label>';
 
     html += '<div class="wl-assign-foot">' +
@@ -3612,8 +3614,9 @@
           escapeHtml(String(NB.service.duration)) + ' min · ' + escapeHtml(formatPrice(NB.service.price)) + '</span></div>' +
         '</div></div>' +
         (!NB.kunde.email ? '<p class="nb-hint">Ingen e-post, kunden får ikke bekreftelse eller påminnelse. Avtal muntlig.</p>' : '') +
-        '<label class="nb-consent"><input type="checkbox" id="nbConsent"' + (NB.consent ? ' checked' : '') + ' />' +
-        '<span>Pasienten har samtykket muntlig til at det føres journal i forbindelse med behandlingen.</span></label>' +
+        '<label class="nb-consent wk-choice wk-choice-plain">' +
+        '<input type="checkbox" id="nbConsent"' + (NB.consent ? ' checked' : '') + ' />' +
+        '<span class="wk-choice-text">Pasienten har samtykket muntlig til at det føres journal i forbindelse med behandlingen.</span></label>' +
         '<div class="nb-err" id="nbErr" hidden></div>' +
         nbFootHtml('nbOpprett', 'Opprett booking');
     }

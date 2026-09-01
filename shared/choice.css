@@ -1,0 +1,135 @@
+/* ============================================================
+   VALGRAD — én radio- og avkryssingsrad for hele siden
+   ------------------------------------------------------------
+   Fem ulike varianter var i bruk: .choice på ventelista,
+   .tabf-consent i bookingflyten, .wl-consent og .nb-consent i
+   adminpanelet, og bare <label><input> tre steder til. De så ulike
+   ut, hadde ulike trefflater, og bare én av dem justerte boksen
+   etter første tekstlinje.
+
+   Reglene komponenten holder:
+
+   1. Hele raden er klikkbar. <label> pakker inn både input og
+      tekst, så det ikke finnes en død sone ved siden av teksten.
+   2. Boksen ligger på første tekstlinje, ikke midt i raden. Ved
+      to linjer tekst skal boksen stå ved den første, slik øyet
+      forventer. Marginen regnes ut fra tekstens egen linjehøyde,
+      så den følger med hvis skriftstørrelsen endres.
+   3. Minst 44 px høy. Det er den minste trefflaten en tommel
+      treffer pålitelig.
+   4. Synlig fokusring, både på selve boksen og rundt hele raden.
+   5. Bokser ved siden av hverandre får lik høyde (stretch), også
+      når den ene har mer tekst enn den andre.
+
+   Tokens brukes med fallback, siden adminsidene definerer sine
+   egne og ikke laster den felles tokenfila.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Om de doble klassenavnene under
+   ------------------------------------------------------------
+   Sidene har egne skjemaregler av typen «.field label» og
+   «.form-row label». En slik selektor er (0,1,1) og slaar en enkel
+   klasse (0,1,0) — valgraden ble lagt tilbake til display:block med
+   sidens egen skriftstoerrelse.
+
+   Klassen skrives derfor to ganger: .wk-choice.wk-choice er (0,2,0)
+   og vinner, uten !important og uten at komponenten maa kjenne til
+   hver enkelt sides regelverk.
+   ------------------------------------------------------------ */
+
+.wk-choice-group.wk-choice-group {
+  display: grid;
+  gap: 10px;
+  align-items: stretch;
+}
+.wk-choice-group.wk-choice-group.wk-choice-cols {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.wk-choice.wk-choice {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 12px;
+  align-items: start;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--rule, rgba(11, 26, 43, .14));
+  background: var(--surface, #fff);
+  color: var(--ink, #0b1a2b);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .12s ease, background .12s ease;
+}
+
+.wk-choice.wk-choice:hover {
+  border-color: var(--green, #064789);
+}
+
+.wk-choice.wk-choice > input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  accent-color: var(--green, #064789);
+  cursor: pointer;
+  /* Boksen sentreres i den FØRSTE tekstlinjen: halve forskjellen
+     mellom linjehøyden (1.5em) og boksen (20px). Tallet er ikke
+     valgt for hånd — endres skriftstørrelsen, følger det etter. */
+  margin: calc((1.5em - 20px) / 2) 0 0;
+}
+
+.wk-choice.wk-choice > input:focus-visible {
+  outline: 2px solid var(--green, #064789);
+  outline-offset: 2px;
+}
+
+/* Hele raden markeres når boksen har tastaturfokus. :has mangler i
+   eldre nettlesere; da står ringen på boksen alene, som fortsatt er
+   synlig. */
+.wk-choice.wk-choice:has(> input:focus-visible) {
+  outline: 2px solid var(--green, #064789);
+  outline-offset: 2px;
+}
+
+.wk-choice.wk-choice:has(> input:checked) {
+  border-color: var(--green, #064789);
+  background: var(--green-tint, #cfe0f0);
+}
+
+/* Tekstkolonnen. Tittel og undertekst stables; en enkel setning
+   klarer seg uten. */
+.wk-choice-text.wk-choice-text {
+  display: block;
+  min-width: 0;
+}
+.wk-choice-title.wk-choice-title {
+  display: block;
+  font-weight: 600;
+  color: var(--ink, #0b1a2b);
+}
+.wk-choice-sub.wk-choice-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted, #4a5c6f);
+}
+
+/* Variant uten ramme, for avkryssinger som ligger i et skjema der
+   en ramme rundt hver linje ville blitt for mye. Trefflaten og
+   justeringen er den samme. */
+.wk-choice-plain.wk-choice-plain {
+  border-color: transparent;
+  background: transparent;
+  padding: 10px 0;
+}
+.wk-choice-plain.wk-choice-plain:hover {
+  border-color: transparent;
+}
+.wk-choice-plain.wk-choice-plain:has(> input:checked) {
+  border-color: transparent;
+  background: transparent;
+}

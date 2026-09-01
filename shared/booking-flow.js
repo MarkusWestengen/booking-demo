@@ -518,51 +518,52 @@
         form.appendChild(field('notes', t('booking.step5.field_notes', 'Beskriv kort dine plager (valgfritt)'), 'textarea', state.notes, false, 2000));
       }
 
-      // D3 (Markus-feedback 2026-05-29): nyhetsbrev-opt-in. Valgfri,
-      // default unchecked. Eget felt — separat fra journal-samtykke
-      // (som er obligatorisk). Skjult i admin-flyt (opts.skipConsent).
-      if (!opts.skipConsent) {
-        var newsletterRow = el('label', { class: 'tabf-consent tabf-consent-newsletter' }, [
-          (function () {
-            var cb = el('input', { type: 'checkbox' });
-            if (state.newsletterOptIn) cb.checked = true;
-            cb.addEventListener('change', function () { state.newsletterOptIn = cb.checked; });
-            return cb;
-          })(),
-          el('span', null, t('booking.step5.newsletter_label', 'Jeg ønsker å motta nyhetsbrev, tilbud og relevant informasjon på e-post (valgfritt).'))
+      // Avkryssingene sto foer slik: nyhetsbrev, saa en setning om
+      // avbestilling, saa vilkaar. Setningen delte de to boksene i to,
+      // og leseren maatte ta stilling til den ene, lese en setning,
+      // og saa ta stilling til den andre.
+      //
+      // Naa kommer setningen foerst, og begge boksene under den, som
+      // én gruppe. Da er rekkefoelgen: her er regelen, her er det du
+      // krysser av for.
+      //
+      // valgrad() gir begge samme rad som resten av siden
+      // (shared/choice.css): hele raden klikkbar, boksen paa foerste
+      // tekstlinje, minst 44 px hoy.
+      function valgrad(avkrysset, ved, tekst) {
+        var cb = el('input', { type: 'checkbox' });
+        if (avkrysset) cb.checked = true;
+        cb.addEventListener('change', function () { ved(cb.checked); });
+        return el('label', { class: 'wk-choice wk-choice-plain' }, [
+          cb, el('span', { class: 'wk-choice-text' }, tekst)
         ]);
-        form.appendChild(newsletterRow);
       }
 
       if (opts.skipConsent) {
-        // Admin-flyt: bekreftelse på at samtykke ble innhentet muntlig.
-        // Uendret — avbestillings-info gis muntlig i telefon.
-        var journalRow = el('label', { class: 'tabf-consent tabf-consent-journal' }, [
-          (function () {
-            var cb = el('input', { type: 'checkbox' });
-            if (state.journalConsent) cb.checked = true;
-            cb.addEventListener('change', function () { state.journalConsent = cb.checked; });
-            return cb;
-          })(),
-          el('span', null, t('booking.step5.consent_journal_admin', 'Pasienten har samtykket muntlig til at det føres journal i forbindelse med behandlingen.'))
-        ]);
-        form.appendChild(journalRow);
+        // Admin-flyt: bekreftelse paa at samtykke ble innhentet muntlig.
+        // Ingen avbestillingssetning her — den gis muntlig i telefonen.
+        form.appendChild(valgrad(
+          state.journalConsent,
+          function (v) { state.journalConsent = v; },
+          t('booking.step5.consent_journal_admin', 'Pasienten har samtykket muntlig til at det føres journal i forbindelse med behandlingen.')
+        ));
       } else {
-        // Kunde-flyt: tydelig avbestillingsvarsel + obligatorisk avkrysning,
-        // rett før Bekreft-knappen. Ren frontend-gate (se termsAccepted) —
-        // sendes ikke som persondata.
+        // Kunde-flyt: regelen foerst, saa de to avkryssingene samlet.
         form.appendChild(el('div', { class: 'tabf-terms-notice' },
           t('booking.step5.cancel_notice', 'Timer som avbestilles mindre enn 24 timer før avtalt tidspunkt belastes i sin helhet.')));
-        var termsRow = el('label', { class: 'tabf-consent tabf-consent-journal' }, [
-          (function () {
-            var cb = el('input', { type: 'checkbox' });
-            if (state.termsAccepted) cb.checked = true;
-            cb.addEventListener('change', function () { state.termsAccepted = cb.checked; });
-            return cb;
-          })(),
-          el('span', null, t('booking.step5.terms_label', 'Jeg bekrefter at jeg har lest og godtar avbestillingsvilkårene.'))
-        ]);
-        form.appendChild(termsRow);
+
+        var samtykker = el('div', { class: 'wk-choice-group tabf-consent-group' });
+        samtykker.appendChild(valgrad(
+          state.termsAccepted,
+          function (v) { state.termsAccepted = v; },
+          t('booking.step5.terms_label', 'Jeg bekrefter at jeg har lest og godtar avbestillingsvilkårene.')
+        ));
+        samtykker.appendChild(valgrad(
+          state.newsletterOptIn,
+          function (v) { state.newsletterOptIn = v; },
+          t('booking.step5.newsletter_label', 'Jeg ønsker å motta nyhetsbrev, tilbud og relevant informasjon på e-post (valgfritt).')
+        ));
+        form.appendChild(samtykker);
         // Diskret personvern-lenke. Ren lenke, IKKE et påkrevd samtykke.
         // Peker til den interne personvernsiden (samme relative form som
         // øvrige interne lenker, jf. footer i bestilling.html). Åpner i ny

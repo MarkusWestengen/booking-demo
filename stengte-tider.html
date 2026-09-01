@@ -24,6 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+<link rel="stylesheet" href="shared/choice.css">
 <style>
   :root {
     --green: #064789; --green-deep: #04315b; --green-soft: #8fc1e0; --green-tint: #cfe0f0;
@@ -1072,8 +1073,10 @@
     // Pool-paraplyen 'terapeut' utelates (Alt. 1 — kun navngitt behandler).
     host.innerHTML = staff.filter(function (s) { return s.id !== 'terapeut'; })
       .map(function (s) {
-        return '<label><input type="checkbox" value="' + escapeHtml(s.id) + '">' +
-          escapeHtml(s.name) + '</label>';
+        return '<label class="wk-choice wk-choice-plain">' +
+               '<input type="checkbox" value="' + escapeHtml(s.id) + '">' +
+               '<span class="wk-choice-text">' +
+               escapeHtml(s.name) + '</span></label>';
       }).join('');
   }
   function selectedSpecStaff() {

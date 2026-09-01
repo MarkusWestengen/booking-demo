@@ -24,6 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+<link rel="stylesheet" href="shared/choice.css">
 <style>
   :root {
     --green: #064789; --green-deep: #04315b; --green-soft: #8fc1e0; --green-tint: #cfe0f0;
@@ -223,8 +224,10 @@
         <textarea id="edBio" maxlength="600" placeholder="Skriv en kort beskrivelse"></textarea>
       </div>
       <div class="checks">
-        <label><input type="checkbox" id="edBookable"> Vises som kunde-kort i bestilling</label>
-        <label><input type="checkbox" id="edPool"> Medlem av «Markus' terapeuter»-pool</label>
+        <label class="wk-choice wk-choice-plain"><input type="checkbox" id="edBookable">
+          <span class="wk-choice-text">Vises som kunde-kort i bestilling</span></label>
+        <label class="wk-choice wk-choice-plain"><input type="checkbox" id="edPool">
+          <span class="wk-choice-text">Medlem av «Markus' terapeuter»-pool</span></label>
       </div>
       <div class="ed-grid">
         <div class="field" style="max-width:160px;">
