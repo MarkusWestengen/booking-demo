@@ -7,9 +7,10 @@ dokumentutsending, meldinger og audit-logg.
 Klinikken i demoen er oppdiktet. Alle personer, bestillinger og journalnotater
 er konstruert. Det som er ekte er systemet.
 
-**Innloggingen til adminpanelet er publisert åpent på forsiden.** Det er et
-bevisst valg, hele poenget er at halvparten som er interessant ligger bak
-innlogging. Hvordan det lar seg gjøre uten at demoen kan ødelegges, står under
+**Adminpanelet er åpent.** Halvparten av systemet ligger der, og en demo som
+ber om et passord først er en demo folk ikke ser. Panelet logger deg inn selv
+og lar deg bytte mellom de to rollene i toppen. Hvordan det lar seg gjøre uten
+at demoen kan ødelegges, står under
 [Skrivesperre på seed-data](#skrivesperre-på-seed-data).
 
 ---
@@ -21,14 +22,14 @@ avbestilling via token-lenke, venteliste med preferanser for dato og tidsrom,
 kontaktskjema og token-gatet anmeldelsesinnsending. Bekreftelse på e-post og
 SMS, med påminnelse 24 timer før.
 
-**Bak innlogging.** Ukeskalender per behandler, bestillingsadministrasjon med
+**I adminpanelet.** Ukeskalender per behandler, bestillingsadministrasjon med
 tildeling av ufordelte timer, kunderegister med klientkort, journalføring med
 samtykkesporing, dokumentutsending fra privat lagring, innboks for
 kontakthenvendelser, moderasjonskø for anmeldelser, tjeneste- og
 behandleradministrasjon, stengte tider og helligdager, og audit-logg.
 
-Seks språk (norsk, engelsk, tysk, spansk, arabisk, persisk) med RTL-støtte.
-Installerbar som PWA med push-varsling ved ny bestilling.
+Norsk og engelsk. Installerbar som app på mobilen, med varsling ved ny
+bestilling.
 
 ---
 
@@ -144,7 +145,7 @@ bevares.
 
 ### Skrivesperre på seed-data
 
-Innloggingen er publisert. Sikkerheten kan derfor ikke ligge i passordet.
+Adminpanelet er åpent for alle. Sikkerheten kan derfor ikke ligge i et passord.
 
 Den nærliggende løsningen er å skru av knappene, men det ødelegger demoen: en
 grå «Slett»-knapp demonstrerer ingenting. Skillet er derfor lagt et annet sted
@@ -212,9 +213,9 @@ uker etter oppsett står kalenderen tom igjen fordi alt ligger i fortiden.
 ```
 *.html              21 sider: 8 kundevendte, 13 for ansatte
 shared/             delte moduler, bookingmotor, auth, GDPR, komponenter, i18n
-i18n/               6 språk, identisk nøkkelsett (521 nøkler), RTL for ar/fa
+i18n/               2 språk, identisk nøkkelsett
 supabase/
-  migrations/       68 idempotente migrasjoner, 0000–0068
+  migrations/       72 idempotente migrasjoner, 0000–0072
   functions/        4 Deno Edge Functions
   tests/            RLS-policytester
 icons/              PWA-ikoner

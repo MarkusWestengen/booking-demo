@@ -45,12 +45,20 @@
   // panelet apner seg av seg selv na, saa de var bade unodvendige og
   // en ting som kunne lekke ut i UI-et ved et uhell. Kontoene som
   // faktisk brukes til innlogging bor i shared/auth.js.
-  var CREDENTIALS = [
-    { role: 'Administrator',
-      note: 'Ser alt: kalender, kunder, journal, tjenester, behandlere og loggen over oppslag.' },
-    { role: 'Terapeut',
-      note: 'Ser egen kalender og egne pasienter. Tjenester og behandlere er borte fra menyen.' }
-  ];
+  // Rollene beskrives naar arket bygges, ikke naar fila lastes:
+  // spraakfilene kan komme etter oss.
+  function roller() {
+    return [
+      { role: t('demo.role_admin', 'Administrator'),
+        note: t('demo.note_admin',
+                'Ser alt: alle behandleres kalendere, kunderegister, journal, ' +
+                'tjenester, behandlere og loggen over oppslag.') },
+      { role: t('demo.role_therapist', 'Terapeut'),
+        note: t('demo.note_therapist',
+                'Ser sitt eget: egen kalender og egne pasienter. Bytt rolle i ' +
+                'toppen av panelet for å se forskjellen.') }
+    ];
+  }
 
   var BADGE_TEXT = 'DEMO · fiktive data';
 
@@ -191,35 +199,46 @@
     sheet.className = 'wk-demo-sheet';
     sheet.setAttribute('role', 'dialog');
     sheet.setAttribute('aria-modal', 'true');
-    sheet.setAttribute('aria-label', 'Om denne demoen');
+    sheet.setAttribute('aria-label', t('demo.sheet_label', 'Om denne demoen'));
 
     // Innlogging vises ikke lenger. Panelet aapner seg av seg selv,
     // saa e-post og passord er noe brukeren aldri trenger aa se.
     // Rollene beskrives i stedet, siden det er forskjellen mellom dem
     // som er verdt aa legge merke til.
-    var creds = CREDENTIALS.map(function (c) {
+    //
+    // Teksten laa foer hardkodet paa norsk. Pillen staar ogsaa paa de
+    // kundevendte sidene, som finnes paa to spraak, saa en engelsk
+    // leser fikk en norsk dialog. Alt gaar naa gjennom i18n; paa
+    // ansattsidene, som er norske og ikke laster i18n, er det
+    // fallback-teksten som vises, og den er norsk.
+    var creds = roller().map(function (c) {
       return '<div class="wk-cred"><b>' + esc(c.role) + '</b>' +
         '<span class="wk-note">' + esc(c.note) + '</span></div>';
     }).join('');
 
     sheet.innerHTML =
       '<div class="wk-demo-card">' +
-        '<p class="wk-eyebrow">Demonstrasjonsversjon</p>' +
-        '<h2>Westengen Klinikk finnes ikke</h2>' +
-        '<p>Dette er et arbeidsprøve-oppsett av et komplett booking- og ' +
-          'administrasjonssystem. Klinikken er oppdiktet. Alle behandlere, kunder, ' +
-          'bestillinger, meldinger og journalnotater er konstruert for ' +
-          'demonstrasjonen, og ingen av dem gjelder et virkelig menneske.</p>' +
-        '<p>Adresse, telefonnummer og e-postadresse er plassholdere. ' +
-          'Ingen av dem er i bruk, og e-postdomenet kan ikke registreres.</p>' +
-        '<h3>To roller</h3>' +
+        '<p class="wk-eyebrow">' + esc(t('demo.eyebrow', 'Demonstrasjonsversjon')) + '</p>' +
+        '<h2>' + esc(t('demo.heading', 'Westengen Klinikk finnes ikke')) + '</h2>' +
+        '<p>' + esc(t('demo.body1',
+          'Dette er en arbeidsprøve: et komplett booking- og administrasjonssystem ' +
+          'for en klinikk. Klinikken er oppdiktet. Behandlere, kunder, bestillinger, ' +
+          'meldinger og journalnotater er laget for demonstrasjonen, og ingen av ' +
+          'dem gjelder et virkelig menneske.')) + '</p>' +
+        '<p>' + esc(t('demo.body2',
+          'Adresse, telefonnummer og e-postadresse er plassholdere. Ingen av dem ' +
+          'er i bruk, og e-postdomenet kan ikke registreres.')) + '</p>' +
+        '<h3>' + esc(t('demo.roles_heading', 'To roller')) + '</h3>' +
         creds +
-        '<p style="font-size:12.5px;color:#4a5c6f;">Du kan opprette, endre og ' +
-          'slette dine egne rader fritt. Radene som følger med demoen står ' +
-          'igjen som de er, slik at panelet ser likt ut for neste besøkende.</p>' +
+        '<p style="font-size:12.5px;color:#4a5c6f;">' + esc(t('demo.own_rows',
+          'Du kan opprette, endre og slette dine egne rader fritt. Radene som ' +
+          'følger med demoen står igjen som de er, slik at panelet ser likt ut ' +
+          'for neste besøkende.')) + '</p>' +
         '<div class="wk-demo-actions">' +
-          '<a class="wk-primary" href="kalender.html">Åpne adminpanelet →</a>' +
-          '<button type="button" data-wk-close>Lukk</button>' +
+          '<a class="wk-primary" href="kalender.html">' +
+            esc(t('demo.cta_open', 'Åpne adminpanelet →')) + '</a>' +
+          '<button type="button" data-wk-close>' +
+            esc(t('demo.close', 'Lukk')) + '</button>' +
         '</div>' +
       '</div>';
 
@@ -261,7 +280,8 @@
     badge.type = 'button';
     badge.className = 'wk-demo-badge';
     badge.textContent = BADGE_TEXT;
-    badge.title = 'Demonstrasjonsversjon med fiktive data. Klikk for detaljer.';
+    badge.title = t('demo.badge_title',
+      'Demonstrasjonsversjon med fiktive data. Klikk for detaljer.');
     badge.setAttribute('aria-haspopup', 'dialog');
     badge.addEventListener('click', openSheet);
 
@@ -598,7 +618,6 @@
   // Eksport
   // ============================================================
   root.WestengenKlinikkDemo = {
-    CREDENTIALS: CREDENTIALS,
     open: openSheet,
     close: closeSheet,
     toast: toast,

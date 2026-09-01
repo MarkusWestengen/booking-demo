@@ -173,10 +173,7 @@
     <p class="p-updated" data-i18n="privacy.updated">Sist oppdatert 1. september 2026</p>
 
     <p class="p-warning" data-i18n-html="privacy.warning">
-      <b>Ikke legg inn ekte personopplysninger.</b> Innloggingen til adminpanelet er
-      publisert åpent på forsiden. Alt du skriver i et skjema her, navn, e-post,
-      telefonnummer, meldingstekst, kan leses av hvem som helst som logger inn.
-      Bruk oppdiktede opplysninger.
+      <b>Ikke legg inn ekte personopplysninger.</b> Adminpanelet i demoen er åpent for alle. Alt du skriver i et skjema her, navn, e-post, telefonnummer og meldingstekst, kan leses av neste besøkende. Bruk oppdiktede opplysninger.
     </p>
   </div>
 </section>
@@ -186,7 +183,7 @@
     <div class="p-doc">
 
       <h2 data-i18n="privacy.h1">Hva dette er</h2>
-      <p data-i18n="privacy.b1">Westengen Klinikk er en oppdiktet klinikk. Nettstedet er en arbeidsprøve som viser et komplett booking- og administrasjonssystem: kundevendt bestilling, kalender, kunderegister, journal, meldinger og audit-logg. Behandlerne, kundene, bestillingene og journalnotatene i demoen er konstruert, og gjelder ikke virkelige mennesker.</p>
+      <p data-i18n="privacy.b1">Westengen Klinikk er en oppdiktet klinikk. Nettstedet er en arbeidsprøve. Den ene halvdelen er det kundene ser: bestilling, avbestilling og venteliste. Den andre er det klinikken jobber i: kalender, kunderegister, pasientjournal, meldinger, og en logg over hvem som har åpnet hvilke opplysninger. Behandlerne, kundene, bestillingene og notatene er oppdiktet og tilhører ingen virkelige personer.</p>
       <p data-i18n="privacy.b1b">Denne siden er derfor ikke en personvernerklæring for en helsetjeneste. Den beskriver hva demoen faktisk gjør med opplysninger du selv skriver inn mens du prøver den.</p>
 
       <h2 data-i18n="privacy.h2">Hvem som står bak</h2>
@@ -200,7 +197,7 @@
         <li><strong>Venteliste og anmeldelser:</strong> de feltene skjemaet ber om.</li>
         <li><strong>Teknisk:</strong> IP-adressen din brukes til å begrense hvor mange skjemaer som kan sendes per time, og lagres ikke sammen med innholdet.</li>
       </ul>
-      <p data-i18n="privacy.b3b">Dataene ligger hos Supabase i EU. Ingenting deles videre, selges eller brukes til markedsføring.</p>
+      <p data-i18n="privacy.b3b">Dataene ligger hos Supabase, som er databaseleverandøren, på servere i EU. Ingenting deles videre, selges eller brukes til markedsføring.</p>
 
       <h2 data-i18n="privacy.h4">Hvor lenge det ligger der</h2>
       <p data-i18n="privacy.b4">Kort. Demoen nullstilles automatisk hvert døgn: alt besøkende har lagt inn slettes, og oppsettet settes tilbake til utgangspunktet. Du kan også be om at noe fjernes umiddelbart via kontaktskjemaet.</p>
@@ -209,8 +206,8 @@
       <p data-i18n="privacy.b5">Nettstedet setter ingen sporings- eller markedsføringskapsler, og bruker ingen analyseverktøy. Det som lagres i nettleseren din er:</p>
       <ul data-i18n-html="privacy.b5_ul">
         <li>Språkvalget ditt og svaret ditt på samtykkebanneret.</li>
-        <li>En midlertidig kopi av en påbegynt bestilling, i tilfelle forbindelsen ryker underveis.</li>
-        <li>En innloggingsnøkkel fra Supabase Auth, bare hvis du logger inn i adminpanelet.</li>
+        <li>En midlertidig kopi av en påbegynt bestilling, i tilfelle nettet faller ut.</li>
+        <li>En nøkkel som holder deg innlogget i adminpanelet mens du er der.</li>
       </ul>
       <p data-i18n="privacy.b5b">Alt dette ligger i din egen nettleser og forsvinner når du tømmer nettleserdataene.</p>
 
@@ -218,7 +215,7 @@
       <p data-i18n="privacy.b6">Du kan be om innsyn i, retting av eller sletting av det du har lagt inn. Send en melding via kontaktskjemaet, så ordner vi det. Mener du at opplysninger håndteres feil, kan du klage til <a href="https://www.datatilsynet.no" target="_blank" rel="noopener noreferrer">Datatilsynet</a>.</p>
 
       <h2 data-i18n="privacy.h7">Hva en ekte versjon ville hatt</h2>
-      <p data-i18n="privacy.b7">I en reell klinikkinstallasjon erstattes denne siden av en fullstendig personvernerklæring med behandlingsgrunnlag etter personvernforordningen, journalføring etter helsepersonelloven § 39, lagringstider, databehandleravtaler og rutine for innsyn. Systemet har allerede teknikken den erklæringen forutsetter: rollestyrt tilgang i databasen, samtykke som registreres ved bestilling, og audit-logg over all journaltilgang.</p>
+      <p data-i18n="privacy.b7">I en ekte klinikk erstattes denne siden av en fullstendig personvernerklæring med behandlingsgrunnlag, lagringstid, databehandleravtaler og kontaktpunkt. Denne siden beskriver bare demoen.</p>
 
       <div class="p-foot" data-i18n="privacy.foot">
         Spørsmål om personvern i demoen? Bruk kontaktskjemaet på nettstedet.

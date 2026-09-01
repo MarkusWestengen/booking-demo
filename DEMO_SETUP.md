@@ -2,7 +2,7 @@
 
 Westengen Klinikk er en oppdiktet klinikk. Demoen viser bookingsystemet, ikke
 klinikken: den kundevendte bestillingsflyten med avbestilling og venteliste, og
-hele adminpanelet bak innlogging. Klinikkens markedsføringssider er ikke med.
+hele adminpanelet. Klinikkens markedsføringssider er ikke med.
 
 Dette er et frittstaaende repo: alt demoen trenger ligger her, og det har ingen
 historikk eller avhengighet til noe annet prosjekt. Dokumentet forklarer hvordan
@@ -19,7 +19,8 @@ Regn med 15 minutter.
 ## Før du begynner
 
 **Ikke bruk et prosjekt som inneholder ekte data.** Migrasjon `0065` oppretter
-to innloggingskontoer med passord som står åpent på forsiden av nettstedet.
+to kontoer som demoen logger seg inn med av seg selv, uten at den besøkende blir
+spurt. Passordene står i `shared/auth.js` og er dermed lesbare for hvem som helst.
 Demoen forutsetter et eget, tomt prosjekt.
 
 ---
@@ -30,7 +31,7 @@ Demoen forutsetter et eget, tomt prosjekt.
 
 | Side | Hva den viser |
 |---|---|
-| `index.html` | Systemforside: hva dette er, to dører, publisert innlogging |
+| `index.html` | Systemforside: hva dette er, og de to dørene inn |
 | `bestilling.html` | Bestillingsflyten med ledig-tid-oppslag |
 | `avbestill.html` | Avbestilling via referanse eller lenke |
 | `venteliste.html` | Påmelding til venteliste |
@@ -38,7 +39,7 @@ Demoen forutsetter et eget, tomt prosjekt.
 | `kontakt.html` | Kontaktskjema → innboksen i admin |
 | `personvern.html`, `vilkar.html` | Lastbærende: samtykkesteget og cookie-banneret viser hit |
 
-**Bak innlogging:** `ansatt.html` (innlogging), `kalender.html`,
+**Adminpanelet:** `ansatt.html` (logger inn automatisk), `kalender.html`,
 `booking-admin.html`, `kunder.html`, `kunde-detalj.html`, `tjenester.html`,
 `behandlere.html`, `meldinger.html`, `dokumenter.html`, `stengte-tider.html`,
 `audit-logg.html`, `innstillinger.html`, `set-password.html`.
@@ -150,7 +151,7 @@ python -m http.server 8000
 
 ## Slik er demoen beskyttet
 
-Innloggingen er publisert. Sikkerheten ligger derfor ikke i passordet, men i to
+Adminpanelet er åpent for alle. Sikkerheten ligger derfor ikke i passordet, men i to
 mekanismer som virker sammen:
 
 **Skrivesperre på seed-data (`0066`).** Hver beskyttet tabell har kolonnen

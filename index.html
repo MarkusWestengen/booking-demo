@@ -18,10 +18,10 @@
 ">
 <meta name="theme-color" content="#0b1a2b" />
 <title>Westengen Klinikk, booking- og administrasjonssystem (demo)</title>
-<meta name="description" content="Arbeidsprøve: systemet en klinikk drifter seg selv med. Kundevendt bestilling, kalender, kunderegister, journal og audit-logg. Klinikken er oppdiktet." />
+<meta name="description" content="Arbeidsprøve: et komplett bookingsystem for en klinikk. Kunder bestiller selv, og bak ligger kalender, kunderegister, journal og logg over oppslag. Klinikken er oppdiktet." />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Westengen Klinikk, booking- og administrasjonssystem (demo)" />
-<meta property="og:description" content="Demonstrasjonsversjon med fiktive data. Innloggingen til adminpanelet er publisert på forsiden." />
+<meta property="og:description" content="Demonstrasjonsversjon med fiktive data. Bestillingsflyten og hele adminpanelet er åpne." />
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
 <link rel="manifest" href="manifest.json" />
 
@@ -41,7 +41,7 @@
      Dette er ikke klinikkens forside. Klinikken er en kulisse; det
      som skal vises fram er systemet bak den. Siden har derfor én
      jobb: si på femten sekunder hva dette er, og gi to dører —
-     bookingflyten og adminpanelet — med innloggingen synlig.
+     bookingflyten og adminpanelet, begge apne.
 
      Mørk flate, samme språk som headeren, så det leser som en
      ramme rundt demoen og ikke som noe klinikken selv sier.
@@ -190,14 +190,14 @@
   <div class="container">
     <p class="lead-eyebrow" data-i18n="landing.eyebrow">Arbeidsprøve</p>
     <h1 data-i18n-html="landing.heading">Booking- og administrasjonssystem <em>for en klinikk</em></h1>
-    <p class="lead-body" data-i18n-html="landing.body1">Kundevendt bestilling med ledig-tid-oppslag, avbestilling via lenke og venteliste. Bak innloggingen: kalender per behandler, kunderegister, pasientjournal med samtykke og audit-logg, tjeneste- og behandleradministrasjon, meldingsinnboks og stengte tider.</p>
+    <p class="lead-body" data-i18n-html="landing.body1">Et komplett bookingsystem for en klinikk. Kunder bestiller time selv, avbestiller med en lenke, og setter seg på venteliste når alt er fullt. På innsiden ligger kalender for hver behandler, kunderegister, journal med samtykke, en logg over hvem som har åpnet hvilke opplysninger, meldinger fra nettsiden, og styring av tjenester, behandlere og stengte dager.</p>
   </div>
 </section>
 
 <!-- ============ TO DOERER ============
      Valget er hovedgrepet paa forsiden: to likeverdige innganger,
-     ikke to knapper nederst i en tekstblokk. Innloggingen ligger
-     inne i admin-doeren fordi den hoerer til det valget — en
+     ikke to knapper nederst i en tekstblokk. Adminpanelet aapner
+     seg av seg selv, saa den besoekende slipper aa ta stilling til en
      besoekende som bare vil se bookingflyten skal ikke maatte lese
      seg gjennom to passord foerst. -->
 <section class="doors-section">
@@ -207,7 +207,7 @@
       <div class="door-panel door-panel--public">
         <p class="door-role" data-i18n="landing.door_public_role">Kundeflyt</p>
         <h2 data-i18n="landing.door_public_h">Bestill en time</h2>
-        <p data-i18n="landing.door_public_p">Slik en kunde moter systemet. Ingen innlogging, ingenting a fylle ut forst.</p>
+        <p data-i18n="landing.door_public_p">Slik en kunde møter systemet. Ingen konto, ingenting å fylle ut først.</p>
         <ul class="door-list">
           <li data-i18n="landing.door_public_1">Velg behandler, tjeneste og tid mot ekte ledig-tid-oppslag</li>
           <li data-i18n="landing.door_public_2">Avbestill med referansekode, eller meld deg pa venteliste</li>
@@ -221,11 +221,11 @@
       <div class="door-panel door-panel--admin">
         <p class="door-role" data-i18n="landing.door_admin_role">Adminpanel</p>
         <h2 data-i18n="landing.door_admin_h">Se hva som ligger bak</h2>
-        <p data-i18n="landing.door_admin_p">Halvparten som er interessant krever innlogging. Begge kontoene star her.</p>
+        <p data-i18n="landing.door_admin_p">Halvparten av systemet ligger her. Du kommer rett inn.</p>
         <ul class="door-list">
           <li data-i18n="landing.door_admin_1">Kalender, kunderegister og pasientjournal med samtykke</li>
-          <li data-i18n="landing.door_admin_2">Audit-logg som fanger hvert oppslag, ikke bare endringer</li>
-          <li data-i18n="landing.door_admin_3">Rollestyrt tilgang, logg inn med begge og se forskjellen</li>
+          <li data-i18n="landing.door_admin_2">En logg som fanger hvert oppslag, ikke bare hver endring</li>
+          <li data-i18n="landing.door_admin_3">To roller. Bytt mellom dem i toppen av panelet og se hva som forsvinner</li>
         </ul>
         <a class="door-cta" href="kalender.html">
           <span data-i18n="landing.door_admin">Apne adminpanelet</span> <span class="arr" aria-hidden="true">→</span>
@@ -246,7 +246,7 @@
       <h2 data-i18n="landing.roles_heading">Hvem ser hva</h2>
       <p class="roles-lead" data-i18n="landing.roles_lead">Klinikken har to slags brukere.</p>
       <p data-i18n-html="landing.roles_p1">En <strong>ansatt</strong> ser sin egen kalender og sine egne pasienter. En <strong>administrator</strong> ser alt, og er den som bestemmer hvem som får tilgang til hva.</p>
-      <p data-i18n-html="landing.roles_p2">Journalen har én regel til. Hver gang noen åpner et pasientnotat, skrives det ned hvem det var og når.</p>
+      <p data-i18n-html="landing.roles_p2">Journalen har én regel til. Hver gang noen åpner et pasientnotat, skrives det ned hvem det var og når. Det gjelder oppslag, ikke bare endringer. Da kan klinikken svare på spørsmålet en pasient har rett til å stille: hvem har sett på opplysningene mine?</p>
       <p class="roles-try" data-i18n="landing.roles_try">Bytt mellom rollene inne i panelet og se hva som forsvinner fra menyen.</p>
     </div>
   </div>
@@ -275,11 +275,11 @@
       </div>
       <div class="inv-item">
         <h3 data-i18n="landing.inv5_h">Meldinger og venteliste</h3>
-        <p data-i18n="landing.inv5_p">Innboks fra kontaktskjemaet, og en FIFO-kø som kan tildeles ledige timer.</p>
+        <p data-i18n="landing.inv5_p">Innboks fra kontaktskjemaet, og en venteliste i køorden som kan tildeles ledige timer.</p>
       </div>
       <div class="inv-item">
-        <h3 data-i18n="landing.inv6_h">Audit-logg</h3>
-        <p data-i18n="landing.inv6_p">Hvem gjorde hva, når. Kun synlig for admin, og kan ikke redigeres av noen.</p>
+        <h3 data-i18n="landing.inv6_h">Logg over oppslag</h3>
+        <p data-i18n="landing.inv6_p">Hvem gjorde hva, og når. Også hvem som bare så. Bare administrator kan lese den, og ingen kan endre den.</p>
       </div>
     </div>
   </div>

@@ -18,7 +18,7 @@
   form-action 'self';
 ">
 
-<title>Audit-logg · Westengen Klinikk</title>
+<title>Logg over oppslag · Westengen Klinikk</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -218,8 +218,8 @@
   </div>
 
   <div id="appView" style="display:none;">
-    <h1 class="adm-accent">Audit-logg</h1>
-    <p class="lede">Append-only logg over alle journal- og administrasjons-handlinger. Brukes til Datatilsynet-rapportering og intern revisjon.</p>
+    <h1 class="adm-accent">Logg over oppslag</h1>
+    <p class="lede">Hvem gjorde hva, og når. Også hvem som bare åpnet en journal uten å endre noe. Linjene kan ikke redigeres eller slettes, heller ikke av en administrator, og det er nettopp derfor loggen er verdt noe: den kan brukes til å svare Datatilsynet, og til å svare en pasient som spør hvem som har sett opplysningene deres.</p>
 
     <!-- DEL 7 — forklarings-legende. Hjelper ikke-tekniske ansatte å forstå
          hva hver handling betyr. Teksten speiler ACTION_LABELS. -->
@@ -284,7 +284,7 @@
   </div>
 
   <div id="forbiddenView" class="empty" style="display:none;">
-    <p>Du har ikke tilgang til audit-loggen.</p>
+    <p>Du har ikke tilgang til loggen over oppslag.</p>
     <p><a href="kalender.html">← Tilbake til kalender</a></p>
   </div>
 
@@ -470,7 +470,7 @@
     })
     .catch(function (err) {
       console.error('Audit-spørring feilet:', err);
-      $('tableHost').innerHTML = '<div class="empty">Kunne ikke hente audit-logg. Sjekk nettverkstilkoblingen og prøv igjen.</div>';
+      $('tableHost').innerHTML = '<div class="empty">Fikk ikke hentet loggen. Prøv igjen om et øyeblikk.</div>';
     });
   }
   function renderTable() {
