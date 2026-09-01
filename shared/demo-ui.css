@@ -33,7 +33,10 @@
   --steel: #427aa1;   /* GITT - flater og kanter, aldri tekst */
   --ice:   #ebf2fa;   /* GITT */
   --navy:  #064789;   /* GITT */
-  --clay:  #427aa1;   /* historiske navn, beholdt for eldre regler */
+  --clay:  #427aa1;
+   /* historisk navn fra den varme paletten, der dette var lys
+      sand. Verdien er naa staalblaa: flate eller kant, aldri tekst,
+      og aldri bakgrunn for moerk tekst. */
   --peach: #dde8f3;
   --linen: #ebf2fa;
   --accent:       #064789;
@@ -551,14 +554,21 @@ body .wk-demo-card h2 { font-family: var(--font-display); }
    systemet man ikke ser ved aa klikke rundt: menypunktene en
    terapeut ikke har, er nettopp de som ikke er der.
 
-   Satt paa leireflaten slik at det leser som en merknad ved
-   siden av demoen, ikke som enda en funksjonsliste.
+   Seksjonen laa foer paa --clay med moerk blekktekst. Det navnet
+   er fra den forrige, varme paletten, der --clay var lys sand.
+   Da paletten ble kald fulgte verdien med (#427aa1) mens teksten
+   ble staaende: broedteksten havnet paa 2,6:1 og forsvant.
+   Tokenfila sier det rett ut om samme farge: «flater og kanter,
+   aldri tekst».
+   Loesningen er ikke en ny farge, men aa gjoere seksjonen ferdig
+   moerk. Den dype blaa er allerede i paletten, teksten er lys, og
+   siden faar en rytme: moerk inngang, lys demo, moerk merknad, lys
+   avslutning. Det svarer paa aa skille seksjonene ogsaa.
    ============================================================ */
 .roles {
-  background: var(--clay);
-  border-top: 1px solid rgba(11, 26, 43, .14);
-  border-bottom: 1px solid rgba(11, 26, 43, .14);
-  padding: 56px 0;
+  background: var(--navy);
+  color: var(--paper);
+  padding: 60px 0;
 }
 .roles-inner { max-width: 62ch; }
 .roles h2 {
@@ -566,28 +576,28 @@ body .wk-demo-card h2 { font-family: var(--font-display); }
   font-size: clamp(24px, 3vw, 30px);
   font-weight: 600;
   letter-spacing: -0.03em;
-  color: var(--ink);
+  color: var(--paper);
   margin: 0 0 6px;
 }
 .roles-lead {
   font-size: 16px;
   font-weight: 500;
-  color: var(--ink);
+  color: var(--paper);
   margin: 0 0 16px;
 }
 .roles p {
   font-size: 15.5px;
   line-height: 1.62;
-  color: #26384b;
+  color: rgba(235, 242, 250, .78);
   margin: 0 0 14px;
 }
-.roles p strong { color: var(--ink); font-weight: 600; }
+.roles p strong { color: #fff; font-weight: 600; }
 .roles-try {
   margin: 18px 0 0 !important;
   padding-top: 14px;
-  border-top: 1px solid rgba(11, 26, 43, .18);
+  border-top: 1px solid rgba(235, 242, 250, .22);
   font-size: 14px !important;
-  color: var(--accent-deep) !important;
+  color: var(--green-soft) !important;
   font-weight: 500;
 }
 

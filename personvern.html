@@ -99,7 +99,10 @@
   .site-footer {
     border-top: 1px solid var(--rule); padding: 26px 0; background: var(--paper-2);
   }
-  .footer-bottom { font-size: 12.5px; color: var(--muted); }
+  /* --muted er laget for lys grunn og gir 2,6:1 mot blekket i
+     footeren. Lys tekst med lav opasitet gir samme dempede uttrykk
+     og 7,3:1. */
+  .footer-bottom { font-size: 12.5px; color: rgba(235, 242, 250, 0.66); }
 
   @media (max-width: 620px) {
     .p-hero { padding: 52px 0 4px; }

@@ -45,7 +45,7 @@
     --muted: #4a5c6f;
     --rule: rgba(11,26,43,.16);
     --danger: #a4262c;
-    --warn: #b06a1f;
+    --warn: #a4621c;
     --warn-tint: #dde8f3;
     --info: #2C5F8B;
     --info-tint: #E5EEF5;
@@ -357,7 +357,10 @@
   .b-slot .bs-label {
     flex: 1;
     font-family: 'JetBrains Mono', monospace; font-size: 10px;
-    letter-spacing: 0.14em; text-transform: uppercase; color: var(--green-soft);
+    /* --green-soft er aksentfargen for moerke flater. Paa den lyse
+       tinten gir den 1,4:1 og forsvinner helt. --muted er tokenet
+       for dempet tekst paa lys grunn, og gir 5,0:1. */
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
   }
   .b-slot .bs-plus { font-size: 18px; line-height: 1; color: var(--green); }
 

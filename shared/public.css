@@ -54,7 +54,10 @@
   --green-deep: #04315b;   /* hover, 13.2:1 mot hvit */
   --green-soft: #8fc1e0;   /* aksent pa morke flater, 9.1:1 mot blekk */
   --green-tint: #cfe0f0;   /* svak aksentflate */
-  --clay:  #427aa1;        /* historisk navn, na stalblaa */
+  --clay:  #427aa1;
+   /* historisk navn fra den varme paletten, der dette var lys
+      sand. Verdien er naa staalblaa: flate eller kant, aldri tekst,
+      og aldri bakgrunn for moerk tekst. */
   --peach: #dde8f3;        /* historisk navn, na flate-2 */
   --linen: #ebf2fa;        /* historisk navn, na grunnflaten */
   --paper: #ebf2fa;
