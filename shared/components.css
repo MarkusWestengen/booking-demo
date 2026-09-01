@@ -4,16 +4,16 @@
    ============================================================ */
 
 :root {
-  --green: #1f4e4a;
-  --green-deep: #163b37;
-  --green-soft: #93c2bb;
-  --green-tint: #dce7e4;
-  --paper: #efe5dc;
-  --paper-2: #f3d8c7;
-  --ink: #2e2320;
-  --ink-2: #4a3b35;
-  --muted: #5c4d46;
-  --rule: rgba(46,35,32,.16);
+  --green: #064789;
+  --green-deep: #04315b;
+  --green-soft: #8fc1e0;
+  --green-tint: #cfe0f0;
+  --paper: #ebf2fa;
+  --paper-2: #dde8f3;
+  --ink: #0b1a2b;
+  --ink-2: #26384b;
+  --muted: #4a5c6f;
+  --rule: rgba(11,26,43,.16);
 }
 
 /* ============ MODAL BASE ============ */
@@ -324,7 +324,7 @@
   color: var(--paper);
   border: 0;
   cursor: pointer;
-  box-shadow: 0 8px 24px -4px rgba(31, 78, 74, 0.45);
+  box-shadow: 0 8px 24px -4px rgba(6, 71, 137, 0.45);
   display: grid; place-items: center;
   position: relative;
   transition: transform .2s ease, background .2s ease;
@@ -335,7 +335,7 @@
   position: absolute;
   top: -2px; right: -2px;
   width: 14px; height: 14px;
-  background: var(--clay, #d0b8ac);
+  background: var(--clay, #427aa1);
   border-radius: 50%;
   border: 2px solid var(--paper);
   opacity: 0;
@@ -632,13 +632,13 @@
   border-radius: 2px;
   background: var(--ink);
   color: var(--paper);
-  box-shadow: 4px 4px 0 0 rgba(31, 78, 74, 0.9);
+  box-shadow: 4px 4px 0 0 rgba(6, 71, 137, 0.9);
   transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
 }
 .tas-chat-btn:hover {
   background: var(--ink);
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 0 rgba(31, 78, 74, 0.9);
+  box-shadow: 2px 2px 0 0 rgba(6, 71, 137, 0.9);
 }
 .tas-chat-btn svg { width: 23px; height: 23px; }
 .tas-chat-btn .pulse {
@@ -683,10 +683,10 @@
 .tas-chat-btn {
   background: var(--green);
   color: var(--paper);
-  box-shadow: 4px 4px 0 0 var(--clay, #d0b8ac);
+  box-shadow: 4px 4px 0 0 var(--clay, #427aa1);
 }
 .tas-chat-btn:hover {
   background: var(--green-deep);
-  box-shadow: 2px 2px 0 0 var(--clay, #d0b8ac);
+  box-shadow: 2px 2px 0 0 var(--clay, #427aa1);
 }
 .tas-chat-btn svg { width: 25px; height: 25px; }

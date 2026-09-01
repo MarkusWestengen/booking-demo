@@ -24,20 +24,25 @@
    ============================================================ */
 
 :root {
-  /* Aksent — irrgronn mot de tre varme, lyse gitte fargene.
-     Begrunnelsen staar i sin helhet i shared/public.css. Egne
-     navn her slik at nye regler slipper a arve de historiske
-     --green-*-navnene. */
-  --clay:  #d0b8ac;
-  --peach: #f3d8c7;
-  --linen: #efe5dc;
-  --accent:       #1f4e4a;
-  --accent-deep:  #163b37;
-  --accent-soft:  #93c2bb;
-  --accent-tint:  #dce7e4;
+  /* Tre kalde blatoner var gitt. Rollefordelingen er malt, ikke
+     valgt: stal #427aa1 gir 4.11:1 som tekst pa grunnflaten og
+     faller under AA, saa den baerer flater og kanter. Navy
+     #064789 gir 8.2:1 og tar aksentrollen. Full begrunnelse med
+     alle tall staar i shared/public.css. Egne navn her slik at
+     nye regler slipper a arve de historiske --green-*-navnene. */
+  --steel: #427aa1;   /* GITT - flater og kanter, aldri tekst */
+  --ice:   #ebf2fa;   /* GITT */
+  --navy:  #064789;   /* GITT */
+  --clay:  #427aa1;   /* historiske navn, beholdt for eldre regler */
+  --peach: #dde8f3;
+  --linen: #ebf2fa;
+  --accent:       #064789;
+  --accent-deep:  #04315b;
+  --accent-soft:  #8fc1e0;
+  --accent-tint:  #cfe0f0;
 
-  --hair:         rgba(46, 35, 32, 0.12);
-  --hair-strong:  rgba(46, 35, 32, 0.22);
+  --hair:         rgba(11, 26, 43, 0.12);
+  --hair-strong:  rgba(11, 26, 43, 0.22);
 
   /* Typeskala. Tett sporing pa display — Space Grotesk taler det, og
      det er det som gir den tabell-aktige tettheten. */
@@ -286,7 +291,7 @@
   max-width: 44ch;
 }
 .door-panel--public > p { color: var(--ink-2); }
-.door-panel--admin  > p { color: #c9b5ac; }
+.door-panel--admin  > p { color: #a8cde6; }
 
 .door-list { list-style: none; margin: 0 0 26px; padding: 0; }
 .door-list li {
@@ -305,7 +310,7 @@
   background: var(--accent);
 }
 .door-panel--public .door-list li { color: var(--ink-2); }
-.door-panel--admin  .door-list li { color: #c9b5ac; border-color: rgba(255,255,255,.13); }
+.door-panel--admin  .door-list li { color: #a8cde6; border-color: rgba(255,255,255,.13); }
 .door-panel--admin  .door-list li::before { background: var(--accent-soft); }
 
 .door-cta {
@@ -359,7 +364,7 @@
 .cred-row code {
   font-family: var(--font-mono);
   font-size: 11.5px;
-  color: #c9b5ac;
+  color: #a8cde6;
   background: rgba(255,255,255,.07);
   padding: 3px 7px;
   word-break: break-all;
@@ -529,12 +534,12 @@ body .wk-demo-card h2 { font-family: var(--font-display); }
   margin: 12px 0 0;
   font-size: 12.5px;
   line-height: 1.5;
-  color: #A99089;
+  color: #7fb3d5;
 }
 .door-foot a {
   color: var(--accent-soft);
   text-decoration: none;
-  border-bottom: 1px solid rgba(147, 194, 187, .4);
+  border-bottom: 1px solid rgba(143, 193, 224, .4);
 }
 .door-foot a:hover { border-bottom-color: var(--accent-soft); }
 .door-foot a:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 3px; }
@@ -551,8 +556,8 @@ body .wk-demo-card h2 { font-family: var(--font-display); }
    ============================================================ */
 .roles {
   background: var(--clay);
-  border-top: 1px solid rgba(46, 35, 32, .14);
-  border-bottom: 1px solid rgba(46, 35, 32, .14);
+  border-top: 1px solid rgba(11, 26, 43, .14);
+  border-bottom: 1px solid rgba(11, 26, 43, .14);
   padding: 56px 0;
 }
 .roles-inner { max-width: 62ch; }
@@ -573,15 +578,24 @@ body .wk-demo-card h2 { font-family: var(--font-display); }
 .roles p {
   font-size: 15.5px;
   line-height: 1.62;
-  color: #3E312C;
+  color: #26384b;
   margin: 0 0 14px;
 }
 .roles p strong { color: var(--ink); font-weight: 600; }
 .roles-try {
   margin: 18px 0 0 !important;
   padding-top: 14px;
-  border-top: 1px solid rgba(46, 35, 32, .18);
+  border-top: 1px solid rgba(11, 26, 43, .18);
   font-size: 14px !important;
   color: var(--accent-deep) !important;
   font-weight: 500;
+}
+
+/* Lange sammensatte norske ord (administrasjonssystem,
+   behandleradministrasjon) sprenger smale skjermer. Orddeling der
+   overskriftene er store nok til at det merkes. */
+.page-head h1, .sec-head h2, .door-panel h2, .roles h2, .spec h2 {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: break-word;
 }

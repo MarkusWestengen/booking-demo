@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow" />
-<meta name="theme-color" content="#2e2320">
+<meta name="theme-color" content="#0b1a2b">
 
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
@@ -28,10 +28,10 @@
 
 <style>
   :root {
-    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb; --green-tint: #dce7e4;
-    --paper: #efe5dc; --paper-2: #f3d8c7;
-    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
-    --rule: rgba(46,35,32,.16); --danger: #9e2b1f;
+    --green: #064789; --green-deep: #04315b; --green-soft: #8fc1e0; --green-tint: #cfe0f0;
+    --paper: #ebf2fa; --paper-2: #dde8f3;
+    --ink: #0b1a2b; --ink-2: #26384b; --muted: #4a5c6f;
+    --rule: rgba(11,26,43,.16); --danger: #a4262c;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -60,7 +60,7 @@
     padding: 4px 8px; white-space: nowrap; }
   .who-chip.admin { background: var(--green); }
   .topbar a, .topbar button { color: var(--paper); background: transparent;
-    border: 1px solid rgba(239, 229, 220,.22); padding: 6px 10px;
+    border: 1px solid rgba(235, 242, 250,.22); padding: 6px 10px;
     font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
   .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
 
@@ -93,7 +93,7 @@
 
   /* Faresone i tjeneste-editoren — arkivering (skriv-for-å-bekrefte) */
   .danger-zone { margin-top: 22px; padding: 16px; border: 1px solid var(--danger);
-    border-left-width: 4px; background: #fdeaea; }
+    border-left-width: 4px; background: #fbebeb; }
   .danger-zone h4 { margin: 0 0 6px; font-family: 'JetBrains Mono', monospace;
     font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--danger); }
   .danger-zone .dz-text { margin: 0 0 12px; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
@@ -187,7 +187,7 @@
 
   /* Sheet (modal) — matcher kalender.html-mønster */
   .sheet-overlay { position: fixed; inset: 0; z-index: 100;
-    background: rgba(46, 35, 32,.6); display: none; }
+    background: rgba(11, 26, 43,.6); display: none; }
   .sheet-overlay.open { display: block; }
   .sheet { position: fixed; left: 0; right: 0; bottom: 0;
     background: var(--paper);
@@ -971,7 +971,7 @@
   }
 
   function renderColorPicker(currentColor) {
-    var presets = ['#1f4e4a', '#93c2bb', '#d0b8ac', '#5c4d46', '#2e2320', '#9e2b1f'];
+    var presets = ['#064789', '#8fc1e0', '#427aa1', '#4a5c6f', '#0b1a2b', '#a4262c'];
     var swatches = presets.map(function (c) {
       return '<span class="color-swatch' + (currentColor === c ? ' selected' : '') +
         '" data-color="' + escapeHtml(c) + '" style="background:' + escapeHtml(c) + ';"></span>';

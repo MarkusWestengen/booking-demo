@@ -49,8 +49,8 @@
       /* LANG strek (brukerpreferanse): full bredde av innholdsområdet, ikke kun
          under teksten. display:block → border-bottom spenner tvers over. Farge/
          tykkelse/luft beholdt. */
-      '.adm-accent{display:block;padding-bottom:6px;border-bottom:2px solid var(--green,#1f4e4a);margin-bottom:14px;}' +
-      '.card>h2,.upload-card>h2,.editor>h2{padding-bottom:8px;border-bottom:2px solid var(--green,#1f4e4a);}' +
+      '.adm-accent{display:block;padding-bottom:6px;border-bottom:2px solid var(--green,#064789);margin-bottom:14px;}' +
+      '.card>h2,.upload-card>h2,.editor>h2{padding-bottom:8px;border-bottom:2px solid var(--green,#064789);}' +
 
       /* ===== BØLGE 1 — delt admin-fundament (tokens, knapper, input, fokus, kort).
          ADDITIVT: supplerer sidenes inline :root + komponenter, river ingenting.
@@ -60,43 +60,43 @@
       /* Token-skala (additivt — nye navn, ingen kollisjon med sidens :root). */
       ':root{--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;--sp-6:32px;' +
         '--radius:0;--radius-pill:999px;' +
-        '--shadow-sm:0 1px 2px rgba(46, 35, 32,.05);' +
-        '--shadow-md:0 4px 14px rgba(46, 35, 32,.08);' +
-        '--shadow-lg:0 -14px 36px rgba(46, 35, 32,.18);}' +
+        '--shadow-sm:0 1px 2px rgba(11, 26, 43,.05);' +
+        '--shadow-md:0 4px 14px rgba(11, 26, 43,.08);' +
+        '--shadow-lg:0 -14px 36px rgba(11, 26, 43,.18);}' +
       /* Subtil dybde på de flate admin-kortene (additiv hvileskygge). */
-      '.card{box-shadow:var(--shadow-sm,0 1px 2px rgba(46, 35, 32,.05));}' +
+      '.card{box-shadow:var(--shadow-sm,0 1px 2px rgba(11, 26, 43,.05));}' +
       /* Konsistent grønn fokus-ring på tvers. Lav (element-)spesifisitet, så
          sider med egne .btn:focus-visible (klasse) beholder sine. */
-      'a:focus-visible,button:focus-visible,[tabindex]:focus-visible,[role=button]:focus-visible,[role=link]:focus-visible{outline:2px solid var(--green,#1f4e4a);outline-offset:2px;}' +
-      'input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--green,#1f4e4a);outline-offset:-1px;}' +
+      'a:focus-visible,button:focus-visible,[tabindex]:focus-visible,[role=button]:focus-visible,[role=link]:focus-visible{outline:2px solid var(--green,#064789);outline-offset:2px;}' +
+      'input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--green,#064789);outline-offset:-1px;}' +
       /* Delt knappe-hierarki (opt-in via .ui-btn*). Primær fylt grønn, sekundær
          rolig kant, stille = lav vekt (Avbryt/Logg ut), fare rød. Bred adopsjon
          på eksisterende knapper hører til bølge 3. */
       '.ui-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:14px;font-weight:500;line-height:1;cursor:pointer;padding:10px 16px;border:1px solid transparent;border-radius:var(--radius,0);text-decoration:none;transition:background .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease;}' +
       '.ui-btn:disabled,.ui-btn[disabled]{opacity:.55;cursor:not-allowed;}' +
-      '.ui-btn-primary{background:var(--green,#1f4e4a);color:#fff;}' +
-      '.ui-btn-secondary{background:transparent;color:var(--ink,#2e2320);border-color:var(--rule,rgba(46,35,32,.16));}' +
-      '.ui-btn-quiet{background:transparent;color:var(--muted,#5c4d46);border-color:transparent;}' +
-      '.ui-btn-danger{background:transparent;color:var(--danger,#9e2b1f);border-color:var(--danger,#9e2b1f);}' +
+      '.ui-btn-primary{background:var(--green,#064789);color:#fff;}' +
+      '.ui-btn-secondary{background:transparent;color:var(--ink,#0b1a2b);border-color:var(--rule,rgba(11,26,43,.16));}' +
+      '.ui-btn-quiet{background:transparent;color:var(--muted,#4a5c6f);border-color:transparent;}' +
+      '.ui-btn-danger{background:transparent;color:var(--danger,#a4262c);border-color:var(--danger,#a4262c);}' +
       '@media (hover:hover){' +
-        '.ui-btn-primary:hover{background:var(--green-deep,#163b37);}' +
-        '.ui-btn-secondary:hover{border-color:var(--ink,#2e2320);}' +
-        '.ui-btn-quiet:hover{color:var(--ink,#2e2320);background:var(--paper-2,#f3d8c7);}' +
-        '.ui-btn-danger:hover{background:var(--danger,#9e2b1f);color:#fff;}' +
+        '.ui-btn-primary:hover{background:var(--green-deep,#04315b);}' +
+        '.ui-btn-secondary:hover{border-color:var(--ink,#0b1a2b);}' +
+        '.ui-btn-quiet:hover{color:var(--ink,#0b1a2b);background:var(--paper-2,#dde8f3);}' +
+        '.ui-btn-danger:hover{background:var(--danger,#a4262c);color:#fff;}' +
       '}' +
       /* Delt input-stil (opt-in via .ui-input) — lik høyde/padding/kant + grønn fokus. */
-      '.ui-input{width:100%;box-sizing:border-box;height:38px;padding:9px 11px;font:inherit;font-size:14px;border:1px solid var(--rule,rgba(46,35,32,.16));background:#fff;border-radius:var(--radius,0);}' +
+      '.ui-input{width:100%;box-sizing:border-box;height:38px;padding:9px 11px;font:inherit;font-size:14px;border:1px solid var(--rule,rgba(11,26,43,.16));background:#fff;border-radius:var(--radius,0);}' +
       'textarea.ui-input{height:auto;min-height:64px;resize:vertical;}' +
       /* Delt kort-base (opt-in via .ui-card) — subtil dybde + myk hover, kun på
          pekerenheter (touch får ikke hengende hover). */
-      '.ui-card{background:#fff;border:1px solid var(--rule,rgba(46,35,32,.16));border-radius:var(--radius,0);box-shadow:var(--shadow-sm,0 1px 2px rgba(46, 35, 32,.05));transition:box-shadow .15s ease,border-color .15s ease,transform .15s ease;}' +
-      '@media (hover:hover){.ui-card.is-interactive:hover{box-shadow:var(--shadow-md,0 4px 14px rgba(46, 35, 32,.08));border-color:var(--green-soft,#93c2bb);transform:translateY(-1px);}}' +
+      '.ui-card{background:#fff;border:1px solid var(--rule,rgba(11,26,43,.16));border-radius:var(--radius,0);box-shadow:var(--shadow-sm,0 1px 2px rgba(11, 26, 43,.05));transition:box-shadow .15s ease,border-color .15s ease,transform .15s ease;}' +
+      '@media (hover:hover){.ui-card.is-interactive:hover{box-shadow:var(--shadow-md,0 4px 14px rgba(11, 26, 43,.08));border-color:var(--green-soft,#8fc1e0);transform:translateY(-1px);}}' +
       /* Delt tom-tilstand (.ui-empty) — rolig, sentrert, diskret ikon. Brukes på
          «Ingen X ennå»-tilstander (IKKE feil-/tilgang-tilstander). */
       '.ui-empty{display:flex;flex-direction:column;align-items:center;gap:12px;padding:44px 18px;text-align:center;}' +
-      '.ui-empty svg{width:32px;height:32px;color:var(--green-soft,#93c2bb);opacity:.85;}' +
-      '.ui-empty p{margin:0;font-size:14px;color:var(--ink-2,#4a3b35);}' +
-      '.ui-empty .hint{font-size:12.5px;color:var(--muted,#5c4d46);max-width:34ch;line-height:1.5;}' +
+      '.ui-empty svg{width:32px;height:32px;color:var(--green-soft,#8fc1e0);opacity:.85;}' +
+      '.ui-empty p{margin:0;font-size:14px;color:var(--ink-2,#26384b);}' +
+      '.ui-empty .hint{font-size:12.5px;color:var(--muted,#4a5c6f);max-width:34ch;line-height:1.5;}' +
       /* Kompakt variant for tom-tilstand INNE i et kort/en kategori (mindre luft). */
       '.ui-empty.compact{padding:18px 14px;gap:8px;}' +
       '.ui-empty.compact svg{width:24px;height:24px;}' +
@@ -104,7 +104,7 @@
 
       /* Mobil: grønn stripe med kun tittel + meny-knapp */
       '@media (max-width:760px){' +
-        '.bottom-nav{display:block !important;background:var(--green,#1f4e4a) !important;' +
+        '.bottom-nav{display:block !important;background:var(--green,#064789) !important;' +
           'border-top:0 !important;overflow:visible !important;' +
           'padding:0 0 env(safe-area-inset-bottom,0px) 0 !important;}' +
         '.bottom-nav .bn-btn{display:none !important;}' +
@@ -120,39 +120,39 @@
       '}' +
       '@media (min-width:761px){.bn-bar,.bn-sheet-ov{display:none !important;}}' +
       /* Popup-ark (bunn-sheet) */
-      '.bn-sheet-ov{position:fixed;inset:0;background:rgba(46, 35, 32,.5);z-index:9500;' +
+      '.bn-sheet-ov{position:fixed;inset:0;background:rgba(11, 26, 43,.5);z-index:9500;' +
         'opacity:0;visibility:hidden;transition:opacity .2s ease;}' +
       '.bn-sheet-ov.open{opacity:1;visibility:visible;}' +
-      '.bn-sheet{position:fixed;left:0;right:0;bottom:0;z-index:9501;background:var(--paper,#efe5dc);' +
-        'border-top:3px solid var(--green,#1f4e4a);box-shadow:0 -14px 36px rgba(46, 35, 32,.18);' +
+      '.bn-sheet{position:fixed;left:0;right:0;bottom:0;z-index:9501;background:var(--paper,#ebf2fa);' +
+        'border-top:3px solid var(--green,#064789);box-shadow:0 -14px 36px rgba(11, 26, 43,.18);' +
         'padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));max-height:86vh;overflow-y:auto;' +
         'transform:translateY(100%);transition:transform .28s cubic-bezier(.22,.61,.36,1);}' +
       '.bn-sheet.open{transform:translateY(0);}' +
       '.bn-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;' +
-        'padding:16px 16px 12px;border-bottom:1px solid var(--rule,rgba(46,35,32,.16));' +
-        'position:sticky;top:0;background:var(--paper,#efe5dc);z-index:1;}' +
+        'padding:16px 16px 12px;border-bottom:1px solid var(--rule,rgba(11,26,43,.16));' +
+        'position:sticky;top:0;background:var(--paper,#ebf2fa);z-index:1;}' +
       '.bn-sheet-head h2{font-family:\'Fraunces\',Georgia,serif;font-weight:400;font-size:21px;letter-spacing:-0.01em;margin:0;}' +
       '.bn-sheet-close{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex:0 0 auto;' +
-        'border:1px solid var(--rule,rgba(46,35,32,.16));background:transparent;color:var(--ink-2,#4a3b35);' +
+        'border:1px solid var(--rule,rgba(11,26,43,.16));background:transparent;color:var(--ink-2,#26384b);' +
         'font-size:22px;line-height:1;cursor:pointer;}' +
-      '.bn-sheet-close:hover{border-color:var(--green,#1f4e4a);color:var(--green-deep,#163b37);}' +
+      '.bn-sheet-close:hover{border-color:var(--green,#064789);color:var(--green-deep,#04315b);}' +
       '.bn-sheet-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px;}' +
       '.bn-sheet-list .bn-btn{display:flex !important;flex-direction:row;align-items:center;gap:12px;' +
-        'padding:16px 14px;min-width:0;background:#fff;border:1px solid var(--rule,rgba(46,35,32,.16));' +
-        'color:var(--ink,#2e2320);text-decoration:none;cursor:pointer;text-align:left;' +
+        'padding:16px 14px;min-width:0;background:#fff;border:1px solid var(--rule,rgba(11,26,43,.16));' +
+        'color:var(--ink,#0b1a2b);text-decoration:none;cursor:pointer;text-align:left;' +
         'font-family:\'Inter\',system-ui,sans-serif;font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;}' +
-      '.bn-sheet-list .bn-btn .bn-ico{display:flex !important;margin:0;flex:0 0 auto;color:var(--green-deep,#163b37);' +
+      '.bn-sheet-list .bn-btn .bn-ico{display:flex !important;margin:0;flex:0 0 auto;color:var(--green-deep,#04315b);' +
         'font-size:18px;line-height:1;}' +
-      '.bn-sheet-list .bn-btn:hover{border-color:var(--green-soft,#93c2bb);}' +
-      '.bn-sheet-list .bn-btn.active{border-color:var(--green,#1f4e4a);background:var(--green-tint,#dce7e4);color:var(--green-deep,#163b37);}' +
+      '.bn-sheet-list .bn-btn:hover{border-color:var(--green-soft,#8fc1e0);}' +
+      '.bn-sheet-list .bn-btn.active{border-color:var(--green,#064789);background:var(--green-tint,#cfe0f0);color:var(--green-deep,#04315b);}' +
       /* ---- Konto-seksjon: header-handlingene flyttet inn i menyen ---- */
       '.bn-acct{padding:14px 14px 6px;display:flex;flex-direction:column;gap:10px;}' +
       '.bn-acct>*{min-width:0;}' +
       /* Rolle-rad (identitet) — divider under skiller fra handlingene */
       '.bn-acct #whoChip,.bn-acct #roleBadge{display:block !important;width:100%;box-sizing:border-box;' +
-        'background:transparent !important;color:var(--ink,#2e2320) !important;border:0 !important;' +
+        'background:transparent !important;color:var(--ink,#0b1a2b) !important;border:0 !important;' +
         'font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;' +
-        'padding:2px 2px 12px;margin:0;border-bottom:1px solid var(--rule,rgba(46,35,32,.16)) !important;}' +
+        'padding:2px 2px 12px;margin:0;border-bottom:1px solid var(--rule,rgba(11,26,43,.16)) !important;}' +
       /* Varsling-mount får egen rad med god tap-høyde (≥44px) */
       '.bn-acct #varslingMount{display:flex !important;align-items:center;min-height:48px;padding:2px;}' +
       /* Lenker + logg ut som fulle rader */
@@ -160,13 +160,13 @@
       '.bn-acct #topActions a,.bn-acct #topActions button,' +
       '.bn-acct #topbarRight a,.bn-acct #topbarRight button{display:flex;align-items:center;gap:10px;' +
         'width:100%;box-sizing:border-box;min-height:48px;margin:0;padding:13px 14px;' +
-        'border:1px solid var(--rule,rgba(46,35,32,.16));background:#fff;border-radius:0;' +
+        'border:1px solid var(--rule,rgba(11,26,43,.16));background:#fff;border-radius:0;' +
         'font-family:\'Inter\',system-ui,sans-serif;font-size:14px;font-weight:500;letter-spacing:0;' +
-        'color:var(--ink,#2e2320);text-decoration:none;text-align:left;cursor:pointer;}' +
+        'color:var(--ink,#0b1a2b);text-decoration:none;text-align:left;cursor:pointer;}' +
       '.bn-acct #topActions a:hover,.bn-acct #topActions button:hover,' +
-      '.bn-acct #topbarRight a:hover,.bn-acct #topbarRight button:hover{border-color:var(--green-soft,#93c2bb);}' +
+      '.bn-acct #topbarRight a:hover,.bn-acct #topbarRight button:hover{border-color:var(--green-soft,#8fc1e0);}' +
       '.bn-acct #topActions #logoutBtn,.bn-acct #topbarRight #logoutBtn{' +
-        'color:#7d2418;border-color:#e2c6c0;font-weight:600;}' +
+        'color:#7a1912;border-color:#e2c6c0;font-weight:600;}' +
       /* ---- Sentrer logoen i topp-headeren på mobil. Headeren er ryddet
          (konto-nodene flyttet til menyen ≤760px), så kun .brand står igjen.
          Tving row + center deterministisk på tvers av begge header-mønstre

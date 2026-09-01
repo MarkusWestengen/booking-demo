@@ -9,7 +9,7 @@
 --
 --   1) KUNDEBEKREFTELSE (ny) → new.email, når e-post finnes:
 --      full timeoversikt — referanse, tjeneste, terapeut, dato,
---      tid, pris, adresse (Storgata 1, 0155 Oslo) — pluss
+--      tid, pris, adresse (Bregneveien 12, 0283 Oslo) — pluss
 --      avbestillingsregelen (24 t / no-show) og AVBESTILL-knapp
 --      med token-lenke. Brand-stil (grønn header) som 0039-malen.
 --   2) KLINIKK-VARSEL (uendret innhold fra 0025/0029) → notify_to.
@@ -89,7 +89,7 @@ begin
       ||     '<tr><td width="110" style="padding:12px 16px 12px 0;border-bottom:1px solid #ECE6DA;font-family:Courier,monospace;font-size:11px;letter-spacing:0.07em;color:#76776F;vertical-align:top;">PRIS</td>'
       ||       '<td style="padding:12px 0;border-bottom:1px solid #ECE6DA;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#15191A;">' || price_str || '</td></tr>'
       ||     '<tr><td width="110" style="padding:12px 16px 12px 0;border-bottom:1px solid #ECE6DA;font-family:Courier,monospace;font-size:11px;letter-spacing:0.07em;color:#76776F;vertical-align:top;">STED</td>'
-      ||       '<td style="padding:12px 0;border-bottom:1px solid #ECE6DA;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#15191A;">Storgata 1, 0155 Oslo</td></tr>'
+      ||       '<td style="padding:12px 0;border-bottom:1px solid #ECE6DA;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#15191A;">Bregneveien 12, 0283 Oslo</td></tr>'
       ||     '<tr><td width="110" style="padding:12px 16px 12px 0;font-family:Courier,monospace;font-size:11px;letter-spacing:0.07em;color:#76776F;vertical-align:top;">REFERANSE</td>'
       ||       '<td style="padding:12px 0;font-family:Courier,monospace;font-size:14px;color:#15191A;">' || e_ref || '</td></tr>'
       ||   '</table>'
@@ -106,7 +106,7 @@ begin
       ||   '</div>'
       || '</td></tr>'
       || '<tr><td align="center" bgcolor="#15191A" style="background-color:#15191A;padding:26px 40px;">'
-      ||   '<div style="font-family:Courier,monospace;font-size:10px;letter-spacing:0.14em;color:#5f6058;">WESTENGEN KLINIKK · STORGATA 1, 0155 OSLO · +47 400 00 000</div>'
+      ||   '<div style="font-family:Courier,monospace;font-size:10px;letter-spacing:0.14em;color:#5f6058;">WESTENGEN KLINIKK · BREGNEVEIEN 12, 0283 OSLO · +47 400 00 000</div>'
       || '</td></tr>'
       || '</table></td></tr></table></body></html>';
 

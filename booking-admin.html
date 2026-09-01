@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<meta name="theme-color" content="#2e2320" />
+<meta name="theme-color" content="#0b1a2b" />
 <meta name="robots" content="noindex, nofollow" />
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -35,17 +35,17 @@
 <link rel="stylesheet" href="shared/booking-flow.css">
 <style>
   :root {
-    --green: #1f4e4a;
-    --green-deep: #163b37;
-    --green-soft: #93c2bb;
-    --green-tint: #dce7e4;
-    --paper: #efe5dc;
-    --paper-2: #f3d8c7;
-    --ink: #2e2320;
-    --ink-2: #4a3b35;
-    --muted: #5c4d46;
-    --rule: rgba(46,35,32,.16);
-    --danger: #9e2b1f;
+    --green: #064789;
+    --green-deep: #04315b;
+    --green-soft: #8fc1e0;
+    --green-tint: #cfe0f0;
+    --paper: #ebf2fa;
+    --paper-2: #dde8f3;
+    --ink: #0b1a2b;
+    --ink-2: #26384b;
+    --muted: #4a5c6f;
+    --rule: rgba(11,26,43,.16);
+    --danger: #a4262c;
     --info: #2C5F8B;
     --info-tint: #E5EEF5;
   }
@@ -93,11 +93,11 @@
     box-shadow: none;
   }
   .topbar-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .topbar-right .who { font-size: 13px; color: rgba(239, 229, 220,.7); }
+  .topbar-right .who { font-size: 13px; color: rgba(235, 242, 250,.7); }
   .topbar a, .topbar button {
     color: var(--paper);
     background: transparent;
-    border: 1px solid rgba(239, 229, 220,.2);
+    border: 1px solid rgba(235, 242, 250,.2);
     padding: 8px 14px;
     font-family: inherit; font-size: 13px;
     cursor: pointer; text-decoration: none;
@@ -130,8 +130,8 @@
   }
   .login input:focus { outline: 2px solid var(--green); outline-offset: -2px; }
   .login .err {
-    background: #fdeaea; border-left: 3px solid var(--danger);
-    padding: 10px 14px; font-size: 13px; color: #7d2418; margin-bottom: 16px;
+    background: #fbebeb; border-left: 3px solid var(--danger);
+    padding: 10px 14px; font-size: 13px; color: #7a1912; margin-bottom: 16px;
   }
   .btn-primary {
     background: var(--green); color: #fff; border: 0;
@@ -288,8 +288,8 @@
   }
   .pill-confirmed { background: var(--green-tint); color: var(--green-deep); }
   .pill-completed { background: var(--info-tint); color: var(--info); }
-  .pill-cancelled { background: #fdeaea; color: var(--danger); }
-  .pill-no_show   { background: #e3d6cb; color: #6b5a52; }
+  .pill-cancelled { background: #fbebeb; color: var(--danger); }
+  .pill-no_show   { background: #dde8f3; color: #4a5c6f; }
 
   /* ===== Skeleton ===== */
   .skeleton-row {
@@ -322,13 +322,13 @@
   /* Bølge 3 — diskret ikon over tom-tilstanden (harmonisert med .ui-empty). */
   .state-card svg { width: 32px; height: 32px; color: var(--green-soft); opacity: 0.85; margin-bottom: 16px; }
   .error-banner {
-    background: #fdeaea; border-left: 3px solid var(--danger);
-    padding: 14px 18px; color: #7d2418; font-size: 14px;
+    background: #fbebeb; border-left: 3px solid var(--danger);
+    padding: 14px 18px; color: #7a1912; font-size: 14px;
     display: flex; justify-content: space-between; align-items: center; gap: 12px;
     flex-wrap: wrap;
   }
   .error-banner button {
-    background: transparent; border: 1px solid #9e2b1f80; color: var(--danger);
+    background: transparent; border: 1px solid #a4262c80; color: var(--danger);
     padding: 6px 14px; font-family: inherit; font-size: 13px; cursor: pointer;
   }
   .error-banner button:hover { background: var(--danger); color: #fff; }
@@ -349,7 +349,7 @@
   .export-notes-toggle input { width: 15px; height: 15px; accent-color: var(--green); }
   .btn-danger {
     background: transparent; color: var(--danger);
-    border: 1px solid #9e2b1f80;
+    border: 1px solid #a4262c80;
     padding: 8px 14px; font-family: inherit; font-size: 13px; cursor: pointer;
     white-space: nowrap;
   }
@@ -384,7 +384,7 @@
   /* ===== Detail modal ===== */
   .modal-overlay {
     position: fixed; inset: 0; z-index: 1000;
-    background: rgba(46, 35, 32, .72);
+    background: rgba(11, 26, 43, .72);
     display: none; align-items: center; justify-content: center;
     padding: 20px;
     overflow-x: hidden;   /* aldri horisontal forskyvning av modal-laget */
@@ -449,7 +449,7 @@
   }
   .modal-gdpr {
     padding: 14px 28px 16px; border-top: 1px solid var(--rule);
-    background: #efe5dc;
+    background: #ebf2fa;
   }
   .modal-gdpr h4 {
     margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
@@ -555,7 +555,7 @@
     background: transparent; border: 0; color: var(--danger);
     font-size: 18px; cursor: pointer; padding: 0 2px; line-height: 1;
   }
-  .holiday-chip button:hover { color: #7d2418; }
+  .holiday-chip button:hover { color: #7a1912; }
   .holidays-empty {
     color: var(--muted); font-size: 13px;
     font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em;
@@ -576,7 +576,7 @@
     padding: 14px 20px;
     font-size: 14px; line-height: 1.4;
     max-width: 420px;
-    box-shadow: 0 6px 24px rgba(46, 35, 32,.18);
+    box-shadow: 0 6px 24px rgba(11, 26, 43,.18);
     transform: translateY(140%); opacity: 0;
     transition: transform .3s ease, opacity .3s ease;
     pointer-events: none;
@@ -609,8 +609,8 @@
 
   /* ===== Auth-error overlay (when role missing) ===== */
   .auth-error {
-    background: #fdeaea; border-left: 3px solid var(--danger);
-    padding: 14px 18px; font-size: 14px; color: #7d2418;
+    background: #fbebeb; border-left: 3px solid var(--danger);
+    padding: 14px 18px; font-size: 14px; color: #7a1912;
     margin: 0 0 20px;
   }
   .auth-error strong { display: block; margin-bottom: 4px; }
@@ -655,7 +655,7 @@
     .tab:last-child { grid-column: 1 / -1; }
     .tab.active {
       color: var(--ink); border-color: var(--green);
-      background: rgba(31, 78, 74, 0.10);
+      background: rgba(6, 71, 137, 0.10);
     }
 
     /* Ingen horisontal forskyvning av siden på mobil. Trygt her: den
@@ -780,8 +780,8 @@
 
   /* ---- Ufordelte bookinger + terapeut-tildeling (STEG 5) ---- */
   .unassigned-section {
-    border: 1px solid var(--warn, #C97A2A);
-    background: var(--warn-tint, #f3d8c7);
+    border: 1px solid var(--warn, #b06a1f);
+    background: var(--warn-tint, #dde8f3);
     padding: 16px 18px;
     margin-bottom: 20px;
   }
@@ -790,7 +790,7 @@
     display: flex; align-items: center; gap: 8px;
   }
   .unassigned-count {
-    background: var(--warn, #C97A2A); color: #fff;
+    background: var(--warn, #b06a1f); color: #fff;
     font-size: 12px; font-weight: 600;
     border-radius: 999px; padding: 1px 9px;
   }
@@ -886,8 +886,8 @@
   }
   .wl-consent input { width: 18px; height: 18px; flex: none; margin-top: 1px; accent-color: var(--green); }
   .wl-assign-err {
-    background: #fdeaea; border-left: 3px solid var(--danger);
-    padding: 10px 13px; font-size: 13px; color: #7d2418; margin-bottom: 14px;
+    background: #fbebeb; border-left: 3px solid var(--danger);
+    padding: 10px 13px; font-size: 13px; color: #7a1912; margin-bottom: 14px;
   }
   .wl-assign-foot { display: flex; gap: 10px; justify-content: flex-end; }
   @media (max-width: 600px) {
@@ -955,7 +955,7 @@
      Veiviser-modalen får tydelig ramme, runde hjørner og romslig
      innvendig padding så innholdet ikke klistrer seg til kantene. */
   #newBookingModal .modal-card { border-radius: 14px; overflow: hidden;
-    box-shadow: 0 24px 64px rgba(46, 35, 32,.30); max-width: 680px; }
+    box-shadow: 0 24px 64px rgba(11, 26, 43,.30); max-width: 680px; }
   #newBookingModal .modal-head { padding: 20px 30px; }
   #newBookingModal .modal-body { padding: 26px 30px 32px; }
   @media (max-width: 768px) {
@@ -978,9 +978,9 @@
     letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
     white-space: nowrap; }
   .nb-step.active .nb-step-num { background: var(--green); border-color: var(--green);
-    color: #fff; font-weight: 700; box-shadow: 0 0 0 4px var(--green-tint, #dce7e4); }
+    color: #fff; font-weight: 700; box-shadow: 0 0 0 4px var(--green-tint, #cfe0f0); }
   .nb-step.active .nb-step-label { color: var(--ink); font-weight: 600; }
-  .nb-step.done .nb-step-num { background: var(--green-tint, #dce7e4);
+  .nb-step.done .nb-step-num { background: var(--green-tint, #cfe0f0);
     border-color: var(--green-soft); color: var(--green-deep); font-weight: 700; }
   .nb-step.done .nb-step-label { color: var(--green-deep); }
 
@@ -998,7 +998,7 @@
   .nb-item { display: flex; justify-content: space-between; align-items: center; gap: 12px;
     width: 100%; min-height: 58px; padding: 15px 18px;
     border: 1px solid var(--rule); border-radius: 10px; background: #fff;
-    box-shadow: 0 1px 2px rgba(46, 35, 32,.04);
+    box-shadow: 0 1px 2px rgba(11, 26, 43,.04);
     font: inherit; font-size: 14px; text-align: left; cursor: pointer;
     /* Eksplisitt tekstfarge: mobil-Safari/Chrome gir <button> blå
        UA-farge når ingen er satt (bug: blå tjenestenavn på telefon). */
@@ -1006,9 +1006,9 @@
     -webkit-appearance: none; appearance: none;
     transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
   .nb-item:hover { border-color: var(--green-soft);
-    box-shadow: 0 8px 20px rgba(46, 35, 32,.09); transform: translateY(-2px); }
+    box-shadow: 0 8px 20px rgba(11, 26, 43,.09); transform: translateY(-2px); }
   .nb-item.selected { border: 1.5px solid var(--green);
-    background: var(--green-tint, #dce7e4); box-shadow: none; transform: none; }
+    background: var(--green-tint, #cfe0f0); box-shadow: none; transform: none; }
   .nb-item .nb-meta { color: var(--muted); font-size: 12px; }
   .nb-item-name { font-family: 'Fraunces', serif; font-weight: 500; font-size: 16px;
     letter-spacing: -0.01em; display: block;
@@ -1020,7 +1020,7 @@
     gap: 4px; flex-shrink: 0; }
   .nb-price { font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
     font-weight: 600; color: var(--green-deep); white-space: nowrap;
-    background: var(--green-tint, #dce7e4); border-radius: 999px; padding: 3px 11px; }
+    background: var(--green-tint, #cfe0f0); border-radius: 999px; padding: 3px 11px; }
   .nb-dur { font-family: 'JetBrains Mono', monospace; font-size: 10px;
     letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
     white-space: nowrap; }
@@ -1048,7 +1048,7 @@
   .nb-item-kunde .nb-item-name { flex: 1; min-width: 0;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .nb-avatar { display: grid; place-items: center; width: 36px; height: 36px;
-    border-radius: 50%; background: var(--green-tint, #dce7e4);
+    border-radius: 50%; background: var(--green-tint, #cfe0f0);
     border: 1px solid var(--green-soft); color: var(--green-deep);
     font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; flex-shrink: 0; }
   .nb-kunde-main { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
@@ -1073,7 +1073,7 @@
   .nb-kunde-detail > div + div { margin-top: 2px; }
   .nb-item-new { border: 1.5px dashed var(--green-soft); background: #f7faf6;
     justify-content: flex-start; }
-  .nb-item-new:hover { border-color: var(--green); background: var(--green-tint, #dce7e4);
+  .nb-item-new:hover { border-color: var(--green); background: var(--green-tint, #cfe0f0);
     transform: none; box-shadow: none; }
   .nb-item-new .nb-item-name { color: var(--green-deep); }
   .nb-new-ico { display: grid; place-items: center; width: 36px; height: 36px;
@@ -1137,13 +1137,13 @@
 
   /* --- Oppsummering --- */
   .nb-sum { border: 1px solid var(--rule); border-radius: 12px; overflow: hidden;
-    box-shadow: 0 6px 24px rgba(46, 35, 32,.07); background: #fff; }
+    box-shadow: 0 6px 24px rgba(11, 26, 43,.07); background: #fff; }
   .nb-sum-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px;
     background: var(--green); padding: 18px 20px; }
   .nb-sum-when { font-family: 'Fraunces', serif; font-weight: 500; font-size: 19px;
     color: #fff; letter-spacing: -0.01em; }
   .nb-sum-staff { font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-tint, #dce7e4); }
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-tint, #cfe0f0); }
   .nb-sum-body { padding: 4px 20px; }
   .nb-sum-row { display: flex; justify-content: space-between; align-items: baseline;
     gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--rule); font-size: 14px; }
@@ -1153,7 +1153,7 @@
     color: var(--muted); flex-shrink: 0; }
   .nb-consent { display: grid; grid-template-columns: 20px 1fr; gap: 12px;
     align-items: start; margin-top: 14px; padding: 13px 15px;
-    background: var(--paper-2, #f3d8c7); border-left: 3px solid var(--green);
+    background: var(--paper-2, #dde8f3); border-left: 3px solid var(--green);
     border-radius: 0 10px 10px 0; font-size: 13px; color: var(--ink-2);
     line-height: 1.5; cursor: pointer; }
   .nb-consent input { margin-top: 2px; width: 16px; height: 16px; accent-color: var(--green); }
@@ -1162,13 +1162,13 @@
   .nb-foot { display: flex; justify-content: space-between; align-items: center;
     gap: 10px; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--rule); }
   .nb-foot .btn-primary { border-radius: 10px; min-height: 46px; padding: 12px 26px;
-    font-weight: 600; box-shadow: 0 2px 8px rgba(31, 78, 74,.28); }
-  .nb-foot .btn-primary:hover { background: var(--green-deep, #163b37); }
+    font-weight: 600; box-shadow: 0 2px 8px rgba(6, 71, 137,.28); }
+  .nb-foot .btn-primary:hover { background: var(--green-deep, #04315b); }
   .nb-foot .btn-ghost { border-radius: 10px; min-height: 46px; padding: 12px 18px;
     font-size: 13px; }
-  .nb-err { background: #fdeaea; border-left: 3px solid #9e2b1f;
+  .nb-err { background: #fbebeb; border-left: 3px solid #a4262c;
     border-radius: 0 8px 8px 0; padding: 10px 13px; font-size: 13px;
-    color: #7d2418; margin-top: 12px; }
+    color: #7a1912; margin-top: 12px; }
   .nb-hint { color: var(--muted); font-size: 12.5px; line-height: 1.5; margin-top: 10px; }
 
   /* --- Mobil --- */
@@ -1268,7 +1268,7 @@
           <option value="no_show">No-show</option>
         </select>
 
-        <input id="searchInput" type="search" placeholder="Søk navn, e-post, tlf, ref…" />
+        <input id="searchInput" type="search" placeholder="Søk på navn, e-post, telefon eller referanse" />
       </div>
 
       <!-- Ufordelte "Markus' terapeuter"-bookinger (STEG 5) — rendres
@@ -1548,13 +1548,13 @@
     var overlay = document.createElement('div');
     overlay.id = '__authErrorOverlay';
     overlay.setAttribute('role', 'alert');
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(46, 35, 32,.85);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Inter,system-ui,sans-serif;';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(11, 26, 43,.85);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Inter,system-ui,sans-serif;';
     overlay.innerHTML =
-      '<div style="background:#fff;max-width:420px;width:100%;padding:24px;border:1px solid rgba(46,35,32,.16);">' +
-        '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 12px;color:#2e2320;">Tilgang nektet</h3>' +
-        '<div style="margin:0;color:#4a3b35;font-size:14px;line-height:1.5;">' + (message || 'Du har ikke tilgang.') + '</div>' +
-        (raw ? '<pre style="margin:16px 0 0;padding:10px;background:#efe5dc;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#9c4a3f;white-space:pre-wrap;word-break:break-all;border:1px solid #1d211e11;">app_metadata: ' + escapeHtml(JSON.stringify(raw)) + '</pre>' : '') +
-        '<p style="margin:14px 0 0;color:#5c4d46;font-size:12px;">Du blir sendt tilbake til ansattportalen om et øyeblikk.</p>' +
+      '<div style="background:#fff;max-width:420px;width:100%;padding:24px;border:1px solid rgba(11,26,43,.16);">' +
+        '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 12px;color:#0b1a2b;">Tilgang nektet</h3>' +
+        '<div style="margin:0;color:#26384b;font-size:14px;line-height:1.5;">' + (message || 'Du har ikke tilgang.') + '</div>' +
+        (raw ? '<pre style="margin:16px 0 0;padding:10px;background:#ebf2fa;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#9c4a3f;white-space:pre-wrap;word-break:break-all;border:1px solid #1d211e11;">app_metadata: ' + escapeHtml(JSON.stringify(raw)) + '</pre>' : '') +
+        '<p style="margin:14px 0 0;color:#4a5c6f;font-size:12px;">Du blir sendt tilbake til ansattportalen om et øyeblikk.</p>' +
       '</div>';
     document.body.appendChild(overlay);
   }
@@ -1733,7 +1733,7 @@
   // Hardkodet fallback-palett brukes når kolonnen mangler eller raden
   // ikke har farge; ukjent behandler → '' → CSS-fallback (nøytral grå).
   var STAFF_FALLBACK_COLORS = {
-    markus: '#1f4e4a', sofie: '#d0b8ac', henrik: '#5B7DB1',
+    markus: '#064789', sofie: '#427aa1', henrik: '#5B7DB1',
     jonas: '#8E6FA8', amina: '#C2A14D', petter: '#4D9D9A',
     lena: '#A85C5C', nora: '#D87FA0'
   };
@@ -3500,7 +3500,7 @@
       } else {
         html += '<div class="nb-search-wrap">' +
           '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>' +
-          '<input type="search" class="nb-search" id="nbSearch" placeholder="Søk navn, e-post eller telefon…" value="' + escapeHtml(NB.sok || '') + '" /></div>' +
+          '<input type="search" class="nb-search" id="nbSearch" placeholder="Søk på navn, e-post eller telefon" value="' + escapeHtml(NB.sok || '') + '" /></div>' +
           '<div class="nb-list">' +
           '<button type="button" class="nb-item nb-item-new" id="nbNyKunde">' +
           '<span class="nb-new-ico" aria-hidden="true">+</span>' +
@@ -3921,5 +3921,6 @@
 })();
 </script>
 <script src="shared/demo-mode.js" defer></script>
+<script src="shared/date-field.js" defer></script>
 </body>
 </html>

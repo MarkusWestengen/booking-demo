@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow" />
-<meta name="theme-color" content="#2e2320">
+<meta name="theme-color" content="#0b1a2b">
 
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
@@ -28,10 +28,10 @@
 
 <style>
   :root {
-    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb; --green-tint: #dce7e4;
-    --paper: #efe5dc; --paper-2: #f3d8c7;
-    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
-    --rule: rgba(46,35,32,.16); --danger: #9e2b1f;
+    --green: #064789; --green-deep: #04315b; --green-soft: #8fc1e0; --green-tint: #cfe0f0;
+    --paper: #ebf2fa; --paper-2: #dde8f3;
+    --ink: #0b1a2b; --ink-2: #26384b; --muted: #4a5c6f;
+    --rule: rgba(11,26,43,.16); --danger: #a4262c;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -59,7 +59,7 @@
     background: var(--green-soft); color: #fff; padding: 4px 8px; }
   .who-chip.admin { background: var(--green); }
   .topbar a, .topbar button { color: var(--paper); background: transparent;
-    border: 1px solid rgba(239, 229, 220,.22); padding: 6px 10px;
+    border: 1px solid rgba(235, 242, 250,.22); padding: 6px 10px;
     font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
   .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
 
@@ -98,7 +98,7 @@
     font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
     padding: 2px 7px; background: var(--paper-2); }
   .status-pill.completed { background: var(--green-tint); color: var(--green-deep); }
-  .status-pill.cancelled, .status-pill.no_show { background: #fdeaea; color: #7d2418; }
+  .status-pill.cancelled, .status-pill.no_show { background: #fbebeb; color: #7a1912; }
 
   /* Journal */
   .journal-cta { text-align: center; padding: 24px; }
@@ -134,7 +134,7 @@
     color: var(--muted); letter-spacing: 0.04em; }
 
   /* GDPR card */
-  .card.gdpr { background: #efe5dc; border-color: #d9c98e; }
+  .card.gdpr { background: #ebf2fa; border-color: #d9c98e; }
   .gdpr-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
 
   /* States */
@@ -494,7 +494,7 @@
       '<div class="new-note">' +
         '<label class="nn-label" for="newNoteText">Nytt journalnotat</label>' +
         '<textarea id="newNoteText" maxlength="' + JOURNAL_MAXLEN + '" ' +
-          'placeholder="Behandlingsnotat, observasjoner, plan for neste time…"></textarea>' +
+          'placeholder="Skriv inn behandlingsnotatet"></textarea>' +
         '<div class="nn-actions">' +
           '<span class="nn-err" id="newNoteErr"></span>' +
           '<span class="nn-count" id="newNoteCount"></span>' +

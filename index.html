@@ -16,11 +16,11 @@
   base-uri 'self';
   form-action 'self';
 ">
-<meta name="theme-color" content="#2e2320" />
-<title>Westengen Klinikk, booking- og journalsystem (demo)</title>
-<meta name="description" content="Arbeidsprøve: et komplett booking- og journalsystem for en klinikk. Kundevendt bestilling, kalender, kunderegister, journal og audit-logg. Klinikken er oppdiktet." />
+<meta name="theme-color" content="#0b1a2b" />
+<title>Westengen Klinikk, booking- og administrasjonssystem (demo)</title>
+<meta name="description" content="Arbeidsprøve: systemet en klinikk drifter seg selv med. Kundevendt bestilling, kalender, kunderegister, journal og audit-logg. Klinikken er oppdiktet." />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Westengen Klinikk, booking- og journalsystem (demo)" />
+<meta property="og:title" content="Westengen Klinikk, booking- og administrasjonssystem (demo)" />
 <meta property="og:description" content="Demonstrasjonsversjon med fiktive data. Innloggingen til adminpanelet er publisert på forsiden." />
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
 <link rel="manifest" href="manifest.json" />
@@ -58,15 +58,22 @@
   }
   .lead h1 {
     font-family: var(--font-display); font-weight: 600;
-    font-size: clamp(34px, 6vw, 58px); line-height: 1.02;
+    font-size: clamp(30px, 6vw, 58px); line-height: 1.02;
     letter-spacing: -0.038em; margin: 0 0 22px; max-width: 18ch;
+    /* «administrasjonssystem» er ett ord paa 21 tegn og faar ikke
+       plass paa en 390px-skjerm uten hjelp. hyphens deler det pent
+       paa norsk; overflow-wrap er nettet under, i tilfelle
+       nettleseren mangler orddelings-ordbok. */
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    overflow-wrap: break-word;
   }
   /* Ingen kursiv aksent. Det andre leddet skilles med vekt og farge
      i stedet — samme hierarki, uten malens signaturgrep. */
-  .lead h1 em { font-style: normal; color: rgba(239,229,220,0.62); font-weight: 500; }
+  .lead h1 em { font-style: normal; color: rgba(235,242,250,0.62); font-weight: 500; }
   .lead-body {
     max-width: 54ch; font-size: 16.5px; line-height: 1.62;
-    color: rgba(239,229,220,0.74); margin: 0 0 14px;
+    color: rgba(235,242,250,0.74); margin: 0 0 14px;
   }
   .lead-body strong { color: var(--paper); font-weight: 500; }
 
@@ -169,7 +176,7 @@
 <section class="lead">
   <div class="container">
     <p class="lead-eyebrow" data-i18n="landing.eyebrow">Arbeidsprøve</p>
-    <h1 data-i18n-html="landing.heading">Booking- og journalsystem <em>for en klinikk</em></h1>
+    <h1 data-i18n-html="landing.heading">Booking- og administrasjonssystem <em>for en klinikk</em></h1>
     <p class="lead-body" data-i18n-html="landing.body1">Kundevendt bestilling med ledig-tid-oppslag, avbestilling via lenke og venteliste. Bak innloggingen: kalender per behandler, kunderegister, pasientjournal med samtykke og audit-logg, tjeneste- og behandleradministrasjon, meldingsinnboks og stengte tider.</p>
     <p class="lead-body" data-i18n-html="landing.body2"><strong>Westengen Klinikk finnes ikke.</strong> Klinikken, behandlerne, kundene og alle bestillinger er oppdiktet. Kulissen er der bare fordi et bookingsystem trenger noen å booke hos.</p>
   </div>

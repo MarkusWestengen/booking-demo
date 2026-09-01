@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow" />
-<meta name="theme-color" content="#2e2320">
+<meta name="theme-color" content="#0b1a2b">
 
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
@@ -26,10 +26,10 @@
 
 <style>
   :root {
-    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb; --green-tint: #dce7e4;
-    --paper: #efe5dc; --paper-2: #f3d8c7;
-    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
-    --rule: rgba(46,35,32,.16); --danger: #9e2b1f; --clay: #d0b8ac;
+    --green: #064789; --green-deep: #04315b; --green-soft: #8fc1e0; --green-tint: #cfe0f0;
+    --paper: #ebf2fa; --paper-2: #dde8f3;
+    --ink: #0b1a2b; --ink-2: #26384b; --muted: #4a5c6f;
+    --rule: rgba(11,26,43,.16); --danger: #a4262c; --clay: #427aa1;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -53,7 +53,7 @@
     letter-spacing: 0.1em; text-transform: uppercase;
     background: var(--green); color: #fff; padding: 4px 8px; }
   .topbar a, .topbar button { color: var(--paper); background: transparent;
-    border: 1px solid rgba(239, 229, 220,.22); padding: 6px 10px;
+    border: 1px solid rgba(235, 242, 250,.22); padding: 6px 10px;
     font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
   .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
 
@@ -68,7 +68,7 @@
   .btn-primary { background: var(--green); color: #fff; border-color: var(--green); }
   .btn-primary:hover { background: var(--green-deep); border-color: var(--green-deep); }
   .btn-danger { color: var(--danger); border-color: #e3b4ae; }
-  .btn-danger:hover { background: #fdeaea; border-color: var(--danger); }
+  .btn-danger:hover { background: #fbebeb; border-color: var(--danger); }
   .btn-sm { padding: 5px 10px; font-size: 12px; }
 
   /* Opplastings-kort (admin) */
@@ -172,7 +172,7 @@
       <div class="upl-grid">
         <div class="upl-field">
           <label for="upTitle">Tittel</label>
-          <input id="upTitle" type="text" maxlength="200" placeholder="F.eks. «Nakkeøvelser – nivå 1»">
+          <input id="upTitle" type="text" maxlength="200" placeholder="Skriv inn en tittel på dokumentet">
         </div>
         <div class="upl-field">
           <label for="upCategory">Kategori</label>
@@ -372,7 +372,7 @@
         '</div>' +
       '</div>' +
       '<div class="doc-send" hidden>' +
-        '<input type="email" class="send-email" list="bookingEmails" maxlength="320" placeholder="Kundens e-post">' +
+        '<input type="email" class="send-email" list="bookingEmails" maxlength="320" placeholder="Skriv inn kundens e-postadresse">' +
         '<button class="btn btn-sm btn-primary send-go">Send</button>' +
         '<button class="btn btn-sm send-cancel">Avbryt</button>' +
         '<span class="send-status"></span>' +

@@ -55,8 +55,8 @@
   // paraply). De 6 navngitte terapeutene er bookable:false her men beholdes
   // i tabellen for admin-tildeling og historiske bookinger.
   var STAFF = [
-    { id: 'markus', name: 'Markus Westengen', role: 'Grunnlegger · 40 års erfaring',
-      bio: 'Markus selv tar deg gjennom en grundig vurdering. 40 års klinisk erfaring med alt fra idrettsskader til hverdagsplager.' },
+    { id: 'markus', name: 'Markus Westengen', role: 'Behandler',
+      bio: 'Timen settes opp hos Markus. Oppdiktet behandler i en oppdiktet klinikk.' },
     { id: 'terapeut', name: 'Markus\' terapeuter', role: 'Opplært av Markus selv',
       bio: 'Vi tildeler en av våre erfarne terapeuter, alle opplært direkte i Markus\' metoder. Samme filosofi, samme grundighet.' },
     { id: 'sofie', name: 'Sofie Aune', role: 'Terapeut',

@@ -13,40 +13,60 @@
 
 :root {
   /* ==========================================================
-     PALETT — leire, fersken, lin + irrgronn
-     ----------------------------------------------------------
-     Tre farger var gitt: #d0b8ac (leire), #f3d8c7 (fersken) og
-     #efe5dc (lin). Alle tre er lyse, varme og ligger tett — de
-     kan baere flater, men ikke tekst og ikke en knapp.
+     PALETT - tre kalde blatoner + det grensesnittet krever
 
-     BLEKK #2e2320. Et varmt naer-svart med brunt underlag i
-     stedet for noytralt gratt. Rent svart eller kjolig gratt
-     ville ligget utenfor familien og lest som pastet inn.
-     Kontrast 12.3:1 mot lin, 8.1:1 mot leire — AAA overalt.
+     GITT
+       #ebf2fa  lys is       grunnflate
+       #427aa1  stal         mellomtone
+       #064789  navy         dyp
 
-     AKSENT #1f4e4a. Irrgronn, ikke terrakotta. De tre gitte
-     fargene er alle varme og naert beslektet; en aksent hentet
-     fra samme familie ville ligget faa steg fra blekket og gitt
-     siden ingen annen akse — alt ville lest som én myk vask.
-     Irr er dessuten det som faktisk skjer med kobber som star
-     mot terrakotta, saa parringen er materiell og ikke tilfeldig.
-     Hvit tekst pa aksent 9.4:1, aksent pa lin 7.5:1, og 5.0:1
-     selv mot leire, den morkeste av de tre. AA med god margin.
+     ROLLEFORDELINGEN FALT UT AV KONTRASTMALINGEN, IKKE AV SMAK.
+     #427aa1 som tekst pa #ebf2fa gir 4.11:1 og faller under
+     AA-grensen pa 4.5. Stal kan derfor ikke baere tekst, og er
+     satt til flater, kanter og hover-fyll. #064789 gir 8.20:1
+     som tekst og 9.25:1 med hvit tekst pa seg, og tar dermed
+     rollen som aksent: knapper, lenker, aktive tilstander.
+
+     LAGT TIL (manglet for et helt grensesnitt)
+       #0b1a2b  blekk        15.6:1 mot grunn. Kaldt naer-svart
+                             med bla underlag; noytralt gratt
+                             eller varm sort ville ligget utenfor
+                             familien og lest som limt inn.
+       #26384b  blekk-2      10.6:1  sekundaertekst
+       #4a5c6f  dempet        6.1:1  tertiaertekst
+       #ffffff  kortflate    17.6:1  hever kort over grunnen
+       #dde8f3  flate-2      14.1:1  seksjonsskille
+       #cfe0f0  aksent-tone  13.0:1  svak aksentflate
+       #04315b  hover        13.2:1 med hvit tekst
+       #8fc1e0  aksent-lys    9.1:1 mot blekk (tekst pa mork flate)
+       #a4262c  feil          6.4:1 mot grunn, 7.3:1 med hvit tekst
+       #fbebeb  feil-flate   med #7a1912 som tekst: 9.2:1
+       #7a1912  feil-mork
+
+     Alle verdier er malt, ikke anslatt. Laveste tall i bruk er
+     5.1:1 (dempet tekst pa aksent-tone), altsa AA med margin.
      ========================================================== */
-  --clay:  #d0b8ac;
-  --peach: #f3d8c7;
-  --linen: #efe5dc;
+  --ice:   #ebf2fa;        /* GITT */
+  --steel: #427aa1;        /* GITT - flater og kanter, aldri tekst */
+  --navy:  #064789;        /* GITT */
 
-  --green: #1f4e4a;        /* aksent. Navnet er historisk. */
-  --green-deep: #163b37;   /* hover, 12.3:1 mot hvit */
-  --green-soft: #93c2bb;   /* aksent pa morke flater, 7.8:1 mot blekk */
-  --green-tint: #dce7e4;   /* svak aksentflate */
-  --paper: #efe5dc;
-  --paper-2: #f3d8c7;
-  --ink: #2e2320;
-  --ink-2: #4a3b35;
-  --muted: #5c4d46;        /* 6.5:1 mot lin */
-  --rule: rgba(46,35,32,.16);
+  --green: #064789;        /* aksent. Navnet er historisk. */
+  --green-deep: #04315b;   /* hover, 13.2:1 mot hvit */
+  --green-soft: #8fc1e0;   /* aksent pa morke flater, 9.1:1 mot blekk */
+  --green-tint: #cfe0f0;   /* svak aksentflate */
+  --clay:  #427aa1;        /* historisk navn, na stalblaa */
+  --peach: #dde8f3;        /* historisk navn, na flate-2 */
+  --linen: #ebf2fa;        /* historisk navn, na grunnflaten */
+  --paper: #ebf2fa;
+  --paper-2: #dde8f3;
+  --surface: #ffffff;      /* kort som skal loftes over grunnen */
+  --ink: #0b1a2b;
+  --ink-2: #26384b;
+  --muted: #4a5c6f;        /* 6.1:1 mot grunn */
+  --error: #a4262c;
+  --error-bg: #fbebeb;
+  --error-ink: #7a1912;
+  --rule: rgba(11,26,43,.14);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }

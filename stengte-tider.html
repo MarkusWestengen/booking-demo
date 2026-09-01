@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow" />
-<meta name="theme-color" content="#2e2320">
+<meta name="theme-color" content="#0b1a2b">
 
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
@@ -26,10 +26,10 @@
 
 <style>
   :root {
-    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb; --green-tint: #dce7e4;
-    --paper: #efe5dc; --paper-2: #f3d8c7;
-    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
-    --rule: rgba(46,35,32,.16); --danger: #9e2b1f;
+    --green: #064789; --green-deep: #04315b; --green-soft: #8fc1e0; --green-tint: #cfe0f0;
+    --paper: #ebf2fa; --paper-2: #dde8f3;
+    --ink: #0b1a2b; --ink-2: #26384b; --muted: #4a5c6f;
+    --rule: rgba(11,26,43,.16); --danger: #a4262c;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -55,7 +55,7 @@
     background: var(--green-soft); color: #fff; padding: 4px 8px; }
   .who-chip.admin { background: var(--green); }
   .topbar a, .topbar button { color: var(--paper); background: transparent;
-    border: 1px solid rgba(239, 229, 220,.22); padding: 6px 10px;
+    border: 1px solid rgba(235, 242, 250,.22); padding: 6px 10px;
     font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
 
   .shell { max-width: 1100px; margin: 0 auto; padding: 18px; }
@@ -90,8 +90,8 @@
     cursor: pointer; }
   .btn-danger:hover { background: var(--danger); color: #fff; }
 
-  .err { background: #fdeaea; border-left: 3px solid var(--danger);
-    padding: 10px 14px; font-size: 13px; color: #7d2418; margin-bottom: 14px; }
+  .err { background: #fbebeb; border-left: 3px solid var(--danger);
+    padding: 10px 14px; font-size: 13px; color: #7a1912; margin-bottom: 14px; }
   .ok { background: var(--green-tint); border-left: 3px solid var(--green);
     padding: 10px 14px; font-size: 13px; color: var(--green-deep); margin-bottom: 14px; }
 
@@ -172,7 +172,7 @@
   /* Issue V — skjul sidetittel-em i admin-headeren på smal mobil.
      "Westengen Klinikk STENGTE TIDER" fikk ikke plass og ble avkuttet;
      bottom-nav viser uansett hvilken side man er på. */
-  .field-help { font-size: 12px; color: var(--muted, #5c4d46); margin-top: 5px; }
+  .field-help { font-size: 12px; color: var(--muted, #4a5c6f); margin-top: 5px; }
   @media (max-width: 600px) { .brand em { display: none; } }
 
   /* ===== DEL 4A — admin-polish (kun presentasjon, ingen funksjonsendring) =====
@@ -296,7 +296,7 @@
         <div class="row" style="grid-template-columns: 1fr;">
           <div class="field">
             <label for="fDesc">Beskrivelse (valgfri)</label>
-            <input id="fDesc" type="text" maxlength="80" placeholder="lunsj, ferie, sykmelding, kurs…">
+            <input id="fDesc" type="text" maxlength="80" placeholder="Skriv inn en grunn, for eksempel ferie eller kurs">
           </div>
         </div>
         <button class="btn-primary" type="submit" id="saveBlockBtn">Lagre blokkering</button>
@@ -429,7 +429,7 @@
   // og overstyres av DB-fargene når de er lastet. staffColor() → '' for
   // ukjent behandler, som CSS-fallback-er til nøytral grå (--rule).
   var STAFF_FALLBACK_COLORS = {
-    markus: '#1f4e4a', sofie: '#d0b8ac', henrik: '#5B7DB1',
+    markus: '#064789', sofie: '#427aa1', henrik: '#5B7DB1',
     jonas: '#8E6FA8', amina: '#C2A14D', petter: '#4D9D9A',
     lena: '#A85C5C', nora: '#D87FA0'
   };
@@ -1176,5 +1176,6 @@
 </script>
 
 <script src="shared/demo-mode.js" defer></script>
+<script src="shared/date-field.js" defer></script>
 </body>
 </html>

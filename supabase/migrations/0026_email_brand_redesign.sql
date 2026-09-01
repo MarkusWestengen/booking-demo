@@ -144,7 +144,7 @@ begin
     -- ----- FOOTER (mørkt ink-band) -----
     || '<tr><td align="center" bgcolor="#15191A" style="background-color:#15191A; padding:30px 40px;">'
     ||   '<div style="font-family:Georgia,serif; font-size:15px; letter-spacing:0.20em; color:#FAF7F1;">WESTENGEN KLINIKK</div>'
-    ||   '<div style="font-family:Helvetica,Arial,sans-serif; font-size:12px; line-height:1.7; color:#8f9089; padding-top:9px;">Storgata 1, 0155 Oslo<br>+47 400 00 000</div>'
+    ||   '<div style="font-family:Helvetica,Arial,sans-serif; font-size:12px; line-height:1.7; color:#8f9089; padding-top:9px;">Bregneveien 12, 0283 Oslo<br>+47 400 00 000</div>'
     ||   '<div style="font-family:Courier,monospace; font-size:10px; letter-spacing:0.14em; color:#5f6058; padding-top:14px;">AUTOMATISK VARSEL</div>'
     || '</td></tr>'
 

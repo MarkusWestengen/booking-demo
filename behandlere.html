@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow" />
-<meta name="theme-color" content="#2e2320">
+<meta name="theme-color" content="#0b1a2b">
 
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
@@ -26,10 +26,10 @@
 
 <style>
   :root {
-    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb; --green-tint: #dce7e4;
-    --paper: #efe5dc; --paper-2: #f3d8c7;
-    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
-    --rule: rgba(46,35,32,.16); --danger: #9e2b1f; --clay: #d0b8ac;
+    --green: #064789; --green-deep: #04315b; --green-soft: #8fc1e0; --green-tint: #cfe0f0;
+    --paper: #ebf2fa; --paper-2: #dde8f3;
+    --ink: #0b1a2b; --ink-2: #26384b; --muted: #4a5c6f;
+    --rule: rgba(11,26,43,.16); --danger: #a4262c; --clay: #427aa1;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -52,7 +52,7 @@
     letter-spacing: 0.1em; text-transform: uppercase;
     background: var(--green); color: #fff; padding: 4px 8px; }
   .topbar a, .topbar button { color: var(--paper); background: transparent;
-    border: 1px solid rgba(239, 229, 220,.22); padding: 6px 10px;
+    border: 1px solid rgba(235, 242, 250,.22); padding: 6px 10px;
     font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
   .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
 
@@ -112,7 +112,7 @@
   .staff-name { font-size: 15px; font-weight: 600; }
   .color-dot { display: inline-block; width: 12px; height: 12px;
     border-radius: 50%; margin-right: 8px; vertical-align: baseline;
-    border: 1px solid rgba(46, 35, 32,.15); }
+    border: 1px solid rgba(11, 26, 43,.15); }
   .staff-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 3px; }
   .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
   /* B1 — forklarende badges: droppet uppercase + litt større tekst slik at flerords-etiketter leses greit */
@@ -120,7 +120,7 @@
     padding: 4px 9px; border: 1px solid var(--rule); font-weight: 500; }
   .badge.book { background: var(--green-tint); color: var(--green-deep); border-color: var(--green-soft); }
   .badge.pool { background: var(--paper-2); color: var(--ink-2); }
-  .badge.off  { background: #fdeaea; color: #7d2418; border-color: #e8a098; }
+  .badge.off  { background: #fbebeb; color: #7a1912; border-color: #e8a098; }
   .staff-actions { display: flex; gap: 8px; flex-wrap: wrap; }
   /* B1 — forklaring av de to badge-typene */
   .badge-legend { font-size: 12px; color: var(--muted); line-height: 1.55; margin: 0 0 16px; max-width: 78ch; }
@@ -207,20 +207,20 @@
       <div class="ed-grid">
         <div class="field">
           <label for="edId">Staff-id <span class="hint">(unik, ingen mellomrom)</span></label>
-          <input id="edId" type="text" maxlength="40" placeholder="f.eks. «johanne»">
+          <input id="edId" type="text" maxlength="40" placeholder="Skriv inn en kort id, for eksempel fornavn">
         </div>
         <div class="field">
           <label for="edName">Navn</label>
-          <input id="edName" type="text" maxlength="120" placeholder="Fullt navn">
+          <input id="edName" type="text" maxlength="120" placeholder="Skriv inn navnet ditt">
         </div>
       </div>
       <div class="field">
         <label for="edRole">Rolle / tittel</label>
-        <input id="edRole" type="text" maxlength="120" placeholder="f.eks. «Terapeut»">
+        <input id="edRole" type="text" maxlength="120" placeholder="Skriv inn en tittel">
       </div>
       <div class="field">
         <label for="edBio">Bio</label>
-        <textarea id="edBio" maxlength="600" placeholder="Kort beskrivelse"></textarea>
+        <textarea id="edBio" maxlength="600" placeholder="Skriv en kort beskrivelse"></textarea>
       </div>
       <div class="checks">
         <label><input type="checkbox" id="edBookable"> Vises som kunde-kort i bestilling</label>
@@ -233,7 +233,7 @@
         </div>
         <div class="field" style="max-width:220px;">
           <label for="edColor">Farge <span class="hint">(fargebar ved bookinger)</span></label>
-          <input id="edColor" type="color" value="#93c2bb" style="width:64px;height:38px;padding:2px;border:1px solid var(--rule);background:#fff;cursor:pointer;">
+          <input id="edColor" type="color" value="#8fc1e0" style="width:64px;height:38px;padding:2px;border:1px solid var(--rule);background:#fff;cursor:pointer;">
         </div>
       </div>
       <div class="ed-foot">
@@ -388,7 +388,7 @@
     $('edBookable').checked = row ? !!row.bookable : false;
     $('edPool').checked = row ? !!row.is_pool : false;
     $('edSort').value = row ? (row.sortering != null ? row.sortering : 100) : 100;
-    $('edColor').value = (row && row.color) ? row.color : '#93c2bb';
+    $('edColor').value = (row && row.color) ? row.color : '#8fc1e0';
     $('edStatus').className = 'ed-status'; $('edStatus').textContent = '';
     $('editor').style.display = '';
     $('editor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });

@@ -2,16 +2,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <!-- Westengen Klinikk (demo) monogram — WK på mørk bakgrunn med indigo aksent.
        Bruk denne SVG-en som kilde for PNG-generering (se icons/generate.html). -->
-  <rect width="512" height="512" fill="#2e2320"/>
+  <rect width="512" height="512" fill="#0b1a2b"/>
   <!-- Maskable safe-area: alt viktig innhold må være innenfor sirkel med
        diameter ~80% av canvas, dvs. innenfor x:51-461, y:51-461. -->
   <g transform="translate(0,0)">
     <!-- Indigo akse-strek -->
-    <rect x="60" y="376" width="392" height="6" fill="#1f4e4a"/>
+    <rect x="60" y="376" width="392" height="6" fill="#064789"/>
     <!-- WK -->
-    <g fill="#efe5dc" font-family="serif" font-weight="400">
+    <g fill="#ebf2fa" font-family="serif" font-weight="400">
       <text x="86" y="340" font-size="250" font-family="Fraunces, Georgia, serif">W</text>
-      <text x="292" y="340" font-size="250" font-family="Fraunces, Georgia, serif" font-style="italic" fill="#93c2bb">K</text>
+      <text x="292" y="340" font-size="250" font-family="Fraunces, Georgia, serif" font-style="italic" fill="#8fc1e0">K</text>
     </g>
   </g>
 </svg>

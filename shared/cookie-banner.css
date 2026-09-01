@@ -8,8 +8,8 @@
   right: 16px;
   bottom: 16px;
   z-index: 9999;
-  background: #2e2320;
-  color: #efe5dc;
+  background: #0b1a2b;
+  color: #ebf2fa;
   border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 20px 24px;
   box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5);
@@ -43,7 +43,7 @@
   max-width: 64ch;
 }
 .tas-cookie-text a {
-  color: #93c2bb;
+  color: #8fc1e0;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -73,13 +73,13 @@
   color: #fff;
 }
 .tas-cookie-btn-primary {
-  background: #1f4e4a;
-  border-color: #1f4e4a;
+  background: #064789;
+  border-color: #064789;
   color: #fff;
 }
 .tas-cookie-btn-primary:hover {
-  background: #163b37;
-  border-color: #163b37;
+  background: #04315b;
+  border-color: #04315b;
 }
 
 @keyframes tasCookieSlideUp {

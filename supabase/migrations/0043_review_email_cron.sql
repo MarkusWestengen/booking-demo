@@ -117,7 +117,7 @@ begin
       || '<p style="margin: 16px 0 0 0; font-size: 12px; color: #888; word-break: break-all;">'
       || 'Eller kopier denne lenken: ' || review_url || '</p>'
       || '</div>'
-      || '<p style="margin-top: 28px; font-size: 12px; color: #999;">Westengen Klinikk · Storgata 1, 0155 Oslo</p>'
+      || '<p style="margin-top: 28px; font-size: 12px; color: #999;">Westengen Klinikk · Bregneveien 12, 0283 Oslo</p>'
       || '</div></body></html>';
 
     -- Send via Resend gjennom pg_net (asynkront). Samme mekanisme som 0025.

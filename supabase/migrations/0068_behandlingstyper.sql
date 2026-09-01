@@ -51,31 +51,37 @@ update public.services
 -- en administrator har endret i tjenester.html — migrasjonen er
 -- fasiten for hva demoen skal vise.
 -- ============================================================
+-- is_public MAA settes eksplisitt. shared/services.js filtrerer paa
+-- BADE is_active og is_public (jf. 0032), saa en behandling med
+-- is_public = false er usynlig i bestillingsflyten selv om den er
+-- aktiv. Kolonnen har default true, men en re-kjoring skal ogsaa
+-- rette opp en behandling en administrator har skjult.
 insert into public.services
-  (slug, name, description, duration_min, price_nok, sort_order, is_active)
+  (slug, name, description, duration_min, price_nok, sort_order, is_active, is_public)
 values
   ('forstegangsvurdering', 'Førstegangsvurdering',
    'Full gjennomgang av plagen: sykehistorie, bevegelsestester og en plan for videre forløp. Sett av en time.',
-   60, 1290, 10, true),
+   60, 1290, 10, true, true),
 
   ('oppfolging', 'Oppfølgingstime',
    'Videre behandling etter førstegangsvurderingen, med justering av planen underveis.',
-   30, 790, 20, true),
+   30, 790, 20, true, true),
 
   ('trykkbolge', 'Trykkbølgebehandling',
    'Fokusert behandling av senefeste og muskulatur som ikke har gitt seg av hvile alene.',
-   30, 690, 30, true),
+   30, 690, 30, true, true),
 
   ('bevegelsesanalyse', 'Bevegelsesanalyse',
    'Video- og styrketesting for deg som vil vite hvorfor plagen kommer tilbake. Avsluttes med et treningsopplegg.',
-   60, 1490, 40, true)
+   60, 1490, 40, true, true)
 on conflict (slug) do update
   set name         = excluded.name,
       description  = excluded.description,
       duration_min = excluded.duration_min,
       price_nok    = excluded.price_nok,
       sort_order   = excluded.sort_order,
-      is_active    = true;
+      is_active    = true,
+      is_public    = true;
 
 
 -- ============================================================

@@ -56,7 +56,7 @@ Endrer en administrator prisen på en tjeneste, slår det gjennom uten deploy.
 Frontend har kode-fallback for behandlerlisten, slik at en tom eller
 utilgjengelig tabell aldri gir kunden en tom bestillingsside.
 
-**67 migrasjoner** i `supabase/migrations/`, nummerert `0000`–`0067`. Alle er
+**68 migrasjoner** i `supabase/migrations/`, nummerert `0000`–`0068`. Alle er
 idempotente og skrevet for å kunne kjøres om igjen. De bygger 18 relasjoner og
 126 RLS-policyer. Hver fil har en overskriftsblokk som forklarer *hvorfor*
 endringen ble gjort, ikke bare hva den gjør, og en verifikasjonsblokk nederst
@@ -214,7 +214,7 @@ uker etter oppsett står kalenderen tom igjen fordi alt ligger i fortiden.
 shared/             delte moduler, bookingmotor, auth, GDPR, komponenter, i18n
 i18n/               6 språk, identisk nøkkelsett (521 nøkler), RTL for ar/fa
 supabase/
-  migrations/       67 idempotente migrasjoner, 0000–0067
+  migrations/       68 idempotente migrasjoner, 0000–0068
   functions/        4 Deno Edge Functions
   tests/            RLS-policytester
 icons/              PWA-ikoner

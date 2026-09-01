@@ -114,7 +114,7 @@ create policy "staff_members update: admin"
 -- i booking-engine.js, så systemet fungerer identisk fra dag én.
 -- on conflict do nothing → re-apply bevarer admin-redigeringer.
 insert into public.staff_members (staff_id, name, role, bio, bookable, is_pool, aktiv, sortering) values
-  ('markus',     'Markus Westengen',   'Grunnlegger · 40 års erfaring', 'Markus selv tar deg gjennom en grundig vurdering. 40 års klinisk erfaring med alt fra idrettsskader til hverdagsplager.', true,  false, true, 10),
+  ('markus',     'Markus Westengen',   'Behandler', 'Timen settes opp hos Markus. Oppdiktet behandler i en oppdiktet klinikk.', true,  false, true, 10),
   ('terapeut', 'Markus'' terapeuter', 'Opplært av Markus selv',            'Vi tildeler en av våre erfarne terapeuter, alle opplært direkte i Markus'' metoder. Samme filosofi, samme grundighet.', true,  false, true, 20),
   ('sofie',    'Sofie Aune',       'Daglig leder',                    'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 30),
   ('henrik',   'Henrik Dal',       'Leder for produktutvikling',      'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 40),

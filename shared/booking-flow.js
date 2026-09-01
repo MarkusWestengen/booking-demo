@@ -246,7 +246,28 @@
       var list = el('div', { class: 'tabf-service-list' });
       var staffServices = E.SERVICES[state.staffId] || [];
       if (staffServices.length === 0) {
-        list.appendChild(el('div', { class: 'tabf-empty' }, t('booking.step2.no_services', 'Ingen tilgjengelige tjenester for denne behandleren akkurat nå. Velg en annen behandler.')));
+        // To helt ulike aarsaker saa like ut foer: en tom katalog for
+        // én behandler, og en demo som ikke har database i det hele
+        // tatt. Det siste er det vanlige, og «velg en annen behandler»
+        // var da et raad som ikke kunne foelges, uansett hva man valgte.
+        if (E.backend !== 'supabase') {
+          var box = el('div', { class: 'tabf-empty tabf-empty-setup' });
+          box.appendChild(el('strong', null,
+            t('booking.step2.no_backend_h', 'Denne kopien er ikke koblet til en database')));
+          box.appendChild(el('p', null,
+            t('booking.step2.no_backend_p',
+              'Behandlingene ligger i databasen, saa lista er tom til demoen har en. '
+            + 'Fyll inn Supabase-URL og anon-noekkel i shared/booking-config.js, '
+            + 'og kjoer migrasjonene. Stegene staar i DEMO_SETUP.md.')));
+          box.appendChild(el('p', { class: 'tabf-empty-note' },
+            t('booking.step2.no_backend_note',
+              'Resten av flyten kan du fortsatt klikke gjennom for aa se stegene.')));
+          list.appendChild(box);
+        } else {
+          list.appendChild(el('div', { class: 'tabf-empty' },
+            t('booking.step2.no_services',
+              'Ingen behandlinger er koblet til denne behandleren. Velg en annen behandler.')));
+        }
       }
       staffServices.forEach(function (sv) {
         var card = el('button', {
@@ -692,7 +713,7 @@
         el('div', null, [el('dt', null, t('booking.confirm.sum_behandler', 'Behandler')), el('dd', null, b.staffName)]),
         el('div', null, [el('dt', null, t('booking.confirm.sum_service', 'Tjeneste')), el('dd', null, b.serviceName)]),
         el('div', null, [el('dt', null, t('booking.confirm.sum_when', 'Når')), el('dd', null, E.formatDateLong(b.date) + ' ' + t('booking.confirm.sum_at', 'kl.') + ' ' + b.time)]),
-        el('div', null, [el('dt', null, t('booking.confirm.sum_where', 'Hvor')), el('dd', null, t('booking.confirm.sum_where_val', 'Storgata 1, 0155 Oslo'))]),
+        el('div', null, [el('dt', null, t('booking.confirm.sum_where', 'Hvor')), el('dd', null, t('booking.confirm.sum_where_val', 'Bregneveien 12, 0283 Oslo'))]),
         el('div', null, [el('dt', null, t('booking.confirm.sum_price', 'Pris')), el('dd', null, E.formatPrice(b.price))])
       ]);
       wrap.appendChild(sum);
@@ -757,7 +778,7 @@
         'DTSTART:' + fmt(start),
         'DTEND:' + fmt(end),
         'SUMMARY:Westengen Klinikk - ' + b.serviceName + ' med ' + b.staffName,
-        'LOCATION:Storgata 1\\, 0155 Oslo',
+        'LOCATION:Bregneveien 12\\, 0283 Oslo',
         'DESCRIPTION:Referanse: ' + b.ref + '. Avbestilling senest 24 timer før.',
         'END:VEVENT','END:VCALENDAR'
       ].join('\r\n');

@@ -102,7 +102,7 @@
     if (window.WestengenKlinikkBookingFlow) {
       window.WestengenKlinikkBookingFlow.mount(bookingFlowHost, { initialStaff: initialStaff });
     } else {
-      bookingFlowHost.innerHTML = '<div style="padding:40px;text-align:center;color:#5c4d46;">' + bt('booking.system_unavailable', 'Booking-systemet kunne ikke lastes. Ring oss på ' + PHONE + '.') + '</div>';
+      bookingFlowHost.innerHTML = '<div style="padding:40px;text-align:center;color:#4a5c6f;">' + bt('booking.system_unavailable', 'Booking-systemet kunne ikke lastes. Ring oss på ' + PHONE + '.') + '</div>';
     }
 
     bookingNode.classList.add('open');
@@ -259,7 +259,7 @@
     'Du er "Markus\' assistent", en hjelpsom kundeservice-bot for Westengen Klinikk, en muskel- og nervebehandlingsklinikk i Oslo, drevet av Markus Westengen (40 års erfaring) og sønnen Henrik.',
     '',
     'NØKKELFAKTA:',
-    '• Adresse: Storgata 1, 0155 Oslo.',
+    '• Adresse: Bregneveien 12, 0283 Oslo.',
     '• Telefon: ' + PHONE + '. E-post: ' + EMAIL + '.',
     '• Åpningstider klinikk: Man–Fre 07:00–15:00. Lørdag/Søndag stengt.',
     '• Telefontid: Man–Fre 09:00–15:00.',

@@ -50,7 +50,7 @@
   transform: translateX(-50%) translateY(-4px);
   display: flex; flex-direction: column; min-width: 212px;
   background: var(--paper, #ffffff);
-  border: 1px solid var(--rule, #e7dbd0);
+  border: 1px solid var(--rule, #dde8f3);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.14);
   opacity: 0; visibility: hidden;
   transition: opacity 150ms ease, transform 150ms ease, visibility 0s linear 150ms;
@@ -64,14 +64,14 @@
 }
 .nav-more-menu a {
   padding: 11px 16px; font-size: 14px; font-weight: 500; white-space: nowrap;
-  color: var(--ink, #2e2320); text-decoration: none;
-  border-bottom: 1px solid var(--rule, #e7dbd0);
+  color: var(--ink, #0b1a2b); text-decoration: none;
+  border-bottom: 1px solid var(--rule, #dde8f3);
 }
 .nav-more-menu a:last-child { border-bottom: none; }
 .nav-more-menu a:hover,
 .nav-more-menu a:focus-visible {
   background: var(--paper-2, #f4f2ec);
-  color: var(--green-deep, #163b37);
+  color: var(--green-deep, #04315b);
 }
 
 /* ---------- A4 + A5 — rydd headeren på telefon ----------
@@ -119,12 +119,12 @@
   display: inline-flex; align-items: center; justify-content: center;
   width: 44px; height: 44px; padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  background: transparent; color: var(--paper, #efe5dc);
+  background: transparent; color: var(--paper, #ebf2fa);
   font-size: 22px; line-height: 1; cursor: pointer;
   transition: border-color .15s ease, color .15s ease;
 }
 .nav-mobile-close:hover,
-.nav-mobile-close:focus-visible { border-color: var(--green-soft, #93c2bb); color: #fff; }
+.nav-mobile-close:focus-visible { border-color: var(--green-soft, #8fc1e0); color: #fff; }
 
 .nav-mobile-links {
   align-items: stretch; text-align: left;
@@ -137,7 +137,7 @@
   font-family: var(--font-display); font-weight: 400;
   font-size: clamp(23px, 6vw, 30px); line-height: 1.1;
   letter-spacing: -0.01em;
-  color: var(--paper, #efe5dc);
+  color: var(--paper, #ebf2fa);
   border-bottom: 1px solid rgba(255, 255, 255, 0.10);
   transition: color .15s ease, padding-left .15s ease;
 }
@@ -146,12 +146,12 @@
   content: counter(navi, decimal-leading-zero);
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px; letter-spacing: 0.12em;
-  color: var(--green-soft, #93c2bb);
+  color: var(--green-soft, #8fc1e0);
   align-self: center;
 }
 .nav-mobile-links a:hover,
 .nav-mobile-links a:focus-visible {
-  color: var(--green-soft, #93c2bb);
+  color: var(--green-soft, #8fc1e0);
   padding-left: 8px;
 }
 
@@ -200,7 +200,7 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--green, #1f4e4a);
+  outline: 2px solid var(--green, #064789);
   outline-offset: 2px;
 }
 
@@ -212,12 +212,12 @@ textarea:focus-visible {
 .brand-wordmark { display: flex; flex-direction: column; gap: 2px; line-height: 1; }
 .brand-wordmark strong {
   font-family: var(--font-display); font-weight: 500;
-  font-size: 24px; letter-spacing: -0.015em; color: #efe5dc;
+  font-size: 24px; letter-spacing: -0.015em; color: #ebf2fa;
 }
 .brand-wordmark > span {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
-  color: var(--green-soft, #93c2bb);
+  color: var(--green-soft, #8fc1e0);
 }
 @media (max-width: 640px) {
   .brand-wordmark strong { font-size: 19px; }

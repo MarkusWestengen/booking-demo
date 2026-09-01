@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow" />
-<meta name="theme-color" content="#2e2320">
+<meta name="theme-color" content="#0b1a2b">
 
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
@@ -28,10 +28,10 @@
 
 <style>
   :root {
-    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb; --green-tint: #dce7e4;
-    --paper: #efe5dc; --paper-2: #f3d8c7;
-    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
-    --rule: rgba(46,35,32,.16); --danger: #9e2b1f;
+    --green: #064789; --green-deep: #04315b; --green-soft: #8fc1e0; --green-tint: #cfe0f0;
+    --paper: #ebf2fa; --paper-2: #dde8f3;
+    --ink: #0b1a2b; --ink-2: #26384b; --muted: #4a5c6f;
+    --rule: rgba(11,26,43,.16); --danger: #a4262c;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -60,7 +60,7 @@
     padding: 4px 8px; white-space: nowrap; }
   .who-chip.admin { background: var(--green); }
   .topbar a, .topbar button { color: var(--paper); background: transparent;
-    border: 1px solid rgba(239, 229, 220,.22); padding: 6px 10px;
+    border: 1px solid rgba(235, 242, 250,.22); padding: 6px 10px;
     font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
   .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
 
@@ -99,7 +99,7 @@
     grid-template-columns: 1fr auto; gap: 8px 14px;
     cursor: pointer;
     /* TILLEGG — subtil dybde + myke hover-overganger (gjenbruker .15s ease). */
-    box-shadow: 0 1px 2px rgba(46, 35, 32, .04);
+    box-shadow: 0 1px 2px rgba(11, 26, 43, .04);
     transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease, background .15s ease;
     color: var(--ink); text-decoration: none; }
   .cust-card > * { min-width: 0; }
@@ -110,7 +110,7 @@
   @media (hover: hover) {
     .cust-card:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(46, 35, 32, .07);
+      box-shadow: 0 4px 14px rgba(11, 26, 43, .07);
       background: linear-gradient(180deg, #fff 0%, var(--green-tint) 240%);
     }
   }
@@ -205,7 +205,7 @@
     <h1 class="adm-accent">Kunder</h1>
 
     <div class="search-wrap">
-      <input id="searchInput" type="search" placeholder="Søk på navn, e-post eller telefon…" autocomplete="off" />
+      <input id="searchInput" type="search" placeholder="Søk på navn, e-post eller telefon" autocomplete="off" />
     </div>
 
     <div class="sort-wrap">

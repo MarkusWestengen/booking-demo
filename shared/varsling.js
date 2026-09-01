@@ -73,10 +73,10 @@
     el.style.cssText = [
       'position:fixed', 'left:50%', 'bottom:84px', 'transform:translateX(-50%)',
       'z-index:10050', 'max-width:90vw', 'padding:12px 18px',
-      'background:' + (type === 'error' ? '#9e2b1f' : '#2e2320'),
-      'color:#efe5dc', 'font-family:Inter,system-ui,sans-serif', 'font-size:14px',
+      'background:' + (type === 'error' ? '#a4262c' : '#0b1a2b'),
+      'color:#ebf2fa', 'font-family:Inter,system-ui,sans-serif', 'font-size:14px',
       'box-shadow:0 6px 24px rgba(0,0,0,.28)',
-      'border-left:3px solid ' + (type === 'error' ? '#fff' : '#1f4e4a')
+      'border-left:3px solid ' + (type === 'error' ? '#fff' : '#064789')
     ].join(';');
     document.body.appendChild(el);
     setTimeout(function () { el.style.transition = 'opacity .4s'; el.style.opacity = '0'; }, 3600);
@@ -219,7 +219,7 @@
     ];
     function paint(on) {
       // på = grønn (aktiv), av = lys men tydelig kontrast mot mørk header.
-      var color = on ? 'background:#1f4e4a;color:#fff;' : 'background:#efe5dc;color:#2e2320;';
+      var color = on ? 'background:#064789;color:#fff;' : 'background:#ebf2fa;color:#0b1a2b;';
       btn.style.cssText = BASE_CSS.join(';') + ';' + color;
     }
     container.appendChild(btn);
@@ -233,9 +233,9 @@
         'På iPhone/iPad: legg appen til på Hjem-skjerm (iOS 16.4+) for at varsler skal virke.');
       hint.style.cssText = [
         'position:absolute', 'top:calc(100% + 6px)', 'right:0', 'z-index:10060',
-        'max-width:240px', 'background:#2e2320', 'color:#efe5dc',
+        'max-width:240px', 'background:#0b1a2b', 'color:#ebf2fa',
         'font-family:Inter,system-ui,sans-serif', 'font-size:11px', 'line-height:1.45',
-        'padding:9px 11px', 'border-left:3px solid #1f4e4a',
+        'padding:9px 11px', 'border-left:3px solid #064789',
         'box-shadow:0 6px 20px rgba(0,0,0,.3)'
       ].join(';');
       container.appendChild(hint);

@@ -39,7 +39,7 @@
   cursor: pointer;
   color: var(--green);
 }
-.tabf-step.done:hover { background: rgba(31, 78, 74,.06); }
+.tabf-step.done:hover { background: rgba(6, 71, 137,.06); }
 .tabf-step.current { color: var(--ink); background: var(--paper); }
 .tabf-step-num {
   width: 24px; height: 24px;
@@ -292,7 +292,7 @@
 .tabf-cal-cell.empty { cursor: default; background: var(--paper-2); pointer-events: none; }
 .tabf-cal-cell.closed { cursor: not-allowed; pointer-events: none; background: repeating-linear-gradient(45deg, var(--paper) 0 6px, var(--paper-2) 6px 12px); }
 .tabf-cal-cell.full { cursor: not-allowed; pointer-events: none; opacity: 0.5; }
-.tabf-cal-cell.open:hover { background: rgba(31, 78, 74,0.08); }
+.tabf-cal-cell.open:hover { background: rgba(6, 71, 137,0.08); }
 .tabf-cal-cell.selected {
   background: var(--green);
   color: #fff;
@@ -359,7 +359,7 @@
 }
 .tabf-time-slot:hover {
   border-color: var(--green);
-  background: rgba(31, 78, 74,0.06);
+  background: rgba(6, 71, 137,0.06);
 }
 .tabf-time-slot.unavailable {
   cursor: not-allowed;
@@ -453,16 +453,16 @@
   color: var(--ink-2);
   line-height: 1.5;
   cursor: pointer;
-  background: var(--paper-2, #f3d8c7);
-  border-left: 3px solid var(--rule, rgba(46,35,32,.16));
+  background: var(--paper-2, #dde8f3);
+  border-left: 3px solid var(--rule, rgba(11,26,43,.16));
   padding: 10px 12px;
   margin-top: 4px;
 }
 .tabf-consent input { margin-top: 2px; }
 .tabf-consent-journal {
-  border-left-color: var(--green, #1f4e4a);
+  border-left-color: var(--green, #064789);
 }
-.tabf-consent-journal a { color: var(--green, #1f4e4a); }
+.tabf-consent-journal a { color: var(--green, #064789); }
 /* Avbestillingsvarsel rett over den obligatoriske avkrysningen. */
 .tabf-terms-notice {
   font-size: 13px;
@@ -478,11 +478,11 @@
 }
 .tabf-privacy-link a { color: var(--ink-2); text-decoration: underline; }
 .tabf-error {
-  background: #fdeaea;
-  border-left: 3px solid #9e2b1f;
+  background: #fbebeb;
+  border-left: 3px solid #a4262c;
   padding: 10px 14px;
   font-size: 13px;
-  color: #7d2418;
+  color: #7a1912;
 }
 
 /* ---------- Actions ---------- */
@@ -586,7 +586,7 @@
 /* Token-basert avbestillings-lenke på bekreftelses-skjermen (0024). */
 .tabf-cancel-box {
   background: var(--green-tint);
-  border: 1px solid var(--green-soft, #93c2bb);
+  border: 1px solid var(--green-soft, #8fc1e0);
   padding: 16px 18px;
   text-align: left;
   margin-bottom: 24px;
@@ -676,10 +676,10 @@
        home-indikatoren og ikke forveksles med «Bekreft» over. */
     padding: 12px 0 calc(20px + env(safe-area-inset-bottom, 0px));
     gap: 14px;
-    background: var(--paper, #efe5dc);
-    border-top: 1px solid rgba(20, 25, 26, 0.1);
+    background: var(--paper, #ebf2fa);
+    border-top: 1px solid rgba(11, 26, 43, 0.1);
     z-index: 5;
-    box-shadow: 0 -6px 14px -8px rgba(20, 25, 26, 0.12);
+    box-shadow: 0 -6px 14px -8px rgba(11, 26, 43, 0.12);
   }
   /* B4: begge knappene store nok som tap-targets (>48px) — «Bekreft» og
      «Tilbake» er lette å treffe hver for seg på telefon. */
@@ -705,7 +705,30 @@
 .tabf-field-counter {
   margin-top: 6px;
   font-size: 12px;
-  color: var(--muted, #5c4d46);
+  color: var(--muted, #4a5c6f);
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+/* Tom tjenesteliste fordi demoen mangler database. Skilles visuelt
+   fra en vanlig tom-tilstand: dette er ikke et valg brukeren kan ta
+   seg ut av, det er en beskjed om oppsettet. */
+.tabf-empty-setup {
+  text-align: left;
+  border-left: 3px solid var(--green);
+  background: var(--green-tint);
+  color: var(--ink-2);
+  padding: 20px 22px;
+}
+.tabf-empty-setup strong {
+  display: block;
+  color: var(--ink);
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+.tabf-empty-setup p { margin: 0 0 8px; line-height: 1.55; }
+.tabf-empty-setup .tabf-empty-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
 }

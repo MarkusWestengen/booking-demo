@@ -57,9 +57,9 @@
     /* ---- Typografisk ordmerke (erstatter logo-filen) ---- */
     '.brand-wordmark{display:flex;flex-direction:column;gap:2px;line-height:1;}',
     '.brand-wordmark strong{font-family:Fraunces,Georgia,serif;font-weight:500;',
-      'font-size:24px;letter-spacing:-0.015em;color:#efe5dc;}',
+      'font-size:24px;letter-spacing:-0.015em;color:#ebf2fa;}',
     '.brand-wordmark>span{font-family:"JetBrains Mono",ui-monospace,monospace;',
-      'font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:#93c2bb;}',
+      'font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:#8fc1e0;}',
     '@media (max-width:640px){.brand-wordmark strong{font-size:19px;}',
       '.brand-wordmark>span{font-size:8px;letter-spacing:0.22em;}}',
 
@@ -71,14 +71,14 @@
     '.wk-demo-badge{display:inline-flex;align-items:center;gap:6px;',
       'font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;',
       'letter-spacing:0.11em;text-transform:uppercase;white-space:nowrap;',
-      'padding:5px 10px;border:1px solid #93c2bb;color:#B9BDDC;',
-      'background:rgba(31,78,74,.18);cursor:pointer;flex:0 0 auto;}',
-    '.wk-demo-badge:hover{background:rgba(31,78,74,.34);color:#efe5dc;}',
-    '.wk-demo-badge:focus-visible{outline:2px solid #93c2bb;outline-offset:2px;}',
+      'padding:5px 10px;border:1px solid #8fc1e0;color:#B9BDDC;',
+      'background:rgba(6,71,137,.18);cursor:pointer;flex:0 0 auto;}',
+    '.wk-demo-badge:hover{background:rgba(6,71,137,.34);color:#ebf2fa;}',
+    '.wk-demo-badge:focus-visible{outline:2px solid #8fc1e0;outline-offset:2px;}',
     '.wk-demo-badge::before{content:"";width:6px;height:6px;border-radius:50%;',
-      'background:#93c2bb;flex:0 0 auto;}',
+      'background:#8fc1e0;flex:0 0 auto;}',
     /* På lyse flater (sider uten mørk header) snus kontrasten. */
-    '.wk-demo-badge.on-light{border-color:#1f4e4a;color:#163b37;background:#dce7e4;}',
+    '.wk-demo-badge.on-light{border-color:#064789;color:#04315b;background:#cfe0f0;}',
     '.wk-demo-badge.on-light:hover{background:#DADDEF;}',
     /* Reservefeste når siden ikke har header å henge seg på. */
     '.wk-demo-badge.floating{position:fixed;left:12px;bottom:12px;z-index:9998;}',
@@ -87,62 +87,62 @@
     /* ---- Dialogen bak pillen ---- */
     '.wk-demo-sheet{position:fixed;inset:0;z-index:10050;display:none;',
       'align-items:center;justify-content:center;padding:20px;',
-      'background:rgba(46,35,32,.72);}',
+      'background:rgba(11,26,43,.72);}',
     '.wk-demo-sheet[data-open]{display:flex;}',
-    '.wk-demo-card{background:#efe5dc;color:#2e2320;max-width:520px;width:100%;',
-      'max-height:86vh;overflow:auto;padding:28px;border-top:3px solid #1f4e4a;',
+    '.wk-demo-card{background:#ebf2fa;color:#0b1a2b;max-width:520px;width:100%;',
+      'max-height:86vh;overflow:auto;padding:28px;border-top:3px solid #064789;',
       'font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.6;}',
     '.wk-demo-card h2{font-family:Fraunces,Georgia,serif;font-weight:400;',
       'font-size:26px;margin:0 0 4px;}',
     '.wk-demo-card .wk-eyebrow{font-family:"JetBrains Mono",ui-monospace,monospace;',
-      'font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#1f4e4a;',
+      'font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#064789;',
       'margin:0 0 12px;}',
-    '.wk-demo-card p{margin:0 0 12px;color:#4a3b35;}',
+    '.wk-demo-card p{margin:0 0 12px;color:#26384b;}',
     '.wk-demo-card h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;',
-      'color:#5c4d46;margin:22px 0 10px;font-weight:600;}',
-    '.wk-cred{border:1px solid rgba(46,35,32,.16);padding:12px 14px;margin-bottom:10px;',
+      'color:#4a5c6f;margin:22px 0 10px;font-weight:600;}',
+    '.wk-cred{border:1px solid rgba(11,26,43,.16);padding:12px 14px;margin-bottom:10px;',
       'background:#fff;}',
     '.wk-cred b{display:block;font-size:13px;margin-bottom:6px;}',
     '.wk-cred code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12.5px;',
-      'background:#dce7e4;padding:2px 6px;user-select:all;}',
-    '.wk-cred .wk-note{display:block;margin-top:8px;font-size:12.5px;color:#5c4d46;}',
+      'background:#cfe0f0;padding:2px 6px;user-select:all;}',
+    '.wk-cred .wk-note{display:block;margin-top:8px;font-size:12.5px;color:#4a5c6f;}',
     '.wk-demo-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}',
     '.wk-demo-actions a,.wk-demo-actions button{font:inherit;font-size:14px;',
-      'padding:10px 16px;cursor:pointer;text-decoration:none;border:1px solid rgba(46,35,32,.16);',
-      'background:transparent;color:#2e2320;}',
-    '.wk-demo-actions .wk-primary{background:#1f4e4a;color:#fff;border-color:#1f4e4a;}',
-    '.wk-demo-actions .wk-primary:hover{background:#163b37;}',
+      'padding:10px 16px;cursor:pointer;text-decoration:none;border:1px solid rgba(11,26,43,.16);',
+      'background:transparent;color:#0b1a2b;}',
+    '.wk-demo-actions .wk-primary{background:#064789;color:#fff;border-color:#064789;}',
+    '.wk-demo-actions .wk-primary:hover{background:#04315b;}',
 
     /* ---- Toast for avvist skriving ---- */
     '.wk-demo-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);',
-      'z-index:10060;max-width:min(560px,calc(100vw - 32px));background:#2e2320;',
-      'color:#efe5dc;padding:14px 16px;font-family:Inter,system-ui,sans-serif;',
-      'font-size:13.5px;line-height:1.5;border-left:3px solid #93c2bb;',
-      'box-shadow:0 10px 30px rgba(46,35,32,.28);display:flex;gap:12px;align-items:flex-start;}',
+      'z-index:10060;max-width:min(560px,calc(100vw - 32px));background:#0b1a2b;',
+      'color:#ebf2fa;padding:14px 16px;font-family:Inter,system-ui,sans-serif;',
+      'font-size:13.5px;line-height:1.5;border-left:3px solid #8fc1e0;',
+      'box-shadow:0 10px 30px rgba(11,26,43,.28);display:flex;gap:12px;align-items:flex-start;}',
     '.wk-demo-toast b{display:block;font-size:11px;letter-spacing:.12em;',
-      'text-transform:uppercase;color:#93c2bb;margin-bottom:4px;',
+      'text-transform:uppercase;color:#8fc1e0;margin-bottom:4px;',
       'font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;}',
-    '.wk-demo-toast button{background:none;border:0;color:#93c2bb;font:inherit;',
+    '.wk-demo-toast button{background:none;border:0;color:#8fc1e0;font:inherit;',
       'font-size:18px;line-height:1;cursor:pointer;padding:0 2px;margin-left:auto;}',
     '@media (max-width:560px){.wk-demo-toast{bottom:76px;}}',
 
     /* ---- Notislinje øverst i adminpanelet ---- */
-    '.wk-admin-note{background:#dce7e4;border-bottom:1px solid #C9CDE4;',
+    '.wk-admin-note{background:#cfe0f0;border-bottom:1px solid #C9CDE4;',
       'font-family:Inter,system-ui,sans-serif;font-size:13px;line-height:1.5;',
-      'color:#163b37;}',
+      'color:#04315b;}',
     '.wk-admin-note .wk-inner{max-width:1280px;margin:0 auto;padding:9px 28px;',
       'display:flex;gap:10px;align-items:baseline;}',
     '.wk-admin-note b{font-family:"JetBrains Mono",ui-monospace,monospace;',
       'font-size:10px;letter-spacing:.12em;text-transform:uppercase;',
-      'flex:0 0 auto;color:#1f4e4a;}',
+      'flex:0 0 auto;color:#064789;}',
     '@media (max-width:640px){.wk-admin-note .wk-inner{padding:8px 16px;',
       'flex-direction:column;gap:3px;}}',
 
     /* ---- Låsemerke på seed-rader i admin ---- */
     '.wk-seed-lock{display:inline-flex;align-items:center;gap:4px;',
       'font-family:"JetBrains Mono",ui-monospace,monospace;font-size:9px;',
-      'letter-spacing:.1em;text-transform:uppercase;color:#1f4e4a;',
-      'background:#dce7e4;padding:2px 6px;margin-left:6px;vertical-align:middle;}'
+      'letter-spacing:.1em;text-transform:uppercase;color:#064789;',
+      'background:#cfe0f0;padding:2px 6px;margin-left:6px;vertical-align:middle;}'
   ].join('');
 
   var style = doc.createElement('style');
@@ -180,14 +180,14 @@
         '<p class="wk-eyebrow">Demonstrasjonsversjon</p>' +
         '<h2>Westengen Klinikk finnes ikke</h2>' +
         '<p>Dette er et arbeidsprøve-oppsett av et komplett booking- og ' +
-          'journalsystem. Klinikken er oppdiktet. Alle behandlere, kunder, ' +
+          'administrasjonssystem. Klinikken er oppdiktet. Alle behandlere, kunder, ' +
           'bestillinger, meldinger og journalnotater er konstruert for ' +
           'demonstrasjonen, og ingen av dem gjelder et virkelig menneske.</p>' +
         '<p>Adresse, telefonnummer og e-postadresse er plassholdere. ' +
           'Ingen av dem er i bruk, og e-postdomenet kan ikke registreres.</p>' +
         '<h3>Logg inn i adminpanelet</h3>' +
         creds +
-        '<p style="font-size:12.5px;color:#5c4d46;">Du kan opprette, endre og ' +
+        '<p style="font-size:12.5px;color:#4a5c6f;">Du kan opprette, endre og ' +
           'slette dine egne rader fritt. Radene som fulgte med demoen er ' +
           'skrivebeskyttet, slik at panelet ser likt ut for neste besøkende, ' +
           'du får en forklaring i stedet for en lagring når du prøver.</p>' +

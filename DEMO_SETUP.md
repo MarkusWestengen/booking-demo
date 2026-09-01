@@ -73,8 +73,8 @@ idempotent.
 
 ## Steg 3. Kjør migrasjonene
 
-Alt skjemaet trenger ligger i `supabase/migrations/`, 67 filer, nummerert
-`0000` til `0067` (`0021` finnes ikke). Kjør dem i rekkefølge; flere bygger på
+Alt skjemaet trenger ligger i `supabase/migrations/`, 68 filer, nummerert
+`0000` til `0068` (`0021` finnes ikke). Kjør dem i rekkefølge; flere bygger på
 hverandre, og noen forutsetter en tabell en tidligere migrasjon opprettet.
 
 ```bash
@@ -95,6 +95,7 @@ De fire som er verdt å kjenne til:
 | `0065_demo_users.sql` | Oppretter admin- og terapeutkontoen med rolle i `app_metadata`. |
 | `0066_demo_mode.sql` | Skrivesperren. Legger til `is_demo_seed` og en trigger som avviser endring og sletting av seed-rader med `PT403 demo_readonly`. |
 | `0067_demo_seed_and_reset.sql` | Genererer innholdet relativt til dagens dato og setter opp nattlig nullstilling. |
+| `0068_behandlingstyper.sql` | Fire behandlinger med egen varighet og pris, koblet til alle aktive behandlere. Uten den er tjenestelista i bestillingsflyten tom. |
 
 Kontroller at alle kom gjennom:
 
@@ -184,7 +185,7 @@ select public.demo_reset();
 
 Alle personer i demoen er oppdiktet. E-postadressene ligger på `.example`, et
 toppdomene som per RFC 2606 aldri kan registreres. Telefonnumrene er varianter
-av `400 00 000`. Adressen `Storgata 1, 0155 Oslo` er en plassholder.
+av `400 00 000`. Adressen `Bregneveien 12, 0283 Oslo` er en plassholder.
 
 Nettstedet er merket permanent: en pille i headeren på hver side, en linje i
 bunnteksten, og et varsel på kontakt-, vilkårs- og personvernsiden. `robots.txt` avviser
@@ -201,7 +202,8 @@ adresse skal ikke ligge i et søkeresultat.
 | `Invalid login credentials` på riktig passord | `auth.identities`-raden mangler | Kjør `0065` på nytt; se verifikasjon B i filen |
 | 404 mot en tabell | En migrasjon er hoppet over | Kjør migrasjonene i rekkefølge fra `0000` |
 | Alt kan endres, ingenting avvises | `0066` er ikke kjørt, eller du er logget inn som `postgres` i SQL-editoren | Test fra nettleseren, ikke fra dashbordet |
-| Kalenderen er tom | `0067` er ikke kjørt | `select public.demo_seed();` |
+| Kalenderen er tom | `0067`/`0068` er ikke kjørt | `select public.demo_seed();` |
+| «Ikke koblet til en database» i steg 2 | `booking-config.js` er tom, eller `0068` mangler | Steg 4, så kjør migrasjonene |
 | Kalenderen er full av gamle datoer | Nullstillingen kjører ikke | Aktiver pg_cron, eller kjør `demo_reset()` manuelt |
 
 ---
@@ -211,7 +213,7 @@ adresse skal ikke ligge i et søkeresultat.
 Skal systemet settes opp for en virkelig klinikk, er det tre ting som må endres
 utover navn og innhold:
 
-1. **Ikke kjør `0065`, `0066` og `0067`.** De hører demoen til. Brukere opprettes
+1. **Ikke kjør `0065`, `0066`, `0067` og `0068`.** De hører demoen til. Brukere opprettes
    i Dashboard → Authentication → Users, med genererte passord.
 2. **Skriv en ekte personvernerklæring.** `personvern.html` beskriver demoen, ikke
    en helsetjeneste. Systemet har allerede teknikken en slik erklæring

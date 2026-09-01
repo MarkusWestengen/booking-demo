@@ -50,17 +50,17 @@
     modal.setAttribute('aria-hidden', 'true');
     modal.style.cssText = [
       'position:fixed', 'inset:0', 'z-index:9999',
-      'background:rgba(46, 35, 32,.7)',
+      'background:rgba(11, 26, 43,.7)',
       'display:none', 'align-items:center', 'justify-content:center',
       'padding:20px'
     ].join(';');
     modal.innerHTML =
-      '<div style="background:#fff;max-width:380px;width:100%;padding:24px;border:1px solid rgba(46,35,32,.16);font-family:Inter,system-ui,sans-serif;">' +
-        '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 8px;color:#2e2320;">Inaktivitet oppdaget</h3>' +
-        '<p style="margin:0 0 18px;color:#4a3b35;font-size:14px;line-height:1.5;">' +
+      '<div style="background:#fff;max-width:380px;width:100%;padding:24px;border:1px solid rgba(11,26,43,.16);font-family:Inter,system-ui,sans-serif;">' +
+        '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 8px;color:#0b1a2b;">Inaktivitet oppdaget</h3>' +
+        '<p style="margin:0 0 18px;color:#26384b;font-size:14px;line-height:1.5;">' +
           'Du blir logget ut om <strong id="__ta_countdown">60</strong> sekunder.' +
         '</p>' +
-        '<button id="__ta_keepalive" style="background:#1f4e4a;color:#fff;border:0;padding:11px 18px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;width:100%;">' +
+        '<button id="__ta_keepalive" style="background:#064789;color:#fff;border:0;padding:11px 18px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;width:100%;">' +
           'Bli værende innlogget' +
         '</button>' +
       '</div>';
@@ -211,32 +211,32 @@
       var wrap = document.createElement('div');
       wrap.style.cssText = [
         'position:fixed','inset:0','z-index:10000',
-        'background:rgba(46, 35, 32,.7)',
+        'background:rgba(11, 26, 43,.7)',
         'display:flex','align-items:center','justify-content:center','padding:20px'
       ].join(';');
       var typeInputHtml = '';
       if (opts.requireTyping) {
         typeInputHtml =
-          '<p style="margin:14px 0 6px;font-size:13px;color:#4a3b35;">' +
+          '<p style="margin:14px 0 6px;font-size:13px;color:#26384b;">' +
             'Skriv <strong>' + escapeHtml(opts.requireTyping) + '</strong> for å bekrefte:' +
           '</p>' +
           '<input type="text" id="__ta_confirm_typed" autocomplete="off" ' +
-            'style="width:100%;padding:10px 12px;border:1px solid rgba(46,35,32,.16);background:#efe5dc;font-family:JetBrains Mono,monospace;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;" />';
+            'style="width:100%;padding:10px 12px;border:1px solid rgba(11,26,43,.16);background:#ebf2fa;font-family:JetBrains Mono,monospace;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;" />';
       }
       wrap.innerHTML =
-        '<div style="background:#fff;max-width:420px;width:100%;padding:24px;border:1px solid rgba(46,35,32,.16);font-family:Inter,system-ui,sans-serif;">' +
-          '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 8px;color:#2e2320;">' +
+        '<div style="background:#fff;max-width:420px;width:100%;padding:24px;border:1px solid rgba(11,26,43,.16);font-family:Inter,system-ui,sans-serif;">' +
+          '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 8px;color:#0b1a2b;">' +
             escapeHtml(opts.title || 'Er du sikker?') +
           '</h3>' +
-          '<p style="margin:0;color:#4a3b35;font-size:14px;line-height:1.5;white-space:pre-wrap;">' +
+          '<p style="margin:0;color:#26384b;font-size:14px;line-height:1.5;white-space:pre-wrap;">' +
             escapeHtml(opts.message || '') +
           '</p>' +
           typeInputHtml +
           '<div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end;">' +
-            '<button id="__ta_cancel" style="background:transparent;border:1px solid rgba(46,35,32,.16);padding:9px 16px;font:inherit;cursor:pointer;color:#4a3b35;">' +
+            '<button id="__ta_cancel" style="background:transparent;border:1px solid rgba(11,26,43,.16);padding:9px 16px;font:inherit;cursor:pointer;color:#26384b;">' +
               escapeHtml(opts.cancelLabel || 'Avbryt') +
             '</button>' +
-            '<button id="__ta_confirm" disabled style="background:#9e2b1f;color:#fff;border:0;padding:9px 16px;font:inherit;cursor:pointer;font-weight:500;opacity:0.5;">' +
+            '<button id="__ta_confirm" disabled style="background:#a4262c;color:#fff;border:0;padding:9px 16px;font:inherit;cursor:pointer;font-weight:500;opacity:0.5;">' +
               escapeHtml(opts.confirmLabel || 'Bekreft') +
             '</button>' +
           '</div>' +
@@ -428,19 +428,19 @@
     var st = document.createElement('style');
     st.textContent =
       '#wkRoleSwitch{position:fixed;right:16px;bottom:16px;z-index:9997;display:flex;' +
-        'align-items:stretch;border:1px solid var(--green,#1f4e4a);border-radius:2px;' +
-        'background:var(--paper,#efe5dc);overflow:hidden;' +
-        'box-shadow:0 6px 18px -8px rgba(46,35,32,.45);font-family:Inter,system-ui,sans-serif;}' +
+        'align-items:stretch;border:1px solid var(--green,#064789);border-radius:2px;' +
+        'background:var(--paper,#ebf2fa);overflow:hidden;' +
+        'box-shadow:0 6px 18px -8px rgba(11,26,43,.45);font-family:Inter,system-ui,sans-serif;}' +
       '#wkRoleSwitch .wk-rs-lab{display:flex;align-items:center;padding:0 10px;font-size:10px;' +
-        'letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#5c4d46);' +
+        'letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#4a5c6f);' +
         'font-family:"JetBrains Mono",ui-monospace,monospace;' +
-        'border-right:1px solid rgba(46,35,32,.18);white-space:nowrap;}' +
+        'border-right:1px solid rgba(11,26,43,.18);white-space:nowrap;}' +
       '#wkRoleSwitch button{border:0;background:transparent;cursor:pointer;padding:9px 13px;' +
-        'font-size:13px;font-weight:500;color:var(--green,#1f4e4a);white-space:nowrap;' +
+        'font-size:13px;font-weight:500;color:var(--green,#064789);white-space:nowrap;' +
         'font-family:inherit;transition:background .15s ease,color .15s ease;}' +
-      '#wkRoleSwitch button:hover:not([aria-current]){background:var(--green-tint,#dce7e4);}' +
-      '#wkRoleSwitch button[aria-current]{background:var(--green,#1f4e4a);color:#fff;cursor:default;}' +
-      '#wkRoleSwitch button:focus-visible{outline:2px solid var(--green,#1f4e4a);outline-offset:-3px;}' +
+      '#wkRoleSwitch button:hover:not([aria-current]){background:var(--green-tint,#cfe0f0);}' +
+      '#wkRoleSwitch button[aria-current]{background:var(--green,#064789);color:#fff;cursor:default;}' +
+      '#wkRoleSwitch button:focus-visible{outline:2px solid var(--green,#064789);outline-offset:-3px;}' +
       '#wkRoleSwitch button[disabled]{opacity:.55;cursor:progress;}' +
       '@media (max-width:760px){#wkRoleSwitch{right:10px;bottom:64px;}' +
         '#wkRoleSwitch .wk-rs-lab{display:none;}}';

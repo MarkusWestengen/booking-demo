@@ -1,30 +1,24 @@
 /* ============================================================
    Westengen Klinikk — backend-konfigurasjon
    ------------------------------------------------------------
-   ⚠  NØKLENE ER TOMME MED VILJE.
+   Demoen peker på sitt eget, tomme Supabase-prosjekt. Den skal
+   ALDRI peke på en produksjonsdatabase: innloggingen til
+   adminpanelet er publisert åpent på forsiden.
 
-   Her lå tidligere URL og anon-nøkkel til den ekte klinikkens
-   Supabase-prosjekt. De er fjernet. Demoen skal ALDRI peke på den
-   databasen: innloggingen til adminpanelet er publisert åpent på
-   forsiden, og med produksjonsnøkkelen her ville hvem som helst
-   fått lese ekte pasientdata.
+   Anon-nøkkelen er ment å være offentlig og beskyttes av RLS.
+   Service role-nøkkelen skal aldri inn i frontend.
 
-   SLIK KOBLER DU DEMOEN TIL SIN EGEN DATABASE
+   SLIK KOBLER DU EN NY KOPI TIL SIN EGEN DATABASE
    1. Opprett et nytt, tomt Supabase-prosjekt (EU-region).
-   2. Kjør migrasjonene i supabase/migrations/ i nummerrekkefølge,
-      fra 0000 til 0067. Se DEMO_SETUP.md.
+   2. Kjør migrasjonene i supabase/migrations/ i nummerrekkefølge.
+      Se DEMO_SETUP.md.
    3. Project Settings → API → kopier «Project URL» og «anon public».
    4. Lim dem inn under.
-
-   MENS DE ER TOMME
-   Bestillingsflyten faller tilbake til localStorage, så den kan
-   klikkes gjennom, men bare i din egen nettleser. Adminpanelet
-   trenger en ekte database og vil be deg logge inn uten å komme
-   videre. Det er forventet oppførsel, ikke en feil.
    ============================================================ */
+
 window.WestengenKlinikkBackend = {
-  supabaseUrl: '',
-  supabaseAnonKey: ''
+  supabaseUrl: 'https://pfyidlnztpwjnpxpoheu.supabase.co',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmeWlkbG56dHB3am5weHBvaGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjE0MTQsImV4cCI6MjEwMzc5NzQxNH0.quP4tfd9eiHvF11mJqn78HdGECgbOektXeQ-O9uoj6c'
 };
 
 // Kanoniske kontaktopplysninger for klinikken.
@@ -36,6 +30,7 @@ window.WestengenKlinikkBackend = {
 // booking-engine sin feil-fallback, chatbot-prompten og feilmeldingen
 // i components.js. Statisk HTML i index/bestilling/kontakt/vilkar har
 // fortsatt hardkodede strenger — ved endring, grep etter den gamle.
+
 window.WestengenKlinikkConfig = {
   CLINIC_PHONE: '+47 400 00 000',
   CLINIC_EMAIL: 'post@westengenklinikk.example'
