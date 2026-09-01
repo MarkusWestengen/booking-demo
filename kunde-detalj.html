@@ -378,7 +378,11 @@
     // Hent bookinger (bred ilike, filtrer eksakt klient-side).
     sb.from('bookings').select('*').ilike('email', emailParam).order('date', { ascending: false })
       .then(function (res) {
-        if (res.error) { showToast('Feil ved henting: ' + res.error.message, true); return; }
+        if (res.error) {
+          console.error('Henting av bookinger feilet:', res.error);
+          showToast('Fikk ikke hentet bookingene. Prøv igjen om et øyeblikk.', true);
+          return;
+        }
         var rows = (res.data || []).filter(function (r) {
           return String(r.email || '').toLowerCase() === emailParam;
         });
@@ -529,7 +533,8 @@
         renderJournal();           // re-render liste + frisk, tom skrive-form
         showToast('Notat lagret');
       }).catch(function (err) {
-        errSpan.textContent = 'Kunne ikke lagre: ' + ((err && err.message) || err);
+        console.error('Lagring av notat feilet:', err);
+        errSpan.textContent = 'Notatet ble ikke lagret. Prøv igjen.';
         saveBtn.disabled = false; saveBtn.textContent = 'Lagre notat';
       });
     });
@@ -542,8 +547,9 @@
     sb.rpc('get_journal_entries', { p_email: emailParam, p_phone: null })
       .then(function (res) {
         if (res.error) {
+          console.error('Henting av journal feilet:', res.error);
           $('journalHost').innerHTML = '<p style="color:var(--danger); font-size:13px;">' +
-            escapeHtml('Kunne ikke laste journal: ' + res.error.message) + '</p>';
+            'Fikk ikke hentet journalen. Prøv igjen om et øyeblikk.</p>';
           return;
         }
         STATE.journal = res.data || [];

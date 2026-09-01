@@ -1354,8 +1354,8 @@
           <tr><td>User-ID</td>   <td id="setUserId">,</td></tr>
         </table>
         <div class="settings-hint">
-          Brukerkontoen administreres i Supabase Auth. Endring av e-post, passord
-          eller rolle gjøres av en administrator i Supabase Dashboard, ikke her.
+          Kontoen din styres et annet sted enn her. E-post, passord og rolle
+          endres av den som administrerer brukerne.
         </div>
       </div>
     </div>
@@ -1846,10 +1846,10 @@
 
   function showLoadError(err) {
     var wrap = document.getElementById('bookingsListWrap');
-    var msg = (err && (err.message || err.error_description)) || String(err || 'Ukjent feil');
+    console.error('Henting av bookinger feilet:', err);
     wrap.innerHTML =
       '<div class="error-banner">' +
-        '<span><strong>Kunne ikke laste bookinger.</strong> ' + escapeHtml(msg) + '</span>' +
+        '<span><strong>Fikk ikke hentet bookingene.</strong> Prøv igjen om et øyeblikk.</span>' +
         '<button id="retryLoadBtn">Prøv igjen</button>' +
       '</div>';
     document.getElementById('retryLoadBtn').addEventListener('click', loadBookings);
@@ -2279,7 +2279,7 @@
     fb.textContent =
       state === 'saving' ? 'Lagrer…' :
       state === 'ok'     ? 'Lagret ✓' :
-      state === 'error'  ? ('Lagring feilet' + (msg ? ': ' + msg : '')) : '';
+      state === 'error'  ? ('Endringen ble ikke lagret' + (msg ? ': ' + msg : '')) : '';
   }
 
   document.getElementById('modalStatus').addEventListener('change', function () {
@@ -2340,7 +2340,8 @@
           if (document.querySelector('[data-panel="availability"].active')) {
             renderSlotGrid();
           }
-          setSaveState('error', (err && err.message) || '');
+          console.error('Lagring feilet:', err);
+          setSaveState('error', '');
         });
     });
   });
@@ -2478,7 +2479,11 @@
       .then(function (res) {
         btn.disabled = false;
         btn.textContent = origText;
-        if (res.error) { showToast('CSV-eksport feilet: ' + res.error.message, true); return; }
+        if (res.error) {
+          console.error('Eksport feilet:', res.error);
+          showToast('Eksporten ble ikke fullført. Prøv igjen.', true);
+          return;
+        }
         var rows = res.data || [];
         if (!rows.length) { showToast('Ingen bookinger å eksportere.', true); return; }
         if (rows.length === 10000) {
@@ -2582,7 +2587,8 @@
       .catch(function (err) {
         btn.classList.remove('loading');
         btn.disabled = false;
-        showToast('Kunne ikke oppdatere: ' + ((err && err.message) || err), true);
+        console.error('Oppdatering feilet:', err);
+        showToast('Endringen ble ikke lagret. Prøv igjen.', true);
       });
   }
 
@@ -2687,8 +2693,8 @@
       renderHolidayChips();
     }).catch(function (err) {
       wrap.innerHTML =
-        '<div class="error-banner"><span><strong>Kunne ikke laste tilgjengelighet.</strong> ' +
-        escapeHtml((err && err.message) || String(err)) + '</span>' +
+        '<div class="error-banner"><span><strong>Fikk ikke hentet ledige tider.</strong> ' +
+        'Prøv igjen om et øyeblikk.</span>' +
         '<button id="retryAvailBtn">Prøv igjen</button></div>';
       document.getElementById('retryAvailBtn').addEventListener('click', loadAndRenderAvailability);
     });
@@ -2980,8 +2986,8 @@
       })
       .catch(function (err) {
         wrap.innerHTML =
-          '<div class="error-banner"><span><strong>Kunne ikke laste venteliste.</strong> ' +
-          escapeHtml((err && err.message) || String(err)) + '</span>' +
+          '<div class="error-banner"><span><strong>Fikk ikke hentet ventelista.</strong> ' +
+          'Prøv igjen om et øyeblikk.</span>' +
           '<button id="wlRetryBtn">Prøv igjen</button></div>';
         var rb = document.getElementById('wlRetryBtn');
         if (rb) rb.addEventListener('click', loadWaitlist);
@@ -3332,8 +3338,8 @@
       })
       .catch(function (err) {
         wrap.innerHTML =
-          '<div class="error-banner"><span><strong>Kunne ikke laste anmeldelser.</strong> ' +
-          escapeHtml((err && err.message) || String(err)) + '</span>' +
+          '<div class="error-banner"><span><strong>Fikk ikke hentet anmeldelsene.</strong> ' +
+          'Prøv igjen om et øyeblikk.</span>' +
           '<button id="revRetryBtn">Prøv igjen</button></div>';
         var rb = document.getElementById('revRetryBtn');
         if (rb) rb.addEventListener('click', loadReviews);

@@ -68,7 +68,7 @@
          payload.journal_entries.length + ' journaler)');
     }).catch(function (e) {
       console.error('gdpr_export failed', e);
-      err('Eksport feilet: ' + ((e && e.message) || e));
+      err('Eksporten ble ikke fullført. Prøv igjen.');
     });
   }
 
@@ -112,7 +112,7 @@
       });
     }).catch(function (e) {
       console.error('gdpr_pseudonymize failed', e);
-      err('Pseudonymisering feilet: ' + ((e && e.message) || e));
+      err('Handlingen ble ikke fullført. Prøv igjen.');
     });
   }
 

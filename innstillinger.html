@@ -434,11 +434,15 @@
     sb.auth.signInWithPassword({ email: email, password: password })
       .then(function (res) {
         btn.disabled = false; btn.textContent = 'Logg inn →';
-        if (res.error) { err.style.display = ''; err.textContent = res.error.message || 'Feil e-post eller passord.'; }
+        if (res.error) {
+          console.error('Innlogging feilet:', res.error);
+          err.style.display = ''; err.textContent = 'Feil e-post eller passord.';
+        }
       })
       .catch(function (e2) {
         btn.disabled = false; btn.textContent = 'Logg inn →';
-        err.style.display = ''; err.textContent = e2.message || 'Innlogging feilet.';
+        console.error('Innlogging feilet:', e2);
+        err.style.display = ''; err.textContent = 'Fikk ikke kontakt med serveren. Sjekk nettet og prøv igjen.';
       });
   });
 
@@ -498,7 +502,8 @@
       btn.disabled = false; btn.textContent = 'Send reset-lenke';
       if (res.error) {
         err.style.display = '';
-        err.textContent = 'Kunne ikke sende: ' + res.error.message;
+        console.error('Sending av lenke feilet:', res.error);
+        err.textContent = 'Fikk ikke sendt lenken. Sjekk e-postadressen og prøv igjen.';
         return;
       }
       ok.style.display = '';
@@ -506,7 +511,8 @@
     }).catch(function (e2) {
       btn.disabled = false; btn.textContent = 'Send reset-lenke';
       err.style.display = '';
-      err.textContent = 'Kunne ikke sende: ' + (e2.message || e2);
+      console.error('Sending av lenke feilet:', e2);
+      err.textContent = 'Fikk ikke sendt lenken. Prøv igjen om et øyeblikk.';
     });
   });
 

@@ -1061,11 +1061,15 @@
     sb.auth.signInWithPassword({ email: email, password: password })
       .then(function (res) {
         btn.disabled = false; btn.textContent = 'Logg inn →';
-        if (res.error) { err.style.display = ''; err.textContent = res.error.message || 'Feil e-post eller passord.'; }
+        if (res.error) {
+          console.error('Innlogging feilet:', res.error);
+          err.style.display = ''; err.textContent = 'Feil e-post eller passord.';
+        }
       })
       .catch(function (e2) {
         btn.disabled = false; btn.textContent = 'Logg inn →';
-        err.style.display = ''; err.textContent = e2.message || 'Innlogging feilet.';
+        console.error('Innlogging feilet:', e2);
+        err.style.display = ''; err.textContent = 'Fikk ikke kontakt med serveren. Sjekk nettet og prøv igjen.';
       });
   });
 
@@ -1173,8 +1177,8 @@
     })
       .catch(function (err) {
         $('dayGroups').innerHTML =
-          '<div class="error-banner"><span>Kunne ikke laste bookinger: ' +
-          escapeHtml((err && err.message) || String(err)) +
+          '<div class="error-banner"><span>Fikk ikke hentet bookingene. ' +
+          'Prøv igjen om et øyeblikk.' +
           '</span><button id="retryBtn">Prøv igjen</button></div>';
         $('retryBtn').addEventListener('click', loadBookings);
       });
@@ -1656,7 +1660,8 @@
             b.status = oldStatus; sel.value = oldStatus;
             renderDayGroups(); renderEarnings(); renderWeekStrip();
             fb.className = 'save-feedback shown error';
-            fb.textContent = 'Lagring feilet: ' + ((err && err.message) || '');
+            console.error('Lagring av status feilet:', err);
+            fb.textContent = 'Endringen ble ikke lagret. Prøv igjen.';
           });
       });
     });
@@ -1702,7 +1707,8 @@
           // journal_create audit-logges av DB-laget (RPC, migrasjon 0051).
         })
         .catch(function (err) {
-          errSpan.textContent = 'Kunne ikke lagre: ' + ((err && err.message) || err);
+          console.error('Lagring av notat feilet:', err);
+          errSpan.textContent = 'Notatet ble ikke lagret. Prøv igjen.';
         })
         .finally(function () {
           saveBtn.disabled = false; saveBtn.textContent = 'Lagre notat';
@@ -1734,8 +1740,8 @@
         renderJournalList(b);
       })
       .catch(function (err) {
-        renderJournalEmpty(b,
-          'Kunne ikke hente journal: ' + ((err && err.message) || err));
+        console.error('Henting av journal feilet:', err);
+        renderJournalEmpty(b, 'Fikk ikke hentet journalen. Prøv igjen om et øyeblikk.');
       });
   }
   function renderJournalEmpty(b, message) {

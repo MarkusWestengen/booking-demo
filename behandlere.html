@@ -373,7 +373,11 @@
     $('listHost').innerHTML = '<div class="loader"><span class="spinner"></span>Henter…</div>';
     sb.from('staff_members').select('*').order('aktiv', { ascending: false }).order('sortering', { ascending: true })
       .then(function (res) {
-        if (res.error) { $('listHost').innerHTML = '<div class="empty">Kunne ikke hente behandlere: ' + escapeHtml(res.error.message) + '</div>'; return; }
+        if (res.error) {
+          console.error('Henting av behandlere feilet:', res.error);
+          $('listHost').innerHTML = '<div class="empty">Fikk ikke hentet behandlerne. Prøv igjen om et øyeblikk.</div>';
+          return;
+        }
         STATE.rows = res.data || [];
         render();
       })
@@ -469,9 +473,14 @@
     });
     op.then(function (res) {
       btn.disabled = false;
-      if (res.error) { st.textContent = 'Feil: ' + res.error.message; st.classList.add('err'); return; }
+      if (res.error) {
+        console.error('Lagring av behandler feilet:', res.error);
+        st.textContent = 'Endringen ble ikke lagret. Prøv igjen.';
+        st.classList.add('err');
+        return;
+      }
       st.textContent = res._fargeHoppetOver
-        ? 'Lagret uten farge. Kjør migrasjon 0049 for fargestøtte.'
+        ? 'Lagret. Fargen kunne ikke settes.'
         : 'Lagret ✓';
       st.classList.add(res._fargeHoppetOver ? 'err' : 'ok');
       if (!res._fargeHoppetOver) closeEditor();

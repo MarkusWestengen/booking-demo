@@ -607,7 +607,8 @@
         render();
       })
       .catch(function (err) {
-        $('svcList').innerHTML = '<div class="empty">Kunne ikke laste tjenester: ' + escapeHtml(err.message || String(err)) + '</div>';
+        console.error('Henting av tjenester feilet:', err);
+        $('svcList').innerHTML = '<div class="empty">Fikk ikke hentet tjenestene. Prøv igjen om et øyeblikk.</div>';
       });
   }
 
@@ -806,7 +807,8 @@
     })).then(function (results) {
       var anyError = results.find(function (r) { return r && r.error; });
       if (anyError) {
-        showToast('Klarte ikke å lagre ny rekkefølge: ' + anyError.error.message, 'error');
+        console.error('Lagring av rekkefølge feilet:', anyError.error);
+        showToast('Rekkefølgen ble ikke lagret. Prøv igjen.', 'error');
         loadServices(); // synkroniser tilbake til DB-state
         return;
       }
@@ -816,7 +818,8 @@
         count: updates.length
       });
     }).catch(function (err) {
-      showToast('Feil ved sortering: ' + (err.message || String(err)), 'error');
+      console.error('Sortering feilet:', err);
+      showToast('Rekkefølgen ble ikke lagret. Prøv igjen.', 'error');
       loadServices();
     });
   }
@@ -837,7 +840,8 @@
           });
         })
         .catch(function (err) {
-          showToast('Kunne ikke endre status: ' + (err.message || String(err)), 'error');
+          console.error('Statusendring feilet:', err);
+          showToast('Statusen ble ikke endret. Prøv igjen.', 'error');
         });
     });
   }
@@ -1058,7 +1062,8 @@
           })
           .catch(function (err) {
             dzBtn.disabled = false; dzBtn.textContent = 'Arkivér tjeneste';
-            showToast('Kunne ikke arkivere: ' + (err.message || String(err)), 'error');
+            console.error('Arkivering feilet:', err);
+            showToast('Arkiveringen ble ikke fullført. Prøv igjen.', 'error');
           });
       });
     }
@@ -1142,9 +1147,9 @@
       saveBtn.textContent = svc ? 'Lagre endringer' : 'Opprett tjeneste';
       var msg = err && err.message ? err.message : String(err);
       if (/duplicate key|23505/.test(msg)) {
-        fail('Slug er allerede i bruk i databasen. Velg en annen.');
+        fail('Adressen er allerede i bruk av en annen tjeneste. Velg en annen.');
       } else {
-        fail('Klarte ikke å lagre: ' + msg);
+        fail('Endringen ble ikke lagret. Prøv igjen.');
       }
     });
   }

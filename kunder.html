@@ -330,7 +330,8 @@
       .order('date', { ascending: false })
       .then(function (res) {
         if (res.error) {
-          $('custList').innerHTML = '<div class="empty">Kunne ikke laste kunder: ' + escapeHtml(res.error.message) + '</div>';
+          console.error('Henting av kunder feilet:', res.error);
+          $('custList').innerHTML = '<div class="empty">Fikk ikke hentet kundene. Prøv igjen om et øyeblikk.</div>';
           return;
         }
         STATE.customers = aggregate(res.data || []);

@@ -459,7 +459,8 @@
     var q = buildQuery(true).range(from, to);
     q.then(function (res) {
       if (res.error) {
-        $('tableHost').innerHTML = '<div class="empty">Feil: ' + escapeHtml(res.error.message) + '</div>';
+        console.error('Henting av logg feilet:', res.error);
+        $('tableHost').innerHTML = '<div class="empty">Fikk ikke hentet loggen. Prøv igjen om et øyeblikk.</div>';
         return;
       }
       STATE.rows = res.data || [];

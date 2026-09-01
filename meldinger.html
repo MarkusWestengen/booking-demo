@@ -356,7 +356,8 @@
     var to = from + STATE.pageSize - 1;
     buildQuery(true).range(from, to).then(function (res) {
       if (res.error) {
-        $('tableHost').innerHTML = '<div class="empty">Feil: ' + escapeHtml(res.error.message) + '</div>';
+        console.error('Henting av meldinger feilet:', res.error);
+        $('tableHost').innerHTML = '<div class="empty">Fikk ikke hentet meldingene. Prøv igjen om et øyeblikk.</div>';
         return;
       }
       STATE.rows = res.data || [];

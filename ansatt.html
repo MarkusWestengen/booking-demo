@@ -390,8 +390,7 @@ if ('serviceWorker' in navigator) {
       // Faller tilbake til skjemaet hvis auto-innloggingen ikke gaar
       // gjennom — da er som regel databasen ikke satt opp enda.
       show('loginView');
-      showError('Kunne ikke logge inn automatisk. Sjekk at migrasjon 0065 er kjørt, '
-              + 'eller logg inn manuelt under.');
+      showError('Den automatiske innloggingen gikk ikke gjennom. Logg inn under.');
     });
     return;
   }
@@ -427,7 +426,7 @@ if ('serviceWorker' in navigator) {
       if (res.error) {
         registerFailedAttempt();
         logLoginFailed(email, res.error.message || 'invalid_credentials');
-        showError(res.error.message || 'Feil e-post eller passord.');
+        showError('Feil e-post eller passord.');
         btn.disabled = false; btn.textContent = 'Logg inn →';
         return;
       }
@@ -449,7 +448,8 @@ if ('serviceWorker' in navigator) {
     }).catch(function (err) {
       registerFailedAttempt();
       logLoginFailed(email, (err && err.message) || 'network_error');
-      showError((err && err.message) || 'Innlogging feilet. Prøv igjen.');
+      console.error('Innlogging feilet:', err);
+      showError('Fikk ikke kontakt med serveren. Sjekk nettet og prøv igjen.');
       btn.disabled = false; btn.textContent = 'Logg inn →';
     });
   });
@@ -471,13 +471,15 @@ if ('serviceWorker' in navigator) {
     }).then(function (res) {
       link.textContent = 'Glemt passord?';
       if (res.error) {
-        showError('Kunne ikke sende reset-lenke: ' + res.error.message);
+        console.error('Sending av lenke feilet:', res.error);
+        showError('Fikk ikke sendt lenken. Sjekk e-postadressen og prøv igjen.');
         return;
       }
       showOk('Reset-lenke sendt til ' + email + '. Sjekk innboksen (og spam).');
     }).catch(function (err) {
       link.textContent = 'Glemt passord?';
-      showError('Kunne ikke sende reset-lenke: ' + ((err && err.message) || err));
+      console.error('Sending av lenke feilet:', err);
+      showError('Fikk ikke sendt lenken. Sjekk e-postadressen og prøv igjen.');
     });
   });
 

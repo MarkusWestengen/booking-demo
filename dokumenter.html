@@ -376,7 +376,8 @@
       .order('created_at', { ascending: false })
       .then(function (res) {
         if (res.error) {
-          $('catHost').innerHTML = '<div class="empty">Kunne ikke hente dokumenter: ' + escapeHtml(res.error.message) + '</div>';
+          console.error('Henting av dokumenter feilet:', res.error);
+          $('catHost').innerHTML = '<div class="empty">Fikk ikke hentet dokumentene. Prøv igjen om et øyeblikk.</div>';
           return;
         }
         STATE.docs = res.data || [];
@@ -469,7 +470,7 @@
       .catch(function (err) {
         btn.disabled = false;
         console.error('Opplasting feilet:', err);
-        statusEl.textContent = 'Opplasting feilet: ' + (err && err.message ? err.message : 'ukjent feil');
+        statusEl.textContent = 'Opplastingen ble ikke fullført. Prøv igjen.';
         statusEl.classList.add('err');
       });
   });
@@ -522,7 +523,7 @@
         .catch(function (err) {
           t.disabled = false;
           console.error('Sending feilet:', err);
-          st.textContent = 'Sending feilet: ' + (err && err.message ? err.message : 'ukjent feil');
+          st.textContent = 'Sendingen ble ikke fullført. Prøv igjen.';
           st.classList.add('err');
         });
       return;
