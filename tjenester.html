@@ -496,6 +496,10 @@
   // 0008 og brukt av 0015 for å koble terapeuter til ter-tjenestene.
   function eligibleStaffFor(svc) {
     var slug = (svc && svc.slug) ? svc.slug : '';
+    // Legacy: den gamle katalogen hadde pris bakt inn i slugen, og
+    // 'tom-'/'ter-'-prefikset avgjorde hvem som kunne utfoere.
+    // Radene er deaktivert, men beholdt for gamle bookinger, saa
+    // reglene staar igjen her for at de skal telles riktig.
     if (slug.indexOf('tom-') === 0) {
       return STAFF.filter(function (s) { return s.id === 'markus'; });
     }
@@ -504,7 +508,16 @@
         return s.id !== 'markus' && s.id !== 'terapeut';
       });
     }
-    return STAFF.filter(function (s) { return s.id !== 'terapeut'; });
+    // Dagens katalog (0068): prisen foelger behandlingen, ikke
+    // behandleren, saa alle kan utfoere alt.
+    //
+    // Paraplyen 'terapeut' regnes med. Den er ingen person, men den
+    // er en bookbar oppfoering i kundeflyten: velger kunden «Markus'
+    // terapeuter» leses SERVICES['terapeut'], og uten koblingen ville
+    // steg 2 vaert tomt. Foer denne endringen trakk telleren paraplyen
+    // fra divisoren mens databasen koblet den til, og kortene viste
+    // «9 av 8».
+    return STAFF.slice();
   }
 
   // Issue P — drag-reorder av tjenestekort er bevisst på desktop (mus),

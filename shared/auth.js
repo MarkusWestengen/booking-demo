@@ -333,15 +333,30 @@
 
   // Logger inn som oppgitt rolle og laster siden paa nytt. Brukes
   // baade av auto-innloggingen og av rollebytteren.
+  // ROLLEBYTTE UTEN AA BLI KASTET UT
+  //
+  // Foerste versjon logget ut foer den logget inn igjen. Det saa
+  // ryddig ut, men hver adminside har en sb.auth.onAuthStateChange-
+  // lytter som kaller handleSession(session). signOut() fyrer
+  // SIGNED_OUT med session = null, lytteren ser en utlogget bruker og
+  // sender deg til ansatt.html - alt sammen foer innloggingen som
+  // skulle fulgt etter rakk aa fullfoere.
+  //
+  // signInWithPassword() bytter sesjonen ut av seg selv. Det finnes
+  // ingen grunn til aa toemme den foerst, og uten signOut() fyres bare
+  // SIGNED_IN, med en gyldig sesjon lytteren kan leve med.
   function signInAs(sb, role, nextUrl) {
     var acct = demoAccount(role);
-    return sb.auth.signOut().catch(function () {}).then(function () {
-      return sb.auth.signInWithPassword({ email: acct.email, password: acct.password });
-    }).then(function (res) {
-      if (res && res.error) throw res.error;
-      try { window.location.replace(nextUrl || window.location.pathname.split('/').pop() || 'kalender.html'); } catch (_) {}
-      return true;
-    });
+    return sb.auth.signInWithPassword({ email: acct.email, password: acct.password })
+      .then(function (res) {
+        if (res && res.error) throw res.error;
+        try {
+          window.location.replace(nextUrl
+            || window.location.pathname.split('/').pop()
+            || 'kalender.html');
+        } catch (_) {}
+        return true;
+      });
   }
 
   function hasSupabaseAuthToken() {
@@ -427,7 +442,7 @@
 
     var st = document.createElement('style');
     st.textContent =
-      '#wkRoleSwitch{position:fixed;right:16px;bottom:16px;z-index:9997;display:flex;' +
+      '#wkRoleSwitch{position:fixed;right:16px;z-index:9997;display:flex;' +
         'align-items:stretch;border:1px solid var(--green,#064789);border-radius:2px;' +
         'background:var(--paper,#ebf2fa);overflow:hidden;' +
         'box-shadow:0 6px 18px -8px rgba(11,26,43,.45);font-family:Inter,system-ui,sans-serif;}' +
@@ -442,7 +457,7 @@
       '#wkRoleSwitch button[aria-current]{background:var(--green,#064789);color:#fff;cursor:default;}' +
       '#wkRoleSwitch button:focus-visible{outline:2px solid var(--green,#064789);outline-offset:-3px;}' +
       '#wkRoleSwitch button[disabled]{opacity:.55;cursor:progress;}' +
-      '@media (max-width:760px){#wkRoleSwitch{right:10px;bottom:64px;}' +
+      '@media (max-width:760px){#wkRoleSwitch{right:10px;}' +
         '#wkRoleSwitch .wk-rs-lab{display:none;}}';
     document.head.appendChild(st);
 
@@ -490,6 +505,45 @@
     });
 
     document.body.appendChild(box);
+
+    // .bottom-nav er position:fixed mot bunnen og gaar over hele
+    // bredden, ogsaa paa desktop. En bryter med bottom:16px legger seg
+    // rett oppaa det hoeyre menypunktet - som er «Innstillinger» - og
+    // gjor det uklikkbart.
+    //
+    // Hoeyden maales i stedet for aa gjettes, fordi baren har
+    // safe-area-padding paa iOS og kan bli hoeyere enn den ser ut.
+    function place() {
+      // Bunnen er ikke ett element. kalender.html har bade en
+      // bottom-nav og en inntektslinje over den, og andre sider kan
+      // ha andre stabler. Vi maaler derfor ALT som er festet mot
+      // bunnen og legger oss over det oeverste av dem, i stedet for
+      // aa anta at bunnmenyen er det eneste som ligger der.
+      var vh = window.innerHeight || 0;
+      var top = vh;
+      var all = document.querySelectorAll('body *');
+      for (var i = 0; i < all.length; i++) {
+        var el = all[i];
+        if (el === box || box.contains(el)) continue;
+        var cs = window.getComputedStyle(el);
+        if (cs.position !== 'fixed' || cs.display === 'none' || cs.visibility === 'hidden') continue;
+        // Toaster og varsler er forbigaaende og skal ikke flytte
+        // bryteren permanent.
+        if (/toast|snackbar|alert/i.test(el.id + ' ' + el.className)) continue;
+        var r = el.getBoundingClientRect();
+        if (r.height < 8) continue;
+        // Bare det som faktisk ligger i bunnsonen.
+        if (r.bottom < vh - 160) continue;
+        if (r.top < top) top = r.top;
+      }
+      box.style.bottom = (top >= vh ? 16 : (vh - top) + 14) + 'px';
+    }
+    place();
+    window.addEventListener('resize', place);
+    // Baren rendres av admin-nav.js etter at rollen er kjent, saa vi
+    // maaler en gang til naar den er paa plass.
+    setTimeout(place, 300);
+    setTimeout(place, 1200);
   }
 
   // ----- Eksporter -----
