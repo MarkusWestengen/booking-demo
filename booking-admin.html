@@ -1502,7 +1502,7 @@
     A.confirmDestructive({
       title: tr(tKey, tFb),
       message: tr(mKey, mFb),
-      confirmLabel: tr('admin.ask.confirm', 'Ja, gjor det'),
+      confirmLabel: tr('admin.ask.confirm', 'Ja, gjør det'),
       cancelLabel: tr('admin.ask.cancel', 'Avbryt')
     }).then(function (ok) { if (ok) run(); });
   }
@@ -1675,6 +1675,10 @@
   function renderAuthorized(user) {
     currentUser = user;
     setRoleBadge(user.role, user.staffName);
+    // Rollebytteren skal finnes paa alle sidene i panelet, ikke bare
+    // paa dem som har admin-punkter aa skjule. applyRoleGates gjor
+    // begge deler, og er trygg aa kalle her.
+    window.WestengenKlinikkAuth.applyRoleGates(user.role);
     setTopbarRight(
       '<a href="kalender.html">Min kalender →</a>' +
       '<span class="who">' + escapeHtml(user.email) + '</span>' +
@@ -2400,7 +2404,7 @@
           // Generisk melding til bruker (P2-7); detalj kun til konsoll
           // slik at vi ikke lekker SQL-constraint-navn eller schema-info.
           console.error('Booking-sletting feilet:', err);
-          notify('admin.err.delete', 'Sletting ble ikke fullfort. Prov igjen.');
+          notify('admin.err.delete', 'Sletting ble ikke fullført. Prøv igjen.');
         })
         .finally(function () {
           // Always restore the button — whether the delete succeeded, was rejected
@@ -2824,7 +2828,7 @@
           return !(b.staffId === staffId && b.date === date && b.time === time);
         });
         renderSlotGrid();
-        notify('admin.err.block', 'Tiden ble ikke blokkert. Prov igjen.');
+        notify('admin.err.block', 'Tiden ble ikke blokkert. Prøv igjen.');
       });
   }
   function unblockSlotAction(staffId, date, time) {
@@ -2844,7 +2848,7 @@
       .catch(function (err) {
         availData.blocked.push.apply(availData.blocked, removed);
         renderSlotGrid();
-        notify('admin.err.unblock', 'Tiden ble ikke frigjort. Prov igjen.');
+        notify('admin.err.unblock', 'Tiden ble ikke frigjort. Prøv igjen.');
       });
   }
 
@@ -2863,7 +2867,7 @@
         availData.holidays = availData.holidays.filter(function (d) { return d !== date; });
         renderHolidayChips();
         renderSlotGrid();
-        notify('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.');
+        notify('admin.err.update', 'Endringen ble ikke lagret. Prøv igjen.');
       });
   }
   function removeHolidayAction(date) {
@@ -2881,7 +2885,7 @@
           availData.holidays.push(date); availData.holidays.sort();
           renderHolidayChips();
           renderSlotGrid();
-          notify('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.');
+          notify('admin.err.update', 'Endringen ble ikke lagret. Prøv igjen.');
         });
     });
   }
@@ -2904,7 +2908,7 @@
   document.getElementById('availDate').addEventListener('change', renderSlotGrid);
   document.getElementById('markHolidayBtn').addEventListener('click', function () {
     var date = document.getElementById('availDate').value;
-    if (!date) { notify('admin.err.pick_date', 'Velg en dato forst.'); return; }
+    if (!date) { notify('admin.err.pick_date', 'Velg en dato først.'); return; }
     if (availData.holidays.indexOf(date) !== -1) {
       notify('admin.err.already_closed', 'Datoen er allerede markert som stengt.');
       return;
@@ -3039,7 +3043,7 @@
     var w = WAITLIST.rows.find(function (x) { return x.id === id; });
     if (!w || !isAdmin()) return;
     askThen('admin.ask.waitlist_t', 'Fjerne fra ventelista?',
-            'admin.ask.waitlist_m', 'Oppforingen settes til avbrutt.', function () {
+            'admin.ask.waitlist_m', 'Oppføringen settes til avbrutt.', function () {
       sb.from('waitlist').update({ status: 'cancelled' }).eq('id', id)
         .then(function (res) {
           if (res.error) throw res.error;
@@ -3047,7 +3051,7 @@
           loadWaitlist();
         })
         .catch(function (err) {
-          showToast('Kunne ikke fjerne. Prov igjen.', true);
+          showToast('Kunne ikke fjerne. Prøv igjen.', true);
           console.error(err);
         });
     });

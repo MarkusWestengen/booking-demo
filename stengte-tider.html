@@ -248,7 +248,7 @@
 
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="brand">Westengen Klinikk <em>stengte tider</em></div>
+    <div class="brand">Westengen Klinikk</div>
     <span class="who-chip" id="whoChip" style="display:none;"></span>
     <div id="topActions"></div>
   </div>
@@ -432,7 +432,7 @@
     A.confirmDestructive({
       title: tr(tKey, tFb),
       message: tr(mKey, mFb),
-      confirmLabel: tr('admin.ask.confirm', 'Ja, gjor det'),
+      confirmLabel: tr('admin.ask.confirm', 'Ja, gjør det'),
       cancelLabel: tr('admin.ask.cancel', 'Avbryt')
     }).then(function (ok) { if (ok) run(); });
   }
@@ -900,7 +900,7 @@
     sb.from('blocked_slots').upsert(rows, { onConflict: 'staff_id,date,time' }).then(function (res) {
       btn.disabled = false; btn.textContent = 'Lagre blokkering';
       if (res.error) {
-        $('formErr').style.display = ''; $('formErr').textContent = tr('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.');
+        $('formErr').style.display = ''; $('formErr').textContent = tr('admin.err.update', 'Endringen ble ikke lagret. Prøv igjen.');
         return;
       }
       $('formOk').style.display = '';
@@ -929,7 +929,7 @@
       var times = expandTimeRange(firstTime, addMinutes(lastTime, 30));
       sb.from('blocked_slots').delete().eq('staff_id', staffId).in('date', dates).in('time', times)
         .then(function (res) {
-          if (res.error) { showToast(tr('admin.err.delete', 'Sletting ble ikke fullfort. Prov igjen.'), true); return; }
+          if (res.error) { showToast(tr('admin.err.delete', 'Sletting ble ikke fullført. Prøv igjen.'), true); return; }
           showToast(dates.length > 1 ? 'Blokkering slettet (' + dates.length + ' dager)' : 'Blokkering slettet');
           loadBlocks();
         })
@@ -999,7 +999,7 @@
             'admin.ask.open_day_m', 'Dagen blir bookbar igjen.', function () {
     sb.from('holidays').delete().eq('date', date)
       .then(function (res) {
-        if (res.error) { showToast(tr('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.'), true); return; }
+        if (res.error) { showToast(tr('admin.err.update', 'Endringen ble ikke lagret. Prøv igjen.'), true); return; }
         showToast('Klinikken er åpnet igjen ' + date);
         loadHolidays();
       })
@@ -1037,7 +1037,7 @@
     sb.from('holidays').upsert(rows, { onConflict: 'date' }).then(function (res) {
       btn.disabled = false; btn.textContent = 'Steng klinikken';
       if (res.error) {
-        $('holErr').style.display = ''; $('holErr').textContent = tr('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.');
+        $('holErr').style.display = ''; $('holErr').textContent = tr('admin.err.update', 'Endringen ble ikke lagret. Prøv igjen.');
         return;
       }
       $('holOk').style.display = '';
@@ -1120,7 +1120,7 @@
     sb.from('special_open_days').upsert(rows, { onConflict: 'date,staff_id' }).then(function (res) {
       btn.disabled = false; btn.textContent = 'Åpne dagen';
       if (res.error) {
-        $('specErr').style.display = ''; $('specErr').textContent = tr('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.');
+        $('specErr').style.display = ''; $('specErr').textContent = tr('admin.err.update', 'Endringen ble ikke lagret. Prøv igjen.');
         return;
       }
       $('specOk').style.display = '';
@@ -1188,11 +1188,11 @@
   }
 
   function deleteSpecialDay(date) {
-    askThen('admin.ask.block_t', 'Avlyse den ekstra apningen?',
+    askThen('admin.ask.block_t', 'Avlyse den ekstra åpningen?',
             'admin.ask.block_m', 'Dagen blir stengt igjen.', function () {
     sb.from('special_open_days').delete().eq('date', date)
       .then(function (res) {
-        if (res.error) { showToast(tr('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.'), true); return; }
+        if (res.error) { showToast(tr('admin.err.update', 'Endringen ble ikke lagret. Prøv igjen.'), true); return; }
         showToast('Ekstra åpning avlyst ' + date);
         loadSpecialDays();
       })

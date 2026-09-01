@@ -414,11 +414,32 @@
   //
   // Kalles fra handleSession etter at rollen er parsed.
   // ============================================================
+  var GATE_CSS_ID = 'wkRoleGateCss';
+
+  function roleGateStyles() {
+    if (document.getElementById(GATE_CSS_ID)) return;
+    var st = document.createElement('style');
+    st.id = GATE_CSS_ID;
+    // Skjulingen sto foer bare i style-attributtet. Det holdt ikke i
+    // mobilmenyen: shared/admin-nav.js setter
+    // '.bn-sheet-list .bn-btn{display:flex !important}' for aa snu
+    // pillene fra kolonne til rad, og !important slaar en inline
+    // display:none. En terapeut som aapnet menyen saa derfor
+    // «Tjenester» og «Behandlere», som er admin-punkter.
+    //
+    // Klassenavnet gjentas tre ganger for aa komme over den regelens
+    // spesifisitet uten aa maatte kjenne til hver enkelt side.
+    st.textContent = '.wk-role-hidden.wk-role-hidden.wk-role-hidden{display:none !important;}';
+    document.head.appendChild(st);
+  }
+
   function applyRoleGates(role) {
+    roleGateStyles();
     var isAdmin = role === 'admin';
     var els = document.querySelectorAll('[data-admin-only]');
     for (var i = 0; i < els.length; i++) {
       els[i].style.display = isAdmin ? '' : 'none';
+      els[i].classList.toggle('wk-role-hidden', !isAdmin);
     }
     mountRoleSwitcher(role);
   }
@@ -427,123 +448,140 @@
   // Rollebytter
   // ------------------------------------------------------------
   // Rolleskillet er det mest interessante i panelet, men det er
-  // usynlig hvis man bare ser én rolle: man legger ikke merke til
+  // usynlig hvis man bare ser en rolle: man legger ikke merke til
   // menypunktene som IKKE er der. Bytteren gjor forskjellen til noe
   // man kan se ved aa klikke fram og tilbake.
   //
   // Rollen ligger i app_metadata paa brukeren og kan ikke endres fra
-  // nettleseren — den er ikke et bryter man vipper. Bytteren logger
-  // derfor faktisk inn som den andre kontoen. Det er ogsaa aerligere:
+  // nettleseren. Bytteren logger derfor faktisk inn som den andre
+  // kontoen og laster samme side paa nytt. Det er ogsaa aerligere:
   // det er slik et rollebytte foregaar.
+  //
+  // Bryteren laa tidligere fritt plassert nede til hoyre, og maatte
+  // maale alt annet som var festet mot bunnen for aa slippe aa legge
+  // seg oppaa bunnmenyen. Naa ligger den i seksjonslinja under
+  // topbaren (shared/demo-mode.js), i normal flyt. Da kan den ikke
+  // dekke noe, og all maalingen kunne fjernes.
   // ============================================================
+  function i18n(key, fallback) {
+    var I = window.WestengenKlinikkI18n;
+    return (I && typeof I.t === 'function') ? I.t(key, fallback) : fallback;
+  }
+
+  var ROLE_CSS_ID = 'wkRoleSwitchCss';
+
+  function roleSwitchStyles() {
+    if (document.getElementById(ROLE_CSS_ID)) return;
+    var st = document.createElement('style');
+    st.id = ROLE_CSS_ID;
+    st.textContent =
+      '#wkRoleSwitch{display:inline-flex;align-items:stretch;' +
+        'border:1px solid #427aa1;background:#fff;overflow:hidden;' +
+        'font-family:Inter,system-ui,sans-serif;}' +
+      '#wkRoleSwitch .wk-rs-lab{display:flex;align-items:center;padding:0 9px;' +
+        'font-size:10px;letter-spacing:.12em;text-transform:uppercase;' +
+        'color:#4a5c6f;font-family:"JetBrains Mono",ui-monospace,monospace;' +
+        'border-right:1px solid #cfe0f0;white-space:nowrap;}' +
+      '#wkRoleSwitch button{border:0;background:transparent;cursor:pointer;' +
+        'padding:5px 12px;font-size:12.5px;font-weight:500;color:#064789;' +
+        'white-space:nowrap;font-family:inherit;' +
+        'transition:background .15s ease,color .15s ease;}' +
+      '#wkRoleSwitch button:hover:not([aria-current]){background:#cfe0f0;}' +
+      '#wkRoleSwitch button[aria-current]{background:#064789;color:#fff;' +
+        'cursor:default;}' +
+      '#wkRoleSwitch button:focus-visible{outline:2px solid #064789;' +
+        'outline-offset:-3px;}' +
+      '#wkRoleSwitch button[disabled]{opacity:.55;cursor:progress;}' +
+      '@media (max-width:560px){#wkRoleSwitch .wk-rs-lab{display:none;}' +
+        '#wkRoleSwitch button{padding:5px 9px;font-size:12px;}}';
+    document.head.appendChild(st);
+  }
+
+  function buildRoleSwitch(role) {
+    var box = document.createElement('div');
+    box.id = 'wkRoleSwitch';
+    box.setAttribute('role', 'group');
+    box.setAttribute('aria-label', i18n('admin.role.group', 'Bytt rolle i demoen'));
+
+    var lab = document.createElement('span');
+    lab.className = 'wk-rs-lab';
+    lab.setAttribute('data-i18n', 'admin.view_as');
+    lab.textContent = i18n('admin.view_as', 'Vis som');
+    box.appendChild(lab);
+
+    var roles = [
+      ['admin', 'admin.role.admin', 'Administrator'],
+      ['therapist', 'admin.role.therapist', 'Terapeut']
+    ];
+
+    roles.forEach(function (r) {
+      var slug = r[0], key = r[1], fb = r[2];
+      var name = i18n(key, fb);
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('data-i18n', key);
+      b.textContent = name;
+
+      if ((slug === 'admin') === (role === 'admin')) {
+        b.setAttribute('aria-current', 'true');
+        b.title = i18n('admin.role.current', 'Du ser panelet med denne rollen nå');
+        box.appendChild(b);
+        return;
+      }
+
+      b.title = i18n('admin.role.switch_to', 'Bytt til denne rollen og last siden på nytt');
+      b.addEventListener('click', function () {
+        var all = box.querySelectorAll('button');
+        for (var i = 0; i < all.length; i++) all[i].disabled = true;
+        // Under bytte er teksten midlertidig, saa data-i18n maa vekk
+        // for at et spraakbytte midt i ikke skal skrive den tilbake.
+        b.removeAttribute('data-i18n');
+        b.textContent = i18n('admin.role.switching', 'Bytter …');
+
+        var restore = function () {
+          b.setAttribute('data-i18n', key);
+          b.textContent = name;
+          for (var j = 0; j < all.length; j++) all[j].disabled = false;
+        };
+
+        var CFG = window.WestengenKlinikkBackend || {};
+        if (!window.supabase || !CFG.supabaseUrl || !CFG.supabaseAnonKey) {
+          restore();
+          return;
+        }
+        var sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+        });
+        var here = window.location.pathname.split('/').pop() + window.location.search;
+        signInAs(sb, slug, here).catch(restore);
+      });
+
+      box.appendChild(b);
+    });
+
+    return box;
+  }
+
   function mountRoleSwitcher(role) {
     if (document.getElementById('wkRoleSwitch')) return;
     if (!document.body) return;
 
-    var st = document.createElement('style');
-    st.textContent =
-      '#wkRoleSwitch{position:fixed;right:16px;z-index:9997;display:flex;' +
-        'align-items:stretch;border:1px solid var(--green,#064789);border-radius:2px;' +
-        'background:var(--paper,#ebf2fa);overflow:hidden;' +
-        'box-shadow:0 6px 18px -8px rgba(11,26,43,.45);font-family:Inter,system-ui,sans-serif;}' +
-      '#wkRoleSwitch .wk-rs-lab{display:flex;align-items:center;padding:0 10px;font-size:10px;' +
-        'letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#4a5c6f);' +
-        'font-family:"JetBrains Mono",ui-monospace,monospace;' +
-        'border-right:1px solid rgba(11,26,43,.18);white-space:nowrap;}' +
-      '#wkRoleSwitch button{border:0;background:transparent;cursor:pointer;padding:9px 13px;' +
-        'font-size:13px;font-weight:500;color:var(--green,#064789);white-space:nowrap;' +
-        'font-family:inherit;transition:background .15s ease,color .15s ease;}' +
-      '#wkRoleSwitch button:hover:not([aria-current]){background:var(--green-tint,#cfe0f0);}' +
-      '#wkRoleSwitch button[aria-current]{background:var(--green,#064789);color:#fff;cursor:default;}' +
-      '#wkRoleSwitch button:focus-visible{outline:2px solid var(--green,#064789);outline-offset:-3px;}' +
-      '#wkRoleSwitch button[disabled]{opacity:.55;cursor:progress;}' +
-      '@media (max-width:760px){#wkRoleSwitch{right:10px;}' +
-        '#wkRoleSwitch .wk-rs-lab{display:none;}}';
-    document.head.appendChild(st);
-
-    var box = document.createElement('div');
-    box.id = 'wkRoleSwitch';
-    box.setAttribute('role', 'group');
-    box.setAttribute('aria-label', 'Bytt rolle i demoen');
-
-    var lab = document.createElement('span');
-    lab.className = 'wk-rs-lab';
-    lab.textContent = 'Vis som';
-    box.appendChild(lab);
-
-    [['admin', 'Administrator'], ['therapist', 'Terapeut']].forEach(function (pair) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.textContent = pair[1];
-      var active = (pair[0] === 'admin') === (role === 'admin');
-      if (active) {
-        b.setAttribute('aria-current', 'true');
-        b.title = 'Du ser panelet som ' + pair[1].toLowerCase() + ' na';
-      } else {
-        b.title = 'Logg inn som ' + pair[1].toLowerCase() + ' og last siden pa nytt';
-        b.addEventListener('click', function () {
-          var all = box.querySelectorAll('button');
-          for (var i = 0; i < all.length; i++) all[i].disabled = true;
-          b.textContent = 'Bytter\u2026';
-          var CFG = window.WestengenKlinikkBackend || {};
-          if (!window.supabase || !CFG.supabaseUrl || !CFG.supabaseAnonKey) {
-            b.textContent = pair[1];
-            for (var j = 0; j < all.length; j++) all[j].disabled = false;
-            return;
-          }
-          var sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
-            auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
-          });
-          signInAs(sb, pair[0], window.location.pathname.split('/').pop() + window.location.search)
-            .catch(function () {
-              b.textContent = pair[1];
-              for (var k = 0; k < all.length; k++) all[k].disabled = false;
-            });
-        });
+    // Seksjonslinja bygges av shared/demo-mode.js paa DOMContentLoaded,
+    // mens rollen foerst er kjent etter et kall til Supabase. Rekke-
+    // foelgen er derfor ikke gitt, og vi venter paa slotten i stedet
+    // for aa anta at den er der.
+    var tries = 0;
+    (function waitForSlot() {
+      var slot = document.getElementById('wkRoleSlot');
+      if (!slot) {
+        if (++tries > 40) return;   // ingen seksjonslinje: ingen bryter
+        window.setTimeout(waitForSlot, 100);
+        return;
       }
-      box.appendChild(b);
-    });
-
-    document.body.appendChild(box);
-
-    // .bottom-nav er position:fixed mot bunnen og gaar over hele
-    // bredden, ogsaa paa desktop. En bryter med bottom:16px legger seg
-    // rett oppaa det hoeyre menypunktet - som er «Innstillinger» - og
-    // gjor det uklikkbart.
-    //
-    // Hoeyden maales i stedet for aa gjettes, fordi baren har
-    // safe-area-padding paa iOS og kan bli hoeyere enn den ser ut.
-    function place() {
-      // Bunnen er ikke ett element. kalender.html har bade en
-      // bottom-nav og en inntektslinje over den, og andre sider kan
-      // ha andre stabler. Vi maaler derfor ALT som er festet mot
-      // bunnen og legger oss over det oeverste av dem, i stedet for
-      // aa anta at bunnmenyen er det eneste som ligger der.
-      var vh = window.innerHeight || 0;
-      var top = vh;
-      var all = document.querySelectorAll('body *');
-      for (var i = 0; i < all.length; i++) {
-        var el = all[i];
-        if (el === box || box.contains(el)) continue;
-        var cs = window.getComputedStyle(el);
-        if (cs.position !== 'fixed' || cs.display === 'none' || cs.visibility === 'hidden') continue;
-        // Toaster og varsler er forbigaaende og skal ikke flytte
-        // bryteren permanent.
-        if (/toast|snackbar|alert/i.test(el.id + ' ' + el.className)) continue;
-        var r = el.getBoundingClientRect();
-        if (r.height < 8) continue;
-        // Bare det som faktisk ligger i bunnsonen.
-        if (r.bottom < vh - 160) continue;
-        if (r.top < top) top = r.top;
-      }
-      box.style.bottom = (top >= vh ? 16 : (vh - top) + 14) + 'px';
-    }
-    place();
-    window.addEventListener('resize', place);
-    // Baren rendres av admin-nav.js etter at rollen er kjent, saa vi
-    // maaler en gang til naar den er paa plass.
-    setTimeout(place, 300);
-    setTimeout(place, 1200);
+      if (document.getElementById('wkRoleSwitch')) return;
+      roleSwitchStyles();
+      slot.appendChild(buildRoleSwitch(role));
+    })();
   }
 
   // ----- Eksporter -----

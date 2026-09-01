@@ -130,17 +130,31 @@
       'font-size:18px;line-height:1;cursor:pointer;padding:0 2px;margin-left:auto;}',
     '@media (max-width:560px){.wk-demo-toast{bottom:76px;}}',
 
-    /* ---- Notislinje øverst i adminpanelet ---- */
-    '.wk-admin-note{background:#cfe0f0;border-bottom:1px solid #C9CDE4;',
-      'font-family:Inter,system-ui,sans-serif;font-size:13px;line-height:1.5;',
-      'color:#04315b;}',
-    '.wk-admin-note .wk-inner{max-width:1280px;margin:0 auto;padding:9px 28px;',
-      'display:flex;gap:10px;align-items:baseline;}',
-    '.wk-admin-note b{font-family:"JetBrains Mono",ui-monospace,monospace;',
-      'font-size:10px;letter-spacing:.12em;text-transform:uppercase;',
-      'flex:0 0 auto;color:#064789;}',
-    '@media (max-width:640px){.wk-admin-note .wk-inner{padding:8px 16px;',
-      'flex-direction:column;gap:3px;}}',
+    /* ---- Seksjonslinje under topbaren i adminpanelet ---- */
+    /* Topbaren er sticky paa ti av elleve adminsider, men med ulik
+       z-index og ulik hoyde. I stedet for aa maale den og gjette et
+       top-tall til seksjonslinja, legges begge inn i en felles
+       sticky wrapper. Da folger de hverandre av seg selv, uansett
+       hva den enkelte siden gjor med topbaren sin. */
+    '.wk-admin-head{position:sticky;top:0;z-index:50;}',
+    '.wk-section-bar{background:#fff;border-bottom:1px solid #cfe0f0;',
+      'font-family:Inter,system-ui,sans-serif;}',
+    '.wk-section-bar .wk-inner{margin:0 auto;padding:7px 20px;',
+      'display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap;}',
+    '.wk-section-bar .wk-where{font-size:14px;font-weight:600;color:#064789;}',
+    '.wk-section-bar .wk-bar-right{display:flex;align-items:center;margin-left:auto;',
+      'gap:10px 16px;flex-wrap:wrap;}',
+    '.wk-section-bar .wk-to-site{font-size:13px;color:#064789;',
+      'text-decoration:underline;text-underline-offset:3px;',
+      'text-decoration-thickness:1px;white-space:nowrap;}',
+    '.wk-section-bar .wk-to-site:hover{color:#427aa1;}',
+    '.wk-section-bar .wk-to-site:focus-visible{outline:2px solid #064789;',
+      'outline-offset:3px;}',
+    /* Paa telefon bryter linja i to: navn og pille oeverst,
+       rollebryter og lenke under. Hoyre gruppe holdes samlet paa
+       en rad, ellers blir baren tre etasjer hoy paa 320 px. */
+    '@media (max-width:640px){.wk-section-bar .wk-where{font-size:13px;}',
+      '.wk-section-bar .wk-bar-right{flex-wrap:nowrap;gap:12px;}}',
 
     /* ---- Låsemerke på seed-rader i admin ---- */
     '.wk-seed-lock{display:inline-flex;align-items:center;gap:4px;',
@@ -264,9 +278,17 @@
       group.appendChild(badge);
       return;
     }
-    // Admin-header: inne i .brand, ved siden av rolle-merket.
-    var adminBrand = doc.querySelector('.topbar .brand');
-    if (adminBrand) { adminBrand.appendChild(badge); return; }
+    // Adminpanelet: i seksjonslinja, rett etter seksjonsnavnet.
+    // Pillen laa foer inne i .brand, som har overflow:hidden og
+    // text-overflow:ellipsis for aa kunne korte ned et langt
+    // merkenavn. Pillen ble derfor klippet bort av den regelen og
+    // var i praksis usynlig i hele panelet.
+    var where = doc.querySelector('.wk-section-bar .wk-where');
+    if (where && where.parentNode) {
+      badge.classList.add('on-light');
+      where.parentNode.insertBefore(badge, where.nextSibling);
+      return;
+    }
 
     // Innloggingssiden og andre kort-skall uten header. Pillen legges
     // øverst i selve kortet, ikke inne i .brand — merkenavnet ligger i
@@ -284,29 +306,107 @@
   }
 
   // ============================================================
-  // Notislinje i adminpanelet
+  // Seksjonslinje i adminpanelet
   // ------------------------------------------------------------
-  // Skrivesperren forklarer seg selv når du treffer den, men det er
-  // bedre å vite regelen før du bruker et minutt på et skjema som
-  // ikke lagres. Linja legges rett under den mørke topbaren, på alle
-  // admin-sidene, og sier én ting: hvilke rader som er låst og
-  // hvilke som ikke er det.
+  // Her sto det tidligere en notis om at radene fra demo-oppsettet
+  // er skrivebeskyttet. Den forklaringen trengs ikke lenger: en
+  // avvist lagring hoeres naa som en rolig setning i oyeblikket den
+  // skjer, ikke som en regel du maa lese paa forhaand.
+  //
+  // Plassen er bedre brukt paa tre ting panelet manglet:
+  //   venstre  hvilken seksjon du staar i
+  //   hoyre    hvilken rolle du ser panelet med (fylles av auth.js)
+  //   hoyre    veien tilbake til den offentlige siden
+  //
+  // Linja ligger i normal flyt rett under topbaren, ikke fixed. Da
+  // kan ingenting i den legge seg oppaa noe annet, uansett bredde.
   // ============================================================
-  function mountAdminNote() {
+  // Fil -> [i18n-nokkel, norsk tekst]. Ansattsidene laster ikke
+  // i18n/i18n.js — panelet er norsk — saa den norske teksten her er
+  // den som faktisk vises. Nokkelen staar klar til den dagen panelet
+  // ogsaa skal finnes paa engelsk.
+  var SECTIONS = {
+    'kalender.html':      ['admin.section.kalender',      'Kalender'],
+    'booking-admin.html': ['admin.section.oversikt',      'Bookinger'],
+    'kunder.html':        ['admin.section.kunder',        'Kunder'],
+    'kunde-detalj.html':  ['admin.section.kunde',         'Kundekort'],
+    'tjenester.html':     ['admin.section.tjenester',     'Tjenester'],
+    'behandlere.html':    ['admin.section.behandlere',    'Behandlere'],
+    'meldinger.html':     ['admin.section.meldinger',     'Meldinger'],
+    'dokumenter.html':    ['admin.section.dokumenter',    'Dokumenter'],
+    'stengte-tider.html': ['admin.section.stengte',       'Stengte tider'],
+    'audit-logg.html':    ['admin.section.audit',         'Logg over oppslag'],
+    'innstillinger.html': ['admin.section.innstillinger', 'Innstillinger']
+  };
+
+  function mountSectionBar() {
     var topbar = doc.querySelector('.topbar');
-    if (!topbar || doc.querySelector('.wk-admin-note')) return;
+    if (!topbar || doc.querySelector('.wk-section-bar')) return;
 
-    var note = doc.createElement('div');
-    note.className = 'wk-admin-note';
-    note.setAttribute('role', 'note');
-    note.innerHTML =
-      '<div class="wk-inner"><b>Demo</b>' +
-      '<span>Radene som fulgte med demoen er skrivebeskyttet, knappene ' +
-      'virker, men lagringen avvises av databasen med en forklaring. ' +
-      'Rader du oppretter selv kan du endre og slette fritt. Alt ' +
-      'nullstilles hvert døgn.</span></div>';
+    var file = (root.location.pathname.split('/').pop() || '').toLowerCase();
+    var sec = SECTIONS[file];
+    if (!sec) return;   // ikke en av adminsidene
+    var key = sec[0];
 
-    topbar.parentNode.insertBefore(note, topbar.nextSibling);
+    var bar = doc.createElement('div');
+    bar.className = 'wk-section-bar';
+
+    var inner = doc.createElement('div');
+    inner.className = 'wk-inner';
+
+    var where = doc.createElement('span');
+    where.className = 'wk-where';
+    where.setAttribute('data-i18n', key);
+    where.textContent = t(key, sec[1]);
+    inner.appendChild(where);
+
+    var right = doc.createElement('div');
+    right.className = 'wk-bar-right';
+
+    // Rollevelgeren monteres hit av shared/auth.js, saa snart rollen
+    // er kjent. Slotten staar tom inntil da.
+    var slot = doc.createElement('div');
+    slot.id = 'wkRoleSlot';
+    slot.style.display = 'flex';
+    right.appendChild(slot);
+
+    var back = doc.createElement('a');
+    back.className = 'wk-to-site';
+    back.href = 'index.html';
+    back.setAttribute('data-i18n', 'admin.to_site');
+    back.textContent = t('admin.to_site', 'Til nettsiden');
+    right.appendChild(back);
+
+    inner.appendChild(right);
+    bar.appendChild(inner);
+
+    // Hver adminside har sin egen innholdsbredde: 720 px paa
+    // kalenderen, 1100 paa kunder, 1300 paa meldinger. Linja maa
+    // stille seg paa samme kant som innholdet, ellers henger den i
+    // loese lufta. I stedet for aa liste bredder per side leser vi
+    // den av topbarens egen container, og speiler den.
+    function mirrorWidth() {
+      var probe = topbar.firstElementChild;
+      if (!probe) return;
+      var pc = root.getComputedStyle(probe);
+      var tc = root.getComputedStyle(topbar);
+      if (pc.maxWidth && pc.maxWidth !== 'none') inner.style.maxWidth = pc.maxWidth;
+      var l = parseFloat(tc.paddingLeft) + parseFloat(pc.paddingLeft);
+      var r = parseFloat(tc.paddingRight) + parseFloat(pc.paddingRight);
+      if (l === l) inner.style.paddingLeft = l + 'px';
+      if (r === r) inner.style.paddingRight = r + 'px';
+    }
+
+    var head = doc.createElement('div');
+    head.className = 'wk-admin-head';
+    topbar.parentNode.insertBefore(head, topbar);
+    head.appendChild(topbar);
+    head.appendChild(bar);
+
+    // Paddingen kan endre seg paa et breakpoint, saa den maales om
+    // naar vinduet endrer stoerrelse.
+    mirrorWidth();
+    root.addEventListener('resize', mirrorWidth);
   }
 
   // ============================================================
@@ -518,7 +618,7 @@
     }
   };
 
-  function mount() { mountBadge(); mountAdminNote(); }
+  function mount() { mountSectionBar(); mountBadge(); }
 
   if (doc.readyState === 'loading') {
     doc.addEventListener('DOMContentLoaded', mount);

@@ -370,7 +370,7 @@
 
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="brand">Westengen Klinikk <em>tjenester</em></div>
+    <div class="brand">Westengen Klinikk</div>
     <span class="who-chip" id="whoChip" style="display:none;"></span>
     <div id="topActions"></div>
   </div>
@@ -577,6 +577,10 @@
     }
     STATE.user = parsed;
     setWhoChip(parsed);
+    // Siden er admin-bare, saa det er ingen punkter aa skjule her.
+    // Kallet er likevel riktig: det er ogsaa det som monterer
+    // rollebytteren i seksjonslinja.
+    window.WestengenKlinikkAuth.applyRoleGates(parsed.role);
     setTopActions('<a href="kalender.html">← Kalender</a> <button id="logoutBtn" type="button">Logg ut</button>');
     show('appView');
     if (window.WestengenKlinikkAuth) window.WestengenKlinikkAuth.installSessionTimeout(sb);

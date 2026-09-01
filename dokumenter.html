@@ -150,7 +150,7 @@
 
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="brand">Westengen Klinikk <em>dokumenter</em></div>
+    <div class="brand">Westengen Klinikk</div>
     <span class="who-chip" id="whoChip" style="display:none;">,</span>
     <div id="topActions"></div>
   </div>
@@ -269,7 +269,7 @@
     A.confirmDestructive({
       title: tr(tKey, tFb),
       message: tr(mKey, mFb),
-      confirmLabel: tr('admin.ask.confirm', 'Ja, gjor det'),
+      confirmLabel: tr('admin.ask.confirm', 'Ja, gjør det'),
       cancelLabel: tr('admin.ask.cancel', 'Avbryt')
     }).then(function (ok) { if (ok) run(); });
   }
@@ -434,7 +434,7 @@
     return (name || 'fil').replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80);
   }
   $('upBtn').addEventListener('click', function () {
-    if (!isAdmin()) { notify('admin.err.admin_only', 'Bare administrator kan gjore dette.'); return; }
+    if (!isAdmin()) { notify('admin.err.admin_only', 'Bare administrator kan gjøre dette.'); return; }
     var title = ($('upTitle').value || '').trim();
     var category = $('upCategory').value;
     var file = $('upFile').files && $('upFile').files[0];
@@ -546,7 +546,7 @@
         .catch(function (err) {
           t.disabled = false;
           console.error('Sletting feilet:', err);
-          notify('admin.err.delete', 'Sletting ble ikke fullfort. Prov igjen.');
+          notify('admin.err.delete', 'Sletting ble ikke fullført. Prøv igjen.');
         });
       return;
       });

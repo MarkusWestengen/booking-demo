@@ -176,7 +176,7 @@
 
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="brand">Westengen Klinikk <em>behandlere</em></div>
+    <div class="brand">Westengen Klinikk</div>
     <span class="who-chip" id="whoChip" style="display:none;">Admin</span>
     <div id="topActions"></div>
   </div>
@@ -319,7 +319,7 @@
     A.confirmDestructive({
       title: tr(tKey, tFb),
       message: tr(mKey, mFb),
-      confirmLabel: tr('admin.ask.confirm', 'Ja, gjor det'),
+      confirmLabel: tr('admin.ask.confirm', 'Ja, gjør det'),
       cancelLabel: tr('admin.ask.cancel', 'Avbryt')
     }).then(function (ok) { if (ok) run(); });
   }
@@ -487,10 +487,10 @@
   function setActive(staffId, active) {
     sb.from('staff_members').update({ aktiv: active }).eq('staff_id', staffId)
       .then(function (res) {
-        if (res.error) { notify('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.'); return; }
+        if (res.error) { notify('admin.err.update', 'Endringen ble ikke lagret. Prøv igjen.'); return; }
         loadStaff();
       })
-      .catch(function (err) { console.error(err); notify('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.'); });
+      .catch(function (err) { console.error(err); notify('admin.err.update', 'Endringen ble ikke lagret. Prøv igjen.'); });
   }
   document.addEventListener('click', function (e) {
     var t = e.target; if (!t || !t.classList) return;
