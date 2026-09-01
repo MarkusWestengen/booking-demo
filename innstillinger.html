@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<meta name="theme-color" content="#171A21" />
+<meta name="theme-color" content="#2e2320" />
 <meta name="robots" content="noindex, nofollow" />
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -33,12 +33,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8;
-    --green-tint: #E9EAF4;
-    --paper: #F7F8FA; --paper-2: #EDEFF3;
-    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
-    --rule: #171a2622; --danger: #c0392b;
-    --warn: #C97A2A; --warn-tint: #EDEFF3;
+    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb;
+    --green-tint: #dce7e4;
+    --paper: #efe5dc; --paper-2: #f3d8c7;
+    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
+    --rule: rgba(46,35,32,.16); --danger: #9e2b1f;
+    --warn: #C97A2A; --warn-tint: #f3d8c7;
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bot: env(safe-area-inset-bottom, 0px);
   }
@@ -79,7 +79,7 @@
   .who-chip.admin { background: var(--green); }
   .topbar a, .topbar button {
     color: var(--paper); background: transparent;
-    border: 1px solid rgba(247, 248, 250,.22);
+    border: 1px solid rgba(239, 229, 220,.22);
     padding: 6px 10px; font-size: 12px;
     cursor: pointer; text-decoration: none;
   }
@@ -301,15 +301,15 @@
     <div class="section-head">Min konto</div>
     <div class="row">
       <div class="row-label">Navn</div>
-      <div class="row-val" id="acctName">—</div>
+      <div class="row-val" id="acctName">,</div>
     </div>
     <div class="row">
       <div class="row-label">E-post</div>
-      <div class="row-val" id="acctEmail">—</div>
+      <div class="row-val" id="acctEmail">,</div>
     </div>
     <div class="row">
       <div class="row-label">Rolle</div>
-      <div class="row-val"><span id="acctRolePill" class="pill">—</span></div>
+      <div class="row-val"><span id="acctRolePill" class="pill">,</span></div>
     </div>
   </div>
 
@@ -462,7 +462,7 @@
       : '';
     setTopActions(adminLink + '<a href="kalender.html">Kalender →</a>');
 
-    $('acctName').textContent  = user.staffName || (user.role === 'admin' ? 'Admin' : '—');
+    $('acctName').textContent  = user.staffName || (user.role === 'admin' ? 'Admin' : '–');
     $('acctEmail').textContent = user.email;
     var pill = $('acctRolePill');
     pill.textContent = user.role === 'admin' ? 'Admin' : 'Terapeut';

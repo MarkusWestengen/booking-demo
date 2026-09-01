@@ -16,11 +16,11 @@
   base-uri 'self';
   form-action 'self';
 ">
-<meta name="theme-color" content="#171A21" />
-<title>Westengen Klinikk — booking- og journalsystem (demo)</title>
-<meta name="description" content="Arbeidsprøve: et komplett booking- og journalsystem for en liten klinikk. Kundevendt bestilling, kalender, kundekartotek, journal og audit-logg. Klinikken er oppdiktet." />
+<meta name="theme-color" content="#2e2320" />
+<title>Westengen Klinikk, booking- og journalsystem (demo)</title>
+<meta name="description" content="Arbeidsprøve: et komplett booking- og journalsystem for en klinikk. Kundevendt bestilling, kalender, kunderegister, journal og audit-logg. Klinikken er oppdiktet." />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Westengen Klinikk — booking- og journalsystem (demo)" />
+<meta property="og:title" content="Westengen Klinikk, booking- og journalsystem (demo)" />
 <meta property="og:description" content="Demonstrasjonsversjon med fiktive data. Innloggingen til adminpanelet er publisert på forsiden." />
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
 <link rel="manifest" href="manifest.json" />
@@ -63,10 +63,10 @@
   }
   /* Ingen kursiv aksent. Det andre leddet skilles med vekt og farge
      i stedet — samme hierarki, uten malens signaturgrep. */
-  .lead h1 em { font-style: normal; color: rgba(247,248,250,0.62); font-weight: 500; }
+  .lead h1 em { font-style: normal; color: rgba(239,229,220,0.62); font-weight: 500; }
   .lead-body {
     max-width: 54ch; font-size: 16.5px; line-height: 1.62;
-    color: rgba(247,248,250,0.74); margin: 0 0 14px;
+    color: rgba(239,229,220,0.74); margin: 0 0 14px;
   }
   .lead-body strong { color: var(--paper); font-weight: 500; }
 
@@ -133,12 +133,7 @@
           </button>
           <div class="lang-menu" role="listbox">
             <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
-            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>
-            <button data-lang="de"><span>Deutsch</span><span class="code">🇩🇪</span></button>
-            <button data-lang="es"><span>Español</span><span class="code">🇪🇸</span></button>
-            <button data-lang="ar"><span>العربية</span><span class="code">🇸🇦</span></button>
-            <button data-lang="fa"><span>فارسی</span><span class="code">🇮🇷</span></button>
-          </div>
+            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>          </div>
         </div>
         <a class="btn btn-primary btn-arrow" href="bestilling.html"><span data-i18n="nav.book_cta">Bestill time</span> <span>→</span></a>
         <button class="nav-hamburger" type="button" aria-label="Meny" data-i18n-aria-label="nav.menu_aria" aria-expanded="false" aria-controls="navMobile">
@@ -174,8 +169,8 @@
 <section class="lead">
   <div class="container">
     <p class="lead-eyebrow" data-i18n="landing.eyebrow">Arbeidsprøve</p>
-    <h1 data-i18n-html="landing.heading">Booking- og journalsystem <em>for en liten klinikk</em></h1>
-    <p class="lead-body" data-i18n-html="landing.body1">Kundevendt bestilling med ledig-tid-oppslag, avbestilling via lenke og venteliste. Bak innloggingen: kalender per behandler, kundekartotek, pasientjournal med samtykke og audit-logg, tjeneste- og behandleradministrasjon, meldingsinnboks og stengte tider.</p>
+    <h1 data-i18n-html="landing.heading">Booking- og journalsystem <em>for en klinikk</em></h1>
+    <p class="lead-body" data-i18n-html="landing.body1">Kundevendt bestilling med ledig-tid-oppslag, avbestilling via lenke og venteliste. Bak innloggingen: kalender per behandler, kunderegister, pasientjournal med samtykke og audit-logg, tjeneste- og behandleradministrasjon, meldingsinnboks og stengte tider.</p>
     <p class="lead-body" data-i18n-html="landing.body2"><strong>Westengen Klinikk finnes ikke.</strong> Klinikken, behandlerne, kundene og alle bestillinger er oppdiktet. Kulissen er der bare fordi et bookingsystem trenger noen å booke hos.</p>
   </div>
 </section>
@@ -209,9 +204,9 @@
         <h2 data-i18n="landing.door_admin_h">Se hva som ligger bak</h2>
         <p data-i18n="landing.door_admin_p">Halvparten som er interessant krever innlogging. Begge kontoene star her.</p>
         <ul class="door-list">
-          <li data-i18n="landing.door_admin_1">Kalender, kundekartotek og pasientjournal med samtykke</li>
+          <li data-i18n="landing.door_admin_1">Kalender, kunderegister og pasientjournal med samtykke</li>
           <li data-i18n="landing.door_admin_2">Audit-logg som fanger hvert oppslag, ikke bare endringer</li>
-          <li data-i18n="landing.door_admin_3">Rollestyrt tilgang — logg inn med begge og se forskjellen</li>
+          <li data-i18n="landing.door_admin_3">Rollestyrt tilgang, logg inn med begge og se forskjellen</li>
         </ul>
         <div class="door-creds" id="innlogging">
           <p class="door-creds-lead" data-i18n="landing.creds_heading">Innlogging</p>
@@ -226,11 +221,31 @@
             <code>demo-terapeut-2026</code>
           </div>
         </div>
-        <a class="door-cta" href="ansatt.html">
-          <span data-i18n="landing.door_admin">Logg inn i adminpanelet</span> <span class="arr" aria-hidden="true">→</span>
+        <a class="door-cta" href="kalender.html">
+          <span data-i18n="landing.door_admin">Apne adminpanelet</span> <span class="arr" aria-hidden="true">→</span>
         </a>
+        <p class="door-foot">
+          <span data-i18n="landing.door_admin_auto">Du blir logget inn som administrator med det samme.</span>
+          <a href="ansatt.html" data-i18n="landing.door_admin_manual">Vil du se innloggingen i stedet?</a>
+        </p>
       </div>
 
+    </div>
+  </div>
+</section>
+
+<!-- ============ HVEM SER HVA ============
+     Rolleskillet er den delen av systemet som er vanskeligst aa se
+     ved aa klikke rundt: man legger ikke merke til menypunktene som
+     IKKE er der. Derfor staar det skrevet ogsaa. -->
+<section class="roles">
+  <div class="container">
+    <div class="roles-inner">
+      <h2 data-i18n="landing.roles_heading">Hvem ser hva</h2>
+      <p class="roles-lead" data-i18n="landing.roles_lead">Klinikken har to slags brukere.</p>
+      <p data-i18n-html="landing.roles_p1">En <strong>ansatt</strong> ser sin egen kalender og sine egne pasienter. En <strong>administrator</strong> ser alt, og er den som bestemmer hvem som får tilgang til hva.</p>
+      <p data-i18n-html="landing.roles_p2">Journalen har én regel til. Hver gang noen åpner et pasientnotat, skrives det ned hvem det var og når.</p>
+      <p class="roles-try" data-i18n="landing.roles_try">Bytt mellom rollene inne i panelet og se hva som forsvinner fra menyen.</p>
     </div>
   </div>
 </section>
@@ -271,7 +286,7 @@
 <!-- ============ RAMMENOTAT ============ -->
 <section class="colophon">
   <div class="container">
-    <p data-i18n="landing.colophon1">Du kan opprette, endre og slette dine egne rader fritt — hele CRUD-syklusen er demonstrerbar. Radene som fulgte med demoen er skrivebeskyttet i databasen: knappene virker, men lagringen avvises med en forklaring, slik at panelet ser likt ut for neste besøkende. Alt nullstilles hvert døgn.</p>
+    <p data-i18n="landing.colophon1">Du kan opprette, endre og slette dine egne rader fritt, hele CRUD-syklusen er demonstrerbar. Radene som fulgte med demoen er skrivebeskyttet i databasen: knappene virker, men lagringen avvises med en forklaring, slik at panelet ser likt ut for neste besøkende. Alt nullstilles hvert døgn.</p>
     <p data-i18n-html="landing.colophon2">Ikke skriv inn ekte personopplysninger. Innloggingen over er offentlig, så alt du legger inn kan leses av hvem som helst. <a href="personvern.html">Mer om hva demoen lagrer</a>.</p>
     <p data-i18n="landing.colophon3">Statisk frontend uten byggesteg, Supabase i bunn: PostgreSQL med Row-Level Security, Auth, Edge Functions og pg_cron. Seks språk, PWA-skall for de ansatte.</p>
   </div>
@@ -281,7 +296,7 @@
 
 <footer class="site-footer">
   <div class="container">
-    <div class="footer-bottom" data-i18n="footer.copyright">© 2026 Westengen Klinikk — demo med fiktive data · Nettside og system: Westengen Studio (Markus Westengen)</div>
+    <div class="footer-bottom" data-i18n="footer.copyright">© 2026 Westengen Klinikk, demo med fiktive data · Nettside og system: Westengen Studio (Markus Westengen)</div>
   </div>
 </footer>
 

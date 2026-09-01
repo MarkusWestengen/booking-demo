@@ -80,7 +80,7 @@ begin
 
     -- ----- HEADER (grønt band) -----
     || '<tr><td align="center" bgcolor="#3E6B47" style="background-color:#3E6B47; padding:46px 40px 40px;">'
-    ||   '<div style="font-family:Georgia,serif; font-size:24px; letter-spacing:0.30em; color:#FAF7F1;">ERIKS&nbsp;ARENA</div>'
+    ||   '<div style="font-family:Georgia,serif; font-size:24px; letter-spacing:0.30em; color:#FAF7F1;">MARKUS'&nbsp;ARENA</div>'
     ||   '<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:18px auto 16px;">'
     ||     '<tr><td style="width:46px; height:2px; background-color:#B8754A; font-size:0; line-height:0;">&nbsp;</td></tr>'
     ||   '</table>'

@@ -12,16 +12,41 @@
    ============================================================ */
 
 :root {
-  --green: #464C8C;
-  --green-deep: #2F3463;
-  --green-soft: #7A80B8;
-  --green-tint: #E9EAF4;
-  --paper: #F7F8FA;
-  --paper-2: #EDEFF3;
-  --ink: #171A21;
-  --ink-2: #2E323C;
-  --muted: #6B7080;
-  --rule: #171a2622;
+  /* ==========================================================
+     PALETT — leire, fersken, lin + irrgronn
+     ----------------------------------------------------------
+     Tre farger var gitt: #d0b8ac (leire), #f3d8c7 (fersken) og
+     #efe5dc (lin). Alle tre er lyse, varme og ligger tett — de
+     kan baere flater, men ikke tekst og ikke en knapp.
+
+     BLEKK #2e2320. Et varmt naer-svart med brunt underlag i
+     stedet for noytralt gratt. Rent svart eller kjolig gratt
+     ville ligget utenfor familien og lest som pastet inn.
+     Kontrast 12.3:1 mot lin, 8.1:1 mot leire — AAA overalt.
+
+     AKSENT #1f4e4a. Irrgronn, ikke terrakotta. De tre gitte
+     fargene er alle varme og naert beslektet; en aksent hentet
+     fra samme familie ville ligget faa steg fra blekket og gitt
+     siden ingen annen akse — alt ville lest som én myk vask.
+     Irr er dessuten det som faktisk skjer med kobber som star
+     mot terrakotta, saa parringen er materiell og ikke tilfeldig.
+     Hvit tekst pa aksent 9.4:1, aksent pa lin 7.5:1, og 5.0:1
+     selv mot leire, den morkeste av de tre. AA med god margin.
+     ========================================================== */
+  --clay:  #d0b8ac;
+  --peach: #f3d8c7;
+  --linen: #efe5dc;
+
+  --green: #1f4e4a;        /* aksent. Navnet er historisk. */
+  --green-deep: #163b37;   /* hover, 12.3:1 mot hvit */
+  --green-soft: #93c2bb;   /* aksent pa morke flater, 7.8:1 mot blekk */
+  --green-tint: #dce7e4;   /* svak aksentflate */
+  --paper: #efe5dc;
+  --paper-2: #f3d8c7;
+  --ink: #2e2320;
+  --ink-2: #4a3b35;
+  --muted: #5c4d46;        /* 6.5:1 mot lin */
+  --rule: rgba(46,35,32,.16);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }

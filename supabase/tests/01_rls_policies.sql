@@ -84,7 +84,7 @@ begin
     id, ref, staff_id, staff_name, service_id, service_name,
     price, duration, date, time, name, email, phone, status, journal_consent
   ) values (
-    new_id, 'TA-TEST', 'erik', 'Erik Test', 'erik-konsult', 'Test',
+    new_id, 'TA-TEST', 'markus', 'Markus Test', 'markus-konsult', 'Test',
     100, 30, current_date + 30, '10:00', 'Test', 'rls-test@example.com', '12345678',
     'confirmed', true
   );
@@ -119,19 +119,19 @@ begin
     id, ref, staff_id, staff_name, service_id, service_name,
     price, duration, date, time, name, email, phone, status, journal_consent
   ) values (
-    test_id, 'TA-T4B', 'erik', 'Erik', 'erik-konsult', 'Test',
+    test_id, 'TA-T4B', 'markus', 'Markus', 'markus-konsult', 'Test',
     100, 30, test_date, '14:00', 'Test 4b', 'test4b@example.com', '111',
     'confirmed', false
   );
 
   -- Anon kaller funksjonen uten argumenter (defaults = alle bookinger).
   select count(*) into cnt from public.get_booked_slots()
-   where staff_id = 'erik' and date = test_date and time = '14:00';
+   where staff_id = 'markus' and date = test_date and time = '14:00';
   perform _test_assert(cnt = 1,
     'anon get_booked_slots() returnerer confirmed booking');
 
   -- Named-arg filtering fungerer (frontend bruker pos-args).
-  select count(*) into cnt from public.get_booked_slots('erik', test_date, test_date);
+  select count(*) into cnt from public.get_booked_slots('markus', test_date, test_date);
   perform _test_assert(cnt >= 1,
     'anon get_booked_slots(staff_id, from, to) respekterer filter');
 
@@ -203,7 +203,7 @@ begin
     id, ref, staff_id, staff_name, service_id, service_name,
     price, duration, date, time, name, email, phone, status, journal_consent
   ) values (
-    new_id, 'TA-T4D', 'erik', 'Erik', 'erik-konsult', 'Test',
+    new_id, 'TA-T4D', 'markus', 'Markus', 'markus-konsult', 'Test',
     100, 30, test_date, '08:00', 'Test 4d', 'test4d@example.com', '222',
     'confirmed', false
   );
@@ -225,7 +225,7 @@ begin
     id, ref, staff_id, staff_name, service_id, service_name,
     price, duration, date, time, name, email, phone, status, journal_consent
   ) values (
-    test_id, 'TA-T4E', 'erik', 'Erik', 'erik-konsult', 'Test',
+    test_id, 'TA-T4E', 'markus', 'Markus', 'markus-konsult', 'Test',
     100, 30, test_date, '08:30', 'Test 4e', 'test4e@example.com', '333',
     'confirmed', false
   );
@@ -237,7 +237,7 @@ begin
     'authenticated admin kan SELECT bookings (auth read bookings policy)');
 
   -- Therapist skal også se den (samme policy, ingen staff_id-filter ennå)
-  perform _test_set_authenticated('therapist', 'erik');
+  perform _test_set_authenticated('therapist', 'markus');
   select count(*) into cnt from public.bookings where id = test_id;
   perform _test_assert(cnt = 1,
     'authenticated therapist kan SELECT bookings (auth read bookings policy)');
@@ -247,7 +247,7 @@ end $$;
 do $$
 declare cnt int;
 begin
-  perform _test_set_authenticated('therapist', 'erik');
+  perform _test_set_authenticated('therapist', 'markus');
   select count(*) into cnt from public.journal_entries;
   perform _test_assert(cnt >= 0, 'therapist journal_entries SELECT succeeded (any count)');
 end $$;
@@ -256,7 +256,7 @@ end $$;
 do $$
 declare cnt int;
 begin
-  perform _test_set_authenticated('therapist', 'erik');
+  perform _test_set_authenticated('therapist', 'markus');
   select count(*) into cnt from public.audit_log;
   perform _test_assert(cnt = 0, 'therapist audit_log SELECT returns 0 (admin-only)');
 end $$;
@@ -273,12 +273,12 @@ end $$;
 -- Test 8: journal_entries.content CHECK constraint avviser tom -
 do $$
 begin
-  perform _test_set_authenticated('therapist', 'erik');
+  perform _test_set_authenticated('therapist', 'markus');
   begin
     insert into public.journal_entries(
       booking_id, patient_email, patient_phone, staff_id, staff_name, content
     ) values (
-      null, 'check-test@example.com', '12345678', 'erik', 'Erik', ''
+      null, 'check-test@example.com', '12345678', 'markus', 'Markus', ''
     );
     perform _test_assert(false, 'empty content INSERT should have failed (CHECK constraint)');
   exception when check_violation then
@@ -295,7 +295,7 @@ begin
     id, ref, staff_id, staff_name, service_id, service_name,
     price, duration, date, time, name, email, phone, status, journal_consent
   ) values (
-    base_id, 'TA-UNQ-1', 'erik', 'Erik', 'erik-konsult', 'Test', 100, 30,
+    base_id, 'TA-UNQ-1', 'markus', 'Markus', 'markus-konsult', 'Test', 100, 30,
     current_date + 60, '11:00', 'Slot A', 'rls-test-a@example.com', '11111111',
     'confirmed', true
   );
@@ -305,7 +305,7 @@ begin
       id, ref, staff_id, staff_name, service_id, service_name,
       price, duration, date, time, name, email, phone, status, journal_consent
     ) values (
-      base_id || '_dup', 'TA-UNQ-2', 'erik', 'Erik', 'erik-konsult', 'Test', 100, 30,
+      base_id || '_dup', 'TA-UNQ-2', 'markus', 'Markus', 'markus-konsult', 'Test', 100, 30,
       current_date + 60, '11:00', 'Slot B', 'rls-test-b@example.com', '22222222',
       'confirmed', true
     );

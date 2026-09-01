@@ -7,7 +7,7 @@
 -- til en database-tabell admin kan administrere via tjenester.html.
 --
 -- Bakoverkompat: dagens fire service_id-strenger
---   erik-konsult, erik-videre, ter-konsult, ter-videre
+--   markus-konsult, markus-videre, ter-konsult, ter-videre
 -- gjenbrukes som slug på de seedede radene, slik at eksisterende
 -- bookinger.service_id matcher direkte mot services.slug.
 --
@@ -64,7 +64,7 @@ create trigger services_set_updated_at
 
 -- ----- staff_services -----------------------------------------
 -- staff_id er text fordi STAFF-katalogen i booking-engine.js er
--- en konstant ('erik', 'terapeut'). Hvis vi senere lager en
+-- en konstant ('markus', 'terapeut'). Hvis vi senere lager en
 -- staff-tabell kan denne refactores til uuid + FK.
 create table if not exists public.staff_services (
   staff_id   text not null,
@@ -175,16 +175,16 @@ create policy "staff_services: admin update"
 -- ============================================================
 insert into public.services (slug, name, description, duration_min, price_nok, sort_order, is_active)
 values
-  ('erik-konsult', 'Konsultasjon (Erik)',           'Førstegangsvurdering med Erik. Grundig kartlegging av plager.',          30, 4000, 10, true),
-  ('erik-videre',  'Videre behandling (Erik)',      'Oppfølgingstime etter første konsultasjon.',                            30, 3000, 20, true),
-  ('ter-konsult', 'Konsultasjon (terapeut)',      'Førstegangsvurdering med en av Eriks terapeuter.',                       30, 2000, 30, true),
+  ('markus-konsult', 'Konsultasjon (Markus)',           'Førstegangsvurdering med Markus. Grundig kartlegging av plager.',          30, 4000, 10, true),
+  ('markus-videre',  'Videre behandling (Markus)',      'Oppfølgingstime etter første konsultasjon.',                            30, 3000, 20, true),
+  ('ter-konsult', 'Konsultasjon (terapeut)',      'Førstegangsvurdering med en av Markus'' terapeuter.',                       30, 2000, 30, true),
   ('ter-videre',  'Videre behandling (terapeut)', 'Oppfølgingstime etter første konsultasjon.',                            30, 1500, 40, true)
 on conflict (slug) do nothing;
 
 -- Seed staff_services: hver tjeneste kobles til riktig staff.
 -- Sub-select på services.id slik at vi ikke trenger å hardkode uuid'ene.
 insert into public.staff_services (staff_id, service_id)
-select 'erik', id from public.services where slug in ('erik-konsult', 'erik-videre')
+select 'markus', id from public.services where slug in ('markus-konsult', 'markus-videre')
 on conflict do nothing;
 
 insert into public.staff_services (staff_id, service_id)
@@ -196,7 +196,7 @@ on conflict do nothing;
 --   select * from pg_policies where tablename in ('services', 'staff_services');
 --   select slug, name, price_nok, is_active from public.services order by sort_order;
 --   select * from public.staff_services;
--- Forventet: 4 services, 4 staff_services-rader (2 erik + 2 terapeut),
+-- Forventet: 4 services, 4 staff_services-rader (2 markus + 2 terapeut),
 -- 7 policies på services (3 SELECT-roller med fallback OR for admin er
 -- konsolidert til 2 stk) — totalt:
 --   services: 5 policies (anon-select, auth-select, admin-insert, admin-update, admin-delete)

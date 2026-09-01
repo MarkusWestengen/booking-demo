@@ -105,7 +105,7 @@
            (r.journals_updated || 0) + ' journaler, ' +
            ((r.waitlist_updated || 0) + (r.contact_messages_updated || 0) +
             (r.document_sends_updated || 0) + (r.reviews_updated || 0)) +
-           ' øvrige rader). ID: ' + (r.pseudonym_id || '—'));
+           ' øvrige rader). ID: ' + (r.pseudonym_id || '–'));
       });
     }).catch(function (e) {
       console.error('gdpr_pseudonymize failed', e);

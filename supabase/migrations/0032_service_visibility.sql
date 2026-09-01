@@ -2,7 +2,7 @@
 -- Westengen Klinikk — Services: is_public-flagg for kunde-synlighet
 -- Migration 0032
 -- ------------------------------------------------------------
--- Erik-feedback 2026-05-29 (D4): legg til mulighet for interne
+-- Markus-feedback 2026-05-29 (D4): legg til mulighet for interne
 -- tjenester som ikke vises i kunde-flyten. is_public skiller seg
 -- fra is_active:
 --   is_active  = false → tjenesten er deaktivert (admin har skjult).

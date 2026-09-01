@@ -4,7 +4,7 @@
 -- To innloggede brukere for demoen: én admin og én terapeut.
 --
 -- HVORFOR DENNE FINNES
--- Halve systemet ligger bak innlogging — kalender, kundekartotek,
+-- Halve systemet ligger bak innlogging — kalender, kunderegister,
 -- journal, meldinger, tjenester, behandlere, audit-logg. Ingen
 -- migrasjon har hittil opprettet en bruker, fordi kontoene i
 -- produksjon ble laget for hånd i Supabase-dashbordet. En besøkende
@@ -69,7 +69,7 @@ begin
 
   -- ----- Admin ------------------------------------------------
   -- staff_id peker på grunnleggeren, som i demoen både behandler
-  -- og administrerer. Det speiler hvordan en liten klinikk faktisk
+  -- og administrerer. Det speiler hvordan en klinikk faktisk
   -- ser ut: eieren står i kalenderen og har alle rettigheter.
   if not exists (select 1 from auth.users where email = admin_email) then
     insert into auth.users (
@@ -89,11 +89,11 @@ begin
         'provider',   'email',
         'providers',  jsonb_build_array('email'),
         'role',       'admin',
-        'staff_id',   'erik',
-        'staff_name', 'Erik Westengen',
+        'staff_id',   'markus',
+        'staff_name', 'Markus Westengen',
         'demo',       true
       ),
-      jsonb_build_object('full_name', 'Erik Westengen'),
+      jsonb_build_object('full_name', 'Markus Westengen'),
       now(), now(),
       '', '', '', ''
     );
@@ -171,7 +171,7 @@ commit;
 --      from auth.users
 --     where email like '%@westengenklinikk.example'
 --     order by email;
---    -- Forvent 2 rader: admin/admin/erik/t og terapeut/therapist/sofie/t
+--    -- Forvent 2 rader: admin/admin/markus/t og terapeut/therapist/sofie/t
 --
 -- B) Identiteten henger sammen (uten den feiler innlogging med
 --    «Invalid login credentials» selv om brukeren finnes):

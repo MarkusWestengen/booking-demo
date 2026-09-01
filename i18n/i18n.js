@@ -3,7 +3,7 @@
    ------------------------------------------------------------
    Public API on window.WestengenKlinikkI18n:
      setLanguage(code)      → load JSON, swap DOM, persist
-     getLanguage()          → 'no' | 'en' | 'de' | 'es' | 'ar' | 'fa'
+     getLanguage()          → 'no' | 'en'
      t(key, fallback)       → string for JS code
      translate(root)        → mutate DOM under root (default body)
      onLanguageChange(cb)   → register re-render callback
@@ -29,8 +29,10 @@
 (function () {
   'use strict';
 
-  var SUPPORTED = ['no', 'en', 'de', 'es', 'ar', 'fa'];
-  var RTL = ['ar', 'fa'];
+  var SUPPORTED = ['no', 'en'];
+  // Ingen RTL-sprak igjen. Konstanten beholdes fordi resten av
+  // runtime-en spor dir-attributtet gjennom den; den er tom, ikke fjernet.
+  var RTL = [];
   var DEFAULT_LANG = 'no';
   var STORAGE_KEY = 'westengen-klinikk-lang';
   var EVENT = 'westengen-klinikk:language-changed';
@@ -226,10 +228,7 @@
     var nav = (navigator.language || navigator.userLanguage || '').toLowerCase();
     if (/^nb|^nn|^no/.test(nav)) return 'no';
     if (/^en/.test(nav)) return 'en';
-    if (/^de/.test(nav)) return 'de';
-    if (/^es/.test(nav)) return 'es';
-    if (/^ar/.test(nav)) return 'ar';
-    if (/^fa|^per/.test(nav)) return 'fa';
+    // Demoen har bare norsk og engelsk. Alt annet lander paa norsk.
     return DEFAULT_LANG;
   }
 

@@ -13,7 +13,7 @@
 -- returnerer KUN ett heltall — aldri andres data.
 --
 -- Posisjon = antall ventende rader (status='waiting') i samme
--- staff_id-segment ('erik' vs NULL=terapeut) med created_at <= egen
+-- staff_id-segment ('markus' vs NULL=terapeut) med created_at <= egen
 -- (dvs. 1-basert, inkluderer raden selv). NULL hvis ref ikke finnes
 -- eller ikke lenger venter.
 --

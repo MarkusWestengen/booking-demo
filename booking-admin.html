@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<meta name="theme-color" content="#171A21" />
+<meta name="theme-color" content="#2e2320" />
 <meta name="robots" content="noindex, nofollow" />
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -35,17 +35,17 @@
 <link rel="stylesheet" href="shared/booking-flow.css">
 <style>
   :root {
-    --green: #464C8C;
-    --green-deep: #2F3463;
-    --green-soft: #7A80B8;
-    --green-tint: #E9EAF4;
-    --paper: #F7F8FA;
-    --paper-2: #EDEFF3;
-    --ink: #171A21;
-    --ink-2: #2E323C;
-    --muted: #6B7080;
-    --rule: #171a2622;
-    --danger: #c0392b;
+    --green: #1f4e4a;
+    --green-deep: #163b37;
+    --green-soft: #93c2bb;
+    --green-tint: #dce7e4;
+    --paper: #efe5dc;
+    --paper-2: #f3d8c7;
+    --ink: #2e2320;
+    --ink-2: #4a3b35;
+    --muted: #5c4d46;
+    --rule: rgba(46,35,32,.16);
+    --danger: #9e2b1f;
     --info: #2C5F8B;
     --info-tint: #E5EEF5;
   }
@@ -85,7 +85,7 @@
     background: var(--green); color: #fff;
     padding: 4px 10px;
     /* Admin-modus accent: lett oransje pulse første gang siden lastes,
-       så Erik/Henrik husker at de er i admin-modus. */
+       så Markus/Henrik husker at de er i admin-modus. */
     box-shadow: inset 0 -2px 0 var(--info);
   }
   .role-badge.therapist {
@@ -93,11 +93,11 @@
     box-shadow: none;
   }
   .topbar-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .topbar-right .who { font-size: 13px; color: rgba(247, 248, 250,.7); }
+  .topbar-right .who { font-size: 13px; color: rgba(239, 229, 220,.7); }
   .topbar a, .topbar button {
     color: var(--paper);
     background: transparent;
-    border: 1px solid rgba(247, 248, 250,.2);
+    border: 1px solid rgba(239, 229, 220,.2);
     padding: 8px 14px;
     font-family: inherit; font-size: 13px;
     cursor: pointer; text-decoration: none;
@@ -289,7 +289,7 @@
   .pill-confirmed { background: var(--green-tint); color: var(--green-deep); }
   .pill-completed { background: var(--info-tint); color: var(--info); }
   .pill-cancelled { background: #fdeaea; color: var(--danger); }
-  .pill-no_show   { background: #eaeaea; color: #4A4F5C; }
+  .pill-no_show   { background: #e3d6cb; color: #6b5a52; }
 
   /* ===== Skeleton ===== */
   .skeleton-row {
@@ -328,7 +328,7 @@
     flex-wrap: wrap;
   }
   .error-banner button {
-    background: transparent; border: 1px solid #c0392b80; color: var(--danger);
+    background: transparent; border: 1px solid #9e2b1f80; color: var(--danger);
     padding: 6px 14px; font-family: inherit; font-size: 13px; cursor: pointer;
   }
   .error-banner button:hover { background: var(--danger); color: #fff; }
@@ -349,7 +349,7 @@
   .export-notes-toggle input { width: 15px; height: 15px; accent-color: var(--green); }
   .btn-danger {
     background: transparent; color: var(--danger);
-    border: 1px solid #c0392b80;
+    border: 1px solid #9e2b1f80;
     padding: 8px 14px; font-family: inherit; font-size: 13px; cursor: pointer;
     white-space: nowrap;
   }
@@ -384,7 +384,7 @@
   /* ===== Detail modal ===== */
   .modal-overlay {
     position: fixed; inset: 0; z-index: 1000;
-    background: rgba(23, 26, 33, .72);
+    background: rgba(46, 35, 32, .72);
     display: none; align-items: center; justify-content: center;
     padding: 20px;
     overflow-x: hidden;   /* aldri horisontal forskyvning av modal-laget */
@@ -449,7 +449,7 @@
   }
   .modal-gdpr {
     padding: 14px 28px 16px; border-top: 1px solid var(--rule);
-    background: #F7F8FA;
+    background: #efe5dc;
   }
   .modal-gdpr h4 {
     margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
@@ -576,7 +576,7 @@
     padding: 14px 20px;
     font-size: 14px; line-height: 1.4;
     max-width: 420px;
-    box-shadow: 0 6px 24px rgba(23, 26, 33,.18);
+    box-shadow: 0 6px 24px rgba(46, 35, 32,.18);
     transform: translateY(140%); opacity: 0;
     transition: transform .3s ease, opacity .3s ease;
     pointer-events: none;
@@ -655,7 +655,7 @@
     .tab:last-child { grid-column: 1 / -1; }
     .tab.active {
       color: var(--ink); border-color: var(--green);
-      background: rgba(70, 76, 140, 0.10);
+      background: rgba(31, 78, 74, 0.10);
     }
 
     /* Ingen horisontal forskyvning av siden på mobil. Trygt her: den
@@ -781,7 +781,7 @@
   /* ---- Ufordelte bookinger + terapeut-tildeling (STEG 5) ---- */
   .unassigned-section {
     border: 1px solid var(--warn, #C97A2A);
-    background: var(--warn-tint, #EDEFF3);
+    background: var(--warn-tint, #f3d8c7);
     padding: 16px 18px;
     margin-bottom: 20px;
   }
@@ -955,7 +955,7 @@
      Veiviser-modalen får tydelig ramme, runde hjørner og romslig
      innvendig padding så innholdet ikke klistrer seg til kantene. */
   #newBookingModal .modal-card { border-radius: 14px; overflow: hidden;
-    box-shadow: 0 24px 64px rgba(23, 26, 33,.30); max-width: 680px; }
+    box-shadow: 0 24px 64px rgba(46, 35, 32,.30); max-width: 680px; }
   #newBookingModal .modal-head { padding: 20px 30px; }
   #newBookingModal .modal-body { padding: 26px 30px 32px; }
   @media (max-width: 768px) {
@@ -978,9 +978,9 @@
     letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
     white-space: nowrap; }
   .nb-step.active .nb-step-num { background: var(--green); border-color: var(--green);
-    color: #fff; font-weight: 700; box-shadow: 0 0 0 4px var(--green-tint, #E9EAF4); }
+    color: #fff; font-weight: 700; box-shadow: 0 0 0 4px var(--green-tint, #dce7e4); }
   .nb-step.active .nb-step-label { color: var(--ink); font-weight: 600; }
-  .nb-step.done .nb-step-num { background: var(--green-tint, #E9EAF4);
+  .nb-step.done .nb-step-num { background: var(--green-tint, #dce7e4);
     border-color: var(--green-soft); color: var(--green-deep); font-weight: 700; }
   .nb-step.done .nb-step-label { color: var(--green-deep); }
 
@@ -998,7 +998,7 @@
   .nb-item { display: flex; justify-content: space-between; align-items: center; gap: 12px;
     width: 100%; min-height: 58px; padding: 15px 18px;
     border: 1px solid var(--rule); border-radius: 10px; background: #fff;
-    box-shadow: 0 1px 2px rgba(23, 26, 33,.04);
+    box-shadow: 0 1px 2px rgba(46, 35, 32,.04);
     font: inherit; font-size: 14px; text-align: left; cursor: pointer;
     /* Eksplisitt tekstfarge: mobil-Safari/Chrome gir <button> blå
        UA-farge når ingen er satt (bug: blå tjenestenavn på telefon). */
@@ -1006,9 +1006,9 @@
     -webkit-appearance: none; appearance: none;
     transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
   .nb-item:hover { border-color: var(--green-soft);
-    box-shadow: 0 8px 20px rgba(23, 26, 33,.09); transform: translateY(-2px); }
+    box-shadow: 0 8px 20px rgba(46, 35, 32,.09); transform: translateY(-2px); }
   .nb-item.selected { border: 1.5px solid var(--green);
-    background: var(--green-tint, #E9EAF4); box-shadow: none; transform: none; }
+    background: var(--green-tint, #dce7e4); box-shadow: none; transform: none; }
   .nb-item .nb-meta { color: var(--muted); font-size: 12px; }
   .nb-item-name { font-family: 'Fraunces', serif; font-weight: 500; font-size: 16px;
     letter-spacing: -0.01em; display: block;
@@ -1020,7 +1020,7 @@
     gap: 4px; flex-shrink: 0; }
   .nb-price { font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
     font-weight: 600; color: var(--green-deep); white-space: nowrap;
-    background: var(--green-tint, #E9EAF4); border-radius: 999px; padding: 3px 11px; }
+    background: var(--green-tint, #dce7e4); border-radius: 999px; padding: 3px 11px; }
   .nb-dur { font-family: 'JetBrains Mono', monospace; font-size: 10px;
     letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
     white-space: nowrap; }
@@ -1048,7 +1048,7 @@
   .nb-item-kunde .nb-item-name { flex: 1; min-width: 0;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .nb-avatar { display: grid; place-items: center; width: 36px; height: 36px;
-    border-radius: 50%; background: var(--green-tint, #E9EAF4);
+    border-radius: 50%; background: var(--green-tint, #dce7e4);
     border: 1px solid var(--green-soft); color: var(--green-deep);
     font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; flex-shrink: 0; }
   .nb-kunde-main { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
@@ -1073,7 +1073,7 @@
   .nb-kunde-detail > div + div { margin-top: 2px; }
   .nb-item-new { border: 1.5px dashed var(--green-soft); background: #f7faf6;
     justify-content: flex-start; }
-  .nb-item-new:hover { border-color: var(--green); background: var(--green-tint, #E9EAF4);
+  .nb-item-new:hover { border-color: var(--green); background: var(--green-tint, #dce7e4);
     transform: none; box-shadow: none; }
   .nb-item-new .nb-item-name { color: var(--green-deep); }
   .nb-new-ico { display: grid; place-items: center; width: 36px; height: 36px;
@@ -1137,13 +1137,13 @@
 
   /* --- Oppsummering --- */
   .nb-sum { border: 1px solid var(--rule); border-radius: 12px; overflow: hidden;
-    box-shadow: 0 6px 24px rgba(23, 26, 33,.07); background: #fff; }
+    box-shadow: 0 6px 24px rgba(46, 35, 32,.07); background: #fff; }
   .nb-sum-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px;
     background: var(--green); padding: 18px 20px; }
   .nb-sum-when { font-family: 'Fraunces', serif; font-weight: 500; font-size: 19px;
     color: #fff; letter-spacing: -0.01em; }
   .nb-sum-staff { font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-tint, #E9EAF4); }
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-tint, #dce7e4); }
   .nb-sum-body { padding: 4px 20px; }
   .nb-sum-row { display: flex; justify-content: space-between; align-items: baseline;
     gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--rule); font-size: 14px; }
@@ -1153,7 +1153,7 @@
     color: var(--muted); flex-shrink: 0; }
   .nb-consent { display: grid; grid-template-columns: 20px 1fr; gap: 12px;
     align-items: start; margin-top: 14px; padding: 13px 15px;
-    background: var(--paper-2, #EDEFF3); border-left: 3px solid var(--green);
+    background: var(--paper-2, #f3d8c7); border-left: 3px solid var(--green);
     border-radius: 0 10px 10px 0; font-size: 13px; color: var(--ink-2);
     line-height: 1.5; cursor: pointer; }
   .nb-consent input { margin-top: 2px; width: 16px; height: 16px; accent-color: var(--green); }
@@ -1162,11 +1162,11 @@
   .nb-foot { display: flex; justify-content: space-between; align-items: center;
     gap: 10px; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--rule); }
   .nb-foot .btn-primary { border-radius: 10px; min-height: 46px; padding: 12px 26px;
-    font-weight: 600; box-shadow: 0 2px 8px rgba(70, 76, 140,.28); }
-  .nb-foot .btn-primary:hover { background: var(--green-deep, #2F3463); }
+    font-weight: 600; box-shadow: 0 2px 8px rgba(31, 78, 74,.28); }
+  .nb-foot .btn-primary:hover { background: var(--green-deep, #163b37); }
   .nb-foot .btn-ghost { border-radius: 10px; min-height: 46px; padding: 12px 18px;
     font-size: 13px; }
-  .nb-err { background: #fdeaea; border-left: 3px solid #c0392b;
+  .nb-err { background: #fdeaea; border-left: 3px solid #9e2b1f;
     border-radius: 0 8px 8px 0; padding: 10px 13px; font-size: 13px;
     color: #7d2418; margin-top: 12px; }
   .nb-hint { color: var(--muted); font-size: 12.5px; line-height: 1.5; margin-top: 10px; }
@@ -1271,7 +1271,7 @@
         <input id="searchInput" type="search" placeholder="Søk navn, e-post, tlf, ref…" />
       </div>
 
-      <!-- Ufordelte "Eriks terapeuter"-bookinger (STEG 5) — rendres
+      <!-- Ufordelte "Markus' terapeuter"-bookinger (STEG 5) — rendres
            kun for admin, og kun når det finnes ufordelte. -->
       <div id="unassignedWrap"></div>
 
@@ -1346,16 +1346,16 @@
       <div class="settings-card">
         <h3>Min konto</h3>
         <table class="session-table">
-          <tr><td>E-post</td>    <td id="setEmail">—</td></tr>
-          <tr><td>Rolle</td>     <td id="setRole">—</td></tr>
+          <tr><td>E-post</td>    <td id="setEmail">,</td></tr>
+          <tr><td>Rolle</td>     <td id="setRole">,</td></tr>
           <tr id="setStaffRow" style="display:none;">
-            <td>Behandler</td>   <td id="setStaff">—</td>
+            <td>Behandler</td>   <td id="setStaff">,</td>
           </tr>
-          <tr><td>User-ID</td>   <td id="setUserId">—</td></tr>
+          <tr><td>User-ID</td>   <td id="setUserId">,</td></tr>
         </table>
         <div class="settings-hint">
           Brukerkontoen administreres i Supabase Auth. Endring av e-post, passord
-          eller rolle gjøres av en administrator i Supabase Dashboard — ikke her.
+          eller rolle gjøres av en administrator i Supabase Dashboard, ikke her.
         </div>
       </div>
     </div>
@@ -1548,13 +1548,13 @@
     var overlay = document.createElement('div');
     overlay.id = '__authErrorOverlay';
     overlay.setAttribute('role', 'alert');
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(23, 26, 33,.85);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Inter,system-ui,sans-serif;';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(46, 35, 32,.85);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Inter,system-ui,sans-serif;';
     overlay.innerHTML =
-      '<div style="background:#fff;max-width:420px;width:100%;padding:24px;border:1px solid #171a2622;">' +
-        '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 12px;color:#171A21;">Tilgang nektet</h3>' +
-        '<div style="margin:0;color:#2E323C;font-size:14px;line-height:1.5;">' + (message || 'Du har ikke tilgang.') + '</div>' +
-        (raw ? '<pre style="margin:16px 0 0;padding:10px;background:#F7F8FA;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#9c4a3f;white-space:pre-wrap;word-break:break-all;border:1px solid #1d211e11;">app_metadata: ' + escapeHtml(JSON.stringify(raw)) + '</pre>' : '') +
-        '<p style="margin:14px 0 0;color:#6B7080;font-size:12px;">Du blir sendt tilbake til ansattportalen om et øyeblikk.</p>' +
+      '<div style="background:#fff;max-width:420px;width:100%;padding:24px;border:1px solid rgba(46,35,32,.16);">' +
+        '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 12px;color:#2e2320;">Tilgang nektet</h3>' +
+        '<div style="margin:0;color:#4a3b35;font-size:14px;line-height:1.5;">' + (message || 'Du har ikke tilgang.') + '</div>' +
+        (raw ? '<pre style="margin:16px 0 0;padding:10px;background:#efe5dc;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#9c4a3f;white-space:pre-wrap;word-break:break-all;border:1px solid #1d211e11;">app_metadata: ' + escapeHtml(JSON.stringify(raw)) + '</pre>' : '') +
+        '<p style="margin:14px 0 0;color:#5c4d46;font-size:12px;">Du blir sendt tilbake til ansattportalen om et øyeblikk.</p>' +
       '</div>';
     document.body.appendChild(overlay);
   }
@@ -1635,7 +1635,7 @@
     } else {
       availTitle.textContent = 'Min kalender';
       availStatic.style.display = '';
-      availStatic.textContent = user.staffName || '—';
+      availStatic.textContent = user.staffName || '–';
     }
   }
 
@@ -1733,7 +1733,7 @@
   // Hardkodet fallback-palett brukes når kolonnen mangler eller raden
   // ikke har farge; ukjent behandler → '' → CSS-fallback (nøytral grå).
   var STAFF_FALLBACK_COLORS = {
-    erik: '#464C8C', sofie: '#B8754A', henrik: '#5B7DB1',
+    markus: '#1f4e4a', sofie: '#d0b8ac', henrik: '#5B7DB1',
     jonas: '#8E6FA8', amina: '#C2A14D', petter: '#4D9D9A',
     lena: '#A85C5C', nora: '#D87FA0'
   };
@@ -1774,7 +1774,7 @@
   var DAYS_NO  = ['søn','man','tir','ons','tor','fre','lør'];
   var MONTHS_NO = ['januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember'];
   function formatDateNo(dateStr) {
-    if (!dateStr) return '—';
+    if (!dateStr) return '–';
     var p = dateStr.split('-');
     var d = new Date(+p[0], +p[1] - 1, +p[2]);
     return DAYS_NO[d.getDay()] + ' ' + d.getDate() + '. ' + MONTHS_NO[d.getMonth()];
@@ -1782,12 +1782,12 @@
   function formatTimeShort(t) { return (t || '').slice(0, 5); }
   function formatPrice(n) { return 'kr ' + (n || 0).toLocaleString('no-NO').replace(/,/g, ' '); }
   function formatCreatedAt(iso) {
-    if (!iso) return '—';
+    if (!iso) return '–';
     var d = new Date(iso);
     return d.toLocaleString('no-NO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
   function statusLabel(s) {
-    return ({ confirmed: 'Bekreftet', completed: 'Fullført', cancelled: 'Avlyst', no_show: 'No-show' })[s] || s || '—';
+    return ({ confirmed: 'Bekreftet', completed: 'Fullført', cancelled: 'Avlyst', no_show: 'No-show' })[s] || s || '–';
   }
 
   // ---------- Loading / error / skeleton ----------
@@ -1850,12 +1850,12 @@
     DATA.bookings.forEach(function (b) {
       if (b.staff_id && b.staff_name) unique[b.staff_id] = b.staff_name;
     });
-    // "Eriks terapeuter" er paraply-navnet på gruppe-bookinger (staff_id
+    // "Markus' terapeuter" er paraply-navnet på gruppe-bookinger (staff_id
     // 'terapeut' eller NULL pre-0020). Skjules fra admin-filteret fordi
     // ufordelte bookinger har egen seksjon (renderUnassigned); de
     // navngitte terapeutene listes individuelt her.
     var ids = Object.keys(unique)
-      .filter(function (id) { return unique[id] !== 'Eriks terapeuter'; })
+      .filter(function (id) { return unique[id] !== 'Markus\' terapeuter'; })
       .sort(function (a, b) {
         return unique[a].localeCompare(unique[b], 'no');
       });
@@ -1949,9 +1949,9 @@
       '<td class="col-bar"><span></span></td>' +
       '<td class="col-date"><span class="when-date">' + escapeHtml(formatDateNo(b.date)) +
         ' · </span><span class="when-time">' + time + '</span></td>' +
-      '<td class="col-name"><div class="name"><strong>' + escapeHtml(b.name || '—') + '</strong>' +
+      '<td class="col-name"><div class="name"><strong>' + escapeHtml(b.name || '–') + '</strong>' +
         '<small>' + escapeHtml(b.email || '') + '</small></div></td>' +
-      '<td class="col-staff">' + escapeHtml(b.staff_name || '—') + '</td>' +
+      '<td class="col-staff">' + escapeHtml(b.staff_name || '–') + '</td>' +
       '<td class="col-status"><span class="' + pillCls + '">' + escapeHtml(statusLabel(b.status)) + '</span></td>' +
       '<td class="col-actions"><button class="btn-ghost" data-detail="' + escapeHtml(b.id) + '">Detaljer</button></td>' +
       '</tr>';
@@ -2021,15 +2021,15 @@
       '<div class="unassigned-section">' +
         '<h3 class="unassigned-title">Ufordelte bookinger' +
           '<span class="unassigned-count">' + list.length + '</span></h3>' +
-        '<p class="unassigned-lead">Bookinger hos «Eriks terapeuter» som ikke er tildelt en terapeut ennå.</p>' +
+        '<p class="unassigned-lead">Bookinger hos «Markus\' terapeuter» som ikke er tildelt en terapeut ennå.</p>' +
         '<div class="unassigned-list">' +
           list.map(function (b) {
             return '<div class="unassigned-card">' +
               '<div class="uc-main">' +
-                '<div class="uc-name">' + escapeHtml(b.name || '—') + '</div>' +
+                '<div class="uc-name">' + escapeHtml(b.name || '–') + '</div>' +
                 '<div class="uc-meta">' + escapeHtml(formatDateNo(b.date)) + ' kl. ' +
                   escapeHtml(formatTimeShort(b.time)) + ' · ' +
-                  escapeHtml(b.service_name || '—') + '</div>' +
+                  escapeHtml(b.service_name || '–') + '</div>' +
               '</div>' +
               '<button class="btn-primary" data-assign="' + escapeHtml(b.id) + '">Tildel terapeut</button>' +
             '</div>';
@@ -2176,7 +2176,7 @@
     }
 
     // Terapeut-tildeling: vis "Tildel/Endre terapeut" for pool-bookinger
-    // (ufordelt eller tildelt en av de 5). Skjult for Erik-bookinger.
+    // (ufordelt eller tildelt en av de 5). Skjult for Markus-bookinger.
     var assignBtn = document.getElementById('modalAssignBtn');
     if (assignBtn) {
       var canAssign = isAdmin() && (isUnassignedBooking(b) || poolContains(b.staff_id));
@@ -2199,15 +2199,15 @@
   function renderModalBody(b) {
     return '<table>' +
       '<tr><td>Dato</td><td>' + escapeHtml(formatDateNo(b.date)) + ' kl. ' + escapeHtml(formatTimeShort(b.time)) + '</td></tr>' +
-      '<tr><td>Behandler</td><td>' + escapeHtml(b.staff_name || '—') + '</td></tr>' +
-      '<tr><td>Tjeneste</td><td>' + escapeHtml(b.service_name || '—') + ' · ' + (b.duration || '—') + ' min · ' + escapeHtml(formatPrice(b.price)) + '</td></tr>' +
-      '<tr><td>Klient</td><td>' + escapeHtml(b.name || '—') + '</td></tr>' +
+      '<tr><td>Behandler</td><td>' + escapeHtml(b.staff_name || '–') + '</td></tr>' +
+      '<tr><td>Tjeneste</td><td>' + escapeHtml(b.service_name || '–') + ' · ' + (b.duration || '–') + ' min · ' + escapeHtml(formatPrice(b.price)) + '</td></tr>' +
+      '<tr><td>Klient</td><td>' + escapeHtml(b.name || '–') + '</td></tr>' +
       '<tr><td>E-post</td><td><div class="copyable">' +
-        '<a href="mailto:' + escapeHtml(b.email || '') + '">' + escapeHtml(b.email || '—') + '</a>' +
+        '<a href="mailto:' + escapeHtml(b.email || '') + '">' + escapeHtml(b.email || '–') + '</a>' +
         (b.email ? '<button class="copy-btn" data-copy="' + escapeHtml(b.email) + '">Kopier</button>' : '') +
         '</div></td></tr>' +
       '<tr><td>Telefon</td><td><div class="copyable">' +
-        '<a href="tel:' + escapeHtml(b.phone || '') + '">' + escapeHtml(b.phone || '—') + '</a>' +
+        '<a href="tel:' + escapeHtml(b.phone || '') + '">' + escapeHtml(b.phone || '–') + '</a>' +
         (b.phone ? '<button class="copy-btn" data-copy="' + escapeHtml(b.phone) + '">Kopier</button>' : '') +
         '</div></td></tr>' +
       (b.notes ? '<tr><td>Notater</td><td><div class="notes">' + escapeHtml(b.notes) + '</div></td></tr>' : '') +
@@ -2905,13 +2905,13 @@
   // ============================================================
   // VENTELISTE-FANEN (Jobb B STEG 5) — kø-visning + manuell tildeling
   // Ventelista forvaltes av admin (RLS er admin-only). To FIFO-køer:
-  // staff_id='erik' = Eriks kø, staff_id=NULL = terapeut-kø. "Tildel
+  // staff_id='markus' = Markus' kø, staff_id=NULL = terapeut-kø. "Tildel
   // time" er en mini-booking-flyt som gjenbruker adminCreateBooking.
   // ============================================================
   var WAITLIST = { rows: [] };
 
   function wlFormatDateRange(from, to) {
-    if (!from) return '—';
+    if (!from) return '–';
     if (to && to !== from) return formatDateNo(from) + ' – ' + formatDateNo(to);
     return 'fra ' + formatDateNo(from);
   }
@@ -2951,7 +2951,7 @@
     var notes = (w.notes || '').trim();
     return '<div class="wl-card">' +
         '<div class="wl-main">' +
-          '<div class="wl-name">' + escapeHtml(w.name || '—') + '</div>' +
+          '<div class="wl-name">' + escapeHtml(w.name || '–') + '</div>' +
           '<div class="wl-meta">Ønsket: ' +
             escapeHtml(wlFormatDateRange(w.preferred_date_from, w.preferred_date_to)) +
             ' · ' + escapeHtml(wlFormatTimePref(w.preferred_time_from, w.preferred_time_to)) + '</div>' +
@@ -2983,13 +2983,13 @@
     var wrap = document.getElementById('waitlistWrap');
     if (!wrap) return;
     if (!isAdmin()) { wrap.innerHTML = ''; return; }
-    var tomQueue      = WAITLIST.rows.filter(function (w) { return w.staff_id === 'erik'; });
+    var tomQueue      = WAITLIST.rows.filter(function (w) { return w.staff_id === 'markus'; });
     var terapeutQueue = WAITLIST.rows.filter(function (w) { return w.staff_id == null; });
     wrap.innerHTML =
-      renderWaitlistSection('Eriks kø',
-        'Kunder som venter på time hos Erik Westengen.', tomQueue) +
+      renderWaitlistSection('Markus\' kø',
+        'Kunder som venter på time hos Markus Westengen.', tomQueue) +
       renderWaitlistSection('Terapeut-kø',
-        'Kunder som venter på time hos Eriks terapeuter.', terapeutQueue);
+        'Kunder som venter på time hos Markus\' terapeuter.', terapeutQueue);
     wrap.querySelectorAll('button[data-wl-assign]').forEach(function (btn) {
       btn.addEventListener('click', function () { openWaitlistAssignModal(btn.dataset.wlAssign); });
     });
@@ -3032,7 +3032,7 @@
 
   function buildWaitlistAssignForm(w) {
     var E = window.WestengenKlinikkBookingEngine || {};
-    var isTomQueue = (w.staff_id === 'erik');
+    var isTomQueue = (w.staff_id === 'markus');
     var body = document.getElementById('wlAssignBody');
 
     var html = '';
@@ -3053,7 +3053,7 @@
         }).join('') + '</select></div>';
     }
 
-    // Tjeneste-velger: for Erik-køen fylles den fra SERVICES['erik']
+    // Tjeneste-velger: for Markus-køen fylles den fra SERVICES['markus']
     // med en gang; for terapeut-køen fylles den fra den valgte
     // terapeutens egen katalog (SERVICES[therapistId]) — slik at
     // serviceId garantert validerer i adminCreateBooking.
@@ -3105,7 +3105,7 @@
     function refreshTimes() {
       var timeEl = document.getElementById('wlAssignTime');
       var date = document.getElementById('wlAssignDate').value;
-      var staffId = isTomQueue ? 'erik'
+      var staffId = isTomQueue ? 'markus'
         : (document.getElementById('wlAssignTherapist').value || '');
       if (!date || !staffId) {
         timeEl.disabled = true;
@@ -3154,9 +3154,9 @@
       submitWaitlistAssign(w, isTomQueue);
     });
 
-    // Erik-køen: staff er gitt → fyll tjenester + tider for default-dato.
+    // Markus-køen: staff er gitt → fyll tjenester + tider for default-dato.
     if (isTomQueue) {
-      populateServices('erik');
+      populateServices('markus');
       refreshTimes();
     }
   }
@@ -3172,7 +3172,7 @@
   }
 
   function submitWaitlistAssign(w, isTomQueue) {
-    var therapistId = isTomQueue ? 'erik'
+    var therapistId = isTomQueue ? 'markus'
       : (document.getElementById('wlAssignTherapist').value || '');
     var serviceId = document.getElementById('wlAssignService').value || '';
     var date = document.getElementById('wlAssignDate').value || '';
@@ -3215,10 +3215,10 @@
           resetBtn();
           closeWaitlistAssignModal();
           if (upd.error) {
-            showToast('Booking opprettet, men ventelista ble ikke oppdatert — fjern oppføringen manuelt.', true);
+            showToast('Booking opprettet, men ventelista ble ikke oppdatert. Fjern oppføringen manuelt.', true);
             console.error(upd.error);
           } else {
-            showToast('Time tildelt ✓ — booking opprettet for ' + (w.name || ''));
+            showToast('Time tildelt ✓, booking opprettet for ' + (w.name || ''));
           }
           loadWaitlist();
           loadBookings();
@@ -3301,7 +3301,7 @@
     var body = (r.body || '').trim();
     return '<div class="wl-card">' +
         '<div class="wl-main">' +
-          '<div class="wl-name">' + escapeHtml(r.name || '—') +
+          '<div class="wl-name">' + escapeHtml(r.name || '–') +
             ' <span style="color:var(--green);letter-spacing:2px;">' + revStars(r.rating) + '</span></div>' +
           '<div class="wl-sub">meldt ' + escapeHtml(formatCreatedAt(r.created_at)) + '</div>' +
           (body ? '<div class="wl-notes">' + escapeHtml(body) + '</div>' : '') +
@@ -3415,7 +3415,7 @@
     DATA.bookings.forEach(function (b) {
       var key = (b.email || '').toLowerCase() || (b.phone ? 'tlf:' + b.phone : '');
       if (!key) return;
-      var c = map[key] || (map[key] = { name: b.name || '—', email: b.email || '', phone: b.phone || '', last: '' });
+      var c = map[key] || (map[key] = { name: b.name || '–', email: b.email || '', phone: b.phone || '', last: '' });
       var seen = (b.date || '');
       if (seen >= c.last) {
         c.last = seen;
@@ -3466,7 +3466,7 @@
         var myKey = (myId && E.SERVICES && E.SERVICES[myId]) ? myId : 'terapeut';
         groups = [{ key: myKey, label: 'Mine tjenester' }];
       } else {
-        groups = [{ key: 'erik', label: 'Hos Erik' }, { key: 'terapeut', label: 'Hos terapeut' }];
+        groups = [{ key: 'markus', label: 'Hos Markus' }, { key: 'terapeut', label: 'Hos terapeut' }];
       }
       html += '<h4 class="nb-h">Velg tjeneste</h4>';
       groups.forEach(function (g) {
@@ -3513,11 +3513,11 @@
     else if (NB.step === 3) {
       // ---- STEG 3: TERAPEUT + TID (direkte tildeling) ----
       html += '<h4 class="nb-h">Velg terapeut og tid</h4>';
-      var laast = NB.serviceGroup === 'erik' || isTherapist();
+      var laast = NB.serviceGroup === 'markus' || isTherapist();
       if (laast) {
-        var laastNavn = NB.serviceGroup === 'erik' ? 'Erik Westengen'
+        var laastNavn = NB.serviceGroup === 'markus' ? 'Markus Westengen'
           : (currentUser && currentUser.staffName) || 'meg';
-        NB.staffId = NB.serviceGroup === 'erik' ? 'erik' : (getMyStaffId() || 'terapeut');
+        NB.staffId = NB.serviceGroup === 'markus' ? 'markus' : (getMyStaffId() || 'terapeut');
         NB.staffName = laastNavn;
         html += '<div class="nb-group-label">Terapeut</div>' +
           '<div class="nb-list"><div class="nb-item selected"><span>' + escapeHtml(laastNavn) + '</span>' +
@@ -3562,7 +3562,7 @@
         '<div class="nb-sum-row"><span>Varighet · pris</span><span>' +
           escapeHtml(String(NB.service.duration)) + ' min · ' + escapeHtml(formatPrice(NB.service.price)) + '</span></div>' +
         '</div></div>' +
-        (!NB.kunde.email ? '<p class="nb-hint">Ingen e-post — kunden får ikke bekreftelse eller påminnelse. Avtal muntlig.</p>' : '') +
+        (!NB.kunde.email ? '<p class="nb-hint">Ingen e-post, kunden får ikke bekreftelse eller påminnelse. Avtal muntlig.</p>' : '') +
         '<label class="nb-consent"><input type="checkbox" id="nbConsent"' + (NB.consent ? ' checked' : '') + ' />' +
         '<span>Pasienten har samtykket muntlig til at det føres journal i forbindelse med behandlingen.</span></label>' +
         '<div class="nb-err" id="nbErr" hidden></div>' +
@@ -3642,7 +3642,7 @@
     E.generateSlotsForDay(NB.staffId, NB.date).then(function (slots) {
       var free = (slots || []).filter(function (s) { return s.available; });
       if (!free.length) {
-        grid.innerHTML = '<p class="nb-time-status">Ingen ledige tider denne dagen — prøv en annen dato.</p>';
+        grid.innerHTML = '<p class="nb-time-status">Ingen ledige tider denne dagen. Prøv en annen dato.</p>';
         return;
       }
       grid.innerHTML = free.map(function (s) {

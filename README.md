@@ -1,14 +1,14 @@
 # Bookingsystem med journal og adminpanel
 
-Et komplett booking- og klientsystem for en liten klinikk: kundevendt
-bestillingsflyt, og et adminpanel med kalender, klientregister, journal,
+Et komplett booking- og klientsystem for en klinikk: kundevendt
+bestillingsflyt, og et adminpanel med kalender, kunderegister, journal,
 dokumentutsending, meldinger og audit-logg.
 
 Klinikken i demoen er oppdiktet. Alle personer, bestillinger og journalnotater
 er konstruert. Det som er ekte er systemet.
 
 **Innloggingen til adminpanelet er publisert åpent på forsiden.** Det er et
-bevisst valg — hele poenget er at halvparten som er interessant ligger bak
+bevisst valg, hele poenget er at halvparten som er interessant ligger bak
 innlogging. Hvordan det lar seg gjøre uten at demoen kan ødelegges, står under
 [Skrivesperre på seed-data](#skrivesperre-på-seed-data).
 
@@ -22,7 +22,7 @@ kontaktskjema og token-gatet anmeldelsesinnsending. Bekreftelse på e-post og
 SMS, med påminnelse 24 timer før.
 
 **Bak innlogging.** Ukeskalender per behandler, bestillingsadministrasjon med
-tildeling av ufordelte timer, klientregister med klientkort, journalføring med
+tildeling av ufordelte timer, kunderegister med klientkort, journalføring med
 samtykkesporing, dokumentutsending fra privat lagring, innboks for
 kontakthenvendelser, moderasjonskø for anmeldelser, tjeneste- og
 behandleradministrasjon, stengte tider og helligdager, og audit-logg.
@@ -51,7 +51,7 @@ andre enn den som skrev det: en `.html`-fil kan åpnes, leses og endres om ti å
 uten at en toolchain må rekonstrueres først.
 
 **Databasen er autoritativ.** Priser, tjenester, behandlere, arbeidstider og
-tilgjengelighet leses fra Postgres — ikke fra hardkodede lister i frontend.
+tilgjengelighet leses fra Postgres, ikke fra hardkodede lister i frontend.
 Endrer en administrator prisen på en tjeneste, slår det gjennom uten deploy.
 Frontend har kode-fallback for behandlerlisten, slik at en tom eller
 utilgjengelig tabell aldri gir kunden en tom bestillingsside.
@@ -75,7 +75,7 @@ RLS er på for hver tabell, og standardsvaret er nekt. Det finnes ingen
 vidåpen `using (true)`-policy noe sted.
 
 Anon-rollen kan tre ting: opprette en bestilling, melde seg på venteliste, og
-sende inn en anmeldelse — som alltid lagres `pending` og aldri kan
+sende inn en anmeldelse, som alltid lagres `pending` og aldri kan
 selvgodkjennes. Kontaktskjemaet hadde opprinnelig anon-INSERT, men fikk den
 trukket tilbake i en senere migrasjon og går nå gjennom en Edge Function med
 Turnstile-validering i stedet.
@@ -88,7 +88,7 @@ Der en policy måtte se på JWT-en, er `auth.jwt()` pakket i en subquery slik at
 planleggeren evaluerer den én gang per spørring i stedet for én gang per rad.
 
 Kolonnenivå brukes der radnivå ikke er nok: anon har `SELECT` på
-`(staff_id, date, time)` i `blocked_slots`, men ikke på beskrivelsesfeltet —
+`(staff_id, date, time)` i `blocked_slots`, men ikke på beskrivelsesfeltet,
 en behandlers «tannlege 14:00» skal ikke være offentlig.
 
 ### Rollestyrt tilgang
@@ -100,7 +100,7 @@ kan. To roller:
 | | `admin` | `therapist` |
 |---|---|---|
 | Egen kalender og egne bestillinger | ✅ | ✅ |
-| Klientregister og journal | ✅ | ✅ |
+| Kunderegister og journal | ✅ | ✅ |
 | Behandleradministrasjon | ✅ | ❌ |
 | Audit-logg | ✅ | ❌ |
 | GDPR-eksport og -sletting | ✅ | ❌ |
@@ -111,13 +111,13 @@ GDPR-funksjonene direkte mot API-et får avslag fra databasen.
 ### Audit-logging av journaltilgang
 
 `journal_audit` er en dedikert, append-only logg. Den fanger ikke bare
-endringer, men også **oppslag** — hvem som *leste* en journal, ikke bare hvem
+endringer, men også **oppslag**, hvem som *leste* en journal, ikke bare hvem
 som skrev i den. Det er den delen som pleier å mangle, og den som betyr noe når
 noen spør hvem som har sett på en pasients opplysninger.
 
 Endringer fanges av en trigger på `journal_entries`. Lesninger fanges ved at
 journaloppslag går gjennom en RPC (`get_journal_entries`) i stedet for et
-direkte `SELECT` — funksjonen returnerer radene og skriver samtidig en
+direkte `SELECT`, funksjonen returnerer radene og skriver samtidig en
 `select`-hendelse. Hver rad har tidspunkt, aktørens bruker-ID og rolle,
 pasientnøkkel, journal-ID og en `jsonb` med kontekst. Kun `admin` kan lese
 tabellen, og ingen rolle kan endre eller slette fra den.
@@ -126,12 +126,12 @@ tabellen, og ingen rolle kan endre eller slette fra den.
 
 To `SECURITY DEFINER`-funksjoner, begge admin-only:
 
-**`gdpr_export_patient(email)`** — artikkel 15, innsyn og dataportabilitet.
+**`gdpr_export_patient(email)`**, artikkel 15, innsyn og dataportabilitet.
 Samler alt systemet vet om én person på tvers av bestillinger, journalnotater,
 venteliste, meldinger og dokumentutsendinger, og returnerer det som strukturert
 JSON.
 
-**`gdpr_erase_patient(email)`** — artikkel 17. Pseudonymiserer i stedet for å
+**`gdpr_erase_patient(email)`**, artikkel 17. Pseudonymiserer i stedet for å
 slette hardt: personopplysningene erstattes med en stabil, ikke-reverserbar
 nøkkel på `@anon.local`, mens radene består. Det er et bevisst valg.
 Regnskapsplikten krever at en gjennomført behandling kan dokumenteres, og en
@@ -139,7 +139,7 @@ Regnskapsplikten krever at en gjennomført behandling kan dokumenteres, og en
 pseudonymisering kan ingen knytte raden til en person, men klinikken kan
 fortsatt vise at timen fant sted.
 
-Selve slettingen føres også i audit-loggen — handlingen registreres, aktøren
+Selve slettingen føres også i audit-loggen, handlingen registreres, aktøren
 bevares.
 
 ### Skrivesperre på seed-data
@@ -148,11 +148,11 @@ Innloggingen er publisert. Sikkerheten kan derfor ikke ligge i passordet.
 
 Den nærliggende løsningen er å skru av knappene, men det ødelegger demoen: en
 grå «Slett»-knapp demonstrerer ingenting. Skillet er derfor lagt et annet sted
-enn mellom lese og skrive — det går mellom **rader**.
+enn mellom lese og skrive, det går mellom **rader**.
 
 Hver beskyttet tabell har kolonnen `is_demo_seed`. Radene som fulgte med
 demoen har `true`, og en trigger avviser `UPDATE` og `DELETE` mot dem. Rader en
-besøkende oppretter selv har `false` og oppfører seg helt normalt — hele
+besøkende oppretter selv har `false` og oppfører seg helt normalt, hele
 CRUD-syklusen kan demonstreres på ekte data, uten at grunnoppsettet kan rives.
 
 Avvisningen bruker SQLSTATE `PT403`. PostgREST tolker `PT`-prefikset som «sett
@@ -165,7 +165,7 @@ ingen kan gi sine egne rader beskyttelse og dermed låse dem for neste besøkend
 
 En nattlig `pg_cron`-jobb sletter alt besøkende har lagt igjen og genererer
 innholdet på nytt med dagens dato som utgangspunkt. Kalenderen har derfor
-alltid noe i forrige uke, noe i dag og noe neste uke — uansett når demoen
+alltid noe i forrige uke, noe i dag og noe neste uke, uansett når demoen
 åpnes. Rot som legges oppå forsvinner av seg selv innen et døgn.
 
 ### Øvrig herding
@@ -187,14 +187,14 @@ escapes. Sikkerhetsheadere settes både i `vercel.json` og `_headers`.
 samtidig. En delvis unik indeks hindrer dobbeltbooking i databasen, og
 klienten oversetter `23505` til en forståelig melding i stedet for en
 stacktrace. Innsettingen har eksponentiell backoff for transiente feil, med
-bookings-IDen generert klientside én gang — treffer et gjentatt forsøk
+bookings-IDen generert klientside én gang, treffer et gjentatt forsøk
 primærnøkkelen, betyr det at det første forsøket faktisk gikk gjennom og at
 bare svaret gikk tapt. Da regnes det som suksess, ikke som en kollisjon.
 
 **Ufordelte bestillinger.** Bestiller kunden «en terapeut» framfor en navngitt
 person, lagres raden uten behandler og tildeles senere i admin.
-Tilgjengelighet blir da et kapasitetsspørsmål — antall opptatte plasser i
-terapeutpoolen — og en databasetrigger håndhever taket, slik at grensen ikke
+Tilgjengelighet blir da et kapasitetsspørsmål, antall opptatte plasser i
+terapeutpoolen, og en databasetrigger håndhever taket, slik at grensen ikke
 kan omgås ved å kalle API-et direkte.
 
 **Denormalisering med hensikt.** `bookings` fryser behandlernavn, tjenestenavn,
@@ -202,7 +202,7 @@ pris og varighet på bestillingstidspunktet. Endrer klinikken prisen i morgen,
 skal gårsdagens kvittering fortsatt vise det kunden faktisk betalte.
 
 **Tid som funksjon av dagens dato.** Demoinnholdet genereres relativt til
-`current_date`, ikke som faste datoer. En håndskrevet liste er ferskvare — tre
+`current_date`, ikke som faste datoer. En håndskrevet liste er ferskvare, tre
 uker etter oppsett står kalenderen tom igjen fordi alt ligger i fortiden.
 
 ---
@@ -211,7 +211,7 @@ uker etter oppsett står kalenderen tom igjen fordi alt ligger i fortiden.
 
 ```
 *.html              21 sider: 8 kundevendte, 13 for ansatte
-shared/             delte moduler — bookingmotor, auth, GDPR, komponenter, i18n
+shared/             delte moduler, bookingmotor, auth, GDPR, komponenter, i18n
 i18n/               6 språk, identisk nøkkelsett (521 nøkler), RTL for ar/fa
 supabase/
   migrations/       67 idempotente migrasjoner, 0000–0067
@@ -237,5 +237,5 @@ i stedet for å henge.
 Alle personer er oppdiktet. E-postadressene ligger på `.example`, et
 toppdomene som per RFC 2606 aldri kan registreres. Telefonnumrene er varianter
 av `400 00 000`, og adressen er en plassholder. `robots.txt` avviser alle
-crawlere og hver side bærer `noindex` — en oppdiktet klinikk med oppdiktet
+crawlere og hver side bærer `noindex`, en oppdiktet klinikk med oppdiktet
 adresse hører ikke hjemme i et søkeresultat.

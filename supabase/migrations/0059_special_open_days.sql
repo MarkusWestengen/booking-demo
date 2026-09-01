@@ -12,7 +12,7 @@
 --     = 3 rader (upsert onConflict (date, staff_id)).
 --   - Holiday vinner FORTSATT: booking-engine sjekker holidays før
 --     special_open_days, så en klinikk-stengt dag forblir stengt.
---   - «Eriks terapeuter»-paraplyen (pool) påvirkes IKKE (Alt. 1):
+--   - «Markus' terapeuter»-paraplyen (pool) påvirkes IKKE (Alt. 1):
 --     kun direkte booking av navngitt behandler åpnes.
 --
 -- Sikkerhet (speiler blocked_slots 0057 + holidays 0018):
@@ -110,5 +110,5 @@ commit;
 --      som bookbar (kun innenfor vinduet); andre lørdager forblir stengt.
 --    - Admin-kalender (kalender.html): lørdagen viser ledige slots for
 --      de valgte behandlerne.
---    - «Eriks terapeuter» (pool) viser fortsatt lørdagen som stengt.
+--    - «Markus' terapeuter» (pool) viser fortsatt lørdagen som stengt.
 -- ============================================================

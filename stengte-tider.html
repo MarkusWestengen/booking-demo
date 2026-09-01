@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow" />
-<meta name="theme-color" content="#171A21">
+<meta name="theme-color" content="#2e2320">
 
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
@@ -26,10 +26,10 @@
 
 <style>
   :root {
-    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8; --green-tint: #E9EAF4;
-    --paper: #F7F8FA; --paper-2: #EDEFF3;
-    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
-    --rule: #171a2622; --danger: #c0392b;
+    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb; --green-tint: #dce7e4;
+    --paper: #efe5dc; --paper-2: #f3d8c7;
+    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
+    --rule: rgba(46,35,32,.16); --danger: #9e2b1f;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -55,7 +55,7 @@
     background: var(--green-soft); color: #fff; padding: 4px 8px; }
   .who-chip.admin { background: var(--green); }
   .topbar a, .topbar button { color: var(--paper); background: transparent;
-    border: 1px solid rgba(247, 248, 250,.22); padding: 6px 10px;
+    border: 1px solid rgba(239, 229, 220,.22); padding: 6px 10px;
     font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
 
   .shell { max-width: 1100px; margin: 0 auto; padding: 18px; }
@@ -172,7 +172,7 @@
   /* Issue V — skjul sidetittel-em i admin-headeren på smal mobil.
      "Westengen Klinikk STENGTE TIDER" fikk ikke plass og ble avkuttet;
      bottom-nav viser uansett hvilken side man er på. */
-  .field-help { font-size: 12px; color: var(--muted, #6B7080); margin-top: 5px; }
+  .field-help { font-size: 12px; color: var(--muted, #5c4d46); margin-top: 5px; }
   @media (max-width: 600px) { .brand em { display: none; } }
 
   /* ===== DEL 4A — admin-polish (kun presentasjon, ingen funksjonsendring) =====
@@ -316,7 +316,7 @@
          admin-gated i RLS (migrasjon 0018). -->
     <div class="card" data-admin-only style="display:none;">
       <h2>Steng hele klinikken</h2>
-      <p class="lede" style="margin: 0 0 14px;">Helligdag, ferie eller fridag — hele klinikken blir stengt for booking de valgte dagene, for alle behandlere. (Skal du bare stenge én behandler eller noen timer, bruk «Ny blokkering» øverst.)</p>
+      <p class="lede" style="margin: 0 0 14px;">Helligdag, ferie eller fridag, hele klinikken blir stengt for booking de valgte dagene, for alle behandlere. (Skal du bare stenge én behandler eller noen timer, bruk «Ny blokkering» øverst.)</p>
       <div class="err" id="holErr" style="display:none;"></div>
       <div class="ok" id="holOk" style="display:none;"></div>
       <form id="holForm">
@@ -411,7 +411,7 @@
     _cfgTarget.innerHTML =
       '<div class="auth-wrap"><div class="login"><h1>Konfigurasjon mangler</h1>' +
       '<p>Denne kopien er ikke koblet til en database ennå. Fyll inn Supabase-URL ' +
-      'og anon-nøkkel i <code>shared/booking-config.js</code> — se ' +
+      'og anon-nøkkel i <code>shared/booking-config.js</code>, se ' +
       '<code>DEMO_SETUP.md</code>.</p></div></div>';
     return;
   }
@@ -429,7 +429,7 @@
   // og overstyres av DB-fargene når de er lastet. staffColor() → '' for
   // ukjent behandler, som CSS-fallback-er til nøytral grå (--rule).
   var STAFF_FALLBACK_COLORS = {
-    erik: '#464C8C', sofie: '#B8754A', henrik: '#5B7DB1',
+    markus: '#1f4e4a', sofie: '#d0b8ac', henrik: '#5B7DB1',
     jonas: '#8E6FA8', amina: '#C2A14D', petter: '#4D9D9A',
     lena: '#A85C5C', nora: '#D87FA0'
   };
@@ -521,7 +521,7 @@
       $('staffField').style.display = 'none'; // skjul for therapist
     }
     // Regenerer blokkerings-tidsvelgerne til valgt behandlers arbeidstid
-    // (Erik 06–13, andre 07–15) ved hvert behandlerbytte. Bind kun én gang.
+    // (Markus 06–13, andre 07–15) ved hvert behandlerbytte. Bind kun én gang.
     if (!sel._timeBound) {
       sel.addEventListener('change', populateBlockTimeSelects);
       sel._timeBound = true;
@@ -552,7 +552,7 @@
     });
   }
 
-  // Blokkering (fFrom/fTo): KUN valgt behandlers arbeidstid (Erik 06:00–13:00,
+  // Blokkering (fFrom/fTo): KUN valgt behandlers arbeidstid (Markus 06:00–13:00,
   // andre 07:00–15:00). Grensene hentes fra booking-engine.getHoursForStaff.
   // Regenereres ved behandlerbytte; bevarer gjeldende valg hvis det fortsatt
   // er i vinduet.

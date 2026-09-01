@@ -38,7 +38,7 @@ alter table public.audit_log enable row level security;
 drop policy if exists "audit: admin can read"               on public.audit_log;
 drop policy if exists "audit: authenticated can insert own" on public.audit_log;
 
--- Bare admin (Erik / Henrik) får lese audit-loggen.
+-- Bare admin (Markus / Henrik) får lese audit-loggen.
 create policy "audit: admin can read"
   on public.audit_log for select
   to authenticated

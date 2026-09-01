@@ -51,34 +51,34 @@
   // bookable:false betyr at staff-objektet vises ikke som kort i
   // bestilling.html, men admin/kalender-UI kan fortsatt slå opp navn
   // og bio for gamle bookinger med denne staff_id. Kunde-fasende booking
-  // skal vise nøyaktig to valg: 'erik' (Erik selv) og 'terapeut' (anonymisert
+  // skal vise nøyaktig to valg: 'markus' (Markus selv) og 'terapeut' (anonymisert
   // paraply). De 6 navngitte terapeutene er bookable:false her men beholdes
   // i tabellen for admin-tildeling og historiske bookinger.
   var STAFF = [
-    { id: 'erik', name: 'Erik Westengen', role: 'Grunnlegger · 40 års erfaring',
-      bio: 'Erik selv tar deg gjennom en grundig vurdering. 40 års klinisk erfaring med alt fra idrettsskader til hverdagsplager.' },
-    { id: 'terapeut', name: 'Eriks terapeuter', role: 'Opplært av Erik selv',
-      bio: 'Vi tildeler en av våre erfarne terapeuter, alle opplært direkte i Eriks metoder. Samme filosofi, samme grundighet.' },
+    { id: 'markus', name: 'Markus Westengen', role: 'Grunnlegger · 40 års erfaring',
+      bio: 'Markus selv tar deg gjennom en grundig vurdering. 40 års klinisk erfaring med alt fra idrettsskader til hverdagsplager.' },
+    { id: 'terapeut', name: 'Markus\' terapeuter', role: 'Opplært av Markus selv',
+      bio: 'Vi tildeler en av våre erfarne terapeuter, alle opplært direkte i Markus\' metoder. Samme filosofi, samme grundighet.' },
     { id: 'sofie', name: 'Sofie Aune', role: 'Terapeut',
-      bio: 'Opplært direkte av Erik. Samme metodikk, samme grundighet.',
+      bio: 'Opplært direkte av Markus. Samme metodikk, samme grundighet.',
       bookable: false },
     { id: 'henrik', name: 'Henrik Dal', role: 'Terapeut',
-      bio: 'Opplært direkte av Erik. Samme metodikk, samme grundighet.',
+      bio: 'Opplært direkte av Markus. Samme metodikk, samme grundighet.',
       bookable: false },
     { id: 'jonas', name: 'Jonas Riis', role: 'Terapeut',
-      bio: 'Opplært direkte av Erik. Samme metodikk, samme grundighet.',
+      bio: 'Opplært direkte av Markus. Samme metodikk, samme grundighet.',
       bookable: false },
     { id: 'amina', name: 'Amina Nour', role: 'Terapeut',
-      bio: 'Opplært direkte av Erik. Samme metodikk, samme grundighet.',
+      bio: 'Opplært direkte av Markus. Samme metodikk, samme grundighet.',
       bookable: false },
     { id: 'petter', name: 'Petter Holm', role: 'Terapeut',
-      bio: 'Opplært direkte av Erik. Samme metodikk, samme grundighet.',
+      bio: 'Opplært direkte av Markus. Samme metodikk, samme grundighet.',
       bookable: false },
     { id: 'lena', name: 'Lena Vik', role: 'Terapeut',
-      bio: 'Opplært direkte av Erik. Samme metodikk, samme grundighet.',
+      bio: 'Opplært direkte av Markus. Samme metodikk, samme grundighet.',
       bookable: false }
   ];
-  // De seks navngitte terapeutene som "Eriks terapeuter"-paraplyen
+  // De seks navngitte terapeutene som "Markus' terapeuter"-paraplyen
   // (staff_id NULL) fordeles på. Brukes av gruppe-tilgjengelighet og
   // kapasitetsregningen. Speiler bookable:false-radene i STAFF over.
   var THERAPIST_POOL = ['sofie', 'henrik', 'jonas', 'amina', 'petter', 'lena'];
@@ -106,16 +106,16 @@
   // løses i kode (ikke som blocked_slots-rader, som er per-dato og
   // dermed ikke kan være permanente).
   var STAFF_HOURS = {
-    // Erik: bookbar 06:00–13:00 (åpner 06:00, siste starttid 12:30 siden
+    // Markus: bookbar 06:00–13:00 (åpner 06:00, siste starttid 12:30 siden
     // en 30-min time må slutte innen 13:00). Fast pause 09:30–10:00 →
     // 09:30-slotet er aldri bookbart.
-    erik: { open: '06:00', close: '13:00', breaks: ['09:30'] }
+    markus: { open: '06:00', close: '13:00', breaks: ['09:30'] }
   };
 
   // Returnerer { open, close, breaks } for en staff på en gitt ukedag,
   // eller null hvis klinikken er stengt den dagen. Helg er stengt for
   // ALLE (HOURS har bare man–fre); per-staff-overstyring gjelder kun
-  // åpne dager, så Erik får ikke booking i helg av dette.
+  // åpne dager, så Markus får ikke booking i helg av dette.
   function getHoursForStaff(staffId, dow) {
     var base = HOURS[dow];
     if (!base) return null;
@@ -168,12 +168,12 @@
     return sbGet('staff_members?select=staff_id,name,role,bio,bookable,is_pool,sortering&aktiv=eq.true&order=sortering.asc,name.asc')
       .then(function (rows) {
         if (Array.isArray(rows) && rows.length > 0 && applyStaffRows(rows)) return;
-        console.warn('booking-engine: staff_members tom/utilgjengelig eller 0 bookbare — beholder kode-fallback (STAFF/THERAPIST_POOL).');
+        console.warn('booking-engine: staff_members tom/utilgjengelig eller 0 bookbare, beholder kode-fallback (STAFF/THERAPIST_POOL).');
       })
       .catch(function (err) {
         // Tabell finnes ikke (før 0041) / nettverksfeil → behold fallback.
         console.warn('booking-engine: kunne ikke laste staff_members (' +
-          ((err && err.message) || 'ukjent') + ') — beholder kode-fallback (STAFF/THERAPIST_POOL).');
+          ((err && err.message) || 'ukjent') + '), beholder kode-fallback (STAFF/THERAPIST_POOL).');
       });
   }
 
@@ -186,7 +186,7 @@
     if (!USE_SUPABASE) return Promise.resolve(SERVICES);
     var Services = window.WestengenKlinikkServices;
     if (!Services) {
-      console.error('booking-engine: shared/services.js er ikke lastet — kan ikke hente tjenester.');
+      console.error('booking-engine: shared/services.js er ikke lastet, kan ikke hente tjenester.');
       return Promise.resolve(SERVICES);
     }
     return Promise.all([Services.loadActiveServices(), Services.loadStaffMap()])
@@ -520,7 +520,44 @@
   }
 
   // ----- Slot generation (now async) ------------------------------
-  function generateSlotsForDay(staffId, dateStr) {
+  // ----- Varighet og opptatte blokker -----------------------------
+  // Rutenettet er 30 minutter. En behandling som varer lenger legger
+  // beslag paa flere blokker etter hverandre, og maa derfor bade
+  // sjekke og reservere alle sammen.
+  //
+  // Foer dette blokkerte en booking bare sitt eget starttidspunkt.
+  // Det gikk saa lenge alle tjenestene var 30 minutter; med ulike
+  // varigheter ville en 60-minutters time latt neste halvtime staa
+  // ledig, og to kunder kunne booket oppa hverandre.
+  function blocksFor(minutes) {
+    return Math.max(1, Math.ceil((minutes || 30) / 30));
+  }
+
+  // Utvider hver booking til alle blokkene den faktisk opptar.
+  // blocked_slots har ingen varighet og dekker alltid én blokk.
+  function occupiedMap(bookings, blockedList) {
+    var occ = {};
+    (bookings || []).forEach(function (b) {
+      var start = timeToMinutes(b.time);
+      var n = blocksFor(b.duration);
+      for (var i = 0; i < n; i++) occ[minutesToTime(start + i * 30)] = true;
+    });
+    (blockedList || []).forEach(function (b) { occ[b.time] = true; });
+    return occ;
+  }
+
+  // Er det plass til `need` blokker fra og med minutt m?
+  function fits(m, need, endMin, occ, breaks) {
+    if (m + need * 30 > endMin) return false;
+    for (var i = 0; i < need; i++) {
+      var t = minutesToTime(m + i * 30);
+      if (occ[t]) return false;
+      if (breaks.indexOf(t) !== -1) return false;
+    }
+    return true;
+  }
+
+  function generateSlotsForDay(staffId, dateStr, durationMinutes) {
     var date = parseYMD(dateStr);
     if (isPastDate(date)) return Promise.resolve([]);
     return Promise.all([getHolidays(), getBookedSlots(), getBlocked(), getSpecialOpenDays()]).then(function (res) {
@@ -533,23 +570,27 @@
       var hrs = sp ? { open: sp.open, close: sp.close, breaks: [] } : getHoursForStaff(staffId, dow);
       if (!hrs) return [];
       var startMin = timeToMinutes(hrs.open), endMin = timeToMinutes(hrs.close), stepMin = 30;
-      var bookedTimes = bookedSlots.filter(function (b) { return b.staffId === staffId && b.date === dateStr; }).map(function (b) { return b.time; });
-      var blockedTimes = blocked.filter(function (b) { return b.staffId === staffId && b.date === dateStr; }).map(function (b) { return b.time; });
+      var need = blocksFor(durationMinutes);
+      var occ = occupiedMap(
+        bookedSlots.filter(function (b) { return b.staffId === staffId && b.date === dateStr; }),
+        blocked.filter(function (b) { return b.staffId === staffId && b.date === dateStr; }));
       var nowBuffer = 0;
       if (isToday(date)) { var n = new Date(); nowBuffer = n.getHours() * 60 + n.getMinutes() + 60; }
       var slots = [];
       for (var m = startMin; m + stepMin <= endMin; m += stepMin) {
         var t = minutesToTime(m);
         if (hrs.breaks.indexOf(t) !== -1) continue; // fast pause — aldri bookbar
-        var taken = bookedTimes.indexOf(t) !== -1 || blockedTimes.indexOf(t) !== -1;
         var past = m < nowBuffer;
-        slots.push({ time: t, available: !taken && !past, reason: past ? 'past' : (taken ? 'taken' : null) });
+        // Hele behandlingen maa faa plass, ikke bare foerste halvtime.
+        var room = fits(m, need, endMin, occ, hrs.breaks);
+        slots.push({ time: t, available: room && !past,
+                     reason: past ? 'past' : (room ? null : 'taken') });
       }
       return slots;
     });
   }
 
-  function getOpenDays(staffId, daysAhead) {
+  function getOpenDays(staffId, daysAhead, durationMinutes) {
     daysAhead = daysAhead || 28;
     return Promise.all([getHolidays(), getBookedSlots(), getBlocked(), getSpecialOpenDays()]).then(function (res) {
       var holidays = res[0], bookedSlots = res[1], blocked = res[2], special = res[3];
@@ -566,14 +607,14 @@
         if (isOpen) {
           var hrs = sp ? { open: sp.open, close: sp.close, breaks: [] } : getHoursForStaff(staffId, dow);
           var startMin = timeToMinutes(hrs.open), endMin = timeToMinutes(hrs.close), stepMin = 30;
-          var bookedTimes = bookedSlots.filter(function (b) { return b.staffId === staffId && b.date === dateStr; }).map(function (b) { return b.time; });
-          var blockedTimes = blocked.filter(function (b) { return b.staffId === staffId && b.date === dateStr; }).map(function (b) { return b.time; });
+          var need = blocksFor(durationMinutes);
+          var occ = occupiedMap(
+            bookedSlots.filter(function (b) { return b.staffId === staffId && b.date === dateStr; }),
+            blocked.filter(function (b) { return b.staffId === staffId && b.date === dateStr; }));
           var nowBuffer = 0;
           if (isToday(d)) { var n = new Date(); nowBuffer = n.getHours() * 60 + n.getMinutes() + 60; }
           for (var m = startMin; m + stepMin <= endMin; m += stepMin) {
-            var t = minutesToTime(m);
-            if (hrs.breaks.indexOf(t) !== -1) continue; // fast pause
-            if (bookedTimes.indexOf(t) === -1 && blockedTimes.indexOf(t) === -1 && m >= nowBuffer) slotCount++;
+            if (m >= nowBuffer && fits(m, need, endMin, occ, hrs.breaks)) slotCount++;
           }
         }
         out.push({ date: dateStr, dow: dow, day: d.getDate(), month: d.getMonth(), year: d.getFullYear(),
@@ -583,8 +624,8 @@
     });
   }
 
-  // ----- Gruppe-tilgjengelighet ("Eriks terapeuter") ---------------
-  // Når kunden booker en "Eriks terapeuter"-tjeneste velges ingen
+  // ----- Gruppe-tilgjengelighet ("Markus' terapeuter") ---------------
+  // Når kunden booker en "Markus' terapeuter"-tjeneste velges ingen
   // konkret terapeut — bookingen lagres ufordelt (staff_id = NULL) og
   // admin tildeler en av THERAPIST_POOL senere. Tilgjengelighet er da
   // et POOL-spørsmål: et slot er ledig hvis FÆRRE enn 5 terapeut-
@@ -609,12 +650,19 @@
     }
     bookedSlots.forEach(function (b) {
       if (b.date !== dateStr) return;
-      if (isUnassignedPool(b.staffId)) {
-        slot(b.time).unassigned++;
-      } else if (THERAPIST_POOL.indexOf(b.staffId) !== -1) {
-        slot(b.time).busy[b.staffId] = true;
+      // En booking legger beslag paa plassen sin i hele sin lengde,
+      // ikke bare i foerste halvtime.
+      var start = timeToMinutes(b.time);
+      var n = blocksFor(b.duration);
+      for (var i = 0; i < n; i++) {
+        var t = minutesToTime(start + i * 30);
+        if (isUnassignedPool(b.staffId)) {
+          slot(t).unassigned++;
+        } else if (THERAPIST_POOL.indexOf(b.staffId) !== -1) {
+          slot(t).busy[b.staffId] = true;
+        }
       }
-      // staff_id = 'erik' teller ikke mot terapeut-poolen.
+      // staff_id = 'markus' teller ikke mot terapeut-poolen.
     });
     blocked.forEach(function (b) {
       if (b.date !== dateStr) return;
@@ -631,7 +679,7 @@
     return Object.keys(slotInfo.busy).length + slotInfo.unassigned;
   }
 
-  // Slots for én dato for "Eriks terapeuter"-paraplyen. Samme retur-
+  // Slots for én dato for "Markus' terapeuter"-paraplyen. Samme retur-
   // shape som generateSlotsForDay() slik at booking-flow kan bruke
   // dem om hverandre. durationMinutes er reservert for framtidige
   // ikke-30-min-tjenester — slot-rutenettet er 30 min som ellers i
@@ -648,10 +696,16 @@
       var startMin = timeToMinutes(hrs.open), endMin = timeToMinutes(hrs.close), stepMin = 30;
       var nowBuffer = 0;
       if (isToday(date)) { var n = new Date(); nowBuffer = n.getHours() * 60 + n.getMinutes() + 60; }
+      var need = blocksFor(durationMinutes);
       var slots = [];
       for (var m = startMin; m + stepMin <= endMin; m += stepMin) {
         var t = minutesToTime(m);
-        var full = occupiedCount(occ[t]) >= THERAPIST_POOL.length;
+        // Poolen maa ha en ledig plass i HVER blokk behandlingen dekker,
+        // og hele behandlingen maa rekke aa bli ferdig innen stengetid.
+        var full = m + need * 30 > endMin;
+        for (var k = 0; !full && k < need; k++) {
+          if (occupiedCount(occ[minutesToTime(m + k * 30)]) >= THERAPIST_POOL.length) full = true;
+        }
         var past = m < nowBuffer;
         slots.push({ time: t, available: !full && !past, reason: past ? 'past' : (full ? 'taken' : null) });
       }
@@ -659,9 +713,9 @@
     });
   }
 
-  // 28-dagers oversikt for "Eriks terapeuter"-paraplyen. Samme shape
+  // 28-dagers oversikt for "Markus' terapeuter"-paraplyen. Samme shape
   // som getOpenDays() — én datahenting, gruppe-kapasitet per dag.
-  function getGroupOpenDays(daysAhead) {
+  function getGroupOpenDays(daysAhead, durationMinutes) {
     daysAhead = daysAhead || 28;
     return Promise.all([getHolidays(), getBookedSlots(), getBlocked()]).then(function (res) {
       var holidays = res[0], bookedSlots = res[1], blocked = res[2];
@@ -679,9 +733,14 @@
           var startMin = timeToMinutes(hrs.open), endMin = timeToMinutes(hrs.close), stepMin = 30;
           var nowBuffer = 0;
           if (isToday(d)) { var n = new Date(); nowBuffer = n.getHours() * 60 + n.getMinutes() + 60; }
+          var need = blocksFor(durationMinutes);
           for (var m = startMin; m + stepMin <= endMin; m += stepMin) {
-            var t = minutesToTime(m);
-            if (occupiedCount(occ[t]) < THERAPIST_POOL.length && m >= nowBuffer) slotCount++;
+            if (m < nowBuffer || m + need * 30 > endMin) continue;
+            var free = true;
+            for (var k = 0; free && k < need; k++) {
+              if (occupiedCount(occ[minutesToTime(m + k * 30)]) >= THERAPIST_POOL.length) free = false;
+            }
+            if (free) slotCount++;
           }
         }
         out.push({ date: dateStr, dow: dow, day: d.getDate(), month: d.getMonth(), year: d.getFullYear(),
@@ -694,9 +753,9 @@
   // ----- Booking creation -----------------------------------------
   function createBooking(payload) {
     return ensureLoaded().then(function () {
-      // 'terapeut' = "Eriks terapeuter"-paraplyen → bookingen lagres
+      // 'terapeut' = "Markus' terapeuter"-paraplyen → bookingen lagres
       // ufordelt (staff_id NULL), og tilgjengelighet er et pool-
-      // spørsmål. 'erik' og evt. andre staff-id-er er uendret.
+      // spørsmål. 'markus' og evt. andre staff-id-er er uendret.
       var isGroup = payload.staffId === 'terapeut';
       return Promise.all([getBookedSlots(), getBlocked()]).then(function (pre) {
         var bookedSlots = pre[0], blocked = pre[1];
@@ -721,7 +780,7 @@
         var booking = {
           id: generateBookingId(),
           ref: 'TA-' + (Math.random().toString(36).slice(2, 6)).toUpperCase() + '-' + Date.now().toString().slice(-4),
-          // Ufordelte "Eriks terapeuter"-bookinger lagres med staff_id
+          // Ufordelte "Markus' terapeuter"-bookinger lagres med staff_id
           // NULL; admin tildeler en navngitt terapeut i booking-admin.
           // staff_name beholdes som kunde-vendt placeholder.
           staffId: isGroup ? null : payload.staffId, staffName: staff.name,
@@ -746,7 +805,7 @@
         return sbPostBookingWithRetry(bookingToRow(booking)).then(function (res) {
           if (res && res.dedupedRetry) {
             console.warn('Booking dedup: retry hit existing bookings_pkey for id ' + booking.id +
-                         ' — første attempt lyktes i DB men response gikk tapt.');
+                         ', første attempt lyktes i DB men response gikk tapt.');
           }
           return { ok: true, booking: booking };
         })
@@ -805,7 +864,7 @@
     CLINIC_PHONE: CLINIC_PHONE,
     STAFF: STAFF, SERVICES: SERVICES, HOURS: HOURS,
     // Eksponert for admin-UI (stengte-tider.html) som setter min/max på
-    // tidsvelgerne etter behandlerens standard arbeidstid (Erik 06–13,
+    // tidsvelgerne etter behandlerens standard arbeidstid (Markus 06–13,
     // andre 07–15). dow=1 (mandag) gir alltid det åpne ukedags-vinduet.
     getHoursForStaff: getHoursForStaff,
     ensureLoaded: ensureLoaded, reloadServices: reloadServices, reloadStaff: reloadStaff,

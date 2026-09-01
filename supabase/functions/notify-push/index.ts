@@ -129,7 +129,7 @@ Deno.serve(async (req: Request) => {
   });
 
   // ----- 4. Slå opp mottakere (auth.users → rolle/staff_id) -----
-  // Liten klinikk (~8 ansatte) → én side holder. service_role kreves.
+  // Faa ansatte (~8) → én side holder. service_role kreves.
   const { data: usersData, error: usersErr } = await sb.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (usersErr) return jsonResponse({ error: usersErr.message }, 500);
   const users = usersData?.users ?? [];

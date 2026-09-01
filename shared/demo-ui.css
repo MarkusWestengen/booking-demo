@@ -24,15 +24,20 @@
    ============================================================ */
 
 :root {
-  /* Aksent — samme indigo som resten av demoen, med egne navn slik
-     at nye regler slipper a arve de historiske --green-*-navnene. */
-  --accent:       #464C8C;
-  --accent-deep:  #2F3463;
-  --accent-soft:  #7A80B8;
-  --accent-tint:  #E9EAF4;
+  /* Aksent — irrgronn mot de tre varme, lyse gitte fargene.
+     Begrunnelsen staar i sin helhet i shared/public.css. Egne
+     navn her slik at nye regler slipper a arve de historiske
+     --green-*-navnene. */
+  --clay:  #d0b8ac;
+  --peach: #f3d8c7;
+  --linen: #efe5dc;
+  --accent:       #1f4e4a;
+  --accent-deep:  #163b37;
+  --accent-soft:  #93c2bb;
+  --accent-tint:  #dce7e4;
 
-  --hair:         rgba(23, 26, 33, 0.12);
-  --hair-strong:  rgba(23, 26, 33, 0.22);
+  --hair:         rgba(46, 35, 32, 0.12);
+  --hair-strong:  rgba(46, 35, 32, 0.22);
 
   /* Typeskala. Tett sporing pa display — Space Grotesk taler det, og
      det er det som gir den tabell-aktige tettheten. */
@@ -60,15 +65,14 @@
    slik en timeplan har halvtimer og hele timer. Rendres som to
    gradienter over hverandre; ingen markup, ingen bilder. */
 .tick-rule {
-  height: 9px;
+  height: 1px;
   margin: 0;
   border: 0;
-  /* Én jevn skala. Et forsoek med to lag — grov og fin tick over
-     hverandre — interfererte og leste som en oedelagt strek i stedet
-     for en linjal. Ett lag er både roligere og tydeligere. */
-  background-image: repeating-linear-gradient(to right, var(--hair-strong) 0 1px, transparent 1px 9px);
+  /* Var et stiplet tick-monster, som ogsaa her leste som stoy.
+     Na en ren strek som gaar fra aksent til ingenting — den
+     markerer fortsatt slutten paa sidehodet, uten teksturen. */
+  background: linear-gradient(to right, var(--accent) 0 64px, var(--hair) 64px 100%);
 }
-.tick-rule--tight { height: 7px; background-image: repeating-linear-gradient(to right, var(--hair) 0 1px, transparent 1px 10px); background-size: 100% 7px; }
 
 /* ============================================================
    SIDEHODE
@@ -282,7 +286,7 @@
   max-width: 44ch;
 }
 .door-panel--public > p { color: var(--ink-2); }
-.door-panel--admin  > p { color: #A9AEC4; }
+.door-panel--admin  > p { color: #c9b5ac; }
 
 .door-list { list-style: none; margin: 0 0 26px; padding: 0; }
 .door-list li {
@@ -301,7 +305,7 @@
   background: var(--accent);
 }
 .door-panel--public .door-list li { color: var(--ink-2); }
-.door-panel--admin  .door-list li { color: #C3C7D8; border-color: rgba(255,255,255,.13); }
+.door-panel--admin  .door-list li { color: #c9b5ac; border-color: rgba(255,255,255,.13); }
 .door-panel--admin  .door-list li::before { background: var(--accent-soft); }
 
 .door-cta {
@@ -355,7 +359,7 @@
 .cred-row code {
   font-family: var(--font-mono);
   font-size: 11.5px;
-  color: #C3C7D8;
+  color: #c9b5ac;
   background: rgba(255,255,255,.07);
   padding: 3px 7px;
   word-break: break-all;
@@ -440,14 +444,8 @@ h1 em, h2 em { font-style: normal; color: inherit; font-weight: inherit; }
   border-bottom: 0;
   box-shadow: inset 0 -1px 0 rgba(255,255,255,.08);
 }
-.nav-shell::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 6px;
-  background-image: repeating-linear-gradient(to right, rgba(255,255,255,.16) 0 1px, transparent 1px 10px);
-  pointer-events: none;
-}
+/* Bunnkanten var et stiplet tick-monster. Det leste som stoy i
+   stedet for struktur, saa den er na en ren hairline. */
 .nav-shell { position: sticky; }
 
 .brand-wordmark { position: relative; padding-left: 17px; }
@@ -462,19 +460,22 @@ h1 em, h2 em { font-style: normal; color: inherit; font-weight: inherit; }
 .brand-wordmark strong { font-weight: 600; letter-spacing: -0.035em; }
 .brand-wordmark > span { letter-spacing: 0.26em; }
 
-/* Tick over lenken i stedet for strek under. */
+/* Aktivt menypunkt merkes med en prikk ved siden av, ikke med en
+   strek over eller under. Prikken sitter i venstre marg og flytter
+   ikke teksten, saa menyen staar stille naar du navigerer. */
 .nav-links a::before {
   content: '';
   position: absolute;
-  left: 0; right: 0; top: -6px;
-  height: 2px;
+  left: -11px; top: 50%;
+  width: 5px; height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
   background: var(--accent-soft);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform .18s ease;
+  opacity: 0;
+  transition: opacity .16s ease;
 }
-.nav-links a:hover::before { transform: scaleX(1); }
-.nav-links a.active::before { transform: scaleX(1); background: var(--paper); }
+.nav-links a:hover::before { opacity: .45; }
+.nav-links a.active::before { opacity: 1; }
 .nav-links a.active::after { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -520,3 +521,67 @@ h1 em, h2 em { font-style: normal; color: inherit; font-weight: inherit; }
    ============================================================ */
 .nav-shell .brand-wordmark strong,
 body .wk-demo-card h2 { font-family: var(--font-display); }
+
+/* Fotnote under doer-knappen: forklarer at panelet apner seg uten
+   innlogging, og gir veien til innloggingsflyten for den som vil
+   se den. */
+.door-foot {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #A99089;
+}
+.door-foot a {
+  color: var(--accent-soft);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(147, 194, 187, .4);
+}
+.door-foot a:hover { border-bottom-color: var(--accent-soft); }
+.door-foot a:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 3px; }
+
+/* ============================================================
+   HVEM SER HVA
+   ------------------------------------------------------------
+   Rolleskillet forklart i tekst, fordi det er den delen av
+   systemet man ikke ser ved aa klikke rundt: menypunktene en
+   terapeut ikke har, er nettopp de som ikke er der.
+
+   Satt paa leireflaten slik at det leser som en merknad ved
+   siden av demoen, ikke som enda en funksjonsliste.
+   ============================================================ */
+.roles {
+  background: var(--clay);
+  border-top: 1px solid rgba(46, 35, 32, .14);
+  border-bottom: 1px solid rgba(46, 35, 32, .14);
+  padding: 56px 0;
+}
+.roles-inner { max-width: 62ch; }
+.roles h2 {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 30px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin: 0 0 6px;
+}
+.roles-lead {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0 0 16px;
+}
+.roles p {
+  font-size: 15.5px;
+  line-height: 1.62;
+  color: #3E312C;
+  margin: 0 0 14px;
+}
+.roles p strong { color: var(--ink); font-weight: 600; }
+.roles-try {
+  margin: 18px 0 0 !important;
+  padding-top: 14px;
+  border-top: 1px solid rgba(46, 35, 32, .18);
+  font-size: 14px !important;
+  color: var(--accent-deep) !important;
+  font-weight: 500;
+}

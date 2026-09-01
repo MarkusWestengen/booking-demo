@@ -61,9 +61,9 @@ begin
   values ('test-rls-active', 'Test aktiv',  30, 100, true,  900),
          ('test-rls-inactive', 'Test inaktiv', 30, 100, false, 901);
   insert into public.staff_services (staff_id, service_id)
-  select 'erik', id from public.services where slug = 'test-rls-active';
+  select 'markus', id from public.services where slug = 'test-rls-active';
   insert into public.staff_services (staff_id, service_id)
-  select 'erik', id from public.services where slug = 'test-rls-inactive';
+  select 'markus', id from public.services where slug = 'test-rls-inactive';
 end $$;
 
 -- ============================================================
@@ -132,7 +132,7 @@ end $$;
 do $$
 declare cnt int;
 begin
-  perform _test_set_authenticated('therapist', 'erik');
+  perform _test_set_authenticated('therapist', 'markus');
   select count(*) into cnt from public.services where slug = 'test-rls-active';
   perform _test_assert(cnt = 1, 'therapist ser aktiv tjeneste');
 
@@ -145,7 +145,7 @@ end $$;
 -- ============================================================
 do $$
 begin
-  perform _test_set_authenticated('therapist', 'erik');
+  perform _test_set_authenticated('therapist', 'markus');
   begin
     insert into public.services (slug, name, duration_min, price_nok)
     values ('therapist-evil', 'evil', 30, 0);
@@ -239,8 +239,8 @@ end $$;
 do $$
 declare cnt int;
 begin
-  perform _test_set_authenticated('therapist', 'erik');
-  select count(*) into cnt from public.staff_services where staff_id = 'erik';
+  perform _test_set_authenticated('therapist', 'markus');
+  select count(*) into cnt from public.staff_services where staff_id = 'markus';
   perform _test_assert(cnt >= 1, 'therapist kan SELECT staff_services for staff_id = tom');
 end $$;
 
@@ -253,7 +253,7 @@ begin
   perform _test_set_authenticated('admin');
   select id into aid from public.services where slug = 'test-rls-active';
 
-  perform _test_set_authenticated('therapist', 'erik');
+  perform _test_set_authenticated('therapist', 'markus');
   begin
     insert into public.staff_services (staff_id, service_id) values ('terapeut', aid);
     perform _test_assert(false, 'therapist INSERT på staff_services skulle ha feilet');
@@ -262,7 +262,7 @@ begin
   end;
 
   begin
-    delete from public.staff_services where staff_id = 'erik' and service_id = aid;
+    delete from public.staff_services where staff_id = 'markus' and service_id = aid;
     if found then
       perform _test_assert(false, 'therapist DELETE skulle ikke ha truffet rader');
     else
@@ -305,7 +305,7 @@ begin
   begin
     -- Forsøk å sette inn en eksisterende slug
     insert into public.services (slug, name, duration_min, price_nok)
-    values ('erik-konsult', 'Duplikat', 30, 0);
+    values ('markus-konsult', 'Duplikat', 30, 0);
     perform _test_assert(false, 'duplicate slug INSERT skulle ha feilet');
   exception when unique_violation then
     perform _test_assert(true, 'duplicate slug blokkert av UNIQUE constraint');

@@ -57,9 +57,9 @@
     /* ---- Typografisk ordmerke (erstatter logo-filen) ---- */
     '.brand-wordmark{display:flex;flex-direction:column;gap:2px;line-height:1;}',
     '.brand-wordmark strong{font-family:Fraunces,Georgia,serif;font-weight:500;',
-      'font-size:24px;letter-spacing:-0.015em;color:#F7F8FA;}',
+      'font-size:24px;letter-spacing:-0.015em;color:#efe5dc;}',
     '.brand-wordmark>span{font-family:"JetBrains Mono",ui-monospace,monospace;',
-      'font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:#7A80B8;}',
+      'font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:#93c2bb;}',
     '@media (max-width:640px){.brand-wordmark strong{font-size:19px;}',
       '.brand-wordmark>span{font-size:8px;letter-spacing:0.22em;}}',
 
@@ -71,14 +71,14 @@
     '.wk-demo-badge{display:inline-flex;align-items:center;gap:6px;',
       'font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;',
       'letter-spacing:0.11em;text-transform:uppercase;white-space:nowrap;',
-      'padding:5px 10px;border:1px solid #7A80B8;color:#B9BDDC;',
-      'background:rgba(70,76,140,.18);cursor:pointer;flex:0 0 auto;}',
-    '.wk-demo-badge:hover{background:rgba(70,76,140,.34);color:#F7F8FA;}',
-    '.wk-demo-badge:focus-visible{outline:2px solid #7A80B8;outline-offset:2px;}',
+      'padding:5px 10px;border:1px solid #93c2bb;color:#B9BDDC;',
+      'background:rgba(31,78,74,.18);cursor:pointer;flex:0 0 auto;}',
+    '.wk-demo-badge:hover{background:rgba(31,78,74,.34);color:#efe5dc;}',
+    '.wk-demo-badge:focus-visible{outline:2px solid #93c2bb;outline-offset:2px;}',
     '.wk-demo-badge::before{content:"";width:6px;height:6px;border-radius:50%;',
-      'background:#7A80B8;flex:0 0 auto;}',
+      'background:#93c2bb;flex:0 0 auto;}',
     /* På lyse flater (sider uten mørk header) snus kontrasten. */
-    '.wk-demo-badge.on-light{border-color:#464C8C;color:#2F3463;background:#E9EAF4;}',
+    '.wk-demo-badge.on-light{border-color:#1f4e4a;color:#163b37;background:#dce7e4;}',
     '.wk-demo-badge.on-light:hover{background:#DADDEF;}',
     /* Reservefeste når siden ikke har header å henge seg på. */
     '.wk-demo-badge.floating{position:fixed;left:12px;bottom:12px;z-index:9998;}',
@@ -87,62 +87,62 @@
     /* ---- Dialogen bak pillen ---- */
     '.wk-demo-sheet{position:fixed;inset:0;z-index:10050;display:none;',
       'align-items:center;justify-content:center;padding:20px;',
-      'background:rgba(23,26,33,.72);}',
+      'background:rgba(46,35,32,.72);}',
     '.wk-demo-sheet[data-open]{display:flex;}',
-    '.wk-demo-card{background:#F7F8FA;color:#171A21;max-width:520px;width:100%;',
-      'max-height:86vh;overflow:auto;padding:28px;border-top:3px solid #464C8C;',
+    '.wk-demo-card{background:#efe5dc;color:#2e2320;max-width:520px;width:100%;',
+      'max-height:86vh;overflow:auto;padding:28px;border-top:3px solid #1f4e4a;',
       'font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.6;}',
     '.wk-demo-card h2{font-family:Fraunces,Georgia,serif;font-weight:400;',
       'font-size:26px;margin:0 0 4px;}',
     '.wk-demo-card .wk-eyebrow{font-family:"JetBrains Mono",ui-monospace,monospace;',
-      'font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#464C8C;',
+      'font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#1f4e4a;',
       'margin:0 0 12px;}',
-    '.wk-demo-card p{margin:0 0 12px;color:#2E323C;}',
+    '.wk-demo-card p{margin:0 0 12px;color:#4a3b35;}',
     '.wk-demo-card h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;',
-      'color:#6B7080;margin:22px 0 10px;font-weight:600;}',
-    '.wk-cred{border:1px solid #171a2622;padding:12px 14px;margin-bottom:10px;',
+      'color:#5c4d46;margin:22px 0 10px;font-weight:600;}',
+    '.wk-cred{border:1px solid rgba(46,35,32,.16);padding:12px 14px;margin-bottom:10px;',
       'background:#fff;}',
     '.wk-cred b{display:block;font-size:13px;margin-bottom:6px;}',
     '.wk-cred code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12.5px;',
-      'background:#E9EAF4;padding:2px 6px;user-select:all;}',
-    '.wk-cred .wk-note{display:block;margin-top:8px;font-size:12.5px;color:#6B7080;}',
+      'background:#dce7e4;padding:2px 6px;user-select:all;}',
+    '.wk-cred .wk-note{display:block;margin-top:8px;font-size:12.5px;color:#5c4d46;}',
     '.wk-demo-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}',
     '.wk-demo-actions a,.wk-demo-actions button{font:inherit;font-size:14px;',
-      'padding:10px 16px;cursor:pointer;text-decoration:none;border:1px solid #171a2622;',
-      'background:transparent;color:#171A21;}',
-    '.wk-demo-actions .wk-primary{background:#464C8C;color:#fff;border-color:#464C8C;}',
-    '.wk-demo-actions .wk-primary:hover{background:#2F3463;}',
+      'padding:10px 16px;cursor:pointer;text-decoration:none;border:1px solid rgba(46,35,32,.16);',
+      'background:transparent;color:#2e2320;}',
+    '.wk-demo-actions .wk-primary{background:#1f4e4a;color:#fff;border-color:#1f4e4a;}',
+    '.wk-demo-actions .wk-primary:hover{background:#163b37;}',
 
     /* ---- Toast for avvist skriving ---- */
     '.wk-demo-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);',
-      'z-index:10060;max-width:min(560px,calc(100vw - 32px));background:#171A21;',
-      'color:#F7F8FA;padding:14px 16px;font-family:Inter,system-ui,sans-serif;',
-      'font-size:13.5px;line-height:1.5;border-left:3px solid #7A80B8;',
-      'box-shadow:0 10px 30px rgba(23,26,33,.28);display:flex;gap:12px;align-items:flex-start;}',
+      'z-index:10060;max-width:min(560px,calc(100vw - 32px));background:#2e2320;',
+      'color:#efe5dc;padding:14px 16px;font-family:Inter,system-ui,sans-serif;',
+      'font-size:13.5px;line-height:1.5;border-left:3px solid #93c2bb;',
+      'box-shadow:0 10px 30px rgba(46,35,32,.28);display:flex;gap:12px;align-items:flex-start;}',
     '.wk-demo-toast b{display:block;font-size:11px;letter-spacing:.12em;',
-      'text-transform:uppercase;color:#7A80B8;margin-bottom:4px;',
+      'text-transform:uppercase;color:#93c2bb;margin-bottom:4px;',
       'font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;}',
-    '.wk-demo-toast button{background:none;border:0;color:#7A80B8;font:inherit;',
+    '.wk-demo-toast button{background:none;border:0;color:#93c2bb;font:inherit;',
       'font-size:18px;line-height:1;cursor:pointer;padding:0 2px;margin-left:auto;}',
     '@media (max-width:560px){.wk-demo-toast{bottom:76px;}}',
 
     /* ---- Notislinje øverst i adminpanelet ---- */
-    '.wk-admin-note{background:#E9EAF4;border-bottom:1px solid #C9CDE4;',
+    '.wk-admin-note{background:#dce7e4;border-bottom:1px solid #C9CDE4;',
       'font-family:Inter,system-ui,sans-serif;font-size:13px;line-height:1.5;',
-      'color:#2F3463;}',
+      'color:#163b37;}',
     '.wk-admin-note .wk-inner{max-width:1280px;margin:0 auto;padding:9px 28px;',
       'display:flex;gap:10px;align-items:baseline;}',
     '.wk-admin-note b{font-family:"JetBrains Mono",ui-monospace,monospace;',
       'font-size:10px;letter-spacing:.12em;text-transform:uppercase;',
-      'flex:0 0 auto;color:#464C8C;}',
+      'flex:0 0 auto;color:#1f4e4a;}',
     '@media (max-width:640px){.wk-admin-note .wk-inner{padding:8px 16px;',
       'flex-direction:column;gap:3px;}}',
 
     /* ---- Låsemerke på seed-rader i admin ---- */
     '.wk-seed-lock{display:inline-flex;align-items:center;gap:4px;',
       'font-family:"JetBrains Mono",ui-monospace,monospace;font-size:9px;',
-      'letter-spacing:.1em;text-transform:uppercase;color:#464C8C;',
-      'background:#E9EAF4;padding:2px 6px;margin-left:6px;vertical-align:middle;}'
+      'letter-spacing:.1em;text-transform:uppercase;color:#1f4e4a;',
+      'background:#dce7e4;padding:2px 6px;margin-left:6px;vertical-align:middle;}'
   ].join('');
 
   var style = doc.createElement('style');
@@ -187,9 +187,9 @@
           'Ingen av dem er i bruk, og e-postdomenet kan ikke registreres.</p>' +
         '<h3>Logg inn i adminpanelet</h3>' +
         creds +
-        '<p style="font-size:12.5px;color:#6B7080;">Du kan opprette, endre og ' +
+        '<p style="font-size:12.5px;color:#5c4d46;">Du kan opprette, endre og ' +
           'slette dine egne rader fritt. Radene som fulgte med demoen er ' +
-          'skrivebeskyttet, slik at panelet ser likt ut for neste besøkende — ' +
+          'skrivebeskyttet, slik at panelet ser likt ut for neste besøkende, ' +
           'du får en forklaring i stedet for en lagring når du prøver.</p>' +
         '<div class="wk-demo-actions">' +
           '<a class="wk-primary" href="' + loginHref() + '">Åpne innloggingen →</a>' +
@@ -289,7 +289,7 @@
     note.setAttribute('role', 'note');
     note.innerHTML =
       '<div class="wk-inner"><b>Demo</b>' +
-      '<span>Radene som fulgte med demoen er skrivebeskyttet — knappene ' +
+      '<span>Radene som fulgte med demoen er skrivebeskyttet, knappene ' +
       'virker, men lagringen avvises av databasen med en forklaring. ' +
       'Rader du oppretter selv kan du endre og slette fritt. Alt ' +
       'nullstilles hvert døgn.</span></div>';

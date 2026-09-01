@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow" />
-<meta name="theme-color" content="#171A21">
+<meta name="theme-color" content="#2e2320">
 
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
@@ -28,10 +28,10 @@
 
 <style>
   :root {
-    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8; --green-tint: #E9EAF4;
-    --paper: #F7F8FA; --paper-2: #EDEFF3;
-    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
-    --rule: #171a2622; --danger: #c0392b;
+    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb; --green-tint: #dce7e4;
+    --paper: #efe5dc; --paper-2: #f3d8c7;
+    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
+    --rule: rgba(46,35,32,.16); --danger: #9e2b1f;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -60,7 +60,7 @@
     padding: 4px 8px; white-space: nowrap; }
   .who-chip.admin { background: var(--green); }
   .topbar a, .topbar button { color: var(--paper); background: transparent;
-    border: 1px solid rgba(247, 248, 250,.22); padding: 6px 10px;
+    border: 1px solid rgba(239, 229, 220,.22); padding: 6px 10px;
     font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
   .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
 
@@ -187,7 +187,7 @@
 
   /* Sheet (modal) — matcher kalender.html-mønster */
   .sheet-overlay { position: fixed; inset: 0; z-index: 100;
-    background: rgba(23, 26, 33,.6); display: none; }
+    background: rgba(46, 35, 32,.6); display: none; }
   .sheet-overlay.open { display: block; }
   .sheet { position: fixed; left: 0; right: 0; bottom: 0;
     background: var(--paper);
@@ -457,7 +457,7 @@
     _cfgTarget.innerHTML =
       '<div class="auth-wrap"><div class="login"><h1>Konfigurasjon mangler</h1>' +
       '<p>Denne kopien er ikke koblet til en database ennå. Fyll inn Supabase-URL ' +
-      'og anon-nøkkel i <code>shared/booking-config.js</code> — se ' +
+      'og anon-nøkkel i <code>shared/booking-config.js</code>, se ' +
       '<code>DEMO_SETUP.md</code>.</p></div></div>';
     return;
   }
@@ -470,38 +470,38 @@
   var escapeHtml = window.WestengenKlinikkAuth.escapeHtml;
 
   // STAFF-listen er hardkodet i booking-engine.js (8 oppføringer etter 0038:
-  // Erik + 6 navngitte terapeuter + 'terapeut' legacy-gruppe). Vi leser
+  // Markus + 6 navngitte terapeuter + 'terapeut' legacy-gruppe). Vi leser
   // derfra slik at admin alltid jobber mot den autoritative listen. Hvis
   // engine ikke har lastet, har vi en safe fallback for å unngå null-ref.
   // P3-5 fra audit 2026-05-15: fallback synkronisert med post-0038-state.
   var STAFF = (Engine && Engine.STAFF) ? Engine.STAFF : [
-    { id: 'erik', name: 'Erik Westengen' },
+    { id: 'markus', name: 'Markus Westengen' },
     { id: 'sofie', name: 'Sofie' },
     { id: 'henrik', name: 'Henrik' },
     { id: 'jonas', name: 'Jonas' },
     { id: 'amina', name: 'Amina' },
     { id: 'petter', name: 'Petter' },
     { id: 'lena', name: 'Lena' },
-    { id: 'terapeut', name: 'Eriks terapeuter' }
+    { id: 'terapeut', name: 'Markus\' terapeuter' }
   ];
 
   function $(id) { return document.getElementById(id); }
 
   // Hvilke STAFF-medlemmer som kan utføre en gitt tjeneste:
-  //   slug starter med 'tom-' → kun Erik
+  //   slug starter med 'tom-' → kun Markus
   //   slug starter med 'ter-' → kun de 5 navngitte terapeutene
-  //     (ikke Erik, ikke 'terapeut'-paraplyen — som ikke er en utfører)
+  //     (ikke Markus, ikke 'terapeut'-paraplyen — som ikke er en utfører)
   //   ellers (legacy/ukjent prefix) → alle utenom 'terapeut'-paraplyen
   // Slug er autoritativ identifikator (services.id er UUID); seedet av
   // 0008 og brukt av 0015 for å koble terapeuter til ter-tjenestene.
   function eligibleStaffFor(svc) {
     var slug = (svc && svc.slug) ? svc.slug : '';
     if (slug.indexOf('tom-') === 0) {
-      return STAFF.filter(function (s) { return s.id === 'erik'; });
+      return STAFF.filter(function (s) { return s.id === 'markus'; });
     }
     if (slug.indexOf('ter-') === 0) {
       return STAFF.filter(function (s) {
-        return s.id !== 'erik' && s.id !== 'terapeut';
+        return s.id !== 'markus' && s.id !== 'terapeut';
       });
     }
     return STAFF.filter(function (s) { return s.id !== 'terapeut'; });
@@ -865,7 +865,7 @@
 
   function renderEditorForm(svc) {
     // eligibleStaffFor() filtrerer basert på svc.slug:
-    //   tom-* → kun Erik, ter-* → kun de 5 terapeutene, ellers → alle utenom paraplyen.
+    //   tom-* → kun Markus, ter-* → kun de 5 terapeutene, ellers → alle utenom paraplyen.
     // For nye services (uten svc) brukes eligible-settet som default-assignment;
     // det inkluderer alt utenom 'terapeut'-paraplyen (samme adferd som før).
     var eligible = eligibleStaffFor(svc);
@@ -884,9 +884,9 @@
     var slug = (svc && svc.slug) ? svc.slug : '';
     var staffHelp = '';
     if (slug.indexOf('tom-') === 0) {
-      staffHelp = '<div class="form-help" style="margin-top:6px;">Erik-tjenester utføres kun av Erik selv.</div>';
+      staffHelp = '<div class="form-help" style="margin-top:6px;">Markus-tjenester utføres kun av Markus selv.</div>';
     } else if (slug.indexOf('ter-') === 0) {
-      staffHelp = '<div class="form-help" style="margin-top:6px;">Terapeut-tjenester utføres av terapeut-teamet (ikke Erik).</div>';
+      staffHelp = '<div class="form-help" style="margin-top:6px;">Terapeut-tjenester utføres av terapeut-teamet (ikke Markus).</div>';
     }
 
     var defaultSortOrder = svc ? svc.sort_order : nextSortOrder();
@@ -971,7 +971,7 @@
   }
 
   function renderColorPicker(currentColor) {
-    var presets = ['#464C8C', '#7A80B8', '#B8754A', '#6B7080', '#171A21', '#c0392b'];
+    var presets = ['#1f4e4a', '#93c2bb', '#d0b8ac', '#5c4d46', '#2e2320', '#9e2b1f'];
     var swatches = presets.map(function (c) {
       return '<span class="color-swatch' + (currentColor === c ? ' selected' : '') +
         '" data-color="' + escapeHtml(c) + '" style="background:' + escapeHtml(c) + ';"></span>';

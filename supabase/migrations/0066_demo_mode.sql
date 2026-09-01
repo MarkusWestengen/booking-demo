@@ -192,7 +192,7 @@ commit;
 --
 -- C) Sperren biter — kjør som authenticated, ikke som postgres i
 --    SQL-editoren (der slipper du forbi med vilje):
---      update public.staff_members set name = 'Test' where staff_id='erik';
+--      update public.staff_members set name = 'Test' where staff_id='markus';
 --    -- Forvent: ERROR ... demo_readonly
 --
 -- D) Egne rader er frie:
@@ -200,7 +200,7 @@ commit;
 --    endre tidspunktet, og slett den. Alle tre skal gå gjennom.
 --
 -- E) Ende-til-ende i UI: logg inn som admin, prøv å deaktivere
---    behandleren Erik Westengen. Knappen skal virke, dialogen skal
+--    behandleren Markus Westengen. Knappen skal virke, dialogen skal
 --    åpne seg, og først når lagringen når databasen skal du få
 --    toasten «Demo · ikke lagret».
 -- ============================================================

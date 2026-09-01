@@ -2,7 +2,7 @@
 -- 0023_waitlist_table.sql                            2026-05-20
 -- ------------------------------------------------------------
 -- Venteliste: kunder kan melde seg på når ingen slots er ledige.
--- Separate køer for Erik (staff_id = 'erik') og Eriks terapeuter
+-- Separate køer for Markus (staff_id = 'markus') og Markus' terapeuter
 -- (staff_id = NULL). Sekretær/admin tildeler manuelt fra
 -- booking-admin → fanen "Venteliste". Auto-tildeling med e-post
 -- er et senere spor (krever verifisert Resend-domene).
@@ -29,8 +29,8 @@ create table if not exists public.waitlist (
   id                  uuid primary key default gen_random_uuid(),
   ref                 text not null unique,              -- TA-WL-XXXX-XXXX
   service_id          text,                              -- NULL: velges ved tildeling
-  staff_id            text,                              -- 'erik' = Erik-køen, NULL = terapeut-køen
-  staff_name          text not null,                     -- "Erik Westengen" / "Eriks terapeuter"
+  staff_id            text,                              -- 'markus' = Markus-køen, NULL = terapeut-køen
+  staff_name          text not null,                     -- "Markus Westengen" / "Markus' terapeuter"
   name                text not null,
   email               text not null,
   phone               text not null,

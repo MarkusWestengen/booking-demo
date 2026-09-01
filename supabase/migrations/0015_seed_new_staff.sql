@@ -5,8 +5,8 @@
 -- får sin egen RLS-isolerte kalender via auth.jwt -> staff_id.
 --
 -- Bakgrunn: før denne migrasjonen hadde Westengen Klinikk to staff-grupper
--- i staff_services: 'erik' (Erik Westengen) og 'terapeut' (generisk
--- gruppe alle terapeuter logget seg inn under). Erik har nå bedt
+-- i staff_services: 'markus' (Markus Westengen) og 'terapeut' (generisk
+-- gruppe alle terapeuter logget seg inn under). Markus har nå bedt
 -- om at hver terapeut får egen Auth-konto og styrer egen kalender.
 --
 -- De 5 nye staff_ids:
@@ -21,7 +21,7 @@
 -- terapeut-priser (2000 kr konsultasjon / 1500 kr videre).
 --
 -- Hva som IKKE endres:
---   - 'erik' og 'terapeut' beholdes i staff_services for at gamle
+--   - 'markus' og 'terapeut' beholdes i staff_services for at gamle
 --     bookinger og admin-UI fortsatt skal fungere uten endring.
 --   - Eksisterende bookings.staff_id='terapeut'-rader røres ikke.
 --   - Ingen staff-tabell opprettes (staff_id er fortsatt bare text;
@@ -88,7 +88,7 @@ on conflict do nothing;
 --
 -- Forventet etter denne migrasjonen:
 --   amina        | 2
---   erik         | 2   (uendret fra 0008)
+--   markus         | 2   (uendret fra 0008)
 --   henrik       | 2
 --   jonas        | 2
 --   nora         | 2

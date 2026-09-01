@@ -33,7 +33,7 @@
           return b.staffId === payload.staffId && b.date === payload.date && b.time === payload.time;
         });
         if (conflict) {
-          return { ok: false, reason: 'slot_taken', message: 'Denne tiden er allerede booket — velg en annen tid.' };
+          return { ok: false, reason: 'slot_taken', message: 'Denne tiden er allerede booket. Velg en annen tid.' };
         }
 
         var nowIso = new Date().toISOString();
@@ -80,7 +80,7 @@
         var code = err && err.code;
         var msg = (err && err.message) ? String(err.message) : '';
         if (code === '23505' || msg.indexOf('23505') !== -1 || msg.indexOf('bookings_active_slot_unique') !== -1) {
-          return { ok: false, reason: 'slot_taken', message: 'Denne tiden er allerede booket — velg en annen tid.' };
+          return { ok: false, reason: 'slot_taken', message: 'Denne tiden er allerede booket. Velg en annen tid.' };
         }
         return { ok: false, error: 'Kunne ikke lagre booking: ' + (msg || err) };
       });

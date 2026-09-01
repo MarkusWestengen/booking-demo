@@ -69,9 +69,9 @@ declare
   ];
 
   -- Behandlere som får bestillinger i kalenderen, med pristier.
-  -- Erik tar 4000/3000, terapeutene 2000/1500 (jf. 0030 og 0044).
+  -- Markus tar 4000/3000, terapeutene 2000/1500 (jf. 0030 og 0044).
   behandlere text[][] := array[
-    array['erik',   'Erik Westengen', 'erik-konsult', 'Konsultasjon hos Erik',   '4000'],
+    array['markus',   'Markus Westengen', 'markus-konsult', 'Konsultasjon hos Markus',   '4000'],
     array['sofie',  'Sofie Aune',     'ter-konsult',  'Konsultasjon hos terapeut', '2000'],
     array['henrik', 'Henrik Dal',     'ter-konsult',  'Konsultasjon hos terapeut', '2000'],
     array['jonas',  'Jonas Riis',     'ter-videre',   'Videre behandling',        '1500']
@@ -86,15 +86,15 @@ declare
 
   -- Klokkeslett per behandler, innenfor behandlerens FAKTISKE arbeidstid
   -- slik shared/booking-engine.js definerer den. Holdes atskilt fordi
-  -- Erik og terapeutene ikke har samme dag:
+  -- Markus og terapeutene ikke har samme dag:
   --
-  --   Erik       06:00-13:00, siste starttid 12:30 (30-min time), og
+  --   Markus       06:00-13:00, siste starttid 12:30 (30-min time), og
   --              09:30 er fast pause som aldri er bookbar.
   --   Terapeuter 07:00-15:00, siste starttid 14:30.
   --
   -- En seed-time utenfor disse vinduene ville vist en booking i en luke
   -- kalenderen selv nekter aa tilby - det ser ut som en feil i systemet.
-  tider_erik text[] := array['07:00', '08:30', '10:30', '12:00'];
+  tider_markus text[] := array['07:00', '08:30', '10:30', '12:00'];
   tider_ter  text[] := array['08:00', '10:00', '11:30', '13:30'];
   bid        text;
   bref       text;
@@ -138,8 +138,8 @@ begin
       -- med time = NULL, avvist av not-null-skranken paa bookings."time".
       spredning := ((offset_i + b_i) % 4 + 4) % 4;
 
-      if behandlere[b_i][1] = 'erik' then
-        klokke := tider_erik[1 + spredning]::time;
+      if behandlere[b_i][1] = 'markus' then
+        klokke := tider_markus[1 + spredning]::time;
       else
         klokke := tider_ter[1 + spredning]::time;
       end if;
@@ -198,7 +198,7 @@ begin
   values
     ('Ingvild Rødal', 'ingvild.rodal@eksempel.example',
      'Hei! Jeg har vondt i korsryggen etter en del tunge løft på jobb. '
-     || 'Er det Erik eller en av terapeutene som passer best for en første time?',
+     || 'Er det Markus eller en av terapeutene som passer best for en første time?',
      'new',      now() - interval '5 hours',  true),
     ('Kasper Vold', 'kasper.vold@eksempel.example',
      'Kan jeg flytte timen min på torsdag til uka etter? Jeg er bortreist.',
@@ -230,13 +230,13 @@ begin
     notes, status, created_at, is_demo_seed
   ) values
     ('WK-WL-' || to_char(current_date, 'MMDD') || '-0001',
-     null, 'erik', 'Erik Westengen',
+     null, 'markus', 'Markus Westengen',
      'Fredrik Aasheim', 'fredrik.aasheim@eksempel.example', '+47 400 00 020',
      current_date + 1, current_date + 21, time '08:00', time '12:00',
      'Skulder. Kan komme på kort varsel.', 'waiting',
      now() - interval '3 days', true),
     ('WK-WL-' || to_char(current_date, 'MMDD') || '-0002',
-     null, null, 'Eriks terapeuter',
+     null, null, 'Markus'' terapeuter',
      'Hedda Lindgren', 'hedda.lindgren@eksempel.example', '+47 400 00 021',
      current_date + 3, null, null, null,
      'Ankel. Fleksibel på tidspunkt.', 'waiting',
@@ -246,8 +246,8 @@ begin
   -- To blokkeringer som gir kalenderen litt tekstur, og én stengt dag
   -- et stykke fram som ikke krasjer med bestillingene over.
   insert into public.blocked_slots (staff_id, date, "time", is_demo_seed) values
-    ('erik',  current_date + 2, time '11:00', true),
-    ('erik',  current_date + 2, time '11:30', true),
+    ('markus',  current_date + 2, time '11:00', true),
+    ('markus',  current_date + 2, time '11:30', true),
     ('sofie', current_date + 4, time '13:00', true)
   on conflict do nothing;
 

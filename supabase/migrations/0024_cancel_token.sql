@@ -3,7 +3,7 @@
 -- ------------------------------------------------------------
 -- Token-basert avbestillings-lenke (Fase 1).
 --
--- Erik + Henrik ba om en "avbestillings-knapp" i bekreftelsen —
+-- Markus + Henrik ba om en "avbestillings-knapp" i bekreftelsen —
 -- særlig for eldre kunder som synes ref + e-post-skjema er
 -- tungvint. Denne migrasjonen legger til en unik, crypto-secure
 -- token per booking + to RPC-er:

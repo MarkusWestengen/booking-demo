@@ -19,8 +19,8 @@ flytt PNG-ene hit i `icons/`-mappa. Engangsjobb.
 
 ## Erstatte med ekte logo
 
-Når Erik har en faktisk logo-fil (Figma/Illustrator), kan PNG-ene erstattes
-direkte. Hold dimensjonene som tabellen sier. SVG-en kan også oppdateres —
+Når Markus har en faktisk logo-fil (Figma/Illustrator), kan PNG-ene erstattes
+direkte. Hold dimensjonene som tabellen sier. SVG-en kan også oppdateres,
 manifest.json refererer både SVG og PNG, så ulike enheter får best mulig
 versjon.
 

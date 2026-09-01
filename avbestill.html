@@ -19,7 +19,7 @@
   base-uri 'self';
   form-action 'self';
 ">
-<meta name="theme-color" content="#171A21" />
+<meta name="theme-color" content="#2e2320" />
 <meta name="robots" content="noindex, nofollow" />
 <title data-i18n="cancel.title">Avbestill time · Westengen Klinikk</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
@@ -28,11 +28,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8;
-    --green-tint: #E9EAF4;
-    --paper: #F7F8FA; --paper-2: #EDEFF3;
-    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
-    --rule: #171a2622; --danger: #c0392b;
+    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb;
+    --green-tint: #dce7e4;
+    --paper: #efe5dc; --paper-2: #f3d8c7;
+    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
+    --rule: rgba(46,35,32,.16); --danger: #9e2b1f;
     --safe-bot: env(safe-area-inset-bottom, 0px);
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -151,8 +151,11 @@
   .field { margin-bottom: 18px; }
   .field label {
     display: block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    /* Feltetiketter er vanlig lesetekst, ikke data. Monospace med
+       store bokstaver og bred sperring gjorde dem tunge a lese og
+       fikk skjemaet til a se ut som en konsoll. Mono er beholdt der
+       den faktisk koder noe: referansekoder, klokkeslett, trinn-tall. */
+    font-size: 13.5px; font-weight: 500; letter-spacing: 0;
     color: var(--ink-2); margin-bottom: 7px;
   }
   .field input {
@@ -289,12 +292,7 @@
           </button>
           <div class="lang-menu" role="listbox">
             <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
-            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>
-            <button data-lang="de"><span>Deutsch</span><span class="code">🇩🇪</span></button>
-            <button data-lang="es"><span>Español</span><span class="code">🇪🇸</span></button>
-            <button data-lang="ar"><span>العربية</span><span class="code">🇸🇦</span></button>
-            <button data-lang="fa"><span>فارسی</span><span class="code">🇮🇷</span></button>
-          </div>
+            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>          </div>
         </div>
         <a class="btn btn-primary btn-arrow" href="bestilling.html"><span data-i18n="nav.book_cta">Bestill time</span> <span>→</span></a>
         <button class="nav-hamburger" type="button" aria-label="Meny" data-i18n-aria-label="nav.menu_aria" aria-expanded="false" aria-controls="navMobile">
@@ -344,7 +342,7 @@
       <!-- A8 — to tydelige veier: ett-klikks-knapp i e-posten, eller skjemaet under -->
       <div class="email-callout">
         <h2 data-i18n="cancel.email_callout_title">Enklest: avbestill rett fra e-posten</h2>
-        <p data-i18n="cancel.email_callout_body">Bekreftelses-e-posten din har en «Avbestill time»-knapp. Trykk på den, så avbestiller du med ett klikk — uten å taste inn referansekode. Eller bruk skjemaet under.</p>
+        <p data-i18n="cancel.email_callout_body">Bekreftelses-e-posten din har en «Avbestill time»-knapp. Trykk på den, så avbestiller du med ett klikk, uten å taste inn referansekode. Eller bruk skjemaet under.</p>
       </div>
       <p class="lede" data-i18n="cancel.lede">Skriv inn referansekoden fra bekreftelsen din og e-postadressen du booket med, så finner vi timen din.</p>
       <div class="card">
@@ -364,7 +362,7 @@
           </div>
         </form>
       </div>
-      <p class="hint-line" data-i18n="cancel.hint_line">Har du fått en avbestillings-lenke fra oss på e-post? Bruk den — da slipper du å taste inn referansekoden.</p>
+      <p class="hint-line" data-i18n="cancel.hint_line">Har du fått en avbestillings-lenke fra oss på e-post? Bruk den, da slipper du å taste inn referansekoden.</p>
     </div>
 
     <!-- STEG 2 — bekreft -->
@@ -372,7 +370,7 @@
       <div class="card">
         <div class="confirm-box">
           <div data-i18n="cancel.confirm_intro">Du er i ferd med å avbestille timen med referanse:</div>
-          <p class="ref-line" id="confirmRef">—</p>
+          <p class="ref-line" id="confirmRef">,</p>
           <p class="confirm-warn" data-i18n="cancel.confirm_warn">Dette kan ikke angres. Time-slotet blir frigjort for andre.</p>
         </div>
         <div class="actions">
@@ -592,8 +590,8 @@
       d.appendChild(document.createTextNode(value));
       box.appendChild(d);
     }
-    line(t('cancel.label_service', 'Tjeneste:'),  data.service_name || '—');
-    line(t('cancel.label_staff',   'Behandler:'), data.staff_name   || '—');
+    line(t('cancel.label_service', 'Tjeneste:'),  data.service_name || '–');
+    line(t('cancel.label_staff',   'Behandler:'), data.staff_name   || '–');
     line(t('cancel.label_time',    'Tidspunkt:'),
          formatDateNo(data.date) + ' ' + t('cancel.at_time', 'kl.') + ' ' + (data.time || ''));
     line(t('cancel.label_ref',     'Referanse:'), data.ref || '');

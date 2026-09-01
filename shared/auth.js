@@ -50,17 +50,17 @@
     modal.setAttribute('aria-hidden', 'true');
     modal.style.cssText = [
       'position:fixed', 'inset:0', 'z-index:9999',
-      'background:rgba(23, 26, 33,.7)',
+      'background:rgba(46, 35, 32,.7)',
       'display:none', 'align-items:center', 'justify-content:center',
       'padding:20px'
     ].join(';');
     modal.innerHTML =
-      '<div style="background:#fff;max-width:380px;width:100%;padding:24px;border:1px solid #171a2622;font-family:Inter,system-ui,sans-serif;">' +
-        '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 8px;color:#171A21;">Inaktivitet oppdaget</h3>' +
-        '<p style="margin:0 0 18px;color:#2E323C;font-size:14px;line-height:1.5;">' +
+      '<div style="background:#fff;max-width:380px;width:100%;padding:24px;border:1px solid rgba(46,35,32,.16);font-family:Inter,system-ui,sans-serif;">' +
+        '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 8px;color:#2e2320;">Inaktivitet oppdaget</h3>' +
+        '<p style="margin:0 0 18px;color:#4a3b35;font-size:14px;line-height:1.5;">' +
           'Du blir logget ut om <strong id="__ta_countdown">60</strong> sekunder.' +
         '</p>' +
-        '<button id="__ta_keepalive" style="background:#464C8C;color:#fff;border:0;padding:11px 18px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;width:100%;">' +
+        '<button id="__ta_keepalive" style="background:#1f4e4a;color:#fff;border:0;padding:11px 18px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;width:100%;">' +
           'Bli værende innlogget' +
         '</button>' +
       '</div>';
@@ -211,32 +211,32 @@
       var wrap = document.createElement('div');
       wrap.style.cssText = [
         'position:fixed','inset:0','z-index:10000',
-        'background:rgba(23, 26, 33,.7)',
+        'background:rgba(46, 35, 32,.7)',
         'display:flex','align-items:center','justify-content:center','padding:20px'
       ].join(';');
       var typeInputHtml = '';
       if (opts.requireTyping) {
         typeInputHtml =
-          '<p style="margin:14px 0 6px;font-size:13px;color:#2E323C;">' +
+          '<p style="margin:14px 0 6px;font-size:13px;color:#4a3b35;">' +
             'Skriv <strong>' + escapeHtml(opts.requireTyping) + '</strong> for å bekrefte:' +
           '</p>' +
           '<input type="text" id="__ta_confirm_typed" autocomplete="off" ' +
-            'style="width:100%;padding:10px 12px;border:1px solid #171a2622;background:#F7F8FA;font-family:JetBrains Mono,monospace;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;" />';
+            'style="width:100%;padding:10px 12px;border:1px solid rgba(46,35,32,.16);background:#efe5dc;font-family:JetBrains Mono,monospace;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;" />';
       }
       wrap.innerHTML =
-        '<div style="background:#fff;max-width:420px;width:100%;padding:24px;border:1px solid #171a2622;font-family:Inter,system-ui,sans-serif;">' +
-          '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 8px;color:#171A21;">' +
+        '<div style="background:#fff;max-width:420px;width:100%;padding:24px;border:1px solid rgba(46,35,32,.16);font-family:Inter,system-ui,sans-serif;">' +
+          '<h3 style="font-family:Fraunces,serif;font-weight:400;font-size:22px;margin:0 0 8px;color:#2e2320;">' +
             escapeHtml(opts.title || 'Er du sikker?') +
           '</h3>' +
-          '<p style="margin:0;color:#2E323C;font-size:14px;line-height:1.5;white-space:pre-wrap;">' +
+          '<p style="margin:0;color:#4a3b35;font-size:14px;line-height:1.5;white-space:pre-wrap;">' +
             escapeHtml(opts.message || '') +
           '</p>' +
           typeInputHtml +
           '<div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end;">' +
-            '<button id="__ta_cancel" style="background:transparent;border:1px solid #171a2622;padding:9px 16px;font:inherit;cursor:pointer;color:#2E323C;">' +
+            '<button id="__ta_cancel" style="background:transparent;border:1px solid rgba(46,35,32,.16);padding:9px 16px;font:inherit;cursor:pointer;color:#4a3b35;">' +
               escapeHtml(opts.cancelLabel || 'Avbryt') +
             '</button>' +
-            '<button id="__ta_confirm" disabled style="background:#c0392b;color:#fff;border:0;padding:9px 16px;font:inherit;cursor:pointer;font-weight:500;opacity:0.5;">' +
+            '<button id="__ta_confirm" disabled style="background:#9e2b1f;color:#fff;border:0;padding:9px 16px;font:inherit;cursor:pointer;font-weight:500;opacity:0.5;">' +
               escapeHtml(opts.confirmLabel || 'Bekreft') +
             '</button>' +
           '</div>' +
@@ -298,6 +298,52 @@
   // ============================================================
   var AUTH_REDIRECT = 'ansatt.html';
 
+  // ============================================================
+  // Demokontoer og auto-innlogging
+  // ------------------------------------------------------------
+  // Adminpanelet er halvparten av det som er verdt aa se, og et
+  // innloggingsskjema foran det er en doerstokk uten hensikt naar
+  // passordene uansett staar aapent paa forsiden. Et besoek paa en
+  // adminside logger derfor inn som administrator av seg selv.
+  //
+  // Innloggingssiden er fortsatt naabar og fungerer som foer, slik
+  // at selve innloggingsflyten kan demonstreres. Den er bare ikke
+  // lenger noe man MAA gjennom.
+  //
+  // Passordene er ikke hemmeligheter: de staar paa forsiden, og
+  // sikkerheten ligger i skrivesperren mot seed-data (0066) og den
+  // nattlige nullstillingen (0067), ikke i dem.
+  // ============================================================
+  var DEMO_ACCOUNTS = {
+    admin: {
+      email: 'admin@westengenklinikk.example',
+      password: 'demo-admin-2026',
+      label: 'Administrator'
+    },
+    therapist: {
+      email: 'terapeut@westengenklinikk.example',
+      password: 'demo-terapeut-2026',
+      label: 'Terapeut'
+    }
+  };
+
+  function demoAccount(role) {
+    return DEMO_ACCOUNTS[role === 'therapist' ? 'therapist' : 'admin'];
+  }
+
+  // Logger inn som oppgitt rolle og laster siden paa nytt. Brukes
+  // baade av auto-innloggingen og av rollebytteren.
+  function signInAs(sb, role, nextUrl) {
+    var acct = demoAccount(role);
+    return sb.auth.signOut().catch(function () {}).then(function () {
+      return sb.auth.signInWithPassword({ email: acct.email, password: acct.password });
+    }).then(function (res) {
+      if (res && res.error) throw res.error;
+      try { window.location.replace(nextUrl || window.location.pathname.split('/').pop() || 'kalender.html'); } catch (_) {}
+      return true;
+    });
+  }
+
   function hasSupabaseAuthToken() {
     try {
       for (var i = 0; i < localStorage.length; i++) {
@@ -313,7 +359,13 @@
 
   function requireAuth() {
     if (hasSupabaseAuthToken()) return true;
-    try { window.location.replace(AUTH_REDIRECT); } catch (_) {}
+    // Ingen sesjon: send innom innloggingssiden, som logger inn som
+    // administrator og sender deg tilbake hit. Sida du ba om er
+    // fortsatt maalet, saa lenker inn i panelet virker direkte.
+    var here = window.location.pathname.split('/').pop() || 'kalender.html';
+    try {
+      window.location.replace(AUTH_REDIRECT + '?auto=admin&next=' + encodeURIComponent(here + window.location.search));
+    } catch (_) {}
     return false;
   }
 
@@ -353,10 +405,98 @@
     for (var i = 0; i < els.length; i++) {
       els[i].style.display = isAdmin ? '' : 'none';
     }
+    mountRoleSwitcher(role);
+  }
+
+  // ============================================================
+  // Rollebytter
+  // ------------------------------------------------------------
+  // Rolleskillet er det mest interessante i panelet, men det er
+  // usynlig hvis man bare ser én rolle: man legger ikke merke til
+  // menypunktene som IKKE er der. Bytteren gjor forskjellen til noe
+  // man kan se ved aa klikke fram og tilbake.
+  //
+  // Rollen ligger i app_metadata paa brukeren og kan ikke endres fra
+  // nettleseren — den er ikke et bryter man vipper. Bytteren logger
+  // derfor faktisk inn som den andre kontoen. Det er ogsaa aerligere:
+  // det er slik et rollebytte foregaar.
+  // ============================================================
+  function mountRoleSwitcher(role) {
+    if (document.getElementById('wkRoleSwitch')) return;
+    if (!document.body) return;
+
+    var st = document.createElement('style');
+    st.textContent =
+      '#wkRoleSwitch{position:fixed;right:16px;bottom:16px;z-index:9997;display:flex;' +
+        'align-items:stretch;border:1px solid var(--green,#1f4e4a);border-radius:2px;' +
+        'background:var(--paper,#efe5dc);overflow:hidden;' +
+        'box-shadow:0 6px 18px -8px rgba(46,35,32,.45);font-family:Inter,system-ui,sans-serif;}' +
+      '#wkRoleSwitch .wk-rs-lab{display:flex;align-items:center;padding:0 10px;font-size:10px;' +
+        'letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#5c4d46);' +
+        'font-family:"JetBrains Mono",ui-monospace,monospace;' +
+        'border-right:1px solid rgba(46,35,32,.18);white-space:nowrap;}' +
+      '#wkRoleSwitch button{border:0;background:transparent;cursor:pointer;padding:9px 13px;' +
+        'font-size:13px;font-weight:500;color:var(--green,#1f4e4a);white-space:nowrap;' +
+        'font-family:inherit;transition:background .15s ease,color .15s ease;}' +
+      '#wkRoleSwitch button:hover:not([aria-current]){background:var(--green-tint,#dce7e4);}' +
+      '#wkRoleSwitch button[aria-current]{background:var(--green,#1f4e4a);color:#fff;cursor:default;}' +
+      '#wkRoleSwitch button:focus-visible{outline:2px solid var(--green,#1f4e4a);outline-offset:-3px;}' +
+      '#wkRoleSwitch button[disabled]{opacity:.55;cursor:progress;}' +
+      '@media (max-width:760px){#wkRoleSwitch{right:10px;bottom:64px;}' +
+        '#wkRoleSwitch .wk-rs-lab{display:none;}}';
+    document.head.appendChild(st);
+
+    var box = document.createElement('div');
+    box.id = 'wkRoleSwitch';
+    box.setAttribute('role', 'group');
+    box.setAttribute('aria-label', 'Bytt rolle i demoen');
+
+    var lab = document.createElement('span');
+    lab.className = 'wk-rs-lab';
+    lab.textContent = 'Vis som';
+    box.appendChild(lab);
+
+    [['admin', 'Administrator'], ['therapist', 'Terapeut']].forEach(function (pair) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = pair[1];
+      var active = (pair[0] === 'admin') === (role === 'admin');
+      if (active) {
+        b.setAttribute('aria-current', 'true');
+        b.title = 'Du ser panelet som ' + pair[1].toLowerCase() + ' na';
+      } else {
+        b.title = 'Logg inn som ' + pair[1].toLowerCase() + ' og last siden pa nytt';
+        b.addEventListener('click', function () {
+          var all = box.querySelectorAll('button');
+          for (var i = 0; i < all.length; i++) all[i].disabled = true;
+          b.textContent = 'Bytter\u2026';
+          var CFG = window.WestengenKlinikkBackend || {};
+          if (!window.supabase || !CFG.supabaseUrl || !CFG.supabaseAnonKey) {
+            b.textContent = pair[1];
+            for (var j = 0; j < all.length; j++) all[j].disabled = false;
+            return;
+          }
+          var sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
+            auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+          });
+          signInAs(sb, pair[0], window.location.pathname.split('/').pop() + window.location.search)
+            .catch(function () {
+              b.textContent = pair[1];
+              for (var k = 0; k < all.length; k++) all[k].disabled = false;
+            });
+        });
+      }
+      box.appendChild(b);
+    });
+
+    document.body.appendChild(box);
   }
 
   // ----- Eksporter -----
   root.WestengenKlinikkAuth = {
+    DEMO_ACCOUNTS: DEMO_ACCOUNTS,
+    demoAccount: demoAccount,
+    signInAs: signInAs,
     installSessionTimeout: installSessionTimeout,
     auditLog: auditLog,
     confirmDestructive: confirmDestructive,
@@ -364,6 +504,7 @@
     ensureValidSession: ensureValidSession,
     logoutAndRedirect: logoutAndRedirect,
     applyRoleGates: applyRoleGates,
+    mountRoleSwitcher: mountRoleSwitcher,
     escapeHtml: escapeHtml
   };
 })(window);

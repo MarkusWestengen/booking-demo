@@ -2,12 +2,12 @@
 -- Westengen Klinikk — Bookings: newsletter_opt_in-felt
 -- Migration 0031
 -- ------------------------------------------------------------
--- Erik-feedback 2026-05-29 (D3): nyhetsbrev-opt-in valgfri ved booking.
+-- Markus-feedback 2026-05-29 (D3): nyhetsbrev-opt-in valgfri ved booking.
 -- Kunde krysser av i steg 5 (Detaljer) hvis han vil ha nyhetsbrev,
 -- tilbud og relevant informasjon på e-post. Default = FALSE (GDPR-
 -- vennlig — eksplisitt opt-in kreves).
 --
--- Lagres som BOOLEAN-kolonne på `bookings`. Markus/Erik henter ut
+-- Lagres som BOOLEAN-kolonne på `bookings`. Markus/Markus henter ut
 -- listen senere (CSV-eksport eller direkte SELECT inntil egen
 -- newsletter-subscribers-tabell er på plass — se D-roadmap).
 --

@@ -1,7 +1,7 @@
 /* ============================================================
    Westengen Klinikk — Cookie consent banner
    ------------------------------------------------------------
-   GDPR-rammeverk (Erik-feedback 2026-05-30). Per i dag har siden
+   GDPR-rammeverk (Markus-feedback 2026-05-30). Per i dag har siden
    INGEN ikke-essensielle cookies/tracking, så banneret er primært
    strukturen som må være på plass før vi evt. legger til
    Google Analytics, Meta Pixel, e.l.

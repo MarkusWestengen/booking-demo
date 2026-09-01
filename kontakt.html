@@ -22,7 +22,7 @@
   base-uri 'self';
   form-action 'self';
 ">
-<meta name="theme-color" content="#171A21" />
+<meta name="theme-color" content="#2e2320" />
 <title>Kontakt · Westengen Klinikk (demo)</title>
 <meta name="description" content="Kontaktside i demoversjonen av Westengen Klinikk. Klinikken er oppdiktet og kontaktopplysningene er plassholdere." />
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
@@ -40,10 +40,10 @@
 
 <style>
   :root {
-    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8; --green-tint: #E9EAF4;
-    --paper: #F7F8FA; --paper-2: #EDEFF3;
-    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
-    --rule: #171a2622; --danger: #c0392b; --clay: #B8754A;
+    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb; --green-tint: #dce7e4;
+    --paper: #efe5dc; --paper-2: #f3d8c7;
+    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
+    --rule: rgba(46,35,32,.16); --danger: #9e2b1f; --clay: #d0b8ac;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -201,12 +201,7 @@
           </button>
           <div class="lang-menu" role="listbox">
             <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
-            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>
-            <button data-lang="de"><span>Deutsch</span><span class="code">🇩🇪</span></button>
-            <button data-lang="es"><span>Español</span><span class="code">🇪🇸</span></button>
-            <button data-lang="ar"><span>العربية</span><span class="code">🇸🇦</span></button>
-            <button data-lang="fa"><span>فارسی</span><span class="code">🇮🇷</span></button>
-          </div>
+            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>          </div>
         </div>
         <a class="btn btn-primary btn-arrow" href="bestilling.html"><span data-i18n="nav.book_cta">Bestill time</span> <span>→</span></a>
         <button class="nav-hamburger" type="button" aria-label="Meny" data-i18n-aria-label="nav.menu_aria" aria-expanded="false" aria-controls="navMobile">
@@ -255,7 +250,7 @@
   <div class="container">
     <p class="k-notice" data-i18n-html="contact.demo_notice">
       <strong>Meldingen lagres på ekte.</strong> Den havner i demo-databasen og er
-      synlig for alle som logger inn med den publiserte innloggingen — så ikke
+      synlig for alle som logger inn med den publiserte innloggingen, så ikke
       skriv noe du ikke vil at andre skal lese. Alt slettes ved neste nattlige
       nullstilling.
     </p>
@@ -350,7 +345,7 @@
 
 <footer class="site-footer">
   <div class="container">
-    <div class="footer-bottom" data-i18n="footer.copyright">© 2026 Westengen Klinikk — demo med fiktive data · Nettside og system: Westengen Studio (Markus Westengen)</div>
+    <div class="footer-bottom" data-i18n="footer.copyright">© 2026 Westengen Klinikk, demo med fiktive data · Nettside og system: Westengen Studio (Markus Westengen)</div>
   </div>
 </footer>
 

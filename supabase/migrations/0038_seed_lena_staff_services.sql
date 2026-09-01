@@ -26,7 +26,7 @@
 --
 -- Hva som IKKE endres:
 --   - Ingen RLS-/sikkerhetsendringer.
---   - 'erik', 'terapeut' og de 5 eksisterende terapeutene røres ikke.
+--   - 'markus', 'terapeut' og de 5 eksisterende terapeutene røres ikke.
 --   - Ingen staff-tabell opprettes (staff_id er fortsatt text; se 0008).
 --
 -- Idempotent: insert .. on conflict do nothing. Trygt å re-kjøre.

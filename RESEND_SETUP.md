@@ -1,10 +1,10 @@
-# Resend-integrasjon — manuelt oppsett
+# Resend-integrasjon, manuelt oppsett
 
 Edge Function `send-booking-email` og database-trigger `trg_notify_booking_change`
 sender e-post til pasienten ved:
-- **Confirmation** — INSERT på `bookings`
-- **Cancellation** — UPDATE der `status` endres til `cancelled`
-- **Reminder** — 24h før timen (separat cron-job, se nederst)
+- **Confirmation**. INSERT på `bookings`
+- **Cancellation**. UPDATE der `status` endres til `cancelled`
+- **Reminder**, 24h før timen (separat cron-job, se nederst)
 
 Denne fila dokumenterer det du må gjøre selv (Claude kan ikke deploye eller
 sette secrets for deg). Følg punkt for punkt.
@@ -14,19 +14,19 @@ sette secrets for deg). Følg punkt for punkt.
 1. Opprett konto på <https://resend.com>.
 2. Verifiser avsender-domene. To valg:
    - **Produksjon**: `westengenklinikk.example` (eller hvilket som helst domene du eier).
-     Resend gir deg DNS-records (SPF + DKIM) — legg dem inn hos domene-registrar.
+     Resend gir deg DNS-records (SPF + DKIM), legg dem inn hos domene-registrar.
    - **Sandbox** (rask test): bruk `onboarding@resend.dev` som avsender. Da kan
      du bare sende til e-posten som er logget inn på Resend.
 3. Generér en API-nøkkel under **API Keys** → **Create API Key**. Kopier den.
 
-## 2. Edge Function — secrets
+## 2. Edge Function, secrets
 
 I Supabase Dashboard → **Edge Functions** → **Settings** → **Secrets**:
 
 | Key                | Verdi                                                   |
 | ------------------ | ------------------------------------------------------- |
 | `RESEND_API_KEY`   | Nøkkelen fra punkt 1.3                                  |
-| `WEBHOOK_SECRET`   | Generer en random streng — f.eks. `openssl rand -hex 32`|
+| `WEBHOOK_SECRET`   | Generer en random streng, f.eks. `openssl rand -hex 32`|
 | `RESEND_FROM`      | F.eks. `Westengen Klinikk <ingen-svar@westengenklinikk.example>`           |
 | `CLINIC_PHONE`     | Klinikkens telefon (vises i e-post-footer)              |
 
@@ -70,7 +70,7 @@ Verifiser at den er live:
 curl -X POST \
   -H "X-Webhook-Secret: <din-secret>" \
   -H "Content-Type: application/json" \
-  -d '{"event":"confirmation","booking":{"name":"Test","email":"din@e-post.example","ref":"TA-TEST","date":"2026-06-01","time":"10:00","service_name":"Konsultasjon","staff_name":"Erik","duration":30}}' \
+  -d '{"event":"confirmation","booking":{"name":"Test","email":"din@e-post.example","ref":"TA-TEST","date":"2026-06-01","time":"10:00","service_name":"Konsultasjon","staff_name":"Markus","duration":30}}' \
   https://<project-ref>.supabase.co/functions/v1/send-booking-email
 ```
 
@@ -87,12 +87,12 @@ Supabase SQL Editor:
 
 1. Logg inn som admin i `booking-admin.html`.
 2. Klikk **"+ Ny booking"** og opprett en booking med din egen e-post.
-3. Sjekk innboksen — confirmation skal ankomme innen ~30 sek.
+3. Sjekk innboksen, confirmation skal ankomme innen ~30 sek.
 4. Endre status på samme booking til **"Avlyst"**. Cancellation skal komme.
 5. I Supabase Dashboard → Edge Functions → `send-booking-email` → Logs:
    verifiser at request-en har status 200 og at Resend ikke returnerte feil.
 
-## 7. Reminder (24h før timen) — IMPLEMENTERT I KODE 2026-05-12
+## 7. Reminder (24h før timen). IMPLEMENTERT I KODE 2026-05-12
 
 Implementert i migrasjon 0013 + 0014:
 
@@ -111,7 +111,7 @@ Implementert i migrasjon 0013 + 0014:
    Hvis du er på Free-plan: bruk Supabase Cron i stedet (Dashboard →
    Integrations → Cron → New cron job med `select public.process_pending_reminders();`
    som SQL-snippet, schedule `5 * * * *`). Migrasjon 0014's helper-funksjon
-   `process_pending_reminders()` er kompatibel — bare la cron-schedule-
+   `process_pending_reminders()` er kompatibel, bare la cron-schedule-
    blokken (b) i 0014 være eller hopp over den.
 
 2. **Sett Postgres-parametere** for Edge Function-kall:
@@ -137,7 +137,7 @@ insert into public.bookings(
   id, ref, staff_id, staff_name, service_id, service_name,
   price, duration, date, time, name, email, phone, status, journal_consent
 ) values (
-  'bk_reminder_test', 'TA-REMIND', 'erik', 'Erik', 'erik-konsult', 'Test',
+  'bk_reminder_test', 'TA-REMIND', 'markus', 'Markus', 'markus-konsult', 'Test',
   100, 30,
   (now() + interval '24 hours')::date,
   (now() + interval '24 hours')::time,
@@ -155,7 +155,7 @@ delete from public.bookings where id = 'bk_reminder_test';
 ```
 
 E-posten skal komme til "din-egen@e-post.example" innen ~30 sek (Resend sandbox
-tillater kun sending TIL kontoinnehaverens e-post — bytt til verifisert
+tillater kun sending TIL kontoinnehaverens e-post, bytt til verifisert
 domene for å sende til andre, se RESEND_SETUP.md punkt 1.2).
 
 ## 8. Anti-misuse

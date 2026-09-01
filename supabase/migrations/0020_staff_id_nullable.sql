@@ -2,10 +2,10 @@
 -- 0020_staff_id_nullable.sql                        2026-05-20
 -- ------------------------------------------------------------
 -- Terapeut-arkitektur: kunden velger IKKE en spesifikk terapeut
--- når de booker en "Eriks terapeuter"-tjeneste. Slike bookinger
+-- når de booker en "Markus' terapeuter"-tjeneste. Slike bookinger
 -- lagres nå UFORDELT (staff_id = NULL), og admin/sekretær tildeler
 -- en av de fem navngitte terapeutene manuelt i booking-admin.
--- Erik Westengen-bookinger er uendret (staff_id = 'erik').
+-- Markus Westengen-bookinger er uendret (staff_id = 'markus').
 --
 -- Denne migrasjonen:
 --   (a) Gjør bookings.staff_id nullable (var NOT NULL fra
@@ -47,7 +47,7 @@ alter table public.bookings
 -- ============================================================
 -- (b) Relakser "anon insert bookings" ------------------------
 -- 0016 sin WITH CHECK krevde staff_id IS NOT NULL. En ufordelt
--- "Eriks terapeuter"-booking (staff_id = NULL) ville derfor blitt
+-- "Markus' terapeuter"-booking (staff_id = NULL) ville derfor blitt
 -- avvist. Vi fjerner KUN det leddet — status='confirmed', ikke-
 -- tomme PII-felter og non-null service_id/date/time beholdes.
 -- ============================================================

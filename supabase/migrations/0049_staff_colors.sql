@@ -25,11 +25,11 @@ alter table public.staff_members
 
 comment on column public.staff_members.color is
   'Hex-farge (#RRGGBB) for behandlerens fargebar i admin-UI. '
-  'Erik streng = bruk frontend-fallback. Migrasjon 0049.';
+  'Markus streng = bruk frontend-fallback. Migrasjon 0049.';
 
 -- Seed: distinkt, dempet palett i klinikkens toneleie.
 -- Kun rader som IKKE allerede har farge (idempotent + bevarer valg).
-update public.staff_members set color = '#3E6B47' where staff_id = 'erik'         and color = '';
+update public.staff_members set color = '#3E6B47' where staff_id = 'markus'         and color = '';
 update public.staff_members set color = '#B8754A' where staff_id = 'sofie'     and color = '';
 update public.staff_members set color = '#5B7DB1' where staff_id = 'henrik'      and color = '';
 update public.staff_members set color = '#8E6FA8' where staff_id = 'jonas' and color = '';

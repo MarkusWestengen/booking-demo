@@ -14,16 +14,16 @@
 --
 -- Modell (speiler STAFF i booking-engine.js):
 --   - bookable=true  → vises som kunde-kort i bestillingsflyten
---     ('erik' + 'terapeut'-paraplyen). De 7 navngitte har bookable=false.
---   - is_pool=true   → medlem av "Eriks terapeuter"-poolen (de 7 navngitte;
---     brukes til gruppe-kapasitet + admin-tildeling). 'erik'/'terapeut'
+--     ('markus' + 'terapeut'-paraplyen). De 7 navngitte har bookable=false.
+--   - is_pool=true   → medlem av "Markus' terapeuter"-poolen (de 7 navngitte;
+--     brukes til gruppe-kapasitet + admin-tildeling). 'markus'/'terapeut'
 --     er ikke pool-medlemmer.
 --   - aktiv=false    → DEAKTIVERT (skjult fra nye bestillinger). INGEN
 --     hard-delete (ingen DELETE-policy/-grant) — eksisterende bookinger
 --     + historikk beholdes, kan reaktiveres.
 --
 -- Designvalg:
---   - staff_id text PK = NØYAKTIG dagens id-er (erik, terapeut, sofie,
+--   - staff_id text PK = NØYAKTIG dagens id-er (markus, terapeut, sofie,
 --     henrik, jonas, amina, nora, lena, petter) → staff_services +
 --     eksisterende bookings.staff_id matcher uendret (ingen FK, ingen
 --     foreldreløse rader).
@@ -114,15 +114,15 @@ create policy "staff_members update: admin"
 -- i booking-engine.js, så systemet fungerer identisk fra dag én.
 -- on conflict do nothing → re-apply bevarer admin-redigeringer.
 insert into public.staff_members (staff_id, name, role, bio, bookable, is_pool, aktiv, sortering) values
-  ('erik',     'Erik Westengen',   'Grunnlegger · 40 års erfaring', 'Erik selv tar deg gjennom en grundig vurdering. 40 års klinisk erfaring med alt fra idrettsskader til hverdagsplager.', true,  false, true, 10),
-  ('terapeut', 'Eriks terapeuter', 'Opplært av Erik selv',            'Vi tildeler en av våre erfarne terapeuter, alle opplært direkte i Eriks metoder. Samme filosofi, samme grundighet.', true,  false, true, 20),
-  ('sofie',    'Sofie Aune',       'Daglig leder',                    'Opplært direkte av Erik. Samme metodikk, samme grundighet.', false, true, true, 30),
-  ('henrik',   'Henrik Dal',       'Leder for produktutvikling',      'Opplært direkte av Erik. Samme metodikk, samme grundighet.', false, true, true, 40),
-  ('jonas',    'Jonas Riis',       'Markedssjef',                     'Opplært direkte av Erik. Samme metodikk, samme grundighet.', false, true, true, 50),
-  ('amina',    'Amina Nour',       'Trainee-koordinator',             'Opplært direkte av Erik. Samme metodikk, samme grundighet.', false, true, true, 60),
-  ('nora',     'Nora Ellingsen',   'Pasientkoordinator',              'Opplært direkte av Erik. Samme metodikk, samme grundighet.', false, true, true, 65),
-  ('lena',     'Lena Vik',         'Trainee',                         'Opplært direkte av Erik. Samme metodikk, samme grundighet.', false, true, true, 70),
-  ('petter',   'Petter Holm',      'Trainee',                         'Opplært direkte av Erik. Samme metodikk, samme grundighet.', false, true, true, 80)
+  ('markus',     'Markus Westengen',   'Grunnlegger · 40 års erfaring', 'Markus selv tar deg gjennom en grundig vurdering. 40 års klinisk erfaring med alt fra idrettsskader til hverdagsplager.', true,  false, true, 10),
+  ('terapeut', 'Markus'' terapeuter', 'Opplært av Markus selv',            'Vi tildeler en av våre erfarne terapeuter, alle opplært direkte i Markus'' metoder. Samme filosofi, samme grundighet.', true,  false, true, 20),
+  ('sofie',    'Sofie Aune',       'Daglig leder',                    'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 30),
+  ('henrik',   'Henrik Dal',       'Leder for produktutvikling',      'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 40),
+  ('jonas',    'Jonas Riis',       'Markedssjef',                     'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 50),
+  ('amina',    'Amina Nour',       'Trainee-koordinator',             'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 60),
+  ('nora',     'Nora Ellingsen',   'Pasientkoordinator',              'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 65),
+  ('lena',     'Lena Vik',         'Trainee',                         'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 70),
+  ('petter',   'Petter Holm',      'Trainee',                         'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 80)
 on conflict (staff_id) do nothing;
 
 commit;
@@ -149,7 +149,7 @@ commit;
 --    sin STAFF/THERAPIST_POOL og staff_services bruker):
 --    select staff_id, bookable, is_pool, aktiv from public.staff_members
 --     order by sortering;
---    -- Forvent 9 rader: erik(bookable,t), terapeut(bookable,t),
+--    -- Forvent 9 rader: markus(bookable,t), terapeut(bookable,t),
 --    --   sofie/henrik/jonas/amina/nora/lena/petter (is_pool, aktiv)
 --
 -- D) Konsistens mot staff_services (ingen foreldreløse koblinger):

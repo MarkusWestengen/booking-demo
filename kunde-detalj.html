@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow" />
-<meta name="theme-color" content="#171A21">
+<meta name="theme-color" content="#2e2320">
 
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
@@ -28,10 +28,10 @@
 
 <style>
   :root {
-    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8; --green-tint: #E9EAF4;
-    --paper: #F7F8FA; --paper-2: #EDEFF3;
-    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
-    --rule: #171a2622; --danger: #c0392b;
+    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb; --green-tint: #dce7e4;
+    --paper: #efe5dc; --paper-2: #f3d8c7;
+    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
+    --rule: rgba(46,35,32,.16); --danger: #9e2b1f;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -59,7 +59,7 @@
     background: var(--green-soft); color: #fff; padding: 4px 8px; }
   .who-chip.admin { background: var(--green); }
   .topbar a, .topbar button { color: var(--paper); background: transparent;
-    border: 1px solid rgba(247, 248, 250,.22); padding: 6px 10px;
+    border: 1px solid rgba(239, 229, 220,.22); padding: 6px 10px;
     font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; }
   .topbar a:hover, .topbar button:hover { border-color: var(--paper); }
 
@@ -134,7 +134,7 @@
     color: var(--muted); letter-spacing: 0.04em; }
 
   /* GDPR card */
-  .card.gdpr { background: #F7F8FA; border-color: #d9c98e; }
+  .card.gdpr { background: #efe5dc; border-color: #d9c98e; }
   .gdpr-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
 
   /* States */
@@ -217,8 +217,8 @@
   <div id="appView" style="display:none;">
     <div class="back-row"><a href="kunder.html">← Tilbake til kunder</a></div>
 
-    <h1 id="custName" class="adm-accent">—</h1>
-    <p class="lede" id="custMeta">—</p>
+    <h1 id="custName" class="adm-accent">,</h1>
+    <p class="lede" id="custMeta">,</p>
 
     <div class="card">
       <h2>Kontakt</h2>
@@ -298,7 +298,7 @@
     _cfgTarget.innerHTML =
       '<div class="auth-wrap"><div class="login"><h1>Konfigurasjon mangler</h1>' +
       '<p>Denne kopien er ikke koblet til en database ennå. Fyll inn Supabase-URL ' +
-      'og anon-nøkkel i <code>shared/booking-config.js</code> — se ' +
+      'og anon-nøkkel i <code>shared/booking-config.js</code>, se ' +
       '<code>DEMO_SETUP.md</code>.</p></div></div>';
     return;
   }
@@ -405,13 +405,13 @@
 
   function formatPrice(n) { return 'kr ' + (Number(n) || 0).toLocaleString('no-NO').replace(/,/g, ' '); }
   function formatDateLong(s) {
-    if (!s) return '—';
+    if (!s) return '–';
     var d = new Date(s);
     if (isNaN(d.getTime())) return s;
     return d.toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' });
   }
   function formatDate(s) {
-    if (!s) return '—';
+    if (!s) return '–';
     var d = new Date(s);
     if (isNaN(d.getTime())) return s;
     return d.toLocaleDateString('no-NO', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -419,15 +419,15 @@
 
   function renderHeader(rows) {
     var latest = rows[0];
-    $('custName').textContent = latest.name || '—';
+    $('custName').textContent = latest.name || '–';
     $('custMeta').textContent = emailParam + (latest.phone ? ' · ' + latest.phone : '');
   }
   function renderContact(rows) {
     var latest = rows[0];
     var html = '';
-    html += '<div class="k">Navn</div><div>' + escapeHtml(latest.name || '—') + '</div>';
+    html += '<div class="k">Navn</div><div>' + escapeHtml(latest.name || '–') + '</div>';
     html += '<div class="k">E-post</div><div><a href="mailto:' + escapeHtml(emailParam) + '">' + escapeHtml(emailParam) + '</a></div>';
-    html += '<div class="k">Telefon</div><div>' + (latest.phone ? '<a href="tel:' + escapeHtml(latest.phone) + '">' + escapeHtml(latest.phone) + '</a>' : '—') + '</div>';
+    html += '<div class="k">Telefon</div><div>' + (latest.phone ? '<a href="tel:' + escapeHtml(latest.phone) + '">' + escapeHtml(latest.phone) + '</a>' : '–') + '</div>';
     $('kvp').innerHTML = html;
   }
   function renderStats(rows) {
@@ -455,9 +455,9 @@
       html += '<tr>' +
         '<td>' + escapeHtml(formatDate(r.date)) + '</td>' +
         '<td>' + escapeHtml((r.time || '').slice(0,5)) + '</td>' +
-        '<td>' + escapeHtml(r.service_name || '—') + '</td>' +
-        '<td>' + escapeHtml(r.staff_name || '—') + '</td>' +
-        '<td><span class="' + statusCls + '">' + escapeHtml(r.status || '—') + '</span></td>' +
+        '<td>' + escapeHtml(r.service_name || '–') + '</td>' +
+        '<td>' + escapeHtml(r.staff_name || '–') + '</td>' +
+        '<td><span class="' + statusCls + '">' + escapeHtml(r.status || '–') + '</span></td>' +
         '<td style="text-align:right;">' + escapeHtml(formatPrice(r.price)) + '</td>' +
         '</tr>';
     });
@@ -473,9 +473,9 @@
   var JOURNAL_MAXLEN = 8000; // samme som eksisterende journal-felt i kalender.html
 
   function journalEntryHtml(e) {
-    var when = e.created_at ? new Date(e.created_at).toLocaleString('no-NO') : '—';
+    var when = e.created_at ? new Date(e.created_at).toLocaleString('no-NO') : '–';
     return '<div class="journal-entry">' +
-      '<div class="meta">' + escapeHtml(when) + ' · ' + escapeHtml(e.staff_name || '—') + '</div>' +
+      '<div class="meta">' + escapeHtml(when) + ' · ' + escapeHtml(e.staff_name || '–') + '</div>' +
       '<div class="content">' + escapeHtml(e.content || '') + '</div>' +
     '</div>';
   }

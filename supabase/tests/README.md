@@ -2,7 +2,7 @@
 
 Verifiserer at Row-Level-Security-policyene i `supabase/migrations/0001`-`0010`
 faktisk gjør det de sier. Tester er skrevet som rene SQL DO-blokker med
-`_test_assert` — pgTAP ikke nødvendig (men koden kan upgrades trivielt om
+`_test_assert`, pgTAP ikke nødvendig (men koden kan upgrades trivielt om
 ønskelig).
 
 Alt kjøres i én transaksjon som rolles tilbake, så testfilen er trygg å kjøre
@@ -34,13 +34,12 @@ ikke transaction-pooler, siden testene bruker `set_config` med `is_local=true`).
 
 ```
 NOTICE:  PASS: anon journal_entries SELECT returns 0 rows (RLS blocks)
-NOTICE:  PASS: anon audit_log SELECT returns 0 rows (RLS blocks)
-...
+NOTICE:  PASS: anon audit_log SELECT returns 0 rows (RLS blocks)...
 NOTICE:  PASS: anon can INSERT login_failed with correct shape
 ```
 
 Hver assert printer `PASS:` eller raiser med `FAIL:`. En enkelt FAIL stopper
-hele transaksjonen (som likevel rolles tilbake — ingen effekt på prod).
+hele transaksjonen (som likevel rolles tilbake, ingen effekt på prod).
 
 ## Oppgradere til pgTAP
 
@@ -67,25 +66,25 @@ strukturen er kompatibel.
 
 Test 4-serien verifiserer lockdown av PII-eksponering på bookings:
 
-- **Test 4** — anon SELECT på `public.bookings` returnerer 0 rader (RLS deny
+- **Test 4**, anon SELECT på `public.bookings` returnerer 0 rader (RLS deny
   per migrasjon 0010 + 0012).
-- **Test 4b** — anon kan kalle `public.get_booked_slots()` (RPC som erstattet
+- **Test 4b**, anon kan kalle `public.get_booked_slots()` (RPC som erstattet
   `booked_slots`-view i 0016) og får tilbake confirmed bookinger. Filter-
   argumentene `p_staff_id`/`p_from`/`p_to` respekteres.
-- **Test 4c** — `get_booked_slots()`-funksjonens `RETURNS TABLE`-signatur
+- **Test 4c**, `get_booked_slots()`-funksjonens `RETURNS TABLE`-signatur
   garanterer kolonne-whitelist (kun `staff_id, date, time, duration`).
   Verifiseres via `pg_get_function_result()` med eksplisitte LIKE-asserter
   som blokkerer PII-kolonner som `name`, `email`, `phone`, `notes`, `price`,
   `status`, `ref`.
-- **Test 4d** — anon INSERT på `public.bookings` fortsatt mulig (kunde-flyt
+- **Test 4d**, anon INSERT på `public.bookings` fortsatt mulig (kunde-flyt
   intakt via `anon insert bookings`-policy + bevart INSERT-grant). NB: 0016
-  strammet WITH CHECK-en — alle PII-felter må være ikke-tomme + `status='confirmed'`.
-- **Test 4e** — authenticated admin og therapist kan SELECT `public.bookings`.
+  strammet WITH CHECK-en, alle PII-felter må være ikke-tomme + `status='confirmed'`.
+- **Test 4e**, authenticated admin og therapist kan SELECT `public.bookings`.
   Etter 0012 har therapist `staff_id`-filter, men test-oppsettet inserter
-  `staff_id='erik'` + autentiserer som therapist `tom`, så assertion-en passerer
+  `staff_id='markus'` + autentiserer som therapist `tom`, så assertion-en passerer
   fortsatt. Admin-policyen "Admin read all bookings" gir admin full read.
 
-Tidligere "kjente begrensning" om åpen anon-SELECT er nå fjernet — strammet
+Tidligere "kjente begrensning" om åpen anon-SELECT er nå fjernet, strammet
 inn i migrasjon 0010 per audit-rapport 2026-05-11 punkt 4. `booked_slots`-
 view-en ble droppet og erstattet med funksjon i 0016 for å lukke Supabase
 Database Linter sin `security_definer_view`-ERROR.

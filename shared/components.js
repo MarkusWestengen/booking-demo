@@ -2,7 +2,7 @@
    Westengen Klinikk — shared modals + chatbot
    Drop on any page after the page's own DOM. Self-mounts.
    Auto-wires:
-     - <a data-book="erik"> / data-book="henrik" / data-book="general"
+     - <a data-book="markus"> / data-book="henrik" / data-book="general"
        → opens booking modal
      - <a data-contact="open"> → opens contact modal
    Also exposes window.WestengenKlinikk.openBooking(who),
@@ -89,9 +89,9 @@
     who = who || 'general';
     // Map old 'henrik' alias to new 'terapeut' staff id
     var initialStaff = null;
-    if (who === 'erik') {
-      initialStaff = 'erik';
-      setBookingTitle('erik', 'Bestill', 'time med Erik');
+    if (who === 'markus') {
+      initialStaff = 'markus';
+      setBookingTitle('markus', 'Bestill', 'time med Markus');
     } else if (who === 'henrik' || who === 'terapeut') {
       initialStaff = 'terapeut';
       setBookingTitle('terapeut', 'Bestill', 'time med terapeut');
@@ -102,7 +102,7 @@
     if (window.WestengenKlinikkBookingFlow) {
       window.WestengenKlinikkBookingFlow.mount(bookingFlowHost, { initialStaff: initialStaff });
     } else {
-      bookingFlowHost.innerHTML = '<div style="padding:40px;text-align:center;color:#6B7080;">' + bt('booking.system_unavailable', 'Booking-systemet kunne ikke lastes. Ring oss på ' + PHONE + '.') + '</div>';
+      bookingFlowHost.innerHTML = '<div style="padding:40px;text-align:center;color:#5c4d46;">' + bt('booking.system_unavailable', 'Booking-systemet kunne ikke lastes. Ring oss på ' + PHONE + '.') + '</div>';
     }
 
     bookingNode.classList.add('open');
@@ -128,17 +128,17 @@
     + '      <button class="tas-modal-close" aria-label="Lukk skjema" data-close>×</button>'
     + '    </div>'
     + '    <div class="tas-modal-body">'
-    + '      <p class="contact-form-intro">Send en melding direkte til Erik. Han svarer så snart han kan, vanligvis innen et døgn.</p>'
+    + '      <p class="contact-form-intro">Send en melding direkte til Markus. Han svarer så snart han kan, vanligvis innen et døgn.</p>'
     + '      <form data-contact-form>'
     + '        <div class="tas-form-row row-2">'
     + '          <div><label for="ct-name">Navn</label><input id="ct-name" name="name" required /></div>'
     + '          <div><label for="ct-phone">Telefon</label><input id="ct-phone" name="phone" type="tel" /></div>'
     + '        </div>'
     + '        <div class="tas-form-row"><label for="ct-email">E-post</label><input id="ct-email" name="email" type="email" required /></div>'
-    + '        <div class="tas-form-row"><label for="ct-message">Melding</label><textarea id="ct-message" name="message" required placeholder="Beskriv kort hva du sliter med, så svarer Erik deg."></textarea></div>'
+    + '        <div class="tas-form-row"><label for="ct-message">Melding</label><textarea id="ct-message" name="message" required placeholder="Beskriv kort hva du sliter med, så svarer Markus deg."></textarea></div>'
     + '        <button type="submit" class="tas-form-submit">Send melding <span aria-hidden="true">→</span></button>'
     + '      </form>'
-    + '      <div class="tas-form-thanks" data-thanks>Takk! Erik har mottatt meldingen din og svarer så snart han kan.</div>'
+    + '      <div class="tas-form-thanks" data-thanks>Takk! Markus har mottatt meldingen din og svarer så snart han kan.</div>'
     + '    </div>'
     + '  </div>'
     + '</div>';
@@ -227,7 +227,12 @@
     + '    </form>'
     + '  </div>'
     + '  <button class="tas-chat-btn" aria-expanded="false" aria-label="Åpne demoguide" data-chat-toggle>'
-    + '    <svg class="icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square"><path d="M7 3H4v18h3"/><path d="M17 3h3v18h-3"/><path d="M9 9h6"/><path d="M9 13h6"/><path d="M9 17h3"/></svg>'
+    + '    <svg class="icon-chat" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
+    +      '<path d="M20.4 14.9a2.1 2.1 0 0 1-2.1 2.1H8.7L4.2 20.6V5.9a2.1 2.1 0 0 1 2.1-2.1h12a2.1 2.1 0 0 1 2.1 2.1z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>'
+    +      '<circle cx="8.8" cy="10.4" r="1.05" fill="currentColor"/>'
+    +      '<circle cx="12.3" cy="10.4" r="1.05" fill="currentColor"/>'
+    +      '<circle cx="15.8" cy="10.4" r="1.05" fill="currentColor"/>'
+    +      '</svg>'
     + '    <span class="pulse" data-pulse></span>'
     + '  </button>'
     + '</div>';
@@ -251,7 +256,7 @@
   // System prompt — kept here so prototype works with window.claude.complete().
   // In production, this same string lives server-side.
   var SYSTEM_PROMPT = [
-    'Du er "Eriks assistent", en hjelpsom kundeservice-bot for Westengen Klinikk, en muskel- og nervebehandlingsklinikk i Oslo, drevet av Erik Westengen (40 års erfaring) og sønnen Henrik.',
+    'Du er "Markus\' assistent", en hjelpsom kundeservice-bot for Westengen Klinikk, en muskel- og nervebehandlingsklinikk i Oslo, drevet av Markus Westengen (40 års erfaring) og sønnen Henrik.',
     '',
     'NØKKELFAKTA:',
     '• Adresse: Storgata 1, 0155 Oslo.',
@@ -261,11 +266,11 @@
     '• Avbestilling senest 24 timer før timen. No-show faktureres.',
     '',
     'TJENESTER:',
-    '• Time med Erik: konsultasjon kr 4 000, videre behandling kr 3 000. 30 min.',
-    '• Time med terapeut: konsultasjon kr 2 000, videre behandling kr 1 500. 30 min. Eriks terapeuter, opplært i Eriks metode.',
+    '• Time med Markus: konsultasjon kr 4 000, videre behandling kr 3 000. 30 min.',
+    '• Time med terapeut: konsultasjon kr 2 000, videre behandling kr 1 500. 30 min. Markus\' terapeuter, opplært i Markus\' metode.',
     '',
-    'ERIKS FILOSOFI:',
-    'Kroppen er ett sammenkoblet system. Smerter ett sted skyldes nesten alltid spenninger et annet sted. Erik finner årsaken, ikke bare symptomet.',
+    'MARKUS\' FILOSOFI:',
+    'Kroppen er ett sammenkoblet system. Smerter ett sted skyldes nesten alltid spenninger et annet sted. Markus finner årsaken, ikke bare symptomet.',
     '',
     'PLAGER KLINIKKEN BEHANDLER:',
     'Rygg-, nakke- og skulderspenninger, hodepine, muskelskader hos idrettsutøvere, stive hofter, kne- og ankelproblemer, mageplager forårsaket av spenninger, nervesmerter, søvnproblemer knyttet til kroppslig stress.',
@@ -276,7 +281,7 @@
     'TONE: profesjonell, varm, kortfattet. Svar på samme språk som brukeren skriver (norsk standard).',
     '',
     'REGLER:',
-    '• Aldri gi medisinske råd. Ved spesifikke plager: "Det beste er å bestille en time så Erik kan vurdere deg direkte."',
+    '• Aldri gi medisinske råd. Ved spesifikke plager: "Det beste er å bestille en time så Markus kan vurdere deg direkte."',
     '• Hvis du ikke kan svare: foreslå at brukeren sender melding via kontaktskjemaet.',
     '• Hold svar korte (2–4 setninger maks).',
     '• For booking: foreslå at de klikker "Bestill time"-knappen på siden.'
@@ -366,7 +371,7 @@
   function staticAnswer(q) {
     var s = q.toLowerCase();
     if (/(hva er dette|hva du|demo|arbeidspr|portef)/.test(s)) {
-      return 'Dette er et bookingsystem vist fram som arbeidsprove. Kundeflyten kan du klikke gjennom her; resten \u2014 kalender, kundekartotek, journal og audit-logg \u2014 ligger bak innloggingen, og den er publisert pa forsiden.';
+      return 'Dette er et bookingsystem vist fram som arbeidsprove. Kundeflyten kan du klikke gjennom her; resten \u2014 kalender, kunderegister, journal og audit-logg \u2014 ligger bak innloggingen, og den er publisert pa forsiden.';
     }
     if (/(logg|innlogg|passord|konto|bruker|admin)/.test(s)) {
       return 'Innloggingen star apent pa forsiden. Det er to kontoer: en administrator og en terapeut. Logg inn med begge \u2014 forskjellen mellom dem er poenget, ikke en detalj.';
@@ -407,14 +412,14 @@
 
     function escalate() {
       typing.remove();
-      var msg = 'Jeg vil gjerne hjelpe deg, men dette spørsmålet er litt utenfor det jeg kan svare på direkte. Vil du sende en melding direkte til Erik?';
+      var msg = 'Jeg vil gjerne hjelpe deg, men dette spørsmålet er litt utenfor det jeg kan svare på direkte. Vil du sende en melding direkte til Markus?';
       appendMessage(msg, 'bot');
       conversation.push({ role: 'assistant', content: msg });
       // Custom CTA quick reply
       chatQuick.innerHTML = '';
       var b = document.createElement('button');
       b.type = 'button';
-      b.textContent = 'Send melding til Erik →';
+      b.textContent = 'Send melding til Markus →';
       b.addEventListener('click', function () {
         closeChat();
         openContact({ message: 'Spørsmål fra chatbot:\n\n' + text });
@@ -435,7 +440,7 @@
           // Fallback path
           var st = staticAnswer(text);
           if (st) { failedAttempts = 0; reply(st); }
-          else { failedAttempts++; if (failedAttempts >= 2) escalate(); else reply('Kan du formulere spørsmålet litt annerledes? Jeg kan svare på pris, åpningstider, plager Erik behandler og bestilling.'); }
+          else { failedAttempts++; if (failedAttempts >= 2) escalate(); else reply('Kan du formulere spørsmålet litt annerledes? Jeg kan svare på pris, åpningstider, plager Markus behandler og bestilling.'); }
         } else {
           failedAttempts = 0;
           reply(answer.trim());
@@ -452,13 +457,13 @@
     var st = staticAnswer(text);
     setTimeout(function () {
       if (st) { failedAttempts = 0; reply(st); }
-      else { failedAttempts++; if (failedAttempts >= 2) escalate(); else reply('Jeg er ikke helt sikker. Kan du prøve å spørre om pris, plager Erik behandler, åpningstider eller hvor klinikken ligger?'); }
+      else { failedAttempts++; if (failedAttempts >= 2) escalate(); else reply('Jeg er ikke helt sikker. Kan du prøve å spørre om pris, plager Markus behandler, åpningstider eller hvor klinikken ligger?'); }
     }, 700);
   }
 
   function welcome() {
     if (conversation.length === 0) {
-      appendMessage('Hei! Jeg er Eriks assistent. Jeg kan hjelpe deg med spørsmål om behandling, priser, åpningstider eller hvordan du booker time. Hva lurer du på?', 'bot');
+      appendMessage('Hei! Jeg er Markus\' assistent. Jeg kan hjelpe deg med spørsmål om behandling, priser, åpningstider eller hvordan du booker time. Hva lurer du på?', 'bot');
     }
     renderQuickReplies(QUICK_REPLIES);
   }

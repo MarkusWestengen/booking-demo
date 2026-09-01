@@ -19,7 +19,7 @@
   base-uri 'self';
   form-action 'self';
 ">
-<meta name="theme-color" content="#171A21" />
+<meta name="theme-color" content="#2e2320" />
 <meta name="robots" content="noindex, nofollow" />
 <title data-i18n="waitlist.title">Venteliste · Westengen Klinikk</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
@@ -28,11 +28,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --green: #464C8C; --green-deep: #2F3463; --green-soft: #7A80B8;
-    --green-tint: #E9EAF4;
-    --paper: #F7F8FA; --paper-2: #EDEFF3;
-    --ink: #171A21; --ink-2: #2E323C; --muted: #6B7080;
-    --rule: #171a2622; --danger: #c0392b;
+    --green: #1f4e4a; --green-deep: #163b37; --green-soft: #93c2bb;
+    --green-tint: #dce7e4;
+    --paper: #efe5dc; --paper-2: #f3d8c7;
+    --ink: #2e2320; --ink-2: #4a3b35; --muted: #5c4d46;
+    --rule: rgba(46,35,32,.16); --danger: #9e2b1f;
     --safe-bot: env(safe-area-inset-bottom, 0px);
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -151,11 +151,14 @@
   .field { margin-bottom: 18px; }
   .field label, .field-label {
     display: block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    /* Feltetiketter er vanlig lesetekst, ikke data. Monospace med
+       store bokstaver og bred sperring gjorde dem tunge a lese og
+       fikk skjemaet til a se ut som en konsoll. Mono er beholdt der
+       den faktisk koder noe: referansekoder, klokkeslett, trinn-tall. */
+    font-size: 13.5px; font-weight: 500; letter-spacing: 0;
     color: var(--ink-2); margin-bottom: 7px;
   }
-  .field label .opt { color: var(--muted); text-transform: none; letter-spacing: 0; }
+  .field label .opt { color: var(--muted); font-weight: 400; }
   .field input, .field textarea, .field select {
     width: 100%; font-family: inherit;
     font-size: 16px; /* 16px hindrer iOS zoom-on-focus */
@@ -284,12 +287,7 @@
           </button>
           <div class="lang-menu" role="listbox">
             <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
-            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>
-            <button data-lang="de"><span>Deutsch</span><span class="code">🇩🇪</span></button>
-            <button data-lang="es"><span>Español</span><span class="code">🇪🇸</span></button>
-            <button data-lang="ar"><span>العربية</span><span class="code">🇸🇦</span></button>
-            <button data-lang="fa"><span>فارسی</span><span class="code">🇮🇷</span></button>
-          </div>
+            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>          </div>
         </div>
         <a class="btn btn-primary btn-arrow" href="bestilling.html"><span data-i18n="nav.book_cta">Bestill time</span> <span>→</span></a>
         <button class="nav-hamburger" type="button" aria-label="Meny" data-i18n-aria-label="nav.menu_aria" aria-expanded="false" aria-controls="navMobile">
@@ -341,7 +339,7 @@
         <div class="err" id="joinErr" hidden></div>
         <form id="joinForm" novalidate>
 
-          <!-- Honeypot anti-spam (4b Erik-feedback 2026-05-30). Skjult for
+          <!-- Honeypot anti-spam (4b Markus-feedback 2026-05-30). Skjult for
                mennesker (display:none + aria-hidden + tabindex=-1) men
                synlig for bots som fyller alle felt. -->
           <div aria-hidden="true" style="display:none;">
@@ -352,18 +350,18 @@
           <div class="field">
             <span class="field-label" data-i18n="waitlist.field_who">Hvem ønsker du time hos?</span>
             <div class="choice-group" id="groupChoices">
-              <label class="choice" data-group="erik">
-                <input type="radio" name="grp" value="erik" />
+              <label class="choice" data-group="markus">
+                <input type="radio" name="grp" value="markus" />
                 <span>
-                  <span class="c-title" data-i18n="waitlist.staff_erik_title">Erik Westengen</span>
-                  <span class="c-sub" data-i18n="waitlist.staff_erik_sub">Behandling hos Erik selv</span>
+                  <span class="c-title" data-i18n="waitlist.staff_markus_title">Markus Westengen</span>
+                  <span class="c-sub" data-i18n="waitlist.staff_markus_sub">Behandling hos Markus selv</span>
                 </span>
               </label>
               <label class="choice" data-group="terapeut">
                 <input type="radio" name="grp" value="terapeut" />
                 <span>
-                  <span class="c-title" data-i18n="waitlist.staff_therapist_title">Eriks terapeuter</span>
-                  <span class="c-sub" data-i18n="waitlist.staff_therapist_sub">Behandling hos en av Eriks dyktige terapeuter</span>
+                  <span class="c-title" data-i18n="waitlist.staff_therapist_title">Markus' terapeuter</span>
+                  <span class="c-sub" data-i18n="waitlist.staff_therapist_sub">Behandling hos en av Markus' dyktige terapeuter</span>
                 </span>
               </label>
             </div>
@@ -435,7 +433,7 @@
           </svg>
         </div>
         <h2 data-i18n="waitlist.done_join_heading">Du står på ventelista</h2>
-        <p data-i18n="waitlist.done_join_body">Vi tar kontakt på telefon eller e-post så snart en passende time blir ledig. Ta vare på referansekoden din — du trenger den om du vil melde deg av.</p>
+        <p data-i18n="waitlist.done_join_body">Vi tar kontakt på telefon eller e-post så snart en passende time blir ledig. Ta vare på referansekoden din, du trenger den om du vil melde deg av.</p>
         <div class="done-detail" id="joinDetail"></div>
         <div class="actions">
           <a class="btn btn-ghost" href="index.html" data-i18n="waitlist.btn_to_home">Til forsiden</a>
@@ -664,7 +662,7 @@
     var phone = $('fPhone').value.trim();
     var notes = $('fNotes').value.trim();
 
-    if (!grpEl) { showErr('joinErr', t('waitlist.err_select_group', 'Velg om du ønsker time hos Erik eller hos Eriks terapeuter.')); return; }
+    if (!grpEl) { showErr('joinErr', t('waitlist.err_select_group', 'Velg om du ønsker time hos Markus eller hos Markus\' terapeuter.')); return; }
     if (!dateFrom) { showErr('joinErr', t('waitlist.err_no_date', 'Velg en ønsket dato.')); return; }
     if (dateFrom < todayISO()) { showErr('joinErr', t('waitlist.err_date_past', 'Ønsket dato kan ikke være i fortiden.')); return; }
     if (dateTo && dateTo < dateFrom) { showErr('joinErr', t('waitlist.err_date_to_before_from', '«Dato til» kan ikke være før «dato fra».')); return; }
@@ -678,12 +676,12 @@
       return;
     }
 
-    var isTom = grpEl.value === 'erik';
+    var isTom = grpEl.value === 'markus';
     var row = {
       ref: genRef(),
       service_id: null,
-      staff_id: isTom ? 'erik' : null,
-      staff_name: isTom ? 'Erik Westengen' : 'Eriks terapeuter',
+      staff_id: isTom ? 'markus' : null,
+      staff_name: isTom ? 'Markus Westengen' : 'Markus\' terapeuter',
       name: name,
       email: email,
       phone: phone,
@@ -722,9 +720,9 @@
         }
         // Lokalisert staff_name i kvitteringen (DB lagrer norsk verdi,
         // men kvitteringen kan vises på valgt språk).
-        var staffShown = row.staff_id === 'erik'
-          ? t('waitlist.staff_erik_title', 'Erik Westengen')
-          : t('waitlist.staff_therapist_title', 'Eriks terapeuter');
+        var staffShown = row.staff_id === 'markus'
+          ? t('waitlist.staff_markus_title', 'Markus Westengen')
+          : t('waitlist.staff_therapist_title', 'Markus\' terapeuter');
         line(t('waitlist.label_at',        'Hos:'),          staffShown);
         line(t('waitlist.label_date',      'Ønsket dato:'),  formatDateRange(row.preferred_date_from, row.preferred_date_to));
         line(t('waitlist.label_time_pref', 'Tidspunkt:'),    formatTimePref(row.preferred_time_from, row.preferred_time_to));
@@ -760,7 +758,7 @@
         var isNetwork = (err instanceof TypeError) ||
           /fetch|network|load failed/i.test(String(err && err.message || ''));
         showErr('joinErr', isNetwork
-          ? tp('waitlist.err_network', 'Får ikke kontakt med serveren. Sjekk nettilgangen (og ev. annonseblokkering) og prøv igjen — eller ring oss på {phone}.')
+          ? tp('waitlist.err_network', 'Får ikke kontakt med serveren. Sjekk nettilgangen (og ev. annonseblokkering) og prøv igjen, eller ring oss på {phone}.')
           : tp('waitlist.err_generic', 'Noe gikk galt. Prøv igjen, eller ring oss på {phone}.'));
       });
   });

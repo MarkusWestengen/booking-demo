@@ -3,7 +3,7 @@
    Renders the multi-step booking flow into a host element.
    Steps: 1 Behandler  2 Tjeneste  3 Dato  4 Tid  5 Detaljer  6 Bekreftet
    Usage:
-     window.WestengenKlinikkBookingFlow.mount(hostEl, { initialStaff: 'erik' });
+     window.WestengenKlinikkBookingFlow.mount(hostEl, { initialStaff: 'markus' });
    ============================================================ */
 (function () {
   'use strict';
@@ -113,7 +113,7 @@
       // må krysses av i steg 5 før Bekreft-knappen tillater innsending.
       // Sendes IKKE som persondata til backend.
       termsAccepted: false,
-      // D3 (Erik-feedback 2026-05-29): nyhetsbrev-opt-in, valgfri.
+      // D3 (Markus-feedback 2026-05-29): nyhetsbrev-opt-in, valgfri.
       // Default false; krysses av i steg 5 hvis kunden vil ha nyhetsbrev.
       newsletterOptIn: false,
       booking: null,
@@ -187,7 +187,7 @@
         // Admin/kalender-UI bruker fortsatt objektet for å slå opp gamle bookinger.
         if (s.bookable === false) return;
         // Pris vises bevisst først i steg 2 (Tjeneste) — steg 1 er ren
-        // behandler-velger (Erik-feedback 2026-05-29).
+        // behandler-velger (Markus-feedback 2026-05-29).
         // Initialene utledes fra navnet. Tidligere var de hardkodet per
         // staff-id, som betyr at de ikke fulgte med naar en behandler
         // byttet navn — og at en ny behandler fra databasen fikk feil
@@ -197,7 +197,7 @@
                          .join('') || '·';
         var tenureNote = s.id === 'terapeut'
           ? el('p', { class: 'tabf-staff-tenure', style: 'font-size:13px; opacity:.7; font-style:italic; margin:8px 0 0;' },
-              t('booking.step1.therapist_tenure', 'Eriks erfarne terapeuter har vært tilknyttet klinikken i minst 2 år.'))
+              t('booking.step1.therapist_tenure', 'Markus\' erfarne terapeuter har vært tilknyttet klinikken i minst 2 år.'))
           : null;
         var card = el('button', {
           type: 'button',
@@ -220,7 +220,7 @@
         grid.appendChild(card);
       });
       wrap.appendChild(grid);
-      // B3 (Erik-feedback): lang, tynn venteliste-CTA under behandler-kortene
+      // B3 (Markus-feedback): lang, tynn venteliste-CTA under behandler-kortene
       // for de som ikke finner en passende time. Navigerer ut av flyten til
       // venteliste-siden. KUN i kundeflyt — i admin-ny-booking (opts.skipConsent)
       // er den unødvendig siden ventelista har sin egen admin-side.
@@ -284,11 +284,12 @@
       wrap.appendChild(loading);
       wrap.appendChild(renderBackRow(2));
 
-      // "Eriks terapeuter" (staffId 'terapeut') har ingen konkret
+      // "Markus' terapeuter" (staffId 'terapeut') har ingen konkret
       // behandler — bruk pool-tilgjengelighet over de 5 terapeutene.
+      var dur = selectedDuration(state);
       var daysPromise = state.staffId === 'terapeut'
-        ? E.getGroupOpenDays(28)
-        : E.getOpenDays(state.staffId, 28);
+        ? E.getGroupOpenDays(28, dur)
+        : E.getOpenDays(state.staffId, 28, dur);
       daysPromise.then(function (days) {
         loading.remove();
         var calWrap = renderDateCalendar(days);
@@ -406,11 +407,12 @@
       wrap.appendChild(loading);
       wrap.appendChild(renderBackRow(3));
 
-      // "Eriks terapeuter": slot er ledig hvis minst én av de 5 i
+      // "Markus' terapeuter": slot er ledig hvis minst én av de 5 i
       // pool-en er fri (se booking-engine getGroupAvailability).
+      var slotDur = selectedDuration(state);
       var slotsPromise = state.staffId === 'terapeut'
-        ? E.getGroupAvailability(state.date)
-        : E.generateSlotsForDay(state.staffId, state.date);
+        ? E.getGroupAvailability(state.date, slotDur)
+        : E.generateSlotsForDay(state.staffId, state.date, slotDur);
       slotsPromise.then(function (slots) {
         loading.remove();
         // Safeguard (erstatter den gamle synkrone helge-sjekken): en
@@ -469,7 +471,7 @@
       wrap.appendChild(summary);
 
       var form = el('form', { class: 'tabf-form', novalidate: '' });
-      // Honeypot anti-spam (4b Erik-feedback 2026-05-30). Skjult for
+      // Honeypot anti-spam (4b Markus-feedback 2026-05-30). Skjult for
       // mennesker (display:none + aria-hidden + tabindex=-1) men synlig
       // for bots som fyller alle felt. Sjekkes først i submit-handleren.
       var honeypot = el('div', { 'aria-hidden': 'true', style: 'display:none;' }, [
@@ -495,7 +497,7 @@
         form.appendChild(field('notes', t('booking.step5.field_notes', 'Beskriv kort dine plager (valgfritt)'), 'textarea', state.notes, false, 2000));
       }
 
-      // D3 (Erik-feedback 2026-05-29): nyhetsbrev-opt-in. Valgfri,
+      // D3 (Markus-feedback 2026-05-29): nyhetsbrev-opt-in. Valgfri,
       // default unchecked. Eget felt — separat fra journal-samtykke
       // (som er obligatorisk). Skjult i admin-flyt (opts.skipConsent).
       if (!opts.skipConsent) {
@@ -562,7 +564,7 @@
 
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        // Honeypot-sjekk FØRST (4b Erik-feedback 2026-05-30). Hvis
+        // Honeypot-sjekk FØRST (4b Markus-feedback 2026-05-30). Hvis
         // 'website'-feltet er fylt = bot. Vis falsk "Sender…" → "Bekreftet"
         // inline, ingen DB-insert, ingen reell goTo(6). Bot tror submit
         // gikk gjennom — vi har stille filtrert.
@@ -661,7 +663,7 @@
         input.value = value || '';
       }
       row.appendChild(input);
-      // Tegnteller for textarea med maxlength (4a Erik-feedback 2026-05-30).
+      // Tegnteller for textarea med maxlength (4a Markus-feedback 2026-05-30).
       // Defense-in-depth mot ekstremt store payloads — UI-grense + maxlength-attr.
       if (type === 'textarea' && maxlength) {
         var counter = el('div', { class: 'tabf-field-counter', 'aria-live': 'polite' });
@@ -814,7 +816,15 @@
       render();
     }
 
-    function renderBackRow(prevStep) {
+    // Varigheten paa den valgte behandlingen. Tilgjengelighet regnes mot
+  // den: en 60-minutters time trenger to ledige halvtimer paa rad.
+  function selectedDuration(state) {
+    var list = (E.SERVICES && E.SERVICES[state.staffId]) || [];
+    var sv = list.find(function (x) { return x.id === state.serviceId; });
+    return (sv && sv.duration) || 30;
+  }
+
+  function renderBackRow(prevStep) {
       var row = el('div', { class: 'tabf-actions' }, [
         el('button', { type: 'button', class: 'tabf-btn-ghost', on: { click: function () { goTo(prevStep); } } }, t('booking.step5.back', '← Tilbake'))
       ]);
