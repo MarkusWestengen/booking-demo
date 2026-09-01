@@ -419,6 +419,30 @@
     auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
   });
 
+
+  // Bekreftelse uten nettleser-popup. Bruker den samme dialogen som
+  // resten av panelet (shared/auth.js). Teksten gaar gjennom i18n.
+  function askThen(tKey, tFb, mKey, mFb, run) {
+    var I = window.WestengenKlinikkI18n;
+    var tr = function (k, f) {
+      return (I && typeof I.t === 'function') ? I.t(k, f) : f;
+    };
+    var A = window.WestengenKlinikkAuth;
+    if (!A || typeof A.confirmDestructive !== 'function') { return; }
+    A.confirmDestructive({
+      title: tr(tKey, tFb),
+      message: tr(mKey, mFb),
+      confirmLabel: tr('admin.ask.confirm', 'Ja, gjor det'),
+      cancelLabel: tr('admin.ask.cancel', 'Avbryt')
+    }).then(function (ok) { if (ok) run(); });
+  }
+
+  // Kort i18n-oppslag for feiltekster.
+  function tr(key, fallback) {
+    var I = window.WestengenKlinikkI18n;
+    return (I && typeof I.t === 'function') ? I.t(key, fallback) : fallback;
+  }
+
   function $(id) { return document.getElementById(id); }
   var escapeHtml = window.WestengenKlinikkAuth.escapeHtml;
   var STATE = { user: null, blocks: [] };
@@ -581,7 +605,7 @@
     }
     query.then(function (res) {
       if (res.error) {
-        $('blocksHost').innerHTML = '<div class="empty">Kunne ikke laste: ' + escapeHtml(res.error.message) + '</div>';
+        $('blocksHost').innerHTML = '<div class="empty">' + escapeHtml(tr('admin.err.network', 'Fikk ikke kontakt med serveren.')) + '</div>';
         return;
       }
       STATE.blocks = res.data || [];
@@ -876,7 +900,7 @@
     sb.from('blocked_slots').upsert(rows, { onConflict: 'staff_id,date,time' }).then(function (res) {
       btn.disabled = false; btn.textContent = 'Lagre blokkering';
       if (res.error) {
-        $('formErr').style.display = ''; $('formErr').textContent = 'Kunne ikke lagre: ' + res.error.message;
+        $('formErr').style.display = ''; $('formErr').textContent = tr('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.');
         return;
       }
       $('formOk').style.display = '';
@@ -900,18 +924,20 @@
   // treffer radene — ingen description-filter nødvendig.
   function deleteBlockDays(staffId, dates, firstTime, lastTime, label) {
     if (!dates || !dates.length) return;
-    if (!window.confirm('Slett blokkering ' + firstTime + '–' + addMinutes(lastTime, 30) + ' (' + label + ')?')) return;
-    var times = expandTimeRange(firstTime, addMinutes(lastTime, 30));
-    sb.from('blocked_slots').delete().eq('staff_id', staffId).in('date', dates).in('time', times)
-      .then(function (res) {
-        if (res.error) { showToast('Slett feilet: ' + res.error.message, true); return; }
-        showToast(dates.length > 1 ? 'Blokkering slettet (' + dates.length + ' dager)' : 'Blokkering slettet');
-        loadBlocks();
-      })
-      .catch(function (err) {
-        console.error('Sletting av blokkering feilet:', err);
-        showToast('Sletting feilet. Sjekk nettverkstilkoblingen og prøv igjen.', true);
-      });
+    askThen('admin.ask.block_t', 'Slette blokkeringen?',
+            'admin.ask.block_m', 'Tidene blir bookbare igjen.', function () {
+      var times = expandTimeRange(firstTime, addMinutes(lastTime, 30));
+      sb.from('blocked_slots').delete().eq('staff_id', staffId).in('date', dates).in('time', times)
+        .then(function (res) {
+          if (res.error) { showToast(tr('admin.err.delete', 'Sletting ble ikke fullfort. Prov igjen.'), true); return; }
+          showToast(dates.length > 1 ? 'Blokkering slettet (' + dates.length + ' dager)' : 'Blokkering slettet');
+          loadBlocks();
+        })
+        .catch(function (err) {
+          console.error('Sletting av blokkering feilet:', err);
+          showToast(tr('admin.err.network', 'Fikk ikke kontakt med serveren.'), true);
+        });
+    });
   }
 
   // ============================================================
@@ -937,7 +963,7 @@
     sb.from('holidays').select('date').gte('date', todayStr).order('date', { ascending: true })
       .then(function (res) {
         if (res.error) {
-          host.innerHTML = '<div class="empty">Kunne ikke hente stengte dager: ' + escapeHtml(res.error.message) + '</div>';
+          host.innerHTML = '<div class="empty">' + escapeHtml(tr('admin.err.network', 'Fikk ikke kontakt med serveren.')) + '</div>';
           return;
         }
         renderHolidays(res.data || []);
@@ -969,17 +995,19 @@
   }
 
   function deleteHoliday(date) {
-    if (!window.confirm('Åpne klinikken igjen ' + formatHolidayDate(date) + '?\nBooking blir mulig denne dagen igjen (med mindre enkelt-behandlere er blokkert).')) return;
+    askThen('admin.ask.open_day_t', 'Åpne klinikken denne dagen?',
+            'admin.ask.open_day_m', 'Dagen blir bookbar igjen.', function () {
     sb.from('holidays').delete().eq('date', date)
       .then(function (res) {
-        if (res.error) { showToast('Kunne ikke åpne dagen: ' + res.error.message, true); return; }
+        if (res.error) { showToast(tr('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.'), true); return; }
         showToast('Klinikken er åpnet igjen ' + date);
         loadHolidays();
       })
       .catch(function (err) {
         console.error('Sletting av stengt dag feilet:', err);
-        showToast('Handlingen feilet. Sjekk nettverkstilkoblingen og prøv igjen.', true);
+        showToast(tr('admin.err.network', 'Fikk ikke kontakt med serveren.'), true);
       });
+    });
   }
 
   $('holForm').addEventListener('submit', function (e) {
@@ -1009,7 +1037,7 @@
     sb.from('holidays').upsert(rows, { onConflict: 'date' }).then(function (res) {
       btn.disabled = false; btn.textContent = 'Steng klinikken';
       if (res.error) {
-        $('holErr').style.display = ''; $('holErr').textContent = 'Kunne ikke stenge: ' + res.error.message;
+        $('holErr').style.display = ''; $('holErr').textContent = tr('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.');
         return;
       }
       $('holOk').style.display = '';
@@ -1092,7 +1120,7 @@
     sb.from('special_open_days').upsert(rows, { onConflict: 'date,staff_id' }).then(function (res) {
       btn.disabled = false; btn.textContent = 'Åpne dagen';
       if (res.error) {
-        $('specErr').style.display = ''; $('specErr').textContent = 'Kunne ikke åpne dagen: ' + res.error.message;
+        $('specErr').style.display = ''; $('specErr').textContent = tr('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.');
         return;
       }
       $('specOk').style.display = '';
@@ -1117,7 +1145,7 @@
       .gte('date', todayStr).order('date', { ascending: true }).order('staff_id', { ascending: true })
       .then(function (res) {
         if (res.error) {
-          host.innerHTML = '<div class="empty">Kunne ikke hente åpne dager: ' + escapeHtml(res.error.message) + '</div>';
+          host.innerHTML = '<div class="empty">' + escapeHtml(tr('admin.err.network', 'Fikk ikke kontakt med serveren.')) + '</div>';
           return;
         }
         renderSpecialDays(res.data || []);
@@ -1160,17 +1188,19 @@
   }
 
   function deleteSpecialDay(date) {
-    if (!window.confirm('Avlyse den ekstra åpningen ' + formatHolidayDate(date) + '?\nDagen blir stengt igjen (med mindre den er en vanlig ukedag).')) return;
+    askThen('admin.ask.block_t', 'Avlyse den ekstra apningen?',
+            'admin.ask.block_m', 'Dagen blir stengt igjen.', function () {
     sb.from('special_open_days').delete().eq('date', date)
       .then(function (res) {
-        if (res.error) { showToast('Kunne ikke avlyse: ' + res.error.message, true); return; }
+        if (res.error) { showToast(tr('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.'), true); return; }
         showToast('Ekstra åpning avlyst ' + date);
         loadSpecialDays();
       })
       .catch(function (err) {
         console.error('Avlysing av åpen dag feilet:', err);
-        showToast('Handlingen feilet. Sjekk nettverkstilkoblingen og prøv igjen.', true);
+        showToast(tr('admin.err.network', 'Fikk ikke kontakt med serveren.'), true);
       });
+    });
   }
 })();
 </script>

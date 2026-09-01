@@ -1475,6 +1475,38 @@
   // ============================================================
 
   // ---------- Init ----------
+
+  // Melding til brukeren uten popup. Bruker toasten i
+  // shared/demo-mode.js, og gaar gjennom i18n slik som alt annet.
+  // Tekniske strenger fra databasen skal aldri hit.
+  function notify(key, fallback) {
+    var I = window.WestengenKlinikkI18n;
+    var msg = (I && typeof I.t === 'function') ? I.t(key, fallback) : fallback;
+    var label = (I && typeof I.t === 'function')
+      ? I.t('admin.err.label', 'Gikk ikke') : 'Gikk ikke';
+    var Demo = window.WestengenKlinikkDemo;
+    if (Demo && typeof Demo.toast === 'function') { Demo.toast(msg, label); return; }
+    console.warn(msg);
+  }
+
+  // Bekreftelse uten nettleser-popup. Bruker den samme dialogen som
+  // resten av panelet (shared/auth.js), og kjorer handlingen bare
+  // hvis brukeren sier ja. Teksten gaar gjennom i18n.
+  function askThen(tKey, tFb, mKey, mFb, run) {
+    var I = window.WestengenKlinikkI18n;
+    var tr = function (k, f) {
+      return (I && typeof I.t === 'function') ? I.t(k, f) : f;
+    };
+    var A = window.WestengenKlinikkAuth;
+    if (!A || typeof A.confirmDestructive !== 'function') { return; }
+    A.confirmDestructive({
+      title: tr(tKey, tFb),
+      message: tr(mKey, mFb),
+      confirmLabel: tr('admin.ask.confirm', 'Ja, gjor det'),
+      cancelLabel: tr('admin.ask.cancel', 'Avbryt')
+    }).then(function (ok) { if (ok) run(); });
+  }
+
   var CFG = window.WestengenKlinikkBackend || {};
   if (!CFG.supabaseUrl || !CFG.supabaseAnonKey) {
     document.getElementById('bootView').innerHTML =
@@ -2332,7 +2364,10 @@
           requireTyping: 'SLETT',
           confirmLabel: 'Slett'
         })
-      : Promise.resolve(window.confirm('Slette denne bookingen permanent?\n\n' + bookingLabel + '\n\nDette kan ikke angres.'));
+      // Uten dialogen fra shared/auth.js gjor vi ingenting. En
+      // nettleser-popup skal aldri vises, og en sletting skal ikke
+      // skje uten at noen har sagt ja.
+      : Promise.resolve(false);
 
     doConfirm.then(function (confirmed) {
       if (!confirmed) return;
@@ -2365,7 +2400,7 @@
           // Generisk melding til bruker (P2-7); detalj kun til konsoll
           // slik at vi ikke lekker SQL-constraint-navn eller schema-info.
           console.error('Booking-sletting feilet:', err);
-          alert('Kunne ikke slette bookingen. Prøv igjen, eller kontakt admin hvis problemet vedvarer.');
+          notify('admin.err.delete', 'Sletting ble ikke fullfort. Prov igjen.');
         })
         .finally(function () {
           // Always restore the button — whether the delete succeeded, was rejected
@@ -2789,7 +2824,7 @@
           return !(b.staffId === staffId && b.date === date && b.time === time);
         });
         renderSlotGrid();
-        alert('Kunne ikke blokkere ' + time + ': ' + ((err && err.message) || err));
+        notify('admin.err.block', 'Tiden ble ikke blokkert. Prov igjen.');
       });
   }
   function unblockSlotAction(staffId, date, time) {
@@ -2809,7 +2844,7 @@
       .catch(function (err) {
         availData.blocked.push.apply(availData.blocked, removed);
         renderSlotGrid();
-        alert('Kunne ikke frigjøre ' + time + ': ' + ((err && err.message) || err));
+        notify('admin.err.unblock', 'Tiden ble ikke frigjort. Prov igjen.');
       });
   }
 
@@ -2828,27 +2863,27 @@
         availData.holidays = availData.holidays.filter(function (d) { return d !== date; });
         renderHolidayChips();
         renderSlotGrid();
-        alert('Kunne ikke markere som stengt: ' + ((err && err.message) || err));
+        notify('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.');
       });
   }
   function removeHolidayAction(date) {
-    if (!confirm('Fjerne stengt-markering for ' + formatDateNo(date) +
-                 '? Klinikken vil da være åpen den dagen.')) return;
+    askThen('admin.ask.open_day_t', 'Åpne klinikken denne dagen?',
+            'admin.ask.open_day_m', 'Dagen blir bookbar igjen.', function () {
+      availData.holidays = availData.holidays.filter(function (d) { return d !== date; });
+      renderHolidayChips();
+      renderSlotGrid();
 
-    availData.holidays = availData.holidays.filter(function (d) { return d !== date; });
-    renderHolidayChips();
-    renderSlotGrid();
-
-    sb.from('holidays').delete().eq('date', date)
-      .then(function (res) {
-        if (res.error) throw res.error;
-      })
-      .catch(function (err) {
-        availData.holidays.push(date); availData.holidays.sort();
-        renderHolidayChips();
-        renderSlotGrid();
-        alert('Kunne ikke fjerne stengt-markering: ' + ((err && err.message) || err));
-      });
+      sb.from('holidays').delete().eq('date', date)
+        .then(function (res) {
+          if (res.error) throw res.error;
+        })
+        .catch(function (err) {
+          availData.holidays.push(date); availData.holidays.sort();
+          renderHolidayChips();
+          renderSlotGrid();
+          notify('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.');
+        });
+    });
   }
 
   // ---------- Event handlers ----------
@@ -2869,13 +2904,15 @@
   document.getElementById('availDate').addEventListener('change', renderSlotGrid);
   document.getElementById('markHolidayBtn').addEventListener('click', function () {
     var date = document.getElementById('availDate').value;
-    if (!date) { alert('Velg en dato først.'); return; }
+    if (!date) { notify('admin.err.pick_date', 'Velg en dato forst.'); return; }
     if (availData.holidays.indexOf(date) !== -1) {
-      alert('Denne datoen er allerede markert som stengt.');
+      notify('admin.err.already_closed', 'Datoen er allerede markert som stengt.');
       return;
     }
-    if (!confirm('Marker ' + formatDateNo(date) + ' som stengt for hele klinikken?')) return;
-    addHolidayAction(date);
+    askThen('admin.ask.close_day_t', 'Stenge klinikken denne dagen?',
+            'admin.ask.close_day_m', 'Ingen kan booke time denne dagen.', function () {
+      addHolidayAction(date);
+    });
   });
 
   // ---------- Hook into auth lifecycle ----------
@@ -3001,17 +3038,19 @@
   function removeFromWaitlist(id) {
     var w = WAITLIST.rows.find(function (x) { return x.id === id; });
     if (!w || !isAdmin()) return;
-    if (!confirm('Fjerne ' + (w.name || 'denne kunden') + ' fra ventelista?')) return;
-    sb.from('waitlist').update({ status: 'cancelled' }).eq('id', id)
-      .then(function (res) {
-        if (res.error) throw res.error;
-        showToast('Fjernet fra ventelista');
-        loadWaitlist();
-      })
-      .catch(function (err) {
-        showToast('Kunne ikke fjerne. Prøv igjen.', true);
-        console.error(err);
-      });
+    askThen('admin.ask.waitlist_t', 'Fjerne fra ventelista?',
+            'admin.ask.waitlist_m', 'Oppforingen settes til avbrutt.', function () {
+      sb.from('waitlist').update({ status: 'cancelled' }).eq('id', id)
+        .then(function (res) {
+          if (res.error) throw res.error;
+          showToast('Fjernet fra ventelista');
+          loadWaitlist();
+        })
+        .catch(function (err) {
+          showToast('Kunne ikke fjerne. Prov igjen.', true);
+          console.error(err);
+        });
+    });
   }
 
   // ---------- Tildel time-modal (mini-booking-flyt) ----------

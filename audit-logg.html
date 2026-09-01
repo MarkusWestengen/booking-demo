@@ -327,6 +327,20 @@
     auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
   });
 
+
+  // Melding til brukeren uten popup. Bruker toasten i
+  // shared/demo-mode.js, og gaar gjennom i18n slik som alt annet.
+  // Tekniske strenger fra databasen skal aldri hit.
+  function notify(key, fallback) {
+    var I = window.WestengenKlinikkI18n;
+    var msg = (I && typeof I.t === 'function') ? I.t(key, fallback) : fallback;
+    var label = (I && typeof I.t === 'function')
+      ? I.t('admin.err.label', 'Gikk ikke') : 'Gikk ikke';
+    var Demo = window.WestengenKlinikkDemo;
+    if (Demo && typeof Demo.toast === 'function') { Demo.toast(msg, label); return; }
+    console.warn(msg);
+  }
+
   function $(id) { return document.getElementById(id); }
   var escapeHtml = window.WestengenKlinikkAuth.escapeHtml;
 
@@ -529,7 +543,7 @@
     // Når klinikken vokser: implementer chunked eksport via flere range()-kall.)
     buildQuery(false).range(0, 9999).then(function (res) {
       btn.disabled = false; btn.textContent = 'Eksporter CSV';
-      if (res.error) { alert('CSV-eksport feilet: ' + res.error.message); return; }
+      if (res.error) { notify('admin.err.export', 'Eksporten ble ikke fullført. Prøv igjen.'); return; }
       var rows = res.data || [];
       if (rows.length === 10000) {
         // Heads-up til operatør om at vi traff grensen.
@@ -550,7 +564,7 @@
     .catch(function (err) {
       btn.disabled = false; btn.textContent = 'Eksporter CSV';
       console.error('CSV-eksport feilet:', err);
-      alert('CSV-eksport feilet. Sjekk nettverkstilkoblingen og prøv igjen.');
+      notify('admin.err.export', 'Eksporten ble ikke fullført. Prøv igjen.');
     });
   });
 

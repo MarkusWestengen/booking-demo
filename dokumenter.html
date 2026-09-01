@@ -242,6 +242,38 @@
     auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
   });
 
+
+  // Melding til brukeren uten popup. Bruker toasten i
+  // shared/demo-mode.js, og gaar gjennom i18n slik som alt annet.
+  // Tekniske strenger fra databasen skal aldri hit.
+  function notify(key, fallback) {
+    var I = window.WestengenKlinikkI18n;
+    var msg = (I && typeof I.t === 'function') ? I.t(key, fallback) : fallback;
+    var label = (I && typeof I.t === 'function')
+      ? I.t('admin.err.label', 'Gikk ikke') : 'Gikk ikke';
+    var Demo = window.WestengenKlinikkDemo;
+    if (Demo && typeof Demo.toast === 'function') { Demo.toast(msg, label); return; }
+    console.warn(msg);
+  }
+
+  // Bekreftelse uten nettleser-popup. Bruker den samme dialogen som
+  // resten av panelet (shared/auth.js), og kjorer handlingen bare
+  // hvis brukeren sier ja. Teksten gaar gjennom i18n.
+  function askThen(tKey, tFb, mKey, mFb, run) {
+    var I = window.WestengenKlinikkI18n;
+    var tr = function (k, f) {
+      return (I && typeof I.t === 'function') ? I.t(k, f) : f;
+    };
+    var A = window.WestengenKlinikkAuth;
+    if (!A || typeof A.confirmDestructive !== 'function') { return; }
+    A.confirmDestructive({
+      title: tr(tKey, tFb),
+      message: tr(mKey, mFb),
+      confirmLabel: tr('admin.ask.confirm', 'Ja, gjor det'),
+      cancelLabel: tr('admin.ask.cancel', 'Avbryt')
+    }).then(function (ok) { if (ok) run(); });
+  }
+
   function $(id) { return document.getElementById(id); }
   var escapeHtml = window.WestengenKlinikkAuth.escapeHtml;
 
@@ -402,7 +434,7 @@
     return (name || 'fil').replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80);
   }
   $('upBtn').addEventListener('click', function () {
-    if (!isAdmin()) { alert('Kun admin kan laste opp dokumenter.'); return; }
+    if (!isAdmin()) { notify('admin.err.admin_only', 'Bare administrator kan gjore dette.'); return; }
     var title = ($('upTitle').value || '').trim();
     var category = $('upCategory').value;
     var file = $('upFile').files && $('upFile').files[0];
@@ -500,7 +532,8 @@
     if (t.classList.contains('del-btn')) {
       if (!isAdmin()) return;
       var dTitle = t.getAttribute('data-title') || 'dokumentet';
-      if (!window.confirm('Slette «' + dTitle + '»? Dette fjerner filen permanent.')) return;
+      askThen('admin.ask.doc_t', 'Slette dokumentet?',
+              'admin.ask.doc_m', 'Filen fjernes permanent. Kan ikke angres.', function () {
       var dPath = t.getAttribute('data-path');
       var dId = t.getAttribute('data-id');
       t.disabled = true;
@@ -513,9 +546,10 @@
         .catch(function (err) {
           t.disabled = false;
           console.error('Sletting feilet:', err);
-          alert('Sletting feilet: ' + (err && err.message ? err.message : 'ukjent feil'));
+          notify('admin.err.delete', 'Sletting ble ikke fullfort. Prov igjen.');
         });
       return;
+      });
     }
   });
 

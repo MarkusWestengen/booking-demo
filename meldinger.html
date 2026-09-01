@@ -264,6 +264,20 @@
     auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
   });
 
+
+  // Melding til brukeren uten popup. Bruker toasten i
+  // shared/demo-mode.js, og gaar gjennom i18n slik som alt annet.
+  // Tekniske strenger fra databasen skal aldri hit.
+  function notify(key, fallback) {
+    var I = window.WestengenKlinikkI18n;
+    var msg = (I && typeof I.t === 'function') ? I.t(key, fallback) : fallback;
+    var label = (I && typeof I.t === 'function')
+      ? I.t('admin.err.label', 'Gikk ikke') : 'Gikk ikke';
+    var Demo = window.WestengenKlinikkDemo;
+    if (Demo && typeof Demo.toast === 'function') { Demo.toast(msg, label); return; }
+    console.warn(msg);
+  }
+
   function $(id) { return document.getElementById(id); }
   var escapeHtml = window.WestengenKlinikkAuth.escapeHtml;
 
@@ -408,7 +422,7 @@
     sb.from('contact_messages').update({ status: newStatus }).eq('id', id)
       .then(function (res) {
         el.disabled = false;
-        if (res.error) { alert('Kunne ikke oppdatere status: ' + res.error.message); return; }
+        if (res.error) { notify('admin.err.update', 'Endringen ble ikke lagret. Prøv igjen.'); return; }
         // Oppdater lokal state + radens utseende (uten full refetch).
         var row = STATE.rows.filter(function (r) { return r.id === id; })[0];
         if (row) row.status = newStatus;
@@ -418,7 +432,7 @@
       .catch(function (err) {
         el.disabled = false;
         console.error('Status-oppdatering feilet:', err);
-        alert('Kunne ikke oppdatere status. Sjekk nettverkstilkoblingen og prøv igjen.');
+        notify('admin.err.network', 'Fikk ikke kontakt med serveren. Sjekk nettet og prøv igjen.');
       });
   });
 
@@ -426,7 +440,7 @@
   document.addEventListener('click', function (e) {
     var btn = e.target && e.target.closest ? e.target.closest('.btn-del') : null;
     if (!btn) return;
-    if (!isAdmin()) { alert('Kun admin kan slette meldinger.'); return; }
+    if (!isAdmin()) { notify('admin.err.admin_only', 'Bare administrator kan gjøre dette.'); return; }
     var id = btn.getAttribute('data-del-id');
     if (!id) return;
     window.WestengenKlinikkAuth.confirmDestructive({
@@ -443,12 +457,12 @@
         .then(function (res) {
           if (res.error) {
             btn.disabled = false;
-            alert('Kunne ikke slette: ' + res.error.message);
+            notify('admin.err.delete', 'Sletting ble ikke fullført. Prøv igjen.');
             return;
           }
           if (!res.data || res.data.length === 0) {
             btn.disabled = false;
-            alert('Ingen melding ble slettet. Sjekk at migrasjon 0046 er applisert og at du er innlogget som admin.');
+            notify('admin.err.delete', 'Sletting ble ikke fullført. Prøv igjen.');
             return;
           }
           // Fjern fra lokal state + re-render uten reload.
@@ -469,7 +483,7 @@
         .catch(function (err) {
           btn.disabled = false;
           console.error('Sletting feilet:', err);
-          alert('Kunne ikke slette meldingen. Sjekk nettverkstilkoblingen og prøv igjen.');
+          notify('admin.err.network', 'Fikk ikke kontakt med serveren. Sjekk nettet og prøv igjen.');
         });
     });
   });
@@ -501,13 +515,13 @@
     return s;
   }
   $('csvBtn').addEventListener('click', function () {
-    if (!isAdmin()) { alert('Kun admin kan eksportere meldinger.'); return; }
+    if (!isAdmin()) { notify('admin.err.admin_only', 'Bare administrator kan gjøre dette.'); return; }
     var btn = this; btn.disabled = true; var orig = btn.textContent; btn.textContent = 'Bygger CSV…';
     buildQuery(false).range(0, 9999).then(function (res) {
       btn.disabled = false; btn.textContent = orig;
-      if (res.error) { alert('CSV-eksport feilet: ' + res.error.message); return; }
+      if (res.error) { notify('admin.err.export', 'Eksporten ble ikke fullført. Prøv igjen.'); return; }
       var rows = res.data || [];
-      if (!rows.length) { alert('Ingen meldinger å eksportere.'); return; }
+      if (!rows.length) { notify('admin.err.nothing', 'Ingen rader å eksportere.'); return; }
       if (rows.length === 10000) {
         console.warn('CSV-eksport: 10 000-grensen ble truffet. Filtrér for full historikk.');
       }
@@ -544,7 +558,7 @@
     .catch(function (err) {
       btn.disabled = false; btn.textContent = orig;
       console.error('CSV-eksport feilet:', err);
-      alert('CSV-eksport feilet. Sjekk nettverkstilkoblingen og prøv igjen.');
+      notify('admin.err.export', 'Eksporten ble ikke fullført. Prøv igjen.');
     });
   });
 

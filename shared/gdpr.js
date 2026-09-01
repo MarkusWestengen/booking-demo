@@ -92,7 +92,10 @@
         requireTyping: 'PSEUDONYMISER'
       });
     } else {
-      doConfirm = Promise.resolve(window.confirm('Pseudonymisere pasient ' + lower + '?'));
+      // Uten dialogen fra shared/auth.js gjor vi ingenting. Dette er
+      // en irreversibel handling paa persondata, og den skal aldri
+      // skje uten en bekreftelse brukeren faktisk har sett.
+      doConfirm = Promise.resolve(false);
     }
 
     return doConfirm.then(function (confirmed) {

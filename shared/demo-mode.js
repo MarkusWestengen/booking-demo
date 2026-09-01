@@ -159,6 +159,12 @@
   // ============================================================
   var sheet = null;
 
+  // i18n-oppslag med fallback, slik resten av shared/ gjor det.
+  function t(key, fallback) {
+    var I = root.WestengenKlinikkI18n;
+    return (I && typeof I.t === 'function') ? I.t(key, fallback) : fallback;
+  }
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -330,32 +336,160 @@
   // ============================================================
   // Skrivesperre — fetch-patch
   // ------------------------------------------------------------
-  // Migrasjon 0066 svarer PT403 + «demo_readonly» på forsøk på å
-  // endre eller slette seed-data. PostgREST oversetter PT403 til
-  // HTTP 403 og legger meldingen i JSON-feltet `message`.
-  // Vi klonr KUN 403-svar, så normal drift er upåvirket.
+  // Migrasjon 0066 avviser endring og sletting av seed-rader med
+  // SQLSTATE PT403 og meldingen «demo_readonly». PostgREST gjor det
+  // om til HTTP 403.
+  //
+  // FOR: avvisningen naadde kallstedet, som viste en nettleser-alert
+  // med teksten «Kunne ikke oppdatere status: demo_readonly». Det er
+  // bade en popup og en teknisk streng, og knappen sa ut som den var
+  // odelagt.
+  //
+  // NA: avvisningen fanges her og gjores om til et vellykket svar,
+  // slik at kallstedet gaar rett i suksess-grenen og oppdaterer
+  // skjermen som normalt. Endringen huskes for okten og legges oppa
+  // senere GET-svar, slik at sider som henter data paa nytt ikke
+  // ruller den tilbake. En sletting far raden til aa forsvinne.
+  //
+  // Ingenting lagres i databasen. Det er hele poenget, og det staar
+  // i et lavmaelt hint i stedet for en feilmelding.
   // ============================================================
   var DEMO_MARKER = 'demo_readonly';
   var nativeFetch = root.fetch && root.fetch.bind(root);
 
+  // Overstyringer per tabell, kun i minnet, kun for denne okten.
+  //   patches: [{ col, val, patch }]  — felter satt lokalt
+  //   drops:   [{ col, val }]         — rader skjult lokalt
+  var overrides = {};
+
+  function parseRest(url) {
+    var m = /\/rest\/v1\/([A-Za-z0-9_]+)(\?|$)/.exec(String(url));
+    if (!m) return null;
+    var table = m[1];
+    var q = String(url).split('?')[1] || '';
+    // Vi stotter likhetsfilter, som er det adminpanelet bruker for
+    // aa treffe én rad: ?id=eq.<verdi>
+    var f = /(?:^|&)([A-Za-z0-9_]+)=eq\.([^&]*)/.exec(q);
+    if (!f) return { table: table, col: null, val: null };
+    return { table: table, col: f[1], val: decodeURIComponent(f[2]) };
+  }
+
+  function remember(info, method, body) {
+    if (!info || !info.col) return;
+    var o = overrides[info.table] || (overrides[info.table] = { patches: [], drops: [] });
+    if (method === 'DELETE') {
+      o.drops.push({ col: info.col, val: info.val });
+      return;
+    }
+    var patch = null;
+    try { patch = JSON.parse(body); } catch (_) { return; }
+    if (!patch || typeof patch !== 'object') return;
+    o.patches.push({ col: info.col, val: info.val, patch: patch });
+  }
+
+  function sameVal(a, b) { return String(a) === String(b); }
+
+  function applyOverrides(table, rows) {
+    var o = overrides[table];
+    if (!o || !Array.isArray(rows)) return rows;
+    var out = rows.filter(function (r) {
+      return !o.drops.some(function (d) { return sameVal(r[d.col], d.val); });
+    });
+    out.forEach(function (r) {
+      o.patches.forEach(function (p) {
+        if (sameVal(r[p.col], p.val)) {
+          for (var k in p.patch) {
+            if (Object.prototype.hasOwnProperty.call(p.patch, k)) r[k] = p.patch[k];
+          }
+        }
+      });
+    });
+    return out;
+  }
+
+  function hasOverrides(table) {
+    var o = overrides[table];
+    return !!(o && (o.patches.length || o.drops.length));
+  }
+
+  // Svar som faar kallstedet til aa tro at lagringen gikk bra.
+  //
+  // Ba kallet om return=representation, maa svaret inneholde raden
+  // det gjaldt. En tom liste er ikke godt nok: flere steder leses
+  // «tom liste» som «ingen rad ble truffet», og da viser skjermen en
+  // feil selv om vi nettopp har sagt at alt gikk fint. Vi ekker
+  // derfor tilbake noekkelen fra filteret, pluss feltene som ble satt.
+  function okResponse(init, info, method, body) {
+    var prefer = '';
+    try {
+      var h = init && init.headers;
+      if (h) {
+        prefer = (typeof h.get === 'function')
+          ? (h.get('Prefer') || '')
+          : (h.Prefer || h.prefer || '');
+      }
+    } catch (_) {}
+
+    if (String(prefer).indexOf('return=representation') !== -1) {
+      var row = {};
+      if (info && info.col) row[info.col] = info.val;
+      if (method !== 'DELETE') {
+        try {
+          var patch = JSON.parse(body);
+          if (patch && typeof patch === 'object') {
+            for (var k in patch) {
+              if (Object.prototype.hasOwnProperty.call(patch, k)) row[k] = patch[k];
+            }
+          }
+        } catch (_) {}
+      }
+      return new Response(JSON.stringify([row]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    return new Response(null, { status: 204 });
+  }
+
+  var hintShown = false;
+
   if (nativeFetch) {
     root.fetch = function (input, init) {
+      var url = (typeof input === 'string') ? input : (input && input.url) || '';
+      var method = ((init && init.method) ||
+                    (input && input.method) || 'GET').toUpperCase();
+      var info = parseRest(url);
+
       return nativeFetch(input, init).then(function (res) {
+        // ----- Les-svar: legg paa det som er endret lokalt --------
+        if (res.ok && method === 'GET' && info && hasOverrides(info.table)) {
+          return res.clone().json().then(function (rows) {
+            var patched = applyOverrides(info.table, rows);
+            return new Response(JSON.stringify(patched), {
+              status: res.status,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }).catch(function () { return res; });
+        }
+
         if (res.status !== 403) return res;
-        // Klon før noen andre leser bodyen.
-        res.clone().text().then(function (body) {
-          if (body.indexOf(DEMO_MARKER) === -1) return;
-          var hint = '';
-          try {
-            var j = JSON.parse(body);
-            hint = j.hint || j.details || j.detail || '';
-          } catch (_) {}
-          toast(hint || 'Denne raden er en del av demo-oppsettet og lagres ikke. ' +
-            'I drift ville endringen blitt lagret og ført i audit-loggen. ' +
-            'Rader du oppretter selv, kan du endre og slette fritt.',
-            'Demo · ikke lagret');
-        }).catch(function () {});
-        return res;
+
+        // ----- Skrive-svar som ble avvist av skrivesperren --------
+        return res.clone().text().then(function (body) {
+          if (body.indexOf(DEMO_MARKER) === -1) return res;
+
+          remember(info, method, (init && init.body) || '');
+
+          // Ett rolig hint per okt. Gjentatt melding om det samme
+          // blir mas, og regelen er den samme hver gang.
+          if (!hintShown) {
+            hintShown = true;
+            toast(t('demo.local_only',
+                    'Endringen vises bare hos deg. Demoen nullstilles hver natt.'),
+                  t('demo.local_only_label', 'Lagres ikke'));
+          }
+          return okResponse(init, info, method, (init && init.body) || '');
+        }).catch(function () { return res; });
       });
     };
   }

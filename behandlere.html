@@ -292,6 +292,38 @@
     auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
   });
 
+
+  // Melding til brukeren uten popup. Bruker toasten i
+  // shared/demo-mode.js, og gaar gjennom i18n slik som alt annet.
+  // Tekniske strenger fra databasen skal aldri hit.
+  function notify(key, fallback) {
+    var I = window.WestengenKlinikkI18n;
+    var msg = (I && typeof I.t === 'function') ? I.t(key, fallback) : fallback;
+    var label = (I && typeof I.t === 'function')
+      ? I.t('admin.err.label', 'Gikk ikke') : 'Gikk ikke';
+    var Demo = window.WestengenKlinikkDemo;
+    if (Demo && typeof Demo.toast === 'function') { Demo.toast(msg, label); return; }
+    console.warn(msg);
+  }
+
+  // Bekreftelse uten nettleser-popup. Bruker den samme dialogen som
+  // resten av panelet (shared/auth.js), og kjorer handlingen bare
+  // hvis brukeren sier ja. Teksten gaar gjennom i18n.
+  function askThen(tKey, tFb, mKey, mFb, run) {
+    var I = window.WestengenKlinikkI18n;
+    var tr = function (k, f) {
+      return (I && typeof I.t === 'function') ? I.t(k, f) : f;
+    };
+    var A = window.WestengenKlinikkAuth;
+    if (!A || typeof A.confirmDestructive !== 'function') { return; }
+    A.confirmDestructive({
+      title: tr(tKey, tFb),
+      message: tr(mKey, mFb),
+      confirmLabel: tr('admin.ask.confirm', 'Ja, gjor det'),
+      cancelLabel: tr('admin.ask.cancel', 'Avbryt')
+    }).then(function (ok) { if (ok) run(); });
+  }
+
   function $(id) { return document.getElementById(id); }
   var escapeHtml = window.WestengenKlinikkAuth.escapeHtml;
   var STATE = { user: null, rows: [], editingId: null };
@@ -455,10 +487,10 @@
   function setActive(staffId, active) {
     sb.from('staff_members').update({ aktiv: active }).eq('staff_id', staffId)
       .then(function (res) {
-        if (res.error) { alert('Kunne ikke oppdatere: ' + res.error.message); return; }
+        if (res.error) { notify('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.'); return; }
         loadStaff();
       })
-      .catch(function (err) { console.error(err); alert('Kunne ikke oppdatere. Prøv igjen.'); });
+      .catch(function (err) { console.error(err); notify('admin.err.update', 'Endringen ble ikke lagret. Prov igjen.'); });
   }
   document.addEventListener('click', function (e) {
     var t = e.target; if (!t || !t.classList) return;
@@ -467,9 +499,11 @@
       if (row) openEditor(row);
     } else if (t.classList.contains('deact-btn')) {
       var nm = t.getAttribute('data-name') || t.getAttribute('data-id');
-      if (window.confirm('Deaktivere «' + nm + '»? Skjules fra nye bestillinger. Eksisterende bookinger beholdes, og du kan reaktivere senere.')) {
+      askThen('admin.ask.deactivate_t', 'Deaktivere behandleren?',
+              'admin.ask.deactivate_m', 'Behandleren skjules fra nye bestillinger.',
+              function () {
         setActive(t.getAttribute('data-id'), false);
-      }
+      });
     } else if (t.classList.contains('react-btn')) {
       setActive(t.getAttribute('data-id'), true);
     }
