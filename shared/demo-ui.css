@@ -599,3 +599,47 @@ body .wk-demo-card h2 { font-family: var(--font-display); }
   -webkit-hyphens: auto;
   overflow-wrap: break-word;
 }
+
+/* ============================================================
+   TEKNISK DETALJ
+   ------------------------------------------------------------
+   Den tekniske beskrivelsen er flyttet hit fra brødteksten. Den
+   som vil vite hvilken database det er, finner det; den som bare
+   vil vite hva systemet gjør, slipper å lese forbi det.
+   Lukket som standard.
+   ============================================================ */
+.tech-detail {
+  margin: 18px 0 0;
+  border-top: 1px solid var(--hair);
+  padding-top: 14px;
+  max-width: 68ch;
+}
+.tech-detail > summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+.tech-detail > summary::-webkit-details-marker { display: none; }
+.tech-detail > summary::before {
+  content: '+';
+  font-size: 13px;
+  line-height: 1;
+  color: var(--accent);
+}
+.tech-detail[open] > summary::before { content: '\2212'; }
+.tech-detail > summary:hover { color: var(--ink-2); }
+.tech-detail > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.tech-detail > p {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}

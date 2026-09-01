@@ -41,11 +41,15 @@
   // ----- Publisert innlogging ------------------------------------
   // Opprettet av migrasjon 0065. Bevisst offentlig: uten den kommer
   // ingen inn i adminpanelet, som er halve poenget med demoen.
+  // Rollene demoen kan vises i. E-post og passord laa her for, men
+  // panelet apner seg av seg selv na, saa de var bade unodvendige og
+  // en ting som kunne lekke ut i UI-et ved et uhell. Kontoene som
+  // faktisk brukes til innlogging bor i shared/auth.js.
   var CREDENTIALS = [
-    { role: 'Administrator', email: 'admin@westengenklinikk.example',    password: 'demo-admin-2026',
-      note: 'Full tilgang: kalender, kunder, journal, tjenester, behandlere, audit-logg.' },
-    { role: 'Terapeut',      email: 'terapeut@westengenklinikk.example', password: 'demo-terapeut-2026',
-      note: 'Begrenset tilgang: egen kalender og egne pasienter. Viser rolleskillet.' }
+    { role: 'Administrator',
+      note: 'Ser alt: kalender, kunder, journal, tjenester, behandlere og loggen over oppslag.' },
+    { role: 'Terapeut',
+      note: 'Ser egen kalender og egne pasienter. Tjenester og behandlere er borte fra menyen.' }
   ];
 
   var BADGE_TEXT = 'DEMO · fiktive data';
@@ -169,9 +173,12 @@
     sheet.setAttribute('aria-modal', 'true');
     sheet.setAttribute('aria-label', 'Om denne demoen');
 
+    // Innlogging vises ikke lenger. Panelet aapner seg av seg selv,
+    // saa e-post og passord er noe brukeren aldri trenger aa se.
+    // Rollene beskrives i stedet, siden det er forskjellen mellom dem
+    // som er verdt aa legge merke til.
     var creds = CREDENTIALS.map(function (c) {
       return '<div class="wk-cred"><b>' + esc(c.role) + '</b>' +
-        '<code>' + esc(c.email) + '</code> &nbsp;/&nbsp; <code>' + esc(c.password) + '</code>' +
         '<span class="wk-note">' + esc(c.note) + '</span></div>';
     }).join('');
 
@@ -185,14 +192,13 @@
           'demonstrasjonen, og ingen av dem gjelder et virkelig menneske.</p>' +
         '<p>Adresse, telefonnummer og e-postadresse er plassholdere. ' +
           'Ingen av dem er i bruk, og e-postdomenet kan ikke registreres.</p>' +
-        '<h3>Logg inn i adminpanelet</h3>' +
+        '<h3>To roller</h3>' +
         creds +
         '<p style="font-size:12.5px;color:#4a5c6f;">Du kan opprette, endre og ' +
-          'slette dine egne rader fritt. Radene som fulgte med demoen er ' +
-          'skrivebeskyttet, slik at panelet ser likt ut for neste besøkende, ' +
-          'du får en forklaring i stedet for en lagring når du prøver.</p>' +
+          'slette dine egne rader fritt. Radene som følger med demoen står ' +
+          'igjen som de er, slik at panelet ser likt ut for neste besøkende.</p>' +
         '<div class="wk-demo-actions">' +
-          '<a class="wk-primary" href="' + loginHref() + '">Åpne innloggingen →</a>' +
+          '<a class="wk-primary" href="kalender.html">Åpne adminpanelet →</a>' +
           '<button type="button" data-wk-close>Lukk</button>' +
         '</div>' +
       '</div>';

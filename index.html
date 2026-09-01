@@ -178,7 +178,6 @@
     <p class="lead-eyebrow" data-i18n="landing.eyebrow">Arbeidsprøve</p>
     <h1 data-i18n-html="landing.heading">Booking- og administrasjonssystem <em>for en klinikk</em></h1>
     <p class="lead-body" data-i18n-html="landing.body1">Kundevendt bestilling med ledig-tid-oppslag, avbestilling via lenke og venteliste. Bak innloggingen: kalender per behandler, kunderegister, pasientjournal med samtykke og audit-logg, tjeneste- og behandleradministrasjon, meldingsinnboks og stengte tider.</p>
-    <p class="lead-body" data-i18n-html="landing.body2"><strong>Westengen Klinikk finnes ikke.</strong> Klinikken, behandlerne, kundene og alle bestillinger er oppdiktet. Kulissen er der bare fordi et bookingsystem trenger noen å booke hos.</p>
   </div>
 </section>
 
@@ -215,26 +214,9 @@
           <li data-i18n="landing.door_admin_2">Audit-logg som fanger hvert oppslag, ikke bare endringer</li>
           <li data-i18n="landing.door_admin_3">Rollestyrt tilgang, logg inn med begge og se forskjellen</li>
         </ul>
-        <div class="door-creds" id="innlogging">
-          <p class="door-creds-lead" data-i18n="landing.creds_heading">Innlogging</p>
-          <div class="cred-row">
-            <span class="who" data-i18n="demo.role_admin">Administrator</span>
-            <code>admin@westengenklinikk.example</code>
-            <code>demo-admin-2026</code>
-          </div>
-          <div class="cred-row">
-            <span class="who" data-i18n="demo.role_therapist">Terapeut</span>
-            <code>terapeut@westengenklinikk.example</code>
-            <code>demo-terapeut-2026</code>
-          </div>
-        </div>
         <a class="door-cta" href="kalender.html">
           <span data-i18n="landing.door_admin">Apne adminpanelet</span> <span class="arr" aria-hidden="true">→</span>
         </a>
-        <p class="door-foot">
-          <span data-i18n="landing.door_admin_auto">Du blir logget inn som administrator med det samme.</span>
-          <a href="ansatt.html" data-i18n="landing.door_admin_manual">Vil du se innloggingen i stedet?</a>
-        </p>
       </div>
 
     </div>
@@ -293,9 +275,12 @@
 <!-- ============ RAMMENOTAT ============ -->
 <section class="colophon">
   <div class="container">
-    <p data-i18n="landing.colophon1">Du kan opprette, endre og slette dine egne rader fritt, hele CRUD-syklusen er demonstrerbar. Radene som fulgte med demoen er skrivebeskyttet i databasen: knappene virker, men lagringen avvises med en forklaring, slik at panelet ser likt ut for neste besøkende. Alt nullstilles hvert døgn.</p>
-    <p data-i18n-html="landing.colophon2">Ikke skriv inn ekte personopplysninger. Innloggingen over er offentlig, så alt du legger inn kan leses av hvem som helst. <a href="personvern.html">Mer om hva demoen lagrer</a>.</p>
-    <p data-i18n="landing.colophon3">Statisk frontend uten byggesteg, Supabase i bunn: PostgreSQL med Row-Level Security, Auth, Edge Functions og pg_cron. Seks språk, PWA-skall for de ansatte.</p>
+    <p data-i18n-html="landing.colophon2">Skriv ikke inn ekte personopplysninger. <a href="personvern.html">Slik håndteres det du legger inn</a>.</p>
+    <p data-i18n="landing.colophon3">Nettsiden er bygget i ren HTML, CSS og JavaScript, uten rammeverk. Data ligger i en database hos Supabase, der hver bruker bare ser det rollen gir tilgang til. Siden finnes på norsk og engelsk, og ansatte kan legge den til på mobilen som en app.</p>
+    <details class="tech-detail">
+      <summary data-i18n="landing.tech_summary">Teknisk detalj</summary>
+      <p data-i18n="landing.tech_body">Statisk frontend uten byggesteg. Supabase i bunn: PostgreSQL med Row-Level Security, Auth, Edge Functions og pg_cron for planlagte jobber. To språk via JSON-filer, og et PWA-skall for de ansatte.</p>
+    </details>
   </div>
 </section>
 
