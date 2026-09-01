@@ -134,7 +134,7 @@
 .nav-mobile-links a {
   display: flex; align-items: baseline; gap: 18px;
   padding: 17px 2px;
-  font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+  font-family: var(--font-display); font-weight: 400;
   font-size: clamp(23px, 6vw, 30px); line-height: 1.1;
   letter-spacing: -0.01em;
   color: var(--paper, #F7F8FA);
@@ -211,7 +211,7 @@ textarea:focus-visible {
    den defererte scripten, og hindrer et glimt av ustylet merkenavn. */
 .brand-wordmark { display: flex; flex-direction: column; gap: 2px; line-height: 1; }
 .brand-wordmark strong {
-  font-family: 'Fraunces', Georgia, serif; font-weight: 500;
+  font-family: var(--font-display); font-weight: 500;
   font-size: 24px; letter-spacing: -0.015em; color: #F7F8FA;
 }
 .brand-wordmark > span {

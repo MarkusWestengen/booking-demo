@@ -1,0 +1,522 @@
+/* ============================================================
+   demo-ui.css — designsystem for den kundevendte flaten
+   ------------------------------------------------------------
+   RETNING: «instrument, ikke brosjyre».
+
+   Sidene her er ikke en klinikk som selger behandlinger. De er et
+   bookingsystem som demonstrerer seg selv for noen som vurderer
+   arbeidet. Formspraket er derfor hentet fra verktoy — timeplaner,
+   spesifikasjonsark, avlesninger — ikke fra markedsforing.
+
+   Tre bevisste valg:
+     1. Ingen serif. En kursiv display-serif med ett ord i aksentfarge
+        er det mest gjenkjennelige grepet i malen disse sidene arvet.
+        Space Grotesk er kategorisk noe annet: mekanisk, litt smal,
+        leser som skilting og tabell.
+     2. Monospace har en ekte jobb. Den merker data (etiketter,
+        referanser, tider), ikke pynt. En mono-«eyebrow» over hver
+        overskrift er dekorasjon som utgir seg for a vaere struktur.
+     3. Tick-rule som signatur. En linjal-skala under hvert sidehode.
+        Den koder noe sant — systemet handler om tidsluker — og er
+        det ene stedet designet tar plass.
+
+   Adminpanelet bruker IKKE denne filen.
+   ============================================================ */
+
+:root {
+  /* Aksent — samme indigo som resten av demoen, med egne navn slik
+     at nye regler slipper a arve de historiske --green-*-navnene. */
+  --accent:       #464C8C;
+  --accent-deep:  #2F3463;
+  --accent-soft:  #7A80B8;
+  --accent-tint:  #E9EAF4;
+
+  --hair:         rgba(23, 26, 33, 0.12);
+  --hair-strong:  rgba(23, 26, 33, 0.22);
+
+  /* Typeskala. Tett sporing pa display — Space Grotesk taler det, og
+     det er det som gir den tabell-aktige tettheten. */
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ----- Dataetikett -------------------------------------------
+   Erstatter .eyebrow. Brukes KUN der teksten faktisk merker en
+   verdi: et felt, en referanse, en rolle. Aldri som pynt over en
+   overskrift. */
+.d-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ----- Signatur: tick-rule -----------------------------------
+   En linjal. Tett skala med en kraftigere strek hver sjette tick,
+   slik en timeplan har halvtimer og hele timer. Rendres som to
+   gradienter over hverandre; ingen markup, ingen bilder. */
+.tick-rule {
+  height: 9px;
+  margin: 0;
+  border: 0;
+  /* Én jevn skala. Et forsoek med to lag — grov og fin tick over
+     hverandre — interfererte og leste som en oedelagt strek i stedet
+     for en linjal. Ett lag er både roligere og tydeligere. */
+  background-image: repeating-linear-gradient(to right, var(--hair-strong) 0 1px, transparent 1px 9px);
+}
+.tick-rule--tight { height: 7px; background-image: repeating-linear-gradient(to right, var(--hair) 0 1px, transparent 1px 10px); background-size: 100% 7px; }
+
+/* ============================================================
+   SIDEHODE
+   ------------------------------------------------------------
+   Erstatter .page-hero / .k-hero. Venstrestilt, ett niva, ingen
+   todelt komposisjon og ingen aksentfarget ord. Overskriften er
+   hele grepet; ledeteksten er én linje som sier hva du gjor her.
+   ============================================================ */
+.page-head {
+  padding: 52px 0 0;
+  background: var(--paper);
+}
+
+.page-head-crumb {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 22px;
+}
+.page-head-crumb a { color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; }
+.page-head-crumb a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+.page-head-crumb span[aria-hidden] { opacity: .45; }
+.page-head-crumb strong { color: var(--ink); font-weight: 500; }
+
+.page-head h1 {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 5.2vw, 52px);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  margin: 0 0 16px;
+  max-width: 18ch;
+}
+.page-head .page-head-lede {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: 0 0 30px;
+  max-width: 56ch;
+}
+.page-head .tick-rule { margin-bottom: 0; }
+
+/* Faktalinje under sidehodet: mono-etikett + verdi, adskilt av
+   hairlines. Erstatter .page-hero-meta. Bare det som er sant for
+   en demo — ingen adresse-detaljer, ingen apningstidsloefter. */
+.page-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-top: 1px solid var(--hair);
+  margin-top: 30px;
+}
+.page-facts > div {
+  padding: 14px 24px 14px 0;
+  margin-right: 24px;
+  border-right: 1px solid var(--hair);
+  min-width: 0;
+}
+.page-facts > div:last-child { border-right: 0; margin-right: 0; padding-right: 0; }
+.page-facts dt {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 5px;
+}
+.page-facts dd {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* ============================================================
+   SPESIFIKASJONSLISTE
+   ------------------------------------------------------------
+   Erstatter kortraden med fire ikoner. Referansedata hoerer hjemme
+   i en tabell, ikke i dekorerte kort — og en tabell tvinger fram
+   korte, etterproevbare verdier i stedet for prosa om et bygg.
+   ============================================================ */
+.spec {
+  padding: 64px 0 72px;
+  border-top: 1px solid var(--hair);
+  background: var(--paper);
+}
+.spec h2 {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.6vw, 28px);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+.spec-intro {
+  font-size: 15px;
+  color: var(--muted);
+  margin: 0 0 28px;
+  max-width: 56ch;
+}
+.spec-list { margin: 0; }
+.spec-row {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 24px;
+  align-items: baseline;
+  padding: 16px 0;
+  border-top: 1px solid var(--hair);
+}
+.spec-row:last-child { border-bottom: 1px solid var(--hair); }
+.spec-row dt {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+.spec-row dd {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin: 0;
+}
+.spec-row dd .sub { display: block; font-size: 14px; color: var(--muted); margin-top: 3px; }
+.spec-row dd a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-tint); }
+.spec-row dd a:hover { border-bottom-color: var(--accent); }
+
+/* ============================================================
+   SEKSJONSHODE (uten eyebrow)
+   ============================================================ */
+.sec-head { margin: 0 0 28px; }
+.sec-head h2 {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.sec-head p { font-size: 15px; color: var(--muted); margin: 0; max-width: 58ch; }
+
+/* ============================================================
+   TO DOERER — forsidens hovedgrep
+   ------------------------------------------------------------
+   Valget ER siden. To likeverdige paneler, men bevisst ikke like
+   kledd: kundeflaten er lys som sidene den fører til, adminpanelet
+   er invertert som skallet bak innlogging. To rom, ikke to knapper.
+   ============================================================ */
+.doors-section { padding: 0 0 12px; }
+.doors-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--hair-strong);
+  border: 1px solid var(--hair-strong);
+}
+.door-panel {
+  padding: 38px 34px 34px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.door-panel--public { background: var(--paper); }
+.door-panel--admin  { background: var(--ink); }
+
+.door-role {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.door-panel--public .door-role { color: var(--accent); }
+.door-panel--admin  .door-role { color: var(--accent-soft); }
+.door-role::before {
+  content: '';
+  width: 22px; height: 1px;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.door-panel h2 {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.2vw, 34px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+  margin: 0 0 12px;
+}
+.door-panel--public h2 { color: var(--ink); }
+.door-panel--admin  h2 { color: var(--paper); }
+
+.door-panel > p {
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0 0 22px;
+  max-width: 44ch;
+}
+.door-panel--public > p { color: var(--ink-2); }
+.door-panel--admin  > p { color: #A9AEC4; }
+
+.door-list { list-style: none; margin: 0 0 26px; padding: 0; }
+.door-list li {
+  font-size: 14px;
+  line-height: 1.45;
+  padding: 9px 0 9px 20px;
+  position: relative;
+  border-top: 1px solid var(--hair);
+}
+.door-list li:last-child { border-bottom: 1px solid var(--hair); }
+.door-list li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 17px;
+  width: 8px; height: 1px;
+  background: var(--accent);
+}
+.door-panel--public .door-list li { color: var(--ink-2); }
+.door-panel--admin  .door-list li { color: #C3C7D8; border-color: rgba(255,255,255,.13); }
+.door-panel--admin  .door-list li::before { background: var(--accent-soft); }
+
+.door-cta {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px 20px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+.door-panel--public .door-cta { background: var(--accent); color: #fff; }
+.door-panel--public .door-cta:hover { background: var(--accent-deep); }
+.door-panel--admin  .door-cta { background: transparent; color: var(--paper); border-color: rgba(255,255,255,.34); }
+.door-panel--admin  .door-cta:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.door-cta .arr { transition: transform .18s ease; }
+.door-cta:hover .arr { transform: translateX(4px); }
+
+/* Innlogging ligger INNE i admin-doeren: den hoerer til det valget,
+   og en besoekende som bare vil se bookingflyten skal slippe a lese
+   seg gjennom to passord foerst. */
+.door-creds { margin: 0 0 24px; }
+.door-creds-lead {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+  margin: 0 0 10px;
+}
+.cred-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255,255,255,.13);
+}
+.cred-row:last-child { border-bottom: 1px solid rgba(255,255,255,.13); }
+.cred-row .who {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--paper);
+  min-width: 76px;
+}
+.cred-row code {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: #C3C7D8;
+  background: rgba(255,255,255,.07);
+  padding: 3px 7px;
+  word-break: break-all;
+}
+
+/* ============================================================
+   RESPONSIVT
+   ============================================================ */
+@media (max-width: 860px) {
+  .doors-grid { grid-template-columns: 1fr; }
+  .door-panel { padding: 30px 24px 28px; }
+  .spec-row { grid-template-columns: 1fr; gap: 6px; }
+  .page-facts > div { border-right: 0; margin-right: 0; padding-right: 0; width: 100%; border-top: 1px solid var(--hair); }
+  .page-facts > div:first-child { border-top: 0; }
+}
+@media (max-width: 560px) {
+  .page-head { padding-top: 34px; }
+  .page-head h1 { max-width: none; }
+  .spec { padding: 44px 0 52px; }
+}
+
+/* Tilgjengelighet: synlig tastaturfokus og respekt for redusert
+   bevegelse. Gjelder hele den kundevendte flaten. */
+.door-cta:focus-visible,
+.page-head-crumb a:focus-visible,
+.spec-row dd a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .door-cta, .door-cta .arr { transition: none; }
+}
+
+/* ============================================================
+   OVERSTYRINGER AV DELT CSS
+   ------------------------------------------------------------
+   shared/booking-flow.css brukes ogsaa av adminpanelet og skal
+   ikke endres. demo-ui.css lastes etter den og KUN paa den
+   kundevendte flaten, saa overstyringene her treffer bare disse
+   sidene. Adminpanelet beholder sitt uttrykk uendret.
+   ============================================================ */
+.tabf-avatar,
+.tabf-staff-card h4,
+.tabf-step-title,
+.tabf h2, .tabf h3,
+.tabf-summary-title,
+.tabf-confirm h3 { font-family: var(--font-display); }
+.tabf-avatar { border-radius: 0; letter-spacing: -0.02em; font-weight: 600; }
+
+/* Den kursive serifen med ett ord i aksentfarge er malens tydeligste
+   signatur. Naar den forsvinner skal ingen rest av den staa igjen:
+   <em> i overskrifter blir vanlig tekst i samme farge. */
+.page-head h1 em, .sec-head h2 em,
+.door-panel h2 em, .spec h2 em,
+h1 em, h2 em { font-style: normal; color: inherit; font-weight: inherit; }
+
+/* Trinnindikatoren beholdes — den er nyttig — men faar systemets
+   typografi i stedet for malens. */
+.tabf-steps, .tabf-step-num { font-family: var(--font-mono); }
+
+/* Seksjonshodet arves ogsaa av .embed-section, som er en moerk flate.
+   Uten dette ville overskriften blitt naer-svart paa naer-svart. */
+.embed-section .sec-head h2 { color: var(--paper); }
+.embed-section .sec-head p  { color: rgba(255,255,255,.68); }
+
+/* ============================================================
+   HEADER — oppussing, ikke ombygging
+   ------------------------------------------------------------
+   Strukturen beholdes (merke venstre, lenker midt, spraak og CTA
+   hoyre). Tre grep gir den egenart uten aa rive noe:
+
+     1. Et merke foran ordmerket — samme firkantede vokabular som
+        resten av flaten, og et fast holdepunkt paa mobil der
+        lenkene forsvinner.
+     2. Lenkene faar en tick OVER seg i stedet for en strek under.
+        Understreken er standardgrepet; ticken knytter navigasjonen
+        til linjalen som gaar igjen ellers.
+     3. Bunnkanten er tick-rule, ikke en flat hairline. Signaturen
+        baeres inn i rammen rundt siden.
+   ============================================================ */
+.nav-shell {
+  border-bottom: 0;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.08);
+}
+.nav-shell::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 6px;
+  background-image: repeating-linear-gradient(to right, rgba(255,255,255,.16) 0 1px, transparent 1px 10px);
+  pointer-events: none;
+}
+.nav-shell { position: sticky; }
+
+.brand-wordmark { position: relative; padding-left: 17px; }
+.brand-wordmark::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 3px;
+  width: 9px; height: 9px;
+  background: var(--accent-soft);
+  box-shadow: 0 12px 0 -3px var(--accent-soft);
+}
+.brand-wordmark strong { font-weight: 600; letter-spacing: -0.035em; }
+.brand-wordmark > span { letter-spacing: 0.26em; }
+
+/* Tick over lenken i stedet for strek under. */
+.nav-links a::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: -6px;
+  height: 2px;
+  background: var(--accent-soft);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .18s ease;
+}
+.nav-links a:hover::before { transform: scaleX(1); }
+.nav-links a.active::before { transform: scaleX(1); background: var(--paper); }
+.nav-links a.active::after { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-links a::before { transition: none; }
+}
+
+/* Overskriftene i bookingflyten (.tabf-h) bruker malens display-font
+   via booking-flow.css. Den fila er delt med adminpanelet, saa
+   omleggingen skjer her — kun paa den kundevendte flaten. */
+.tabf-h, .tabf-confirm-h { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.025em; }
+
+/* ============================================================
+   MOBIL-HEADER: overlapp mellom merke og demo-pille
+   ------------------------------------------------------------
+   header-nav.css sentrerer .brand absolutt under 640px. Da den
+   regelen ble skrevet sto merket alene; senere kom demo-pillen inn
+   ved siden av det i .wk-brand-group, og den laa fortsatt i normal
+   flyt. Resultatet var at pillen og ordmerket la oppa hverandre.
+
+   Merkegruppen flyter na til venstre og handlingene til hoyre.
+   ============================================================ */
+@media (max-width: 640px) {
+  .nav-shell .nav .brand { position: static; transform: none; }
+  .nav-shell .nav .wk-brand-group { flex: 1 1 auto; min-width: 0; }
+  .nav-shell .nav .nav-cta { flex: 0 0 auto; width: auto; }
+}
+@media (max-width: 420px) {
+  /* Under denne bredden konkurrerer pillen med ordmerket om plassen.
+     Sidene bærer uansett demo-varsel i innholdet, så pillen viker. */
+  .wk-demo-badge:not(.floating) { display: none; }
+}
+
+/* ============================================================
+   demo-mode.js injiserer stil ved kjoeretid, altsaa ETTER denne
+   fila i dokumentrekkefolge, og setter Fraunces paa ordmerket og
+   demo-kortet. Fraunces lastes ikke lenger paa kundeflaten, saa de
+   reglene falt tilbake til Georgia — en serif midt i et oppsett
+   som ellers ikke har noen.
+
+   Hoyere spesifisitet enn den injiserte regelen (0,2,1 mot 0,1,1)
+   henter dem tilbake til systemets display-font. Adminpanelet
+   laster ikke denne fila og beholder Fraunces.
+   ============================================================ */
+.nav-shell .brand-wordmark strong,
+body .wk-demo-card h2 { font-family: var(--font-display); }

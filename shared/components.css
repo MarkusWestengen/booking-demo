@@ -56,7 +56,7 @@
   flex-shrink: 0;
 }
 .tas-modal-title {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-display);
   font-size: 22px; font-weight: 500;
   letter-spacing: -0.01em;
   color: var(--ink);
@@ -140,7 +140,7 @@
   margin-bottom: 8px;
 }
 .booking-fb-hero h2 {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 400; font-size: 32px;
   letter-spacing: -0.02em;
   margin: 0;
@@ -168,7 +168,7 @@
   margin-bottom: 6px;
 }
 .booking-fb-card h3 {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 500; font-size: 24px;
   margin: 0 0 8px;
   letter-spacing: -0.01em;
@@ -304,7 +304,7 @@
   text-align: center;
   background: var(--green-tint);
   color: var(--green-deep);
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-display);
   font-size: 18px;
   margin-top: 12px;
 }
@@ -392,7 +392,7 @@
   background: var(--paper);
   color: var(--green);
   display: grid; place-items: center;
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 600;
   font-size: 16px;
   letter-spacing: -0.02em;
@@ -403,7 +403,7 @@
   min-width: 0;
 }
 .tas-chat-head-title {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 500;
   font-size: 16px;
   letter-spacing: -0.01em;
@@ -613,3 +613,57 @@
      regel var ubetinget og dyttet chat-knappen 76px opp på index.html også. */
   .tas-mobile-cta ~ .tas-chat { bottom: 76px; }
 }
+
+/* ============================================================
+   DEMOGUIDE — eget uttrykk
+   ------------------------------------------------------------
+   Utgangspunktet var en rund boble i aksentfarge med en farget
+   panel-header og en sirkulaer serif-avatar. Det er standard-
+   grammatikken for support-chat, og den var identisk med malen
+   disse sidene arvet.
+
+   Her er den byttet ut med noe som hoerer til systemet: en
+   firkantet flis med hard forskyvd skygge (instrument, ikke app),
+   og et lyst panelhode med hairline i stedet for en farget bjelke.
+   Ingen avatar — guiden utgir seg ikke for aa vaere en person.
+   ============================================================ */
+.tas-chat-btn {
+  width: 54px; height: 54px;
+  border-radius: 2px;
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 4px 4px 0 0 rgba(70, 76, 140, 0.9);
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.tas-chat-btn:hover {
+  background: var(--ink);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 0 rgba(70, 76, 140, 0.9);
+}
+.tas-chat-btn svg { width: 23px; height: 23px; }
+.tas-chat-btn .pulse {
+  border-radius: 0;
+  width: 10px; height: 10px;
+  top: -3px; right: -3px;
+  background: var(--green-soft);
+  border: 2px solid var(--paper);
+}
+
+.tas-chat-panel { border-radius: 2px; }
+
+.tas-chat-head {
+  background: var(--paper);
+  color: var(--ink);
+  border-bottom: 1px solid var(--rule);
+  padding: 15px 18px;
+}
+.tas-chat-head-title { font-weight: 600; letter-spacing: -0.02em; }
+.tas-chat-head-status {
+  color: var(--muted);
+  opacity: 1;
+}
+/* Ingen «online»-prikk: guiden er ikke en person som er paalogget,
+   den er et sett forhandsdefinerte svar. */
+.tas-chat-head-status::before { display: none; }
+.tas-chat-close { color: var(--muted); }
+.tas-chat-close:hover { color: var(--ink); }

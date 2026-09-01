@@ -206,17 +206,16 @@
   // ============ CHATBOT WIDGET ===================================
   var chatHTML = ''
     + '<div class="tas-chat" id="tasChat">'
-    + '  <div class="tas-chat-panel" role="dialog" aria-label="Eriks assistent">'
+    + '  <div class="tas-chat-panel" role="dialog" aria-label="Demoguide">'
     + '    <div class="tas-chat-head">'
-    + '      <div class="tas-chat-avatar">TA</div>'
     + '      <div class="tas-chat-head-text">'
-    + '        <h3 class="tas-chat-head-title">Eriks assistent</h3>'
-    + '        <div class="tas-chat-head-status">Online · Svarer nå</div>'
+    + '        <h3 class="tas-chat-head-title">Demoguide</h3>'
+    + '        <div class="tas-chat-head-status">Forhåndsdefinerte svar</div>'
     + '      </div>'
     + '      <button class="tas-chat-close" aria-label="Lukk chat" data-chat-close>×</button>'
     + '    </div>'
     + '    <div class="tas-chat-disclaimer" role="note">'
-    + '      Ikke skriv sensitive helse-opplysninger her. For konfidensielle spørsmål, bruk telefon eller book direkte time.'
+    + '      Skriv ikke personopplysninger her. Dette er en demo, og alt du sender er synlig for alle som logger inn.'
     + '    </div>'
     + '    <div class="tas-chat-body" data-chat-body></div>'
     + '    <div class="tas-quick-replies" data-quick></div>'
@@ -227,8 +226,8 @@
     + '      </button>'
     + '    </form>'
     + '  </div>'
-    + '  <button class="tas-chat-btn" aria-expanded="false" aria-label="Åpne chat" data-chat-toggle>'
-    + '    <svg class="icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
+    + '  <button class="tas-chat-btn" aria-expanded="false" aria-label="Åpne demoguide" data-chat-toggle>'
+    + '    <svg class="icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square"><path d="M7 3H4v18h3"/><path d="M17 3h3v18h-3"/><path d="M9 9h6"/><path d="M9 13h6"/><path d="M9 17h3"/></svg>'
     + '    <span class="pulse" data-pulse></span>'
     + '  </button>'
     + '</div>';
@@ -316,10 +315,13 @@
   }
 
   // Quick replies — both prefilled answers AND a fallback path for fri tekst
+  // Hurtigsvarene navigerer DEMOEN, ikke en klinikks tjenestemeny.
+  // Den som apner denne chatten vurderer et system; sporsmalene deres
+  // handler om hva de ser pa og hvordan de kommer videre.
   var QUICK_REPLIES = [
-    { label: 'Hva koster en time?', q: 'Hva koster en time?' },
-    { label: 'Hvilke plager behandler Erik?', q: 'Hvilke plager behandler Erik?' },
-    { label: 'Hvor er klinikken?', q: 'Hvor er klinikken?' },
+    { label: 'Hva er dette?', q: 'Hva er dette?' },
+    { label: 'Hvordan logger jeg inn?', q: 'Hvordan logger jeg inn?' },
+    { label: 'Er dataene ekte?', q: 'Er dataene ekte?' },
     { label: 'Bestill time', action: 'book' }
   ];
   function renderQuickReplies(list) {
@@ -363,26 +365,29 @@
   // Keyed by simple keyword match.
   function staticAnswer(q) {
     var s = q.toLowerCase();
+    if (/(hva er dette|hva du|demo|arbeidspr|portef)/.test(s)) {
+      return 'Dette er et bookingsystem vist fram som arbeidsprove. Kundeflyten kan du klikke gjennom her; resten \u2014 kalender, kundekartotek, journal og audit-logg \u2014 ligger bak innloggingen, og den er publisert pa forsiden.';
+    }
+    if (/(logg|innlogg|passord|konto|bruker|admin)/.test(s)) {
+      return 'Innloggingen star apent pa forsiden. Det er to kontoer: en administrator og en terapeut. Logg inn med begge \u2014 forskjellen mellom dem er poenget, ikke en detalj.';
+    }
+    if (/(ekte|virkelig|fiktiv|oppdiktet|data|personer|finnes)/.test(s)) {
+      return 'Nei. Klinikken, behandlerne, kundene og alle bestillinger er oppdiktet. E-postadressene ligger pa .example, et toppdomene som aldri kan registreres. Skriv likevel ikke inn noe ekte \u2014 det du legger inn er synlig for alle som logger inn.';
+    }
     if (/(pris|kost|hva.+koster|hvor mye)/.test(s)) {
-      return 'Time med Erik: konsultasjon kr 4 000, videre behandling kr 3 000. Time med en av Eriks terapeuter: konsultasjon kr 2 000, videre behandling kr 1 500. Alle timer er 30 minutter.';
+      return 'Prisene ligger i databasen, ikke i koden: konsultasjon kr 4 000 eller kr 2 000 avhengig av behandler, videre behandling kr 3 000 eller kr 1 500. Alle timer er 30 minutter. En administrator kan endre dem i adminpanelet uten ny utrulling.';
     }
-    if (/(plage|behandl|smerte|vondt|ryg|nakke|skulder|hodepine|kne|hofte)/.test(s)) {
-      return 'Erik behandler bl.a. rygg-, nakke- og skulderspenninger, hodepine, idrettsskader, hofte- og kneproblemer, og nervesmerter. Filosofien hans er å finne årsaken, ikke bare lindre symptomet.\n\nFor en konkret vurdering anbefaler vi at du bestiller en time.';
-    }
-    if (/(hvor|adresse|lokasjon|klinikk|finne)/.test(s)) {
-      return 'Klinikken ligger i Storgata 1, 0155 Oslo.';
-    }
-    if (/(time|åpning|åpent|når)/.test(s)) {
-      return 'Klinikken er åpen mandag–fredag 07:00–15:00. Telefontid er 09:00–15:00 på hverdager. Stengt lørdag og søndag.';
+    if (/(apning|apent|nar|tid|time.+lang)/.test(s)) {
+      return 'Bookingmotoren regner med mandag\u2013fredag 07:00\u201315:00, i luker pa 30 minutter. Helger er stengt. Ledige tider genereres fra disse rammene og fra det som allerede er booket.';
     }
     if (/(avbest|kansell)/.test(s)) {
-      return 'Avbestilling må skje senest 24 timer før timen. No-show blir fakturert.';
+      return 'Avbestilling gar inntil 24 timer for timen, med referansekoden fra bekreftelsen. Du kan prove det: bestill en time, og bruk koden pa avbestillingssiden.';
     }
-    if (/(bestil|book|time.+booke)/.test(s)) {
-      return 'Du kan bestille time direkte via "Bestill time"-knappen på siden. Der velger du Erik eller en av terapeutene, og finner ledig tid i kalenderen.';
+    if (/(bestil|book|reserv)/.test(s)) {
+      return 'Bruk \u00abBestill time\u00bb. Du velger behandler, tjeneste og tidspunkt, og far en referansekode til slutt. Bestillingen din blir en helt vanlig rad du kan endre og slette \u2014 i motsetning til radene som fulgte med demoen.';
     }
-    if (/(erik|hvem|erfar|grunnlegg|kjent)/.test(s)) {
-      return 'Erik Westengen har 40 års erfaring med muskel- og nervebehandling. Han startet klinikken i 1985 og har lært opp alle terapeutene i teamet.';
+    if (/(nullstill|slett|reset|forsvinner|lagres)/.test(s)) {
+      return 'Alt du legger inn slettes ved den nattlige nullstillingen. Radene som fulgte med demoen er skrivebeskyttet i databasen: knappene virker, men lagringen avvises med en forklaring, slik at panelet ser likt ut for neste besokende.';
     }
     return null;
   }

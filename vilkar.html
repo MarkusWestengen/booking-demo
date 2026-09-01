@@ -28,7 +28,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' fill='%23F7F8FA' text-anchor='middle'%3EW%3C/text%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared/i18n.css">
 <style>
   :root {
@@ -57,12 +57,12 @@
   .topbar .container { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
   .topbar a { color: var(--paper); text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; }
   .topbar a:hover { color: var(--green-soft); }
-  .topbar .brand { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; letter-spacing: -0.01em; text-transform: none; }
+  .topbar .brand { font-family: var(--font-display); font-size: 18px; font-weight: 500; letter-spacing: -0.01em; text-transform: none; }
   .topbar .brand span { color: var(--green-soft); }
 
   main { padding: 80px 0 120px; }
   .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--green); }
-  h1 { font-family: 'Fraunces', serif; font-weight: 400; font-size: clamp(38px, 5.6vw, 56px); line-height: 1; letter-spacing: -0.02em; margin: 16px 0 24px; }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(38px, 5.6vw, 56px); line-height: 1; letter-spacing: -0.02em; margin: 16px 0 24px; }
   .updated { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding-bottom: 32px; border-bottom: 1px solid var(--rule); margin-bottom: 40px; }
   /* Varselet skal leses før vilkårene, ikke etter dem. */
   .terms-demo-note {
@@ -71,7 +71,7 @@
     border-left: 3px solid var(--green, #464C8C);
     font-size: 14px; line-height: 1.55;
   }
-  h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 22px; margin: 48px 0 14px; letter-spacing: -0.01em; }
+  h2 { font-family: var(--font-display); font-weight: 500; font-size: 22px; margin: 48px 0 14px; letter-spacing: -0.01em; }
   p { margin: 0 0 16px; color: var(--ink-2); }
   ul { padding-left: 20px; margin: 0 0 16px; color: var(--ink-2); }
   li { margin-bottom: 8px; }
@@ -92,6 +92,7 @@
   }
 </style>
 <link rel="stylesheet" href="shared/cookie-banner.css">
+<link rel="stylesheet" href="shared/demo-ui.css">
 
 </head>
 <body>

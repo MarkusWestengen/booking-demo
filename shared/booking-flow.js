@@ -188,9 +188,13 @@
         if (s.bookable === false) return;
         // Pris vises bevisst først i steg 2 (Tjeneste) — steg 1 er ren
         // behandler-velger (Erik-feedback 2026-05-29).
-        var initials = s.id === 'erik' ? 'TS'
-                     : s.id === 'terapeut' ? 'TT'
-                     : (s.name || '').charAt(0).toUpperCase() || '·';
+        // Initialene utledes fra navnet. Tidligere var de hardkodet per
+        // staff-id, som betyr at de ikke fulgte med naar en behandler
+        // byttet navn — og at en ny behandler fra databasen fikk feil
+        // forbokstav. Na stemmer de alltid.
+        var initials = (s.name || '').split(/\s+/).filter(Boolean).slice(0, 2)
+                         .map(function (w) { return w.charAt(0).toUpperCase(); })
+                         .join('') || '·';
         var tenureNote = s.id === 'terapeut'
           ? el('p', { class: 'tabf-staff-tenure', style: 'font-size:13px; opacity:.7; font-style:italic; margin:8px 0 0;' },
               t('booking.step1.therapist_tenure', 'Eriks erfarne terapeuter har vært tilknyttet klinikken i minst 2 år.'))

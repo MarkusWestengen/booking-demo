@@ -29,13 +29,14 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!-- Felles stilark for de kundevendte sidene: header, mobilmeny,
      språkvelger, knapper og footer. -->
 <link rel="stylesheet" href="shared/public.css">
 <link rel="stylesheet" href="shared/i18n.css">
 <link rel="stylesheet" href="shared/cookie-banner.css">
 <link rel="stylesheet" href="shared/header-nav.css">
+<link rel="stylesheet" href="shared/demo-ui.css">
 
 <style>
   :root {
@@ -55,7 +56,7 @@
   /* Samme bredde som shared/public.css — headeren er dimensjonert
      for den. Lesebredden styres av .k-grid, ikke av containeren. */
   .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
-  .serif { font-family: 'Fraunces', Georgia, serif; }
+  .serif { font-family: var(--font-display); }
 
   /* ---------- Topp ---------- */
   .k-hero { padding: 72px 0 12px; }
@@ -65,7 +66,7 @@
     color: var(--green); margin: 0 0 14px;
   }
   .k-hero h1 {
-    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+    font-family: var(--font-display); font-weight: 400;
     font-size: clamp(34px, 5.4vw, 56px); line-height: 1.06;
     letter-spacing: -0.02em; margin: 0 0 16px;
   }
@@ -87,7 +88,7 @@
   }
 
   .k-fact h2 {
-    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+    font-family: var(--font-display); font-weight: 400;
     font-size: 21px; line-height: 1.25; margin: 0 0 4px;
   }
   /* Kjeden er nummerert fordi rekkefolgen er poenget: hvert ledd
@@ -124,7 +125,7 @@
   /* ---------- Skjema ---------- */
   .k-form-card { background: #fff; border: 1px solid var(--rule); padding: 28px; }
   .k-form-card h2 {
-    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+    font-family: var(--font-display); font-weight: 400;
     font-size: 24px; margin: 0 0 6px;
   }
   .k-form-card > p { margin: 0 0 22px; font-size: 14px; color: var(--muted); }
@@ -237,12 +238,21 @@
 
 <main>
 
+<section class="page-head">
+  <div class="container">
+    <p class="page-head-crumb">
+      <a href="index.html" data-i18n="cancel.breadcrumb_home">Forsiden</a>
+      <span aria-hidden="true">/</span>
+      <strong data-i18n="nav.contact">Kontakt</strong>
+    </p>
+    <h1 data-i18n-html="contact.heading">Fra skjema til <em>innboks</em></h1>
+    <p class="page-head-lede" data-i18n="contact.lede">Denne siden er med i demoen fordi den er den ene enden av en kjede. Send en melding her, logg inn i adminpanelet, og se den ligge i innboksen.</p>
+    <hr class="tick-rule"/>
+  </div>
+</section>
+
 <section class="k-hero">
   <div class="container">
-    <p class="k-eyebrow" data-i18n="contact.eyebrow">Kontaktskjema</p>
-    <h1 data-i18n-html="contact.heading">Fra skjema til <em>innboks</em></h1>
-    <p class="k-lede" data-i18n="contact.lede">Denne siden er med i demoen fordi den er den ene enden av en kjede. Send en melding her, logg inn i adminpanelet, og se den ligge i innboksen.</p>
-
     <p class="k-notice" data-i18n-html="contact.demo_notice">
       <strong>Meldingen lagres på ekte.</strong> Den havner i demo-databasen og er
       synlig for alle som logger inn med den publiserte innloggingen — så ikke
@@ -299,12 +309,30 @@
               </label>
             </div>
 
-            <!-- Turnstile. Nøkkelen under er Cloudflares dokumenterte
-                 TEST-nøkkel: den virker på et hvilket som helst domene og
-                 godkjenner alltid. Den er brukt her fordi demoen skal kunne
-                 kjøre hvor som helst — en ekte installasjon bytter den mot
-                 sin egen sitekey. -->
-            <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="light"></div>
+            <!-- Turnstile.
+                 VALGET HER: valideringen staar, widgeten er usynlig.
+
+                 Edge-funksjonen submit-contact avviser en innsending
+                 uten token, saa aa fjerne Turnstile helt ville brutt
+                 skjemaet. Samtidig viste den synlige testnoekkelen
+                 banneret «Bare for testing. Hvis det ses, maa det
+                 rapporteres til eieren av nettstedet» — som leser som
+                 en feil paa en arbeidsproeve.
+
+                 1x00000000000000000000BB er Cloudflares dokumenterte
+                 testnoekkel i USYNLIG modus: den rendrer ingen widget,
+                 men produserer et gyldig token. Kjeden klient →
+                 Edge Function → siteverify staar dermed komplett og
+                 kan demonstreres, uten et banner som ser ut som en
+                 feil.
+
+                 I drift byttes den mot en ekte sitekey fra Cloudflare,
+                 og TURNSTILE_SECRET_KEY settes som secret paa
+                 Edge-funksjonen. Se DEMO_SETUP.md. -->
+            <div class="cf-turnstile"
+                 data-sitekey="1x00000000000000000000BB"
+                 data-size="invisible"
+                 data-theme="light"></div>
 
             <div class="k-actions">
               <button type="submit" class="k-submit" data-i18n="contact.submit">Send melding</button>

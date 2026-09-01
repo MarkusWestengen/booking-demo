@@ -27,11 +27,12 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared/public.css">
 <link rel="stylesheet" href="shared/i18n.css">
 <link rel="stylesheet" href="shared/cookie-banner.css">
 <link rel="stylesheet" href="shared/header-nav.css">
+<link rel="stylesheet" href="shared/demo-ui.css">
 
 <style>
   /* ============================================================
@@ -56,58 +57,19 @@
     color: var(--green-soft); margin: 0 0 18px;
   }
   .lead h1 {
-    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
-    font-size: clamp(34px, 6vw, 60px); line-height: 1.04;
-    letter-spacing: -0.025em; margin: 0 0 22px; max-width: 17ch;
+    font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(34px, 6vw, 58px); line-height: 1.02;
+    letter-spacing: -0.038em; margin: 0 0 22px; max-width: 18ch;
   }
-  .lead h1 em { font-style: italic; color: var(--green-soft); }
+  /* Ingen kursiv aksent. Det andre leddet skilles med vekt og farge
+     i stedet — samme hierarki, uten malens signaturgrep. */
+  .lead h1 em { font-style: normal; color: rgba(247,248,250,0.62); font-weight: 500; }
   .lead-body {
     max-width: 54ch; font-size: 16.5px; line-height: 1.62;
     color: rgba(247,248,250,0.74); margin: 0 0 14px;
   }
   .lead-body strong { color: var(--paper); font-weight: 500; }
 
-  .doors { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
-  .door {
-    display: inline-flex; align-items: center; gap: 9px;
-    font-size: 15px; font-weight: 500; padding: 13px 22px;
-    text-decoration: none; transition: background .16s ease, border-color .16s ease;
-  }
-  .door-primary { background: var(--green); color: #fff; }
-  .door-primary:hover { background: var(--green-soft); }
-  .door-ghost { border: 1px solid rgba(255,255,255,0.24); color: var(--paper); }
-  .door-ghost:hover { border-color: var(--paper); }
-
-  /* ---------- Innlogging ---------- */
-  .creds { padding: 56px 0; background: var(--paper); }
-  .creds-head {
-    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
-    margin-bottom: 22px; padding-bottom: 12px;
-    border-bottom: 2px solid var(--green);
-  }
-  .creds-head h2 {
-    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
-    font-size: 26px; margin: 0; letter-spacing: -0.015em;
-  }
-  .creds-head p { margin: 0; font-size: 13.5px; color: var(--muted); }
-
-  .creds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .cred {
-    border: 1px solid var(--rule); background: #fff; padding: 18px 20px;
-  }
-  .cred-role {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--green); margin: 0 0 12px;
-  }
-  .cred-line { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; }
-  /* user-select:all — verdien skal kopieres med ett klikk, ikke leses. */
-  .cred-line code {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    font-size: 12.5px; user-select: all;
-    background: var(--green-tint); color: var(--ink); padding: 4px 8px;
-  }
-  .cred-note { margin: 12px 0 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
 
   /* ---------- Hva som ligger bak ---------- */
   .inventory { padding: 8px 0 72px; background: var(--paper); }
@@ -144,8 +106,6 @@
 
   @media (max-width: 760px) {
     .lead { padding: 56px 0 52px; }
-    .creds-grid { grid-template-columns: 1fr; }
-    .cred-line code { font-size: 11.5px; }
   }
 </style>
 </head>
@@ -217,41 +177,60 @@
     <h1 data-i18n-html="landing.heading">Booking- og journalsystem <em>for en liten klinikk</em></h1>
     <p class="lead-body" data-i18n-html="landing.body1">Kundevendt bestilling med ledig-tid-oppslag, avbestilling via lenke og venteliste. Bak innloggingen: kalender per behandler, kundekartotek, pasientjournal med samtykke og audit-logg, tjeneste- og behandleradministrasjon, meldingsinnboks og stengte tider.</p>
     <p class="lead-body" data-i18n-html="landing.body2"><strong>Westengen Klinikk finnes ikke.</strong> Klinikken, behandlerne, kundene og alle bestillinger er oppdiktet. Kulissen er der bare fordi et bookingsystem trenger noen å booke hos.</p>
-    <div class="doors">
-      <a class="door door-primary" href="bestilling.html" data-i18n="landing.door_book">Prøv bookingflyten →</a>
-      <a class="door door-ghost" href="ansatt.html" data-i18n="landing.door_admin">Logg inn i adminpanelet</a>
-    </div>
   </div>
 </section>
 
-<!-- ============ INNLOGGING ============
-     Publisert med vilje. Sikkerheten ligger ikke i et hemmelig
-     passord, men i skrivesperren mot seed-data (migrasjon 0066) og
-     den nattlige nullstillingen (0067). -->
-<section class="creds" id="innlogging">
+<!-- ============ TO DOERER ============
+     Valget er hovedgrepet paa forsiden: to likeverdige innganger,
+     ikke to knapper nederst i en tekstblokk. Innloggingen ligger
+     inne i admin-doeren fordi den hoerer til det valget — en
+     besoekende som bare vil se bookingflyten skal ikke maatte lese
+     seg gjennom to passord foerst. -->
+<section class="doors-section">
   <div class="container">
-    <div class="creds-head">
-      <h2 data-i18n="landing.creds_heading">Innlogging</h2>
-      <p data-i18n="landing.creds_sub">Logg inn med begge for å se hva rollen avgjør.</p>
-    </div>
+    <div class="doors-grid">
 
-    <div class="creds-grid">
-      <div class="cred">
-        <p class="cred-role" data-i18n="demo.role_admin">Administrator</p>
-        <div class="cred-line">
-          <code>admin@westengenklinikk.example</code>
-          <code>demo-admin-2026</code>
-        </div>
-        <p class="cred-note" data-i18n="demo.note_admin">Full tilgang: alle behandleres kalendere, kundekartotek, journal, tjenester, behandlere og audit-logg.</p>
+      <div class="door-panel door-panel--public">
+        <p class="door-role" data-i18n="landing.door_public_role">Kundeflyt</p>
+        <h2 data-i18n="landing.door_public_h">Bestill en time</h2>
+        <p data-i18n="landing.door_public_p">Slik en kunde moter systemet. Ingen innlogging, ingenting a fylle ut forst.</p>
+        <ul class="door-list">
+          <li data-i18n="landing.door_public_1">Velg behandler, tjeneste og tid mot ekte ledig-tid-oppslag</li>
+          <li data-i18n="landing.door_public_2">Avbestill med referansekode, eller meld deg pa venteliste</li>
+          <li data-i18n="landing.door_public_3">Send en melding og se den dukke opp i innboksen bak</li>
+        </ul>
+        <a class="door-cta" href="bestilling.html">
+          <span data-i18n="landing.door_book">Prøv bookingflyten</span> <span class="arr" aria-hidden="true">→</span>
+        </a>
       </div>
-      <div class="cred">
-        <p class="cred-role" data-i18n="demo.role_therapist">Terapeut</p>
-        <div class="cred-line">
-          <code>terapeut@westengenklinikk.example</code>
-          <code>demo-terapeut-2026</code>
+
+      <div class="door-panel door-panel--admin">
+        <p class="door-role" data-i18n="landing.door_admin_role">Adminpanel</p>
+        <h2 data-i18n="landing.door_admin_h">Se hva som ligger bak</h2>
+        <p data-i18n="landing.door_admin_p">Halvparten som er interessant krever innlogging. Begge kontoene star her.</p>
+        <ul class="door-list">
+          <li data-i18n="landing.door_admin_1">Kalender, kundekartotek og pasientjournal med samtykke</li>
+          <li data-i18n="landing.door_admin_2">Audit-logg som fanger hvert oppslag, ikke bare endringer</li>
+          <li data-i18n="landing.door_admin_3">Rollestyrt tilgang — logg inn med begge og se forskjellen</li>
+        </ul>
+        <div class="door-creds" id="innlogging">
+          <p class="door-creds-lead" data-i18n="landing.creds_heading">Innlogging</p>
+          <div class="cred-row">
+            <span class="who" data-i18n="demo.role_admin">Administrator</span>
+            <code>admin@westengenklinikk.example</code>
+            <code>demo-admin-2026</code>
+          </div>
+          <div class="cred-row">
+            <span class="who" data-i18n="demo.role_therapist">Terapeut</span>
+            <code>terapeut@westengenklinikk.example</code>
+            <code>demo-terapeut-2026</code>
+          </div>
         </div>
-        <p class="cred-note" data-i18n="demo.note_therapist">Begrenset tilgang: egen kalender og egne pasienter. Logg inn med begge for å se rolleskillet.</p>
+        <a class="door-cta" href="ansatt.html">
+          <span data-i18n="landing.door_admin">Logg inn i adminpanelet</span> <span class="arr" aria-hidden="true">→</span>
+        </a>
       </div>
+
     </div>
   </div>
 </section>

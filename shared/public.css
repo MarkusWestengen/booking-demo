@@ -37,7 +37,7 @@ a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
 
 .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
-.serif { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; }
+.serif { font-family: var(--font-display); font-optical-sizing: auto; }
 .mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 
 .eyebrow {
@@ -144,7 +144,7 @@ img { max-width: 100%; display: block; }
   display: inline-block;
 }
 .hist-title {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-weight: 300;
   font-size: clamp(40px, 5vw, 72px);
   line-height: 1.05;
@@ -162,7 +162,7 @@ img { max-width: 100%; display: block; }
   padding-top: 24px;
 }
 .hist-name {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 22px;
   font-weight: 500;
   margin-bottom: 4px;
@@ -191,7 +191,7 @@ img { max-width: 100%; display: block; }
   margin: 0 auto;
 }
 .hist-lead {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 24px;
   line-height: 1.5;
   font-weight: 400;
@@ -207,7 +207,7 @@ img { max-width: 100%; display: block; }
   position: relative;
 }
 .hist-pullquote blockquote {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 300;
   font-size: clamp(28px, 3vw, 40px);
@@ -219,7 +219,7 @@ img { max-width: 100%; display: block; }
   position: relative;
 }
 .hist-pullquote .quote-mark {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 1.2em;
   color: var(--green);
   margin-right: 4px;
@@ -255,7 +255,7 @@ img { max-width: 100%; display: block; }
   margin-bottom: 12px;
 }
 .hist-toms-note p {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 20px;
   font-style: italic;
   font-weight: 400;
@@ -277,7 +277,7 @@ img { max-width: 100%; display: block; }
 }
 .hist-pdf .eyebrow { margin-bottom: 16px; display: inline-block; }
 .hist-pdf h3 {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-weight: 400;
   font-size: 32px;
   letter-spacing: -0.02em;
@@ -314,7 +314,7 @@ img { max-width: 100%; display: block; }
   margin-bottom: 12px;
 }
 .hist-nav-name {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 28px;
   font-weight: 400;
   letter-spacing: -0.01em;
@@ -333,7 +333,7 @@ img { max-width: 100%; display: block; }
   text-align: center;
 }
 .hist-cta h2 {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-weight: 300;
   font-size: clamp(36px, 4vw, 56px);
   line-height: 1.1;
@@ -373,7 +373,7 @@ img { max-width: 100%; display: block; }
   border-bottom: 1px solid var(--rule);
 }
 .hist-index-hero h1 {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-weight: 300;
   font-size: clamp(48px, 6vw, 88px);
   line-height: 1.05;
@@ -432,7 +432,7 @@ img { max-width: 100%; display: block; }
   color: var(--green);
 }
 .hist-card-quote {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-size: 22px;
   line-height: 1.3;
@@ -449,7 +449,7 @@ img { max-width: 100%; display: block; }
   gap: 2px;
 }
 .hist-card-name {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 18px;
   font-weight: 500;
 }
@@ -542,7 +542,7 @@ footer.site-footer {
   margin-bottom: 40px;
 }
 .nav-mobile-links a {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-weight: 400;
   font-size: clamp(26px, 6vw, 34px);
   color: var(--paper);

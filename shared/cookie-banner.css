@@ -31,7 +31,7 @@
 }
 .tas-cookie-text h3 {
   margin: 0 0 6px;
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 500;
   font-size: 17px;
   letter-spacing: -0.01em;
