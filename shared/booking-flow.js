@@ -170,6 +170,52 @@
       return bar;
     }
 
+    // ============================================================
+    // Portrett i behandlerkortet
+    // ------------------------------------------------------------
+    // Fotoene er ikke tatt enda. Tabellen er derfor tom, og da spoer
+    // vi aldri etter en fil som ikke finnes — et <img> mot en manglende
+    // sti gir en 404 i konsollen paa hver eneste visning, og kravet er
+    // at konsollen skal vaere ren.
+    //
+    // Naar bildene legges i assets/avatars/, foeres de opp her:
+    //
+    //   var PORTRETTER = {
+    //     markus:   'assets/avatars/markus.png',
+    //     terapeut: 'assets/avatars/terapeut.png'
+    //   };
+    //
+    // Uten oppfoering viser kortet initialene i den blaa boksen, som
+    // foer. Det gjoer det ogsaa hvis en fil er foert opp men mangler:
+    // error-handleren tar bildet ut igjen, og initialene staar der
+    // fortsatt under.
+    //
+    // Bildet er dekorasjon, ikke informasjon — navnet staar ved siden
+    // av — saa alt-teksten er tom med vilje.
+    // ============================================================
+    var PORTRETTER = {};
+
+    function lagAvatar(id, initialer) {
+      var boks = el('div', { class: 'tabf-avatar' }, initialer);
+      var sti = PORTRETTER[id];
+      if (!sti) return boks;
+
+      var img = el('img', {
+        class: 'tabf-avatar-img',
+        src: sti,
+        alt: '',
+        width: '48',
+        height: '48',
+        loading: 'lazy',
+        decoding: 'async'
+      });
+      img.addEventListener('error', function () {
+        if (img.parentNode) img.parentNode.removeChild(img);
+      });
+      boks.appendChild(img);
+      return boks;
+    }
+
     // ---------- Step 1: Staff ----------
     function renderStaffStep() {
       var wrap = el('div', { class: 'tabf-step-wrap' });
@@ -187,6 +233,7 @@
         // Admin/kalender-UI bruker fortsatt objektet for å slå opp gamle bookinger.
         if (s.bookable === false) return;
         // Pris vises bevisst først i steg 2 (Tjeneste) — steg 1 er ren
+
         // behandler-velger (Markus-feedback 2026-05-29).
         // Initialene utledes fra navnet. Tidligere var de hardkodet per
         // staff-id, som betyr at de ikke fulgte med naar en behandler
@@ -195,6 +242,7 @@
         var initials = (s.name || '').split(/\s+/).filter(Boolean).slice(0, 2)
                          .map(function (w) { return w.charAt(0).toUpperCase(); })
                          .join('') || '·';
+        var avatar = lagAvatar(s.id, initials);
         var tenureNote = s.id === 'terapeut'
           ? el('p', { class: 'tabf-staff-tenure', style: 'font-size:13px; opacity:.7; font-style:italic; margin:8px 0 0;' },
               t('booking.step1.therapist_tenure', 'Markus\' erfarne terapeuter har vært tilknyttet klinikken i minst 2 år.'))
@@ -205,7 +253,7 @@
           on: { click: function () { state.staffId = s.id; state.serviceId = null; goTo(2); } }
         }, [
           el('div', { class: 'tabf-staff-head' }, [
-            el('div', { class: 'tabf-avatar' }, initials),
+            avatar,
             el('div', null, [
               el('h4', null, t('behandlere.' + s.id + '.name', s.name)),
               el('div', { class: 'tabf-staff-role' }, t('behandlere.' + s.id + '.role', s.role))

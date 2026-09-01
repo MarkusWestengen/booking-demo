@@ -418,7 +418,12 @@
 .tabf h2, .tabf h3,
 .tabf-summary-title,
 .tabf-confirm h3 { font-family: var(--font-display); }
-.tabf-avatar { border-radius: 0; letter-spacing: -0.02em; font-weight: 600; }
+/* Skarpe hjoerner ellers, men portrettet er rundt. Et rundt
+   utsnitt av et ansikt er en konvensjon folk leser umiddelbart,
+   og formen sier «her er et menneske» ogsaa foer bildet finnes:
+   initialene staar i den samme sirkelen. border-radius settes i
+   booking-flow.css; her nulles den ikke lenger ut. */
+.tabf-avatar { letter-spacing: -0.02em; font-weight: 600; }
 
 /* Den kursive serifen med ett ord i aksentfarge er malens tydeligste
    signatur. Naar den forsvinner skal ingen rest av den staa igjen:
@@ -605,12 +610,18 @@ body .wk-demo-card h2 { font-family: var(--font-display); }
 }
 
 /* Lange sammensatte norske ord (administrasjonssystem,
-   behandleradministrasjon) sprenger smale skjermer. Orddeling der
-   overskriftene er store nok til at det merkes. */
+   behandleradministrasjon) sprenger smale skjermer.
+   Automatisk orddeling er likevel ikke svaret: Chrome deler
+   «administra-sjonssystem», og en feil fuge er verre enn en linje
+   som er litt for lang. Der et ord virkelig maa deles, settes en
+   myk bindestrek i teksten, og hyphens: manual deler bare der.
+   («none» ville slaatt av ogsaa de myke bindestrekene.)
+   overflow-wrap staar igjen som siste nett. */
 .page-head h1, .sec-head h2, .door-panel h2, .roles h2, .spec h2 {
-  hyphens: auto;
-  -webkit-hyphens: auto;
+  hyphens: manual;
+  -webkit-hyphens: manual;
   overflow-wrap: break-word;
+  text-wrap: balance;
 }
 
 /* ============================================================

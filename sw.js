@@ -24,7 +24,7 @@
 
 // Bump ved hver release så ansatte får siste admin-skall etter aktivering.
 // P2-4 fra audit 2026-05-15.
-var CACHE_VERSION = 'westengen-klinikk-shell-v79';
+var CACHE_VERSION = 'westengen-klinikk-shell-v80';
 
 // Statiske assets som tilhører ADMIN-skallet. Holdes kort så
 // versjons-bumping er trygt; alt annet fanges av runtime-cache
@@ -61,6 +61,7 @@ var SHELL_ASSETS = [
   './shared/booking-flow.js',
   './shared/booking-flow.css',
   './shared/choice.css',
+  './shared/header-fit.js',
   './shared/components.js',
   './shared/components.css',
   './shared/gdpr.js',

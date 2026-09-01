@@ -461,7 +461,7 @@
   "demo.note_therapist": "Begrenset tilgang: egen kalender og egne pasienter. Logg inn med begge for å se rolleskillet.",
   "nav.admin": "Adminpanel",
   "landing.eyebrow": "Arbeidsprøve",
-  "landing.heading": "Booking- og administrasjonssystem <em>for en klinikk</em>",
+  "landing.heading": "Booking- og administrasjons­system <em>for en klinikk</em>",
   "landing.body1": "Et komplett bookingsystem for en klinikk. Kunder bestiller time selv, avbestiller med en lenke, og setter seg på venteliste når alt er fullt. På innsiden ligger kalender for hver behandler, kunderegister, journal med samtykke, en logg over hvem som har åpnet hvilke opplysninger, meldinger fra nettsiden, og styring av tjenester, behandlere og stengte dager.",
   "landing.door_book": "Prøv bookingflyten",
   "landing.door_admin": "Åpne adminpanelet",
