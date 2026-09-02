@@ -838,3 +838,316 @@ Uendret fra forrige runde. `assets/avatars/markus.png` og
 Bekreftet i produksjon at fallbacken ser bevisst ut: runde MW- og
 MT-sirkler, ingen bildeforespørsel i det hele tatt, ingen 404, ingen tom
 ramme.
+
+---
+
+# Sveip etter kjente feilklasser
+
+2. september 2026. Utgangspunkt: de tre feilene som ble funnet på
+kontaktkjeden dagen før var alle usynlige lokalt og usynlige for curl.
+Spørsmålet her var om de finnes andre steder.
+
+Svaret er ja. Én til av hver av to klassene, og én ny type funn som
+ingen av dem dekker.
+
+## Kort oppsummert
+
+| Klasse | Funn | Status |
+|---|---|---|
+| 1 — kontrakt frontend/funksjon | Ingen nye. Fem par sjekket felt for felt | Rent |
+| 2 — manglende grants | **Anmeldelsessiden**, samme feil som ventelista | Rettet og verifisert |
+| 3 — plassholdere | **base_url i e-postene** peker på domenet som brøt CORS | Ikke rettet, se under |
+| — | **Fem migrasjoner kan ikke ha kjørt** som de står i git | Krever din avgjørelse |
+
+---
+
+## Klasse 1 — kontrakt mellom frontend og Edge Function
+
+Det finnes fire Edge Functions. Bare én kalles fra nettleseren; tre
+kalles fra databasen. Alle fem kall er sammenlignet felt for felt mot
+det funksjonen faktisk leser, ikke mot kommentarer eller typenavn.
+
+| Endepunkt | Kaller | Felt sendt | Felt lest | Match |
+|---|---|---|---|---|
+| `submit-contact` | `kontakt.html` | `name`, `email`, `message`, `turnstileToken`, `company` | `payload.name`, `.email`, `.message`, `.turnstileToken`, `.company` | Ja |
+| `send-booking-email` | trigger `trg_booking_email` → `send_booking_email()` | — | — | Kaller ikke funksjonen. Se merknad |
+| `send-booking-email` | cron `0064` | `event`, `booking`, header `X-Webhook-Secret` | `payload.event`, `payload.booking`, header `X-Webhook-Secret` | Ja |
+| `send-sms` | cron `0062` | `to`, `message`, header `X-Webhook-Secret` | `payload.to`, `payload.message`, header `X-Webhook-Secret` | Ja |
+| `notify-push` | **ingen kaller i repoet** | — | `payload.table`, `payload.record`, header `x-webhook-secret` | Ikke koblet |
+
+Feltene funksjonen plukker ut av `booking` er også sjekket mot
+kolonnene som finnes: `date`, `duration`, `id`, `name`, `ref`,
+`service_name`, `staff_name`, `time`, `email`. Alle ni finnes.
+
+**Merknad om `notify-push`:** ingenting i repoet kaller den. Formen
+den leser (`table` + `record` + `x-webhook-secret`) er formen Supabase
+sine Database Webhooks sender, så den er sannsynligvis koblet i
+Dashboard — altså konfigurasjon som ikke ligger i git og som jeg ikke
+kan se herfra. Uten `WEBHOOK_SECRET` svarer den uansett 401.
+
+**Merknad om bekreftelses-e-post:** dette korrigerer gårsdagens
+rapport. Jeg skrev at `send-booking-email` trenger `WEBHOOK_SECRET`.
+Det stemmer for påminnelsen, men ikke for bekreftelsen: triggeren
+`trg_booking_email` (fra `0047`) kaller databasefunksjonen
+`send_booking_email()`, som poster rett til Resend og aldri rører
+Edge-funksjonen. Det er to uavhengige e-postveier med hver sin
+manglende hemmelighet.
+
+### Honeypot
+
+Fire skjemaer har et honeypot-felt. Bare ett av dem har en
+serverkontroll å svare på:
+
+| Skjema | Felt | Serverkontroll | Sendes? |
+|---|---|---|---|
+| `kontakt.html` | `company` | Ja, `submit-contact` leser `payload.company` | Ja, siden i går |
+| `venteliste.html` | `website` | Nei — går rett i tabellen | Ikke relevant |
+| `anmeldelser.html` | `website` | Nei — `submit_review_by_token` har ingen slik parameter | Ikke relevant |
+| bookingflyten | `website` | Nei — går rett i tabellen | Ikke relevant |
+
+Det betyr at tre av fire honeypoter bare virker i nettleseren. En bot
+som poster rett mot API-et går utenom dem. Ratelimit er forsvaret der,
+og det virker (se under). Dette er en observasjon, ikke en feil jeg
+har rettet.
+
+---
+
+## Klasse 2 — manglende grants
+
+Spurte databasen i stedet for å lese migrasjonene: hver tabell testet
+med ekte forespørsler i hver rolle. `42501` betyr manglende grant. Tom
+liste betyr at RLS gjorde jobben sin, som er noe annet.
+
+### Tabeller
+
+`anon`, med nøyaktig de kolonnene bookingmotoren ber om: `services`,
+`staff_services`, `staff_members`, `holidays`, `blocked_slots`,
+`special_open_days` — alle OK. `blocked_slots` og `special_open_days`
+har kolonne-grants (`0057`, `0059`), så et `select=*` gir 42501 mens
+det motoren faktisk spør om går gjennom. Verdt å vite før man tester.
+
+`authenticated`, alle 17 tabeller: to gir 42501, begge med vilje.
+`journal_entries` går bare gjennom `get_journal_entries()` som logger
+hvert oppslag (`0069` sier det rett ut), og `anon_insert_events` er
+kvotetabellen som bare triggeren og `service_role` skal røre.
+
+Skriverettigheter testet med filtre som ikke treffer noen rad, og
+innsettinger med ugyldige verdier, så ingenting ble endret. To DELETE
+mangler for `authenticated`: `reviews` og `staff_members`. Begge er
+riktige — ingenting i frontenden sletter dem. Behandlere deaktiveres,
+anmeldelser modereres.
+
+`service_role` er ikke testet ved introspeksjon (jeg har ikke nøkkelen)
+men ved kjøring: `submit-contact` gjør select og insert på
+`anon_insert_events` og insert på `contact_messages`, og den svarer
+200 på live. `0073` ga dem i går. `push_subscriptions` hadde dem
+allerede fra `0063` — min grant der var overflødig, men harmløs.
+
+### RPC-er: her lå hullet
+
+Åtte offentlige RPC-er, begge roller:
+
+| RPC | anon | authenticated |
+|---|---|---|
+| `get_booked_slots` | 200 | 200 |
+| `cancel_booking_by_ref` | 200 | 200 |
+| `cancel_booking_by_token` | 200 | 200 |
+| `lookup_booking_by_token` | 200 | 200 |
+| `cancel_waitlist_by_ref` | 200 | 200 |
+| `get_waitlist_position` | 200 | 200 |
+| `lookup_review_by_token` | 200 | **403** |
+| `submit_review_by_token` | 200 | **403** |
+
+`0042` gir EXECUTE på begge review-funksjonene til `anon` alene.
+Anmeldelsessiden sendte adminsesjonen, så alle som hadde vært innom
+adminpanelet først — og panelet logger inn av seg selv — fikk 403 og
+et skjema som ikke virket.
+
+Det er nøyaktig ventelistefeilen, i et annet endepunkt.
+
+Bekreftet i nettleseren på live: `403 rpc/submit_review_by_token`.
+Samme kall som anon fra curl: `200 {"ok": true}`. Forskjellen er
+rollen, ikke kallet.
+
+**Rettet med samme grep som ventelista:** klienten på
+`anmeldelser.html` leser ikke sesjonen. Rettighetene i databasen er
+ikke rørt. Et offentlig skjema skal ikke opptre som en innlogget
+ansatt. Verifisert etterpå på live med adminsesjon i nettleseren:
+`200 rpc/submit_review_by_token`.
+
+**Ingen migrasjon skrevet.** Det fantes ingen grants som manglet for
+noe en ekte kaller gjør. Hullet var på klientsiden.
+
+---
+
+## Klasse 3 — plassholdere som ser ekte ut
+
+251 treff totalt. De fleste er ufarlige og hører hjemme: 137 `.example`
+er den oppdiktede klinikkens eget domene, og 72 `placeholder` er
+`placeholder=`-attributter på skjemafelt.
+
+| Treff | Sted | Vurdering |
+|---|---|---|
+| `demo.westengenklinikk.example` som `base_url` | `0048` linje 49, `0056` linje 47 | **Reelt. Se under** |
+| `REDACTED_RESEND_KEY` | `0048` linje 45, `0056` linje 45 | **Reelt.** Plassholder der en API-nøkkel skal stå |
+| `MARKUS'&nbsp;ARENA` | `0026`, `0028`, `0039`, `0040`, `0048` | **Reelt.** Gammelt prosjektnavn i e-post til kunder |
+| `http://localhost:8000`, `http://127.0.0.1:8766` | `submit-contact` CORS-liste | Ufarlig. Lokale utvikleradresser, med vilje |
+| `http://localhost:5500` | `0026`, `0028` | Ufarlig. Historiske filer, erstattet av `0029` |
+| `onboarding@resend.dev` | e-postmaler, `0011` m.fl. | Ufarlig, men se merknad |
+| `post@westengenklinikk.example` | `0048` (`notify_to`, `reply_to`) | Ufarlig. Den oppdiktede klinikkens adresse |
+| `test@example.com` o.l. | kommentarer i `0051`, `0053`, `0060`, `0054` | Ufarlig. Eksempler i dokumentasjon |
+| `*@example.com` | `supabase/tests/01_rls_policies.sql` | Ufarlig. Testdata i RLS-tester |
+| `patient@example.com` | `shared/auth.js` linje 152, i kommentar | Ufarlig |
+| 6 × `TODO` | spredt | Ufarlig, sjekket enkeltvis |
+| 6 × `din-` | tekst på norsk («din-» i ord) | Falske treff |
+
+### base_url peker på domenet som brøt CORS
+
+De to funksjonene som bygger lenker inn i e-post har begge
+
+    base_url text := 'https://demo.westengenklinikk.example';
+
+Det er samme plassholderdomene som sto i CORS-allowlisten og gjorde at
+kontaktskjemaet aldri kunne virke. Domenet finnes ikke.
+
+Hver avbestillingslenke i hver bekreftelse, og hver lenke i hver
+anmeldelses-e-post, peker altså ingen steder. Det ville ikke vist seg
+før e-posten begynte å gå ut — altså i det øyeblikket nøkkelen kom på
+plass og alt så ut til å virke.
+
+**Jeg har ikke rettet det.** Grunnen står i neste avsnitt.
+
+### Fem migrasjoner kan ikke ha kjørt som de står i git
+
+Da jeg skrev migrasjonen som skulle bytte `base_url`, ble den avvist:
+
+    ERROR: unterminated quoted string (SQLSTATE 42601)
+
+Årsaken er denne linja, som står ordrett i `0048`:
+
+    ||   '<div style="...">MARKUS'&nbsp;ARENA</div>'
+
+Apostrofen i `MARKUS'` er ikke escapet. I PostgreSQL lukker den
+strengen, og resten er søppel. Det er ikke en teori: `supabase db push`
+avviste nøyaktig de bytene mot nøyaktig denne databasen.
+
+Samme linje finnes i fem migrasjoner: `0026`, `0028`, `0039`, `0040`
+og `0048`. Alle fem definerer funksjoner som sender e-post.
+
+Og alle fem står som appliserte:
+
+    npx supabase migration list --linked
+    → 0026, 0028, 0039, 0040, 0048: local = remote
+
+Begge deler kan ikke være sanne om det som står i git. Den mest
+sannsynlige forklaringen står i `0048` sin egen kommentar: nøkkelen
+«settes manuelt i SQL Editor». Da er funksjonen limt inn for hånd, med
+apostrofen og nøkkelen ordnet der, og migrasjonsloggen stemplet
+etterpå.
+
+Konsekvensen er at **repoet ikke er en tro kopi av databasen for
+e-postfunksjonene**. Jeg vet ikke hva som faktisk kjører, og derfor har
+jeg ikke skrevet en migrasjon som overskriver dem: den ville i verste
+fall slettet en ekte Resend-nøkkel du har limt inn for hånd, og byttet
+ut en funksjonskropp jeg ikke har sett.
+
+To ting følger av det, og begge er dine:
+
+**1. Finn ut hva som faktisk kjører.** I SQL-editoren:
+
+    select proname,
+           position('demo.westengenklinikk.example' in prosrc) > 0 as har_dodt_domene,
+           position('REDACTED_RESEND_KEY'          in prosrc) > 0 as har_plassholder_nokkel,
+           position('MARKUS'                       in prosrc) > 0 as har_gammelt_navn
+      from pg_proc
+     where proname in ('send_booking_email', 'process_pending_review_emails');
+
+**2. Rett det som er galt, der.** Byttet er én linje per funksjon:
+
+    base_url text := 'https://booking-demo-rosy.vercel.app';
+
+Si fra hvis du vil at jeg skriver migrasjonen når du har sagt hva som
+står der. Da gjør jeg det på ti minutter.
+
+### Gammelt prosjektnavn i e-post til kunder
+
+Samme linje inneholder `MARKUS'&nbsp;ARENA` — monogrammet fra
+prosjektet demoen kom ut av. Står i toppen av bekreftelsen kunden får,
+i varselet til klinikken, i kontaktmeldingsvarselet og i
+dokumentutsendingen.
+
+E-postene bruker også den gamle varme paletten (`#3E6B47` grønn,
+`#FAF7F1` krem), som ble byttet ut for to runder siden.
+
+Jeg har ikke rørt det. Du ba meg ikke skrive om tekst denne runden, og
+det henger uansett sammen med spørsmålet over: jeg vet ikke om det som
+kjører i databasen har den samme teksten.
+
+### onboarding@resend.dev
+
+`from_email` er satt til Resends egen testavsender. Den virker bare til
+adressen som eier Resend-kontoen. Skal demoen sende til andre, må
+domenet verifiseres hos Resend og `from_email` byttes.
+
+---
+
+## Nettlesertester på live
+
+Curl bommet på alle tre feilene i går. Alt under er derfor gjort
+gjennom det ekte skjemaet på `booking-demo-rosy.vercel.app`, med en
+adminsesjon liggende i nettleseren — den tilstanden som avslørte både
+ventelistefeilen og anmeldelsesfeilen.
+
+| Endepunkt | Nettverkssvar | Rad i basen | Synlig der den skal |
+|---|---|---|---|
+| Bestilling | `201 POST bookings` | Ja, ref `TA-FEYI-6107` | Kvittering med referanse, behandler, tid, pris |
+| Avbestilling | `200 rpc/cancel_booking_by_ref` | Status satt til `cancelled` | «Timen din er avbestilt» med referanse |
+| Venteliste | `201 POST waitlist` + `200 rpc/get_waitlist_position` | Ja, riktig behandler og dato | Kvittering med referanse og køplass |
+| Kontakt | `200 submit-contact` | Ja, `status: new` | «Takk! Meldingen er sendt» |
+| Anmeldelse | `200 rpc/submit_review_by_token` | Ja, `status: pending` | «Takk for anmeldelsen!» |
+
+Anmeldelse var `403` før fiksen i denne runden. De fire andre virket.
+
+### Opprydding
+
+Slettet: 5 bookinger, 3 ventelisterader, 3 kontaktmeldinger.
+Bekreftet 0 ikke-seed-rader igjen i `bookings`, `waitlist`,
+`contact_messages`, `blocked_slots`, `holidays` og
+`special_open_days`.
+
+**To testanmeldelser står igjen.** `authenticated` har ikke DELETE på
+`reviews`, med vilje — anmeldelser modereres, de slettes ikke. Jeg satte
+dem til `rejected`, som er det systemet selv tillater. De er ikke
+synlige for publikum: anon ser fem anmeldelser, alle `approved`, ingen
+av dem mine. Den nattlige nullstillingen fjerner dem helt.
+
+---
+
+## Ratelimit
+
+Turnstile står på testhemmeligheten og godkjenner alt, så kvotetabellen
+er eneste reelle forsvar mot en bot akkurat nå. Den er verifisert ved å
+sende nok forsøk til at grensen slo inn.
+
+| Endepunkt | Grense per IP | Globalt | Vindu | Håndhevet av | Verifisert |
+|---|---|---|---|---|---|
+| Bestilling | 5/time | 20/time | 60 min | DB-trigger `trg_anon_quota_bookings` | Ja — 5. forsøk: `500` med `53400` |
+| Kontakt | 3/time | 15/time | 60 min | Edge Function **og** DB-trigger | Ja — 3. forsøk: `429 rate_limited` |
+| Venteliste | 3/time | 15/time | 60 min | DB-trigger `trg_anon_quota_waitlist` | Ja — 3. forsøk: `500` med `53400` |
+| Anmeldelse | ingen kvote | — | — | Token-gating i stedet (`0042`) | Én token, én anmeldelse |
+
+Forsøkene ble sendt rett mot API-et, ikke gjennom skjemaet. Det er
+slik en bot ville gjort det, og det er kvoten som er forsvaret mot
+nettopp det.
+
+Kontakt har to lag: Edge-funksjonen teller selv før den setter inn og
+svarer `429`, og DB-triggeren ville uansett stoppet innsettingen. Det
+er grunnen til at kontakt gir en pen HTTP-kode mens de to andre gir
+`500` — de går rett i tabellen, og PostgREST oversetter `53400` til
+`500`.
+
+**Ikke verifisert:** at kvoten slipper gjennom igjen etter vinduet.
+Det krever å vente ut timen. Mekanismen er en glidende
+60-minuttersperiode i trigger-funksjonen
+(`created_at > now() - v_window`), og tabellen ryddes for hendelser
+eldre enn 24 timer. Jeg observerte blokkeringen, ikke frigivelsen.
