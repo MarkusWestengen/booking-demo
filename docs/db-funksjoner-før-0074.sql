@@ -291,3 +291,180 @@ exception when others then
 end;
 $function$;
 
+
+-- ============================================================
+-- TILLEGG: to funksjoner til, funnet under verifiseringen av 0074
+-- ------------------------------------------------------------
+-- Punkt 4 i oppgaven ba om aa bekrefte at ingen ANDRE funksjoner i
+-- public har det gamle prosjektnavnet. Bekreftelsen slo feil: disse
+-- to har «ERIKS&nbsp;ARENA» i e-posthodet paa samme maate.
+--
+-- send_document_email sender til new.customer_email, altsaa til
+-- kunden selv.
+--
+-- Ingen av dem bygger lenker, saa ingen av dem har base_url.
+-- Treffet paa «westengenklinikk.example» i send_contact_message_email
+-- er notify_to = 'post@westengenklinikk.example', den oppdiktede
+-- klinikkens egen adresse, som er riktig.
+--
+-- Ingen ekte API-noekkel i noen av dem; begge har plassholderen.
+-- Rettes av migrasjon 0075.
+-- ============================================================
+
+-- ============================================================
+-- send_contact_message_email
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.send_contact_message_email()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'extensions'
+AS $function$
+declare
+  -- ⚠️ HARDKODET API-NØKKEL — placeholder kun for ferske deploys.
+  -- DO-guarden hopper over CREATE på eksisterende prod-DB, så den
+  -- ekte nøkkelen bevares. Aldri lim inn ekte nøkkel her (git).
+  resend_key   text := 'REDACTED_RESEND_KEY';
+  notify_to    text := 'post@westengenklinikk.example';
+  from_email   text := 'Westengen Klinikk <onboarding@resend.dev>';
+  date_str     text := to_char(new.created_at, 'DD.MM.YYYY HH24:MI');
+  notify_html  text;
+  -- Pre-escapet kunde-input (jf. 0028 P1-2).
+  e_name       text := public.html_escape(new.name);
+  e_email      text := public.html_escape(new.email);
+  e_message    text := replace(public.html_escape(new.message), chr(10), '<br>');
+begin
+  notify_html :=
+       '<!DOCTYPE html><html lang="no"><body style="margin:0;padding:0;background-color:#FAF7F1;">'
+    || '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#FAF7F1;">'
+    || '<tr><td align="center" style="padding:32px 12px;">'
+    || '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background-color:#ffffff;">'
+    || '<tr><td align="center" bgcolor="#3E6B47" style="background-color:#3E6B47;padding:40px;">'
+    ||   '<div style="font-family:Georgia,serif;font-size:24px;letter-spacing:0.30em;color:#FAF7F1;">ERIKS&nbsp;ARENA</div>'
+    ||   '<div style="font-family:Courier,monospace;font-size:11px;letter-spacing:0.24em;color:#A6C1AC;padding-top:14px;">NY HENVENDELSE</div>'
+    || '</td></tr>'
+    || '<tr><td style="padding:36px 40px 8px;">'
+    ||   '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
+    ||     '<tr><td width="92" style="padding:13px 16px 13px 0;border-bottom:1px solid #ECE6DA;font-family:Courier,monospace;font-size:11px;letter-spacing:0.07em;color:#76776F;vertical-align:top;">NAVN</td>'
+    ||       '<td style="padding:13px 0;border-bottom:1px solid #ECE6DA;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#15191A;">' || e_name || '</td></tr>'
+    ||     '<tr><td width="92" style="padding:13px 16px 13px 0;border-bottom:1px solid #ECE6DA;font-family:Courier,monospace;font-size:11px;letter-spacing:0.07em;color:#76776F;vertical-align:top;">E-POST</td>'
+    ||       '<td style="padding:13px 0;border-bottom:1px solid #ECE6DA;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#15191A;"><a href="mailto:' || e_email || '" style="color:#3E6B47;">' || e_email || '</a></td></tr>'
+    ||     '<tr><td width="92" style="padding:13px 16px 13px 0;border-bottom:1px solid #ECE6DA;font-family:Courier,monospace;font-size:11px;letter-spacing:0.07em;color:#76776F;vertical-align:top;">MOTTATT</td>'
+    ||       '<td style="padding:13px 0;border-bottom:1px solid #ECE6DA;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#15191A;">' || date_str || '</td></tr>'
+    ||   '</table>'
+    || '</td></tr>'
+    || '<tr><td style="padding:22px 40px 40px;">'
+    ||   '<div style="font-family:Courier,monospace;font-size:11px;letter-spacing:0.07em;color:#76776F;padding-bottom:10px;">MELDING</div>'
+    ||   '<div style="font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#15191A;background-color:#F2EDE3;border:1px solid #E4DAC8;padding:20px;">' || e_message || '</div>'
+    || '</td></tr>'
+    || '<tr><td align="center" bgcolor="#15191A" style="background-color:#15191A;padding:26px 40px;">'
+    ||   '<div style="font-family:Courier,monospace;font-size:10px;letter-spacing:0.14em;color:#5f6058;">AUTOMATISK VARSEL — WESTENGEN KLINIKK</div>'
+    || '</td></tr>'
+    || '</table></td></tr></table></body></html>';
+
+  -- Send via Resend gjennom pg_net (asynkront). reply_to = kundens
+  -- e-post så ansatte kan svare direkte.
+  perform net.http_post(
+    url     := 'https://api.resend.com/emails',
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer ' || resend_key,
+      'Content-Type',  'application/json'
+    ),
+    body    := jsonb_build_object(
+      'from',     from_email,
+      'to',       notify_to,
+      'reply_to', new.email,
+      'subject',  'Ny henvendelse: ' || e_name,
+      'html',     notify_html
+    )
+  );
+
+  return new;
+
+exception when others then
+  -- E-post er sekundært: la meldingen lagres selv om varselet feiler
+  -- (forventet i sandbox før domeneverifisering).
+  raise notice 'send_contact_message_email feilet: % %', sqlstate, sqlerrm;
+  return new;
+end;
+$function$;
+
+
+-- ============================================================
+-- send_document_email
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.send_document_email()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'extensions'
+AS $function$
+declare
+  -- ⚠️ HARDKODET API-NØKKEL — placeholder kun for ferske deploys.
+  -- DO-guarden hopper over CREATE på eksisterende prod-DB, så den
+  -- ekte nøkkelen bevares. Aldri lim inn ekte nøkkel her (git).
+  resend_key   text := 'REDACTED_RESEND_KEY';
+  from_email   text := 'Westengen Klinikk <onboarding@resend.dev>';
+  notify_to    text := new.customer_email;
+  e_title      text := public.html_escape(new.document_title);
+  e_link       text := public.html_escape(new.link_url);
+  e_sender     text := public.html_escape(coalesce(new.sent_by_name, 'Westengen Klinikk'));
+  notify_html  text;
+begin
+  notify_html :=
+       '<!DOCTYPE html><html lang="no"><body style="margin:0;padding:0;background-color:#FAF7F1;">'
+    || '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#FAF7F1;">'
+    || '<tr><td align="center" style="padding:32px 12px;">'
+    || '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background-color:#ffffff;">'
+    || '<tr><td align="center" bgcolor="#3E6B47" style="background-color:#3E6B47;padding:40px;">'
+    ||   '<div style="font-family:Georgia,serif;font-size:24px;letter-spacing:0.30em;color:#FAF7F1;">ERIKS&nbsp;ARENA</div>'
+    ||   '<div style="font-family:Courier,monospace;font-size:11px;letter-spacing:0.24em;color:#A6C1AC;padding-top:14px;">ØVELSER &amp; OPPFØLGING</div>'
+    || '</td></tr>'
+    || '<tr><td style="padding:40px 40px 8px;">'
+    ||   '<div style="font-family:Georgia,serif;font-size:21px;color:#15191A;">Du har fått tilsendt et dokument.</div>'
+    ||   '<div style="font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#5c5d55;padding-top:12px;">'
+    ||     e_sender || ' ved Westengen Klinikk har delt «' || e_title || '» med deg. Klikk knappen under for å laste det ned.</div>'
+    || '</td></tr>'
+    || '<tr><td align="center" style="padding:14px 40px 8px;">'
+    ||   '<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:8px auto 0;">'
+    ||     '<tr><td align="center" bgcolor="#3E6B47" style="background-color:#3E6B47;border-radius:4px;">'
+    ||       '<a href="' || e_link || '" style="display:inline-block;padding:15px 42px;font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:bold;letter-spacing:0.05em;color:#FAF7F1;text-decoration:none;">LAST NED DOKUMENT</a>'
+    ||     '</td></tr>'
+    ||   '</table>'
+    || '</td></tr>'
+    || '<tr><td style="padding:18px 40px 40px;">'
+    ||   '<div style="font-family:Courier,monospace;font-size:11px;color:#8a8b82;word-break:break-all;">' || e_link || '</div>'
+    ||   '<div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#8a8b82;padding-top:14px;">Lenken er gyldig i 30 dager. Trenger du den på nytt etterpå, ta kontakt med klinikken.</div>'
+    || '</td></tr>'
+    || '<tr><td align="center" bgcolor="#15191A" style="background-color:#15191A;padding:30px 40px;">'
+    ||   '<div style="font-family:Georgia,serif;font-size:15px;letter-spacing:0.20em;color:#FAF7F1;">WESTENGEN KLINIKK</div>'
+    ||   '<div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.7;color:#8f9089;padding-top:9px;">Storgata 1, 0155 Oslo<br>+47 400 00 000</div>'
+    || '</td></tr>'
+    || '</table></td></tr></table></body></html>';
+
+  perform net.http_post(
+    url     := 'https://api.resend.com/emails',
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer ' || resend_key,
+      'Content-Type',  'application/json'
+    ),
+    body    := jsonb_build_object(
+      'from',    from_email,
+      'to',      notify_to,
+      'subject', 'Dokument fra Westengen Klinikk: ' || e_title,
+      'html',    notify_html
+    )
+  );
+
+  return new;
+
+exception when others then
+  -- E-post er sekundært: la utsendings-loggen lagres selv om varselet
+  -- feiler (forventet i sandbox før domeneverifisering).
+  raise notice 'send_document_email feilet: % %', sqlstate, sqlerrm;
+  return new;
+end;
+$function$;
+
