@@ -499,6 +499,11 @@
 </footer>
 
 <script src="shared/booking-config.js"></script>
+<!-- Motoren lastes for aapningstidene alene: tidsvelgeren under skal
+     ikke ha sin egen kopi av dem. Den henter ingenting av seg selv —
+     loadStaff/loadServices kjoerer foerst ved ensureLoaded(), som denne
+     siden aldri kaller. -->
+<script src="shared/booking-engine.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="i18n/i18n.js"></script>
 <script src="shared/header-mobile.js" defer></script>
@@ -587,12 +592,17 @@
   function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
   function digitCount(v) { return v.replace(/\D/g, '').length; }
 
-  function todayISO() {
+  // Klinikkens dato, ikke maskinens. Datoene i basen er vegg-klokke
+  // uten sone (Oslo-tid), saa «i dag» maa regnes i Europe/Oslo.
+  // Faller tilbake til lokal klokke hvis motoren ikke er lastet.
+  function todayOslo() {
+    var E = window.WestengenKlinikkBookingEngine;
+    if (E && E.osloNow) return E.osloNow().date;
     var d = new Date();
-    var m = String(d.getMonth() + 1).padStart(2, '0');
-    var day = String(d.getDate()).padStart(2, '0');
-    return d.getFullYear() + '-' + m + '-' + day;
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+         + '-' + String(d.getDate()).padStart(2, '0');
   }
+  function todayISO() { return todayOslo(); }
 
   function formatDateNo(iso) {
     try {
@@ -617,10 +627,30 @@
 
   // ---- Tidsvalg: KUN hele/halve timer innenfor åpningstidene -----
   // Erstatter de frie type=time-feltene (som tillot rare minutter som
-  // 14:56). Genererer 30-min-steg innenfor man-fre 07:00–15:00.
+  // 14:56). Genererer 30-min-steg innenfor åpningstidene.
   // (Gjelder kun venteliste-ønsket; rører ikke booking-engine sin slot-logikk.)
+  //
+  // Grensene hentes fra booking-engine, ikke kopiert hit: dette er en
+  // ØNSKE-oppgivelse før behandler er endelig valgt, så vinduet er
+  // unionen av alle behandleres tider. Sto tidligere hardkodet til
+  // 07:00–15:00, og da kunne man ikke be om en tid hos Markus, som
+  // åpner 06:00. Konstantene under er fallback.
   var OPEN_FROM_MIN = 7 * 60;    // 07:00
   var OPEN_TO_MIN   = 15 * 60;   // 15:00
+  (function () {
+    var E = window.WestengenKlinikkBookingEngine;
+    if (!E || !E.getHoursForStaff || !E.STAFF) return;
+    var fra = null, til = null;
+    E.STAFF.forEach(function (s) {
+      var h = E.getHoursForStaff(s.id, 1); // mandag — klinikken er åpen man–fre
+      if (!h) return;
+      var o = (+h.open.split(':')[0]) * 60 + (+h.open.split(':')[1]);
+      var c = (+h.close.split(':')[0]) * 60 + (+h.close.split(':')[1]);
+      if (fra === null || o < fra) fra = o;
+      if (til === null || c > til) til = c;
+    });
+    if (fra !== null && til !== null && fra < til) { OPEN_FROM_MIN = fra; OPEN_TO_MIN = til; }
+  })();
   function pad2(n) { return String(n).padStart(2, '0'); }
   function fillTimeSelect(sel) {
     var cur = sel.value;

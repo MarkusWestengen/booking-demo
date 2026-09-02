@@ -582,6 +582,17 @@
   // andre 07:00–15:00). Grensene hentes fra booking-engine.getHoursForStaff.
   // Regenereres ved behandlerbytte; bevarer gjeldende valg hvis det fortsatt
   // er i vinduet.
+  // Klinikkens dato, ikke maskinens. Datoene i basen er vegg-klokke
+  // uten sone (Oslo-tid), saa «i dag» maa regnes i Europe/Oslo.
+  // Faller tilbake til lokal klokke hvis motoren ikke er lastet.
+  function todayOslo() {
+    var E = window.WestengenKlinikkBookingEngine;
+    if (E && E.osloNow) return E.osloNow().date;
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+         + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
   function populateBlockTimeSelects() {
     var E = window.WestengenKlinikkBookingEngine;
     var sid = $('fStaff') ? $('fStaff').value : '';
@@ -627,7 +638,7 @@
   function renderBlocks() {
     var rows = STATE.blocks;
     // Filtrér til kommende + dagens (fjern utgåtte)
-    var todayStr = new Date().toISOString().slice(0, 10);
+    var todayStr = todayOslo();
     var future = rows.filter(function (r) { return r.date >= todayStr; });
 
     // PASS 1: per dag — slå sammenhengende 30-min-rader med samme
@@ -961,7 +972,7 @@
     var host = $('holHost');
     if (!host) return;
     host.innerHTML = '<div class="loader"><span class="spinner"></span>Henter…</div>';
-    var todayStr = new Date().toISOString().slice(0, 10);
+    var todayStr = todayOslo();
     sb.from('holidays').select('date').gte('date', todayStr).order('date', { ascending: true })
       .then(function (res) {
         if (res.error) {
@@ -1068,7 +1079,7 @@
     if (!host) return;
     // PART F — ikke tillat dato i fortid (rimelig guard; ingen lørdags-lås).
     var sd = $('sDate');
-    if (sd) sd.min = new Date().toISOString().slice(0, 10);
+    if (sd) sd.min = todayOslo();
     var E = window.WestengenKlinikkBookingEngine;
     var staff = (E && E.STAFF) ? E.STAFF : [];
     // Pool-paraplyen 'terapeut' utelates (Alt. 1 — kun navngitt behandler).
@@ -1101,7 +1112,7 @@
     }
     // PART F — fortid-guard (datoen kan være hvilken som helst stengt dag,
     // men ikke i fortiden). Ingen lørdags-krav.
-    if (date < new Date().toISOString().slice(0, 10)) {
+    if (date < todayOslo()) {
       $('specErr').style.display = ''; $('specErr').textContent = 'Datoen kan ikke være i fortiden.'; return;
     }
     var fromMin = parseMin(from), toMin = parseMin(to);
@@ -1144,7 +1155,7 @@
     var host = $('specHost');
     if (!host) return;
     host.innerHTML = '<div class="loader"><span class="spinner"></span>Henter…</div>';
-    var todayStr = new Date().toISOString().slice(0, 10);
+    var todayStr = todayOslo();
     sb.from('special_open_days').select('staff_id, date, open_time, close_time')
       .gte('date', todayStr).order('date', { ascending: true }).order('staff_id', { ascending: true })
       .then(function (res) {

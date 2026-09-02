@@ -13,7 +13,12 @@
   "notif_error": "Could not change the notification setting. Please try again.",
   "notif_new_booking": "New booking received",
   "notif_new_message": "New message received",
-  "_meta": {"lang": "en", "name": "English", "translated_by": "AI (Claude Opus)", "reviewed_by_human": false},
+  "_meta": {
+    "lang": "en",
+    "name": "English",
+    "translated_by": "AI (Claude Opus)",
+    "reviewed_by_human": false
+  },
   "nav.home": "Home",
   "nav.about": "About Markus",
   "nav.philosophy": "Philosophy",
@@ -425,6 +430,8 @@
   "contact.form_heading": "Send a message",
   "contact.form_sub": "The message lands in the inbox in the admin panel.",
   "contact.err_offline": "The form is not connected to a database in this setup.",
+  "contact.captcha_wait": "Running the security check. The button opens in a couple of seconds.",
+  "contact.captcha_failed_client": "The security check did not go through. Reload the page and try again.",
   "privacy.eyebrow": "Privacy",
   "privacy.heading": "Privacy in this demo",
   "privacy.updated": "Last updated 1 September 2026",

@@ -13,7 +13,12 @@
   "notif_error": "Kunne ikke endre varselinnstilling. Prøv igjen.",
   "notif_new_booking": "Ny booking mottatt",
   "notif_new_message": "Ny melding mottatt",
-  "_meta": {"lang": "no", "name": "Norsk", "canonical": true, "description": "Kanonisk kilde, alle andre språk er oversettelser av denne."},
+  "_meta": {
+    "lang": "no",
+    "name": "Norsk",
+    "canonical": true,
+    "description": "Kanonisk kilde, alle andre språk er oversettelser av denne."
+  },
   "nav.home": "Forsiden",
   "nav.about": "Om Markus",
   "nav.philosophy": "Filosofi",
@@ -425,6 +430,8 @@
   "contact.form_heading": "Send en melding",
   "contact.form_sub": "Meldingen havner i innboksen i adminpanelet.",
   "contact.err_offline": "Skjemaet er ikke koblet til en database i dette oppsettet.",
+  "contact.captcha_wait": "Sikkerhetssjekken kjører. Knappen åpner om et par sekunder.",
+  "contact.captcha_failed_client": "Sikkerhetssjekken kom ikke gjennom. Last siden på nytt og prøv igjen.",
   "privacy.eyebrow": "Personvern",
   "privacy.heading": "Personvern i denne demoen",
   "privacy.updated": "Sist oppdatert 1. september 2026",

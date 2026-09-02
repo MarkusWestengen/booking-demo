@@ -338,10 +338,18 @@
                  widget-modus i Cloudflare-dashbordet. -->
             <div class="cf-turnstile"
                  data-sitekey="0x4AAAAAAElCRZstoX978mDR"
-                 data-theme="light"></div>
+                 data-theme="light"
+                 data-callback="wkTurnstileReady"
+                 data-expired-callback="wkTurnstileGone"
+                 data-timeout-callback="wkTurnstileGone"
+                 data-error-callback="wkTurnstileFailed"></div>
 
             <div class="k-actions">
-              <button type="submit" class="k-submit" data-i18n="contact.submit">Send melding</button>
+              <!-- Deaktivert til Turnstile har utstedt token. Med ekte
+                   noekkel tar det 6-10 sekunder, og et klikk foer det
+                   sendte tom token og ga en generisk feilmelding uten
+                   forklaring. Aapnes av wkTurnstileReady under. -->
+              <button type="submit" class="k-submit" data-i18n="contact.submit" disabled>Send melding</button>
               <span class="k-status" id="contactStatus" role="status" aria-live="polite"></span>
             </div>
           </form>
@@ -398,7 +406,47 @@
   }
   function resetCaptcha() {
     try { if (window.turnstile) window.turnstile.reset(); } catch (_) {}
+    // Tokenet er borte til widgeten har laget et nytt.
+    setReady(false);
   }
+
+  // ----- Turnstile-tilstand -> send-knappen ------------------------
+  // Widgeten er usynlig, saa brukeren har ingen maate aa se at en
+  // sikkerhetssjekk paagaar. Med testnoekkelen kom tokenet momentant;
+  // med ekte noekkel tar det 6-10 sekunder. Knappen staar derfor
+  // deaktivert med en rolig hjelpetekst til tokenet finnes.
+  var submitBtn = form.querySelector('button[type="submit"]');
+  var venteteksten_vises = false;
+  function setReady(ready) {
+    if (submitBtn) submitBtn.disabled = !ready;
+  }
+  function sayWait() {
+    venteteksten_vises = true;
+    say(t('contact.captcha_wait', 'Sikkerhetssjekken kjører. Knappen åpner om et par sekunder.'));
+  }
+  window.wkTurnstileReady = function () {
+    setReady(true);
+    // Rydd bare vekk vår egen ventetekst. En kvittering eller en
+    // feilmelding fra innsendingen skal bli staaende.
+    if (venteteksten_vises) { venteteksten_vises = false; say(''); }
+  };
+  window.wkTurnstileGone = function () {
+    setReady(false);
+    sayWait();
+  };
+  window.wkTurnstileFailed = function () {
+    setReady(false);
+    say(t('contact.captcha_failed_client',
+          'Sikkerhetssjekken kom ikke gjennom. Last siden på nytt og prøv igjen.'), 'err');
+  };
+  // Startstatus. Har tokenet allerede kommet (rask nettverk, eller
+  // tilbake-navigasjon med bevart DOM), aapner vi med en gang.
+  (function initCaptchaState() {
+    var el = form.querySelector('input[name="cf-turnstile-response"]');
+    if (el && el.value) { setReady(true); return; }
+    setReady(false);
+    sayWait();
+  })();
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -470,8 +518,11 @@
     }).catch(function () {
       say(t('contact.err_generic', 'Meldingen kunne ikke sendes. Prøv igjen.'), 'err');
     }).then(function () {
-      btn.disabled = false;
       btn.textContent = original;
+      // Reset gjoer det gamle tokenet ubrukelig. Knappen skal derfor
+      // ikke aapnes her — den aapnes av wkTurnstileReady naar det nye
+      // tokenet er utstedt. Aapnet vi den naa, ville neste klikk sende
+      // tom token og gi den generiske feilen igjen.
       resetCaptcha();
     });
   });

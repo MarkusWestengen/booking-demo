@@ -124,6 +124,17 @@
     return { open: ov.open, close: ov.close, breaks: ov.breaks || [] };
   }
 
+  // Behandlerens faste pauser, uavhengig av ukedag. Trengs fordi en
+  // special_open_days-rad kan åpne en dag der getHoursForStaff() gir
+  // null (helg), og pausene skal gjelde også da: en fast pause er
+  // behandlerens, ikke ukedagens. Tidligere satte engangsåpningen
+  // breaks til [], slik at Markus' 09:30-pause var bookbar på en åpen
+  // lørdag.
+  function breaksForStaff(staffId) {
+    var ov = STAFF_HOURS[staffId];
+    return (ov && ov.breaks) ? ov.breaks : [];
+  }
+
   // ----- Staff loader (DB-drevet med KODE-FALLBACK) ----------------
   // V?-DEL-C (2026-06-03): STAFF + THERAPIST_POOL leses nå fra
   // staff_members-tabellen (migrasjon 0041) slik at admin kan legge
@@ -313,8 +324,33 @@
   function timeToMinutes(t) { var p = t.split(':'); return (+p[0]) * 60 + (+p[1]); }
   function minutesToTime(m) { return pad(Math.floor(m / 60)) + ':' + pad(m % 60); }
   function addDays(date, n) { var d = new Date(date); d.setDate(d.getDate() + n); return d; }
-  function isPastDate(date) { var t = new Date(); t.setHours(0,0,0,0); return date < t; }
-  function isToday(date) { return ymd(new Date()) === ymd(date); }
+  // ----- Klinikkens klokke, ikke besøkendes ------------------------
+  // «I dag» og «for sent å booke» skal regnes i Europe/Oslo. Tidligere
+  // brukte begge nettleserens lokale klokke, så en besøkende i en annen
+  // tidssone fikk et annet «i dag» og en annen 60-minutters grense enn
+  // klinikken faktisk har. Datoene og klokkeslettene i basen er
+  // vegg-klokke uten sone (date + time without time zone) — altså
+  // Oslo-tid — så det er Oslo vi må sammenligne mot.
+  //
+  // Intl med hourCycle h23 gir 00–23 (h12/hour12:false kan gi «24»).
+  // en-CA gir ISO-formatert dato, som lar seg sammenligne som streng.
+  function osloNow() {
+    try {
+      var p = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Oslo',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+      }).formatToParts(new Date()).reduce(function (a, x) { a[x.type] = x.value; return a; }, {});
+      return { date: p.year + '-' + p.month + '-' + p.day,
+               minutes: (+p.hour) * 60 + (+p.minute) };
+    } catch (e) {
+      // Uten Intl/sonedata: fall tilbake til lokal klokke framfor å kaste.
+      var n = new Date();
+      return { date: ymd(n), minutes: n.getHours() * 60 + n.getMinutes() };
+    }
+  }
+  function isPastDate(date) { return ymd(date) < osloNow().date; }
+  function isToday(date) { return ymd(date) === osloNow().date; }
 
   // ----- Supabase REST wrapper ------------------------------------
   function sbHeaders(extra) {
@@ -567,7 +603,7 @@
       // Engangs lørdagsåpning: en special_open_days-rad for (staff, dato)
       // overstyrer ukedag-stengingen (holiday er allerede sjekket over).
       var sp = specialFor(special, staffId, dateStr);
-      var hrs = sp ? { open: sp.open, close: sp.close, breaks: [] } : getHoursForStaff(staffId, dow);
+      var hrs = sp ? { open: sp.open, close: sp.close, breaks: breaksForStaff(staffId) } : getHoursForStaff(staffId, dow);
       if (!hrs) return [];
       var startMin = timeToMinutes(hrs.open), endMin = timeToMinutes(hrs.close), stepMin = 30;
       var need = blocksFor(durationMinutes);
@@ -575,7 +611,7 @@
         bookedSlots.filter(function (b) { return b.staffId === staffId && b.date === dateStr; }),
         blocked.filter(function (b) { return b.staffId === staffId && b.date === dateStr; }));
       var nowBuffer = 0;
-      if (isToday(date)) { var n = new Date(); nowBuffer = n.getHours() * 60 + n.getMinutes() + 60; }
+      if (isToday(date)) { nowBuffer = osloNow().minutes + 60; }
       var slots = [];
       for (var m = startMin; m + stepMin <= endMin; m += stepMin) {
         var t = minutesToTime(m);
@@ -605,14 +641,14 @@
         var isOpen = (!!HOURS[dow] || !!sp) && holidays.indexOf(dateStr) === -1;
         var slotCount = 0;
         if (isOpen) {
-          var hrs = sp ? { open: sp.open, close: sp.close, breaks: [] } : getHoursForStaff(staffId, dow);
+          var hrs = sp ? { open: sp.open, close: sp.close, breaks: breaksForStaff(staffId) } : getHoursForStaff(staffId, dow);
           var startMin = timeToMinutes(hrs.open), endMin = timeToMinutes(hrs.close), stepMin = 30;
           var need = blocksFor(durationMinutes);
           var occ = occupiedMap(
             bookedSlots.filter(function (b) { return b.staffId === staffId && b.date === dateStr; }),
             blocked.filter(function (b) { return b.staffId === staffId && b.date === dateStr; }));
           var nowBuffer = 0;
-          if (isToday(d)) { var n = new Date(); nowBuffer = n.getHours() * 60 + n.getMinutes() + 60; }
+          if (isToday(d)) { nowBuffer = osloNow().minutes + 60; }
           for (var m = startMin; m + stepMin <= endMin; m += stepMin) {
             if (m >= nowBuffer && fits(m, need, endMin, occ, hrs.breaks)) slotCount++;
           }
@@ -695,7 +731,7 @@
       var occ = groupOccupancyForDate(dateStr, bookedSlots, blocked);
       var startMin = timeToMinutes(hrs.open), endMin = timeToMinutes(hrs.close), stepMin = 30;
       var nowBuffer = 0;
-      if (isToday(date)) { var n = new Date(); nowBuffer = n.getHours() * 60 + n.getMinutes() + 60; }
+      if (isToday(date)) { nowBuffer = osloNow().minutes + 60; }
       var need = blocksFor(durationMinutes);
       var slots = [];
       for (var m = startMin; m + stepMin <= endMin; m += stepMin) {
@@ -732,7 +768,7 @@
           var occ = groupOccupancyForDate(dateStr, bookedSlots, blocked);
           var startMin = timeToMinutes(hrs.open), endMin = timeToMinutes(hrs.close), stepMin = 30;
           var nowBuffer = 0;
-          if (isToday(d)) { var n = new Date(); nowBuffer = n.getHours() * 60 + n.getMinutes() + 60; }
+          if (isToday(d)) { nowBuffer = osloNow().minutes + 60; }
           var need = blocksFor(durationMinutes);
           for (var m = startMin; m + stepMin <= endMin; m += stepMin) {
             if (m < nowBuffer || m + need * 30 > endMin) continue;
@@ -866,7 +902,8 @@
     // Eksponert for admin-UI (stengte-tider.html) som setter min/max på
     // tidsvelgerne etter behandlerens standard arbeidstid (Markus 06–13,
     // andre 07–15). dow=1 (mandag) gir alltid det åpne ukedags-vinduet.
-    getHoursForStaff: getHoursForStaff,
+    getHoursForStaff: getHoursForStaff, breaksForStaff: breaksForStaff,
+    osloNow: osloNow,
     ensureLoaded: ensureLoaded, reloadServices: reloadServices, reloadStaff: reloadStaff,
     getServiceById: getServiceById,
     generateSlotsForDay: generateSlotsForDay, getOpenDays: getOpenDays,

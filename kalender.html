@@ -905,11 +905,30 @@
     return s + ' – ' + pad2(eh) + ':' + pad2(em);
   }
   // ----- Ledige slots (klientside, fra STATE.bookings) -----
-  // Klinikkens åpningsvindu speiler HOURS i shared/booking-engine.js
-  // (man–fre 07:00–15:00, 30-min rutenett). Et slot er "ledig" hvis det
-  // ligger i vinduet, ikke er dekket av en bekreftet/fullført booking for
-  // behandleren, og ikke er passert (samme 60-min-buffer som motoren).
+  // Åpningsvinduet hentes fra booking-engine, ikke kopiert hit. Et slot
+  // er "ledig" hvis det ligger i behandlerens eget vindu, ikke er en av
+  // hennes faste pauser, ikke er dekket av en bekreftet/fullført booking,
+  // og ikke er passert (samme 60-min-buffer som motoren).
+  //
+  // Konstantene under er KUN fallback for når motoren ikke har lastet
+  // eller staffId mangler. De sto tidligere som eneste kilde, og da
+  // kjente ikke kalenderen per-behandler-timene: Markus' 06:00 og 06:30
+  // manglet, mens 09:30 (fast pause) og 13:00–14:30 (etter hans
+  // stengetid) ble vist som ledige. Sju feil rader per hverdag.
   var CLINIC_OPEN_MIN = 7 * 60, CLINIC_CLOSE_MIN = 15 * 60, SLOT_STEP = 30;
+
+  // { openMin, closeMin, breaks[] } for en behandler på en ukedag, fra
+  // motoren. Faller tilbake til klinikkvinduet hvis motoren mangler.
+  function staffWindow(staffId, dow) {
+    var E = window.WestengenKlinikkBookingEngine;
+    var hrs = (E && E.getHoursForStaff && staffId) ? E.getHoursForStaff(staffId, dow) : null;
+    if (!hrs) return { openMin: CLINIC_OPEN_MIN, closeMin: CLINIC_CLOSE_MIN, breaks: [] };
+    return { openMin: toMin(hrs.open), closeMin: toMin(hrs.close), breaks: hrs.breaks || [] };
+  }
+  function staffBreaks(staffId) {
+    var E = window.WestengenKlinikkBookingEngine;
+    return (E && E.breaksForStaff && staffId) ? E.breaksForStaff(staffId) : [];
+  }
   function toMin(t) { if (!t) return null; var p = t.split(':'); return (+p[0]) * 60 + (+p[1]); }
   function minToTime(m) { return pad2(Math.floor(m / 60)) + ':' + pad2(m % 60); }
 
@@ -944,18 +963,29 @@
   function freeSlotTimes(dateStr, staffId) {
     var d = parseYMD(dateStr); if (!d) return [];
     var dow = d.getDay();
-    var openMin = CLINIC_OPEN_MIN, closeMin = CLINIC_CLOSE_MIN;
+    // Behandlerens eget vindu, fra motoren. Markus har 06:00–13:00 med
+    // fast pause 09:30; alle andre følger klinikkens 07:00–15:00.
+    var w = staffWindow(staffId, dow);
+    var openMin = w.openMin, closeMin = w.closeMin, breaks = w.breaks;
     if (dow === 0 || dow === 6) {
       // Helg er normalt stengt — men en special_open_days-rad for (staff,
       // dato) åpner dagen innenfor det satte vinduet (samme kilde som
       // booking-motoren bruker), slik at admin-kalenderen viser lørdagen
-      // som bookbar for de valgte behandlerne.
+      // som bookbar for de valgte behandlerne. Behandlerens faste pauser
+      // gjelder også da — de er hennes, ikke ukedagens.
       var sp = specialOpenFor(staffId, dateStr);
       if (!sp || sp.openMin == null || sp.closeMin == null) return [];
-      openMin = sp.openMin; closeMin = sp.closeMin;
+      openMin = sp.openMin; closeMin = sp.closeMin; breaks = staffBreaks(staffId);
     }
-    var today = new Date(); today.setHours(0, 0, 0, 0);
-    if (d < today) return [];
+    // Klinikkens klokke, ikke maskinens: en ansatt som ser kalenderen fra
+    // en annen tidssone skal se samme «i dag» og samme 60-min-grense som
+    // bestillingsflyten bruker.
+    var E = window.WestengenKlinikkBookingEngine;
+    var nowOslo = (E && E.osloNow) ? E.osloNow() : (function () {
+      var n = new Date();
+      return { date: ymd(n), minutes: n.getHours() * 60 + n.getMinutes() };
+    })();
+    if (dateStr < nowOslo.date) return [];
     var covered = {};
     STATE.bookings.forEach(function (b) {
       if (b.date !== dateStr || b.staff_id !== staffId) return;
@@ -966,10 +996,11 @@
       for (var m = startM; m < startM + dur; m += SLOT_STEP) covered[minToTime(m)] = true;
     });
     var nowBuffer = -1;
-    if (ymd(new Date()) === dateStr) { var n = new Date(); nowBuffer = n.getHours() * 60 + n.getMinutes() + 60; }
+    if (nowOslo.date === dateStr) nowBuffer = nowOslo.minutes + 60;
     var out = [];
     for (var mm = openMin; mm + SLOT_STEP <= closeMin; mm += SLOT_STEP) {
       var t = minToTime(mm);
+      if (breaks.indexOf(t) !== -1) continue; // fast pause — aldri ledig
       if (covered[t]) continue;
       if (mm < nowBuffer) continue;
       out.push(t);
@@ -997,7 +1028,17 @@
     return ({ confirmed: 'Bekreftet', completed: 'Fullført',
               cancelled: 'Avlyst',    no_show: 'No-show' })[s] || s || '–';
   }
-  function todayStr() { return ymd(new Date()); }
+  // Klinikkens dato, ikke maskinens. Datoene i basen er vegg-klokke
+  // uten sone (Oslo-tid), saa «i dag» maa regnes i Europe/Oslo.
+  // Faller tilbake til lokal klokke hvis motoren ikke er lastet.
+  function todayOslo() {
+    var E = window.WestengenKlinikkBookingEngine;
+    if (E && E.osloNow) return E.osloNow().date;
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+         + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function todayStr() { return todayOslo(); }
   function patientKey(b) {
     return (b.email || '').toLowerCase() + '|' + (b.phone || '').trim();
   }
