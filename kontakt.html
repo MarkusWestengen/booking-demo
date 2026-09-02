@@ -418,19 +418,25 @@
   // deaktivert med en rolig hjelpetekst til tokenet finnes.
   var submitBtn = form.querySelector('button[type="submit"]');
   var venteteksten_vises = false;
+  var captchafeil_vises = false;
   function setReady(ready) {
     if (submitBtn) submitBtn.disabled = !ready;
   }
   function sayWait() {
     venteteksten_vises = true;
+    captchafeil_vises = false;
     say(t('contact.captcha_wait', 'Sikkerhetssjekken kjører. Knappen åpner om et par sekunder.'));
   }
   window.wkTurnstileReady = function () {
     stoppVaktbikkje();
     setReady(true);
-    // Rydd bare vekk vår egen ventetekst. En kvittering eller en
-    // feilmelding fra innsendingen skal bli staaende.
-    if (venteteksten_vises) { venteteksten_vises = false; say(''); }
+    // Rydd vekk vaar egen ventetekst OG en tidligere captcha-feil: kom
+    // tokenet likevel, er «last siden paa nytt» direkte misvisende ved
+    // siden av en knapp som virker. En kvittering eller en feilmelding
+    // fra selve innsendingen skal derimot bli staaende.
+    if (venteteksten_vises || captchafeil_vises) {
+      venteteksten_vises = false; captchafeil_vises = false; say('');
+    }
   };
   window.wkTurnstileGone = function () {
     setReady(false);
@@ -440,6 +446,8 @@
   window.wkTurnstileFailed = function () {
     stoppVaktbikkje();
     setReady(false);
+    venteteksten_vises = false;
+    captchafeil_vises = true;
     say(t('contact.captcha_failed_client',
           'Sikkerhetssjekken kom ikke gjennom. Last siden på nytt og prøv igjen.'), 'err');
   };
