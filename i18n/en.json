@@ -571,5 +571,6 @@
   "demo.badge_title": "Demonstration version with fictional data. Click for details.",
   "waitlist.err_rate": "Too many attempts in a short time. Wait a minute and try again.",
   "booking.confirm.demo_no_mail": "This demo does not send email. In use, a confirmation with a cancellation link would arrive in the inbox now.",
-  "booking.confirm.cancel_link": "the cancellation page"
+  "booking.confirm.cancel_link": "the cancellation page",
+  "common.footer_privacy": "Privacy in this demo"
 }

@@ -571,5 +571,6 @@
   "demo.badge_title": "Demonstrasjonsversjon med fiktive data. Klikk for detaljer.",
   "waitlist.err_rate": "For mange forsøk på kort tid. Vent et minutt og prøv igjen.",
   "booking.confirm.demo_no_mail": "Demoen sender ikke e-post. I drift ville en bekreftelse med avbestillingslenke kommet i innboksen nå.",
-  "booking.confirm.cancel_link": "avbestillingssiden"
+  "booking.confirm.cancel_link": "avbestillingssiden",
+  "common.footer_privacy": "Personvern i demoen"
 }
