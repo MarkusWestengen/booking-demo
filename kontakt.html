@@ -313,29 +313,31 @@
               </label>
             </div>
 
-            <!-- Turnstile.
-                 VALGET HER: valideringen staar, widgeten er usynlig.
+            <!-- Turnstile — ekte nokkel, ikke testnokkel.
 
-                 Edge-funksjonen submit-contact avviser en innsending
-                 uten token, saa aa fjerne Turnstile helt ville brutt
-                 skjemaet. Samtidig viste den synlige testnoekkelen
-                 banneret «Bare for testing. Hvis det ses, maa det
-                 rapporteres til eieren av nettstedet» — som leser som
-                 en feil paa en arbeidsproeve.
+                 Sitekey-en er offentlig. Den staar i markup paa hver
+                 side som viser widgeten og er ikke en hemmelighet.
+                 Hemmeligheten er TURNSTILE_SECRET_KEY, som er satt som
+                 secret paa Edge-funksjonen submit-contact og aldri
+                 forlater serveren.
 
-                 1x00000000000000000000BB er Cloudflares dokumenterte
-                 testnoekkel i USYNLIG modus: den rendrer ingen widget,
-                 men produserer et gyldig token. Kjeden klient →
-                 Edge Function → siteverify staar dermed komplett og
-                 kan demonstreres, uten et banner som ser ut som en
-                 feil.
+                 Fram til 2026-09-02 sto Cloudflares testnoekkel
+                 1x00000000000000000000BB her. Den godkjenner ALT, saa
+                 ingen positiv test mot den beviste noe som helst.
 
-                 I drift byttes den mot en ekte sitekey fra Cloudflare,
-                 og TURNSTILE_SECRET_KEY settes som secret paa
-                 Edge-funksjonen. Se DEMO_SETUP.md. -->
+                 Widgeten er bundet til booking-demo-rosy.vercel.app i
+                 Cloudflare. Et token utstedt for et annet domene blir
+                 avvist av siteverify. Konsekvensen er at localhost ikke
+                 staar paa hostname-lista, saa kontaktskjemaet feiler i
+                 lokal utvikling. Se docs/QA-lansering.md, seksjonen
+                 «Turnstile i produksjon», for valgene.
+
+                 data-size er fjernet sammen med testnoekkelen: verdien
+                 «invisible» hoerte til den usynlige testnoekkelen og er
+                 ikke en gyldig data-size. Synlighet styres av
+                 widget-modus i Cloudflare-dashbordet. -->
             <div class="cf-turnstile"
-                 data-sitekey="1x00000000000000000000BB"
-                 data-size="invisible"
+                 data-sitekey="0x4AAAAAAElCRZstoX978mDR"
                  data-theme="light"></div>
 
             <div class="k-actions">

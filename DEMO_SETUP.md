@@ -220,5 +220,8 @@ utover navn og innhold:
    en helsetjeneste. Systemet har allerede teknikken en slik erklæring
    forutsetter, rollestyrt tilgang, samtykke registrert ved bestilling, og
    audit-logg over all journaltilgang, men teksten må skrives.
-3. **Bytt Turnstile-nøkkelen.** `kontakt.html` bruker Cloudflares offentlige
-   testnøkkel, som alltid godkjenner. Den skal erstattes med en ekte sitekey.
+3. **Bytt Turnstile-nøkkelen.** `kontakt.html` har en ekte sitekey, men den er
+   bundet til `booking-demo-rosy.vercel.app` i Cloudflare. En annen installasjon
+   må registrere sitt eget domene og bytte både `data-sitekey` i `kontakt.html`
+   og `TURNSTILE_SECRET_KEY` på Edge-funksjonen. Uten det avviser `siteverify`
+   hvert token, og kontaktskjemaet slutter å virke.
