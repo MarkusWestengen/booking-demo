@@ -623,6 +623,10 @@ Satt: `TURNSTILE_SECRET_KEY`, pluss Supabase sine egne
     VAPID_PRIVATE_KEY   notify-push
 
 `TURNSTILE_SECRET_KEY` er satt til `1x0000000000000000000000000000000AA`.
+
+> **Utfoert 2026-09-02.** Se seksjonen «Turnstile i produksjon»
+> nederst i dokumentet.
+
 Det er **Cloudflares publiserte testhemmelighet**, ikke noe jeg fant på.
 Den hører sammen med testnøkkelen `1x00000000000000000000BB` som alt lå
 i `kontakt.html`, og godkjenner alt. Uten den svarte funksjonen 500
@@ -1672,3 +1676,210 @@ Ett funn til, som ikke er en navnerest men kom fram i samme sveip:
 | `enforce_anon_insert_quota()` | «Vent litt og prøv igjen, eller ring klinikken på **+47 400 00 000**.» | Denne feilmeldingen går til `anon` når kvoten slår inn, altså rett til en besøkende. Nummeret er det oppdiktede demonummeret, samme som i e-postbunnteksten, men det er den ene plassen det faktisk vises til publikum. Vurder om det skal stå der. |
 
 **Ikke rettet.** Ingenting i disse to listene er endret.
+
+---
+
+# Turnstile i produksjon
+
+Både frontenden og Edge-funksjonen sto på Cloudflares testnøkler.
+Testnøkkelen godkjenner alt, så hver positive test som noen gang er
+kjørt mot kontaktskjemaet beviste ingenting om valideringen. Begge er
+byttet, og valideringen er bevist med tester som må feile hvis den ikke
+virker.
+
+## Hva som ble byttet
+
+### Site key
+
+Testnøkkelen i repoet var `1x00000000000000000000BB`, ikke
+`1x00000000000000000000AA`. Samme testnøkkelfamilie, men den usynlige
+varianten — den rendrer ingen widget og produserer likevel et gyldig
+token.
+
+Den sto **ett sted i kode**: `data-sitekey` i `kontakt.html`. Sveipet
+gjennom hele repoet bekreftet at den ikke lå igjen i i18n-filene, i
+`sw.js`, i en kommentar med funksjonell virkning eller i en gammel kopi
+av siden. `kontakt.html` er dessuten holdt utenfor service
+worker-cachen — allowlisten i `sw.js` dekker kun admin-skallet — så
+ingen stale kopi kan serveres fra en installert PWA.
+
+Ny verdi: `0x4AAAAAAElCRZstoX978mDR`. Site key er offentlig og hører
+hjemme i markup.
+
+`data-size="invisible"` er fjernet sammen med testnøkkelen. Verdien
+hørte til den usynlige testnøkkelen og er ikke en gyldig `data-size` —
+Turnstile godtar `normal`, `compact` og `flexible`, mens synlighet
+styres av widget-modus i Cloudflare-dashbordet.
+
+Live ble kontrollert etter deploy: `kontakt.html` serverer den nye
+nøkkelen, og det gamle `data-sitekey`-attributtet er borte.
+
+### Secret
+
+`TURNSTILE_SECRET_KEY` er satt med `supabase secrets set`. Verdien står
+ikke i noen fil i repoet, ikke i en migrasjon og ikke her.
+
+At testhemmeligheten er borte er bevist uten å røre verdien.
+`supabase secrets list` returnerer SHA-256-digester, ikke verdier:
+
+| | |
+|---|---|
+| Digest på funksjonen før | `fb8f3512…c0aae` |
+| SHA-256 av `1x0000000000000000000000000000000AA` | `fb8f3512…c0aae` — **identisk** |
+| Digest på funksjonen etter | `b47585f1…db053` |
+
+Den satte verdien *var* altså testhemmeligheten, og er det ikke lenger.
+De sju andre secrets er urørt.
+
+## Bevis for at den faktisk validerer
+
+Alle fire testene er kjørt mot live, fra sidens eget origin.
+
+| Test | Token | Status | Kropp |
+|---|---|---|---|
+| **Positiv** — skjemaet på live, adminsesjon liggende | Ekte, fra widgeten | **200** | `{"ok":true}` |
+| **Negativ 1** — tom token | `''` | **403** | `{"error":"captcha_required"}` |
+| **Negativ 2** — tullete token | `dette-er-ikke-et-token-…` | **403** | `{"error":"captcha_failed"}` |
+| **Negativ 3** — token fra annet domene | `XXXX.DUMMY.TOKEN.XXXX`, utstedt på `https://example.com` | **403** | `{"error":"captcha_failed"}` |
+
+Den positive ble sendt gjennom det ekte skjemaet med
+`admin@westengenklinikk.example` liggende i `localStorage` — samme
+tilstand som avslørte både venteliste- og anmeldelsesfeilen tidligere.
+Bekreftelsesteksten «Takk! Meldingen er sendt» ble vist, og raden lå i
+`contact_messages` med `status = 'new'`.
+
+De to første negative skiller seg i feilkode fordi de fanges på hvert
+sitt sted: tom token stoppes av serversidevalideringen i steg 3, mens
+et ugyldig token først faller på `siteverify` i steg 5. Begge er
+avvisninger.
+
+### Widgeten er domenebundet
+
+Et forsøk på å rendre demoens ekte site key på `https://example.com` ble
+**avvist ved utstedelse**, med Cloudflare-feilkode `110200` — domenet
+står ikke på widgetens hostname-liste. En angriper på et annet domene
+får altså ikke engang et token å prøve med. Det er derfor negativ 3
+måtte bruke et token utstedt med Cloudflares testnøkkel: det var det
+eneste ekte, fremmede tokenet som lot seg skaffe.
+
+## Ratelimit
+
+Uendret og fortsatt i kraft.
+
+| Forsøk | Status | Kropp |
+|---|---|---|
+| 1 (positiv test) | 200 | `{"ok":true}` |
+| 2 | 200 | `{"ok":true}` |
+| 3 | 200 | `{"ok":true}` |
+| 4 | **429** | `{"error":"rate_limited"}` |
+
+Det fjerde forsøket ble sendt med et ugyldig token med vilje. Det fikk
+likevel `429`, ikke `403` — fordi kvoten sjekkes i steg 4, før
+Turnstile i steg 5. Det bekrefter både grensen på 3/time og
+rekkefølgen i funksjonen.
+
+Merk at kvoten kun telles etter en vellykket insert. De tre negative
+testene brukte derfor ingen kvote, og en bot som spammer med ugyldige
+tokens spiser ikke opp kvoten for reelle brukere.
+
+## De tre andre offentlige endepunktene
+
+Ingen av dem bruker Turnstile. Kontrollert, ikke antatt:
+
+| Endepunkt | Hvordan | Resultat |
+|---|---|---|
+| Bestilling | `createBooking()` i bookingmotoren på live | `ok: true`, ref `TA-3QWE-3192`, rad i `bookings` |
+| Avbestilling | `avbestill.html?token=…` med tokenet fra bookingen over, bekreftet i UI | RPC `cancel_booking_by_token` → **200** `{"ok":true}`, kvitteringsskjerm vist |
+| Venteliste | Skjemaet på `venteliste.html` | Rad i `waitlist` med `status = 'waiting'`, `get_waitlist_position` → **200**, posisjon 3 |
+
+## Hostname-konsekvensen for lokal utvikling
+
+Widgeten er bundet til `booking-demo-rosy.vercel.app`. `localhost` og
+`127.0.0.1` står ikke på hostname-lista. Konsekvensen er konkret:
+
+Åpner du siden lokalt, får widgeten feilkode `110200` og utsteder
+**ingen** token. Skjemaet sender da tom token, og Edge-funksjonen
+svarer `403 captcha_required`. **Kontaktskjemaet kan ikke fullføres i
+lokal utvikling.** Resten av siden er upåvirket — bestilling,
+avbestilling og venteliste bruker ikke Turnstile og virker lokalt som
+før.
+
+Fire veier videre. Jeg har ikke valgt noen:
+
+1. **Legg `localhost` til på widgetens hostname-liste i Cloudflare.**
+   Enklest. Cloudflare støtter det eksplisitt. Svekker bindingen i
+   teorien, men i praksis lite: `localhost` peker på angriperens egen
+   maskin, så et token utstedt der er like vanskelig å skaffe seg som
+   før. Ett dashbord-felt, ingen kodeendring.
+2. **Egen widget for utvikling** — eget sitekey/secret-par med
+   `localhost` på lista, valgt ut fra `location.hostname` i
+   `kontakt.html`. Holder produksjonswidgeten helt ren, men krever at
+   to nøkkelpar holdes i live og en betinget i markup.
+3. **Bruk Cloudflares testnøkkel lokalt**, byttet inn på samme måte som
+   over. Da validerer ingenting lokalt, men skjemaet lar seg klikke
+   gjennom. Farlig hvis betingelsen noen gang feiler i produksjon.
+4. **La det stå.** Kontaktskjemaet testes mot deployet versjon, ikke
+   lokalt. Null endring, null risiko, men en lokal utvikler møter et
+   skjema som ser ødelagt ut uten forklaring.
+
+Alternativ 1 er det jeg ville valgt, men det er din avgjørelse.
+
+## Widget, konsoll og layout
+
+Widgeten kjører i usynlig modus fra Cloudflare-dashbordet: den rendrer
+ingen iframe, men produserer et ekte token på 773–794 tegn. Konsollen
+er tom ved fersk last — null feil, null advarsler.
+
+Beholderen tar ~73 px høyde, gjennomsiktig, uten ramme eller bakgrunn.
+Den har ingen inline bredde: plassert i en 320 px container krymper den
+til 320 px, så den kan ikke sprekke layouten på smale skjermer. Målt i
+container, ikke i et ekte smalt vindu.
+
+## Én ting til, som du bør vite
+
+Med testnøkkelen kom tokenet momentant. Med ekte nøkkel tar det
+**6–10 sekunder** fra sidelast til tokenet finnes. I det vinduet vil et
+klikk på «Send melding» sende tom token og få `403`, og brukeren ser
+«Meldingen kunne ikke sendes. Prøv igjen.» — uten å få vite at det bare
+var for tidlig.
+
+Jeg klarte ikke å instrumentere den kodeveien rent: mine egne prober
+overstyrte `window.fetch` og forstyrret skjemaet. Det er kontrollert at
+submit-lytteren er påkoblet ved last og at den kaller `preventDefault()`
+som den skal, så den native GET-innsendingen jeg så underveis var et
+artefakt av automasjonen, ikke en produktfeil. **Selve tidsvinduet er
+reelt og målt**, og bør sjekkes manuelt: last siden og klikk «Send
+melding» med én gang.
+
+Er det et problem, er det billig å fikse — hold knappen deaktivert til
+`cf-turnstile-response` har verdi, eller si «Vent litt, sikkerhetssjekk
+pågår» i stedet for den generiske feilen.
+
+Cloudflare sluttet dessuten å utstede tokens til nettleseren min etter
+fire–fem raske, automatiserte løsninger på få minutter, og begynte
+igjen etter noen minutters pause. Det er Cloudflares egen
+misbruksbeskyttelse og rammer ikke vanlige besøkende, men det gjør
+automatisert testing av skjemaet tregt.
+
+## Opprydding
+
+Alle testrader er slettet og fraværet bekreftet: null ikke-seed-rader i
+`bookings`, `contact_messages`, `waitlist`, `reviews`,
+`journal_entries`, `blocked_slots`, `holidays` og `special_open_days`.
+
+De to gamle testanmeldelsene fra sveiperunden er ryddet med i samme
+slengen.
+
+Kvotehendelsene i `anon_insert_events` står igjen — 3 på `contact`, 1
+på `bookings`, 1 på `waitlist`. De er selve ratelimit-sporet, de er
+uten personopplysninger, og den nattlige nullstillingen tømmer tabellen
+kl. 04:15.
+
+## Hva som gjenstår
+
+- **Hostname for lokal utvikling** — de fire alternativene over.
+- **Resend-nøkkelen.** Fortsatt plassholder i alle fire
+  e-postfunksjonene. Ingen e-post går ut, heller ikke for meldinger som
+  nå kommer gjennom det ekte kontaktskjemaet.
+- **`onboarding@resend.dev`** som avsender virker bare til adressen som
+  eier Resend-kontoen.
