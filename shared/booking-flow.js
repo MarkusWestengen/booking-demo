@@ -755,7 +755,19 @@
         svgCheckmark()
       ]));
       wrap.appendChild(el('h3', { class: 'tabf-h tabf-confirm-h' }, t('booking.confirm.heading', 'Timen er bekreftet')));
-      wrap.appendChild(el('p', { class: 'tabf-sub' }, t('booking.confirm.intro_pre', 'Vi har sendt en bekreftelse til') + ' ' + b.email + t('booking.confirm.intro_post', '. Velkommen!')));
+      wrap.appendChild(el('p', { class: 'tabf-sub' },
+        t('booking.confirm.intro_pre', 'Timen er registrert på') + ' ' + b.email +
+        t('booking.confirm.intro_post', '. Ta vare på referansekoden under.')));
+
+      // Teksten sa foer «Vi har sendt en bekreftelse til <e-post>».
+      // Demoen sender ingen e-post: Edge-funksjonene er ikke deployet,
+      // og uten dem skjer det ingenting. Et lofte som ikke holdes er
+      // verre enn ingen e-post, saa her staar det hva som faktisk
+      // skjedde, og hva som ville skjedd i drift.
+      wrap.appendChild(el('p', { class: 'tabf-confirm-note' },
+        t('booking.confirm.demo_no_mail',
+          'Demoen sender ikke e-post. I drift ville en bekreftelse med ' +
+          'avbestillingslenke kommet i innboksen nå.')));
 
       var sum = el('dl', { class: 'tabf-confirm-sum' }, [
         el('div', null, [el('dt', null, t('booking.confirm.sum_ref', 'Referanse')), el('dd', null, b.ref)]),
@@ -781,8 +793,9 @@
       if (b.cancelToken) {
         cancelBox = el('div', { class: 'tabf-cancel-box' }, [
           el('p', { class: 'tabf-cancel-foot' }, [
-            t('booking.confirm.cancel_token_pre', 'Avbestilling kan gjøres via lenken i bekreftelses-mailen, eller ved å ringe oss på '),
-            el('a', { href: 'tel:+47 400 00 000' }, '+47 400 00 000'),
+            t('booking.confirm.cancel_token_pre', 'Avbestilling gjøres med referansekoden på '),
+            el('a', { href: 'avbestill.html' },
+               t('booking.confirm.cancel_link', 'avbestillingssiden')),
             t('booking.confirm.cancel_token_mid', ' (senest 24 timer før timen). Din referanse: '),
             el('strong', null, b.ref),
             '.'

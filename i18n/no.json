@@ -326,8 +326,8 @@
   "booking.errors.terms_required": "Du må godta avbestillingsvilkårene for å fullføre bestillingen.",
   "booking.errors.submit_failed": "Kunne ikke fullføre bestillingen. Prøv igjen.",
   "booking.confirm.heading": "Timen er bekreftet",
-  "booking.confirm.intro_pre": "Vi har sendt en bekreftelse til",
-  "booking.confirm.intro_post": ". Velkommen!",
+  "booking.confirm.intro_pre": "Timen er registrert på",
+  "booking.confirm.intro_post": ". Ta vare på referansekoden under.",
   "booking.confirm.intro_post_sms": " og på SMS. Velkommen!",
   "booking.confirm.sum_ref": "Referanse",
   "booking.confirm.sum_behandler": "Behandler",
@@ -361,7 +361,7 @@
   "booking.staff.markus.bio": "Timen settes opp hos Markus. Oppdiktet behandler i en oppdiktet klinikk.",
   "booking.staff.terapeut.bio": "Vi tildeler en av våre erfarne terapeuter, alle opplært direkte i Markus' metoder. Samme filosofi, samme grundighet.",
   "booking.step4.waitlist_link": "Ingen ledige tider? Sett deg på venteliste →",
-  "booking.confirm.cancel_token_pre": "Avbestilling kan gjøres via lenken i bekreftelses-mailen, eller ved å ringe oss på ",
+  "booking.confirm.cancel_token_pre": "Avbestilling gjøres med referansekoden på ",
   "booking.confirm.cancel_token_mid": " (senest 24 timer før timen). Din referanse: ",
   "booking.confirm.cancel_notoken_label": "Avbestilling:",
   "booking.confirm.cancel_notoken_pre": "Lagre referansen ",
@@ -568,5 +568,8 @@
   "demo.cta_open": "Åpne adminpanelet →",
   "demo.close": "Lukk",
   "demo.sheet_label": "Om denne demoen",
-  "demo.badge_title": "Demonstrasjonsversjon med fiktive data. Klikk for detaljer."
+  "demo.badge_title": "Demonstrasjonsversjon med fiktive data. Klikk for detaljer.",
+  "waitlist.err_rate": "For mange forsøk på kort tid. Vent et minutt og prøv igjen.",
+  "booking.confirm.demo_no_mail": "Demoen sender ikke e-post. I drift ville en bekreftelse med avbestillingslenke kommet i innboksen nå.",
+  "booking.confirm.cancel_link": "avbestillingssiden"
 }

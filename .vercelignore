@@ -4,7 +4,7 @@
 # Filer/mapper som IKKE skal deployes.
 #
 # Frontend refererer kun til:
-#   i18n/  icons/  shared/  manifest.json  *.html i rot
+#   assets/  i18n/  icons/  shared/  manifest.json  *.html i rot
 # Legger du til nye runtime-avhengigheter, sjekk denne lista.
 # ============================================================
 
@@ -19,6 +19,9 @@ supabase/
 # offentlig domene.
 DEMO_SETUP.md
 RESEND_SETUP.md
+
+# Skriptene som verifiserer repoet. De kjoeres lokalt, ikke i drift.
+scripts/
 
 # Utviklerverktøy
 .claude/

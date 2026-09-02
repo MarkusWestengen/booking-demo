@@ -22,6 +22,13 @@
 <meta name="theme-color" content="#0b1a2b" />
 <meta name="robots" content="noindex, nofollow" />
 <title data-i18n="waitlist.title">Venteliste · Westengen Klinikk</title>
+<meta name="description" content="Sett deg på venteliste med ønsket dato og tidsrom. Del av en arbeidsprøve; klinikken er oppdiktet." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Venteliste · Westengen Klinikk" />
+<meta property="og:image" content="assets/og-bilde.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23464C8C'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='600' text-anchor='middle' fill='%23F7F8FA'%3EW%3C/text%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -497,8 +504,36 @@
 
   var CLINIC_PHONE = '+47 400 00 000';
   var CFG = window.WestengenKlinikkBackend || {};
+  // Klienten her skal IKKE plukke opp en innlogget sesjon.
+  //
+  // Ventelista er et offentlig skjema. Rettighetene i databasen er
+  // satt deretter: «grant insert on public.waitlist to anon», og en
+  // RLS-policy som gjelder rollen anon (migrasjon 0023).
+  //
+  // Da demoen begynte aa logge den besoekende inn av seg selv, fikk
+  // alle en sesjon i nettleseren. Standardklienten plukker den opp og
+  // sender admin-tokenet ogsaa herfra, altsaa som rollen
+  // authenticated — som ikke har lov til aa sette inn i denne
+  // tabellen. Skjemaet svarte «Noe gikk galt» for hver eneste
+  // besoekende, med SQLSTATE 42501 bak.
+  //
+  // Loesningen er ikke aa gi authenticated flere rettigheter. Et
+  // offentlig skjema skal ikke opptre som en innlogget ansatt. Med
+  // persistSession: false og et tomt lager leser klienten aldri
+  // sesjonen, og forespoerselen gaar som anon slik den skal.
   var sb = (window.supabase && CFG.supabaseUrl && CFG.supabaseAnonKey)
-    ? window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey)
+    ? window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+          storage: {
+            getItem: function () { return null; },
+            setItem: function () {},
+            removeItem: function () {}
+          }
+        }
+      })
     : null;
 
   // i18n-helpers (fallback til norsk hvis runtime ikke er lastet).
@@ -739,6 +774,14 @@
         // at kunden får et råd som faktisk hjelper. Diagnose 2026-06-13:
         // DB-laget verifisert friskt; «Noe gikk galt» på mobil skyldtes
         // mest sannsynlig blokkert/feilet nettverkskall.
+        // 53400 er rate-limit-vakten (migrasjon 0058). Den er ikke en
+        // feil, den er systemet som gjor jobben sin, og svaret skal
+        // si hva man skal gjore: vente litt.
+        if (err && err.code === '53400') {
+          showErr('joinErr', t('waitlist.err_rate',
+            'For mange forsøk på kort tid. Vent et minutt og prøv igjen.'));
+          return;
+        }
         var isNetwork = (err instanceof TypeError) ||
           /fetch|network|load failed/i.test(String(err && err.message || ''));
         showErr('joinErr', isNetwork

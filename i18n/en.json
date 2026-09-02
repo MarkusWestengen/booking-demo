@@ -326,8 +326,8 @@
   "booking.errors.terms_required": "You must accept the cancellation terms to complete the booking.",
   "booking.errors.submit_failed": "Could not complete the booking. Please try again.",
   "booking.confirm.heading": "Your appointment is confirmed",
-  "booking.confirm.intro_pre": "We've sent a confirmation to",
-  "booking.confirm.intro_post": ". Welcome!",
+  "booking.confirm.intro_pre": "The appointment is registered to",
+  "booking.confirm.intro_post": ". Keep the reference code below.",
   "booking.confirm.intro_post_sms": " and by SMS. Welcome!",
   "booking.confirm.sum_ref": "Reference",
   "booking.confirm.sum_behandler": "Therapist",
@@ -361,8 +361,8 @@
   "booking.staff.markus.bio": "The appointment is booked with Markus. An invented practitioner in an invented clinic.",
   "booking.staff.terapeut.bio": "We assign one of our experienced therapists, all trained directly in Markus' methods. Same philosophy, same thoroughness.",
   "booking.step4.waitlist_link": "No available times? Join the waiting list →",
-  "booking.confirm.cancel_token_pre": "Cancellation can be done via the link in the confirmation email, or by calling us at ",
-  "booking.confirm.cancel_token_mid": " (at least 24 hours before the appointment). Your reference: ",
+  "booking.confirm.cancel_token_pre": "Cancel using the reference code at ",
+  "booking.confirm.cancel_token_mid": " (at the latest 24 hours before). Your reference: ",
   "booking.confirm.cancel_notoken_label": "Cancellation:",
   "booking.confirm.cancel_notoken_pre": "Save the reference ",
   "booking.confirm.cancel_notoken_mid": ". If you need to cancel (at least 24 hours before the appointment), go to ",
@@ -568,5 +568,8 @@
   "demo.cta_open": "Open the admin panel →",
   "demo.close": "Close",
   "demo.sheet_label": "About this demo",
-  "demo.badge_title": "Demonstration version with fictional data. Click for details."
+  "demo.badge_title": "Demonstration version with fictional data. Click for details.",
+  "waitlist.err_rate": "Too many attempts in a short time. Wait a minute and try again.",
+  "booking.confirm.demo_no_mail": "This demo does not send email. In use, a confirmation with a cancellation link would arrive in the inbox now.",
+  "booking.confirm.cancel_link": "the cancellation page"
 }
