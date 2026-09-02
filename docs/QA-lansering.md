@@ -1883,3 +1883,165 @@ kl. 04:15.
   nå kommer gjennom det ekte kontaktskjemaet.
 - **`onboarding@resend.dev`** som avsender virker bare til adressen som
   eier Resend-kontoen.
+
+---
+
+# 06:00-funnet: ikke tidssone
+
+Bookingmotoren tilbød 06:00 mens åpningstidene er 07:00–15:00.
+Mistanken var UTC mot Europe/Oslo. **Den stemmer ikke.** Det finnes
+ingen tidssoneforskyvning noe sted i bookingkjeden.
+
+Dette er et rent diagnoseoppdrag. Ingenting er endret.
+
+## Hvorfor det ikke er tidssone
+
+Sporet hele veien, fra kolonnetype til visning:
+
+| Lag | Funn |
+|---|---|
+| Databasens sone | `UTC`. Oslo ligger `+02:00` nå. |
+| Timekolonnene | `bookings.date` er `date`, `bookings.time` er `time without time zone`. Samme for `blocked_slots` og `special_open_days`. **Vegg-klokke uten sone** — en konvertering er umulig. |
+| Metadatakolonnene | `created_at`, `reminder_sent_at` osv. er `timestamptz`. Riktig for hendelser. |
+| Åpningstider | Ikke i databasen i det hele tatt. Konstanter i `shared/booking-engine.js`. |
+| Slot-generering | Frontend, ren minutt-aritmetikk på strenger: `timeToMinutes` → `minutesToTime`. Ingen `Date` involvert. |
+| `ymd()` | Bruker `getFullYear/getMonth/getDate`, **ikke** `toISOString()`. Det er nettopp den fellen som ville forskjøvet datoen — den er unngått. |
+| `parseYMD()` | Bygger en lokal `Date` av delene. `new Date('2026-09-16')` ville gitt UTC-midnatt; det er unngått. |
+| Ved lagring | `to_char(new.time, …)` i e-post og SMS. Verdien går ut slik den står. |
+
+Den eneste sonekonverteringen i hele systemet er
+
+    ((b.date + b.time) at time zone 'Europe/Oslo') < (now() + interval '24 hours')
+
+i `cancel_booking_by_token` og `cancel_booking_by_ref`, pluss tilsvarende
+i påminnelses- og anmeldelsesfunksjonene. Den er korrekt: vegg-klokka
+tolkes som Oslo-tid via sonedatabasen.
+
+**Ingen hardkodet `+1` eller `+2` noen steder.** Alle `interval '1 hour'`
+og `interval '2 hours'` i basen er noe annet — ratelimit-vinduer,
+seed-tidsstempler og et 72-timers vindu for anmeldelses-e-post.
+Sommertidsskiftet 25. oktober 2026 knekker derfor ingenting;
+kontrollregnet over skiftet: `08:00 Oslo 26. oktober = 07:00 UTC`,
+riktig for vintertid.
+
+**Eksisterende data er ikke forskjøvet.** Alle 80 bookinger ligger
+mellom 07:00 og 13:30, mandag–fredag. Null før 07:00, null fra 15:00.
+
+## Hva 06:00 faktisk er
+
+Én linje i `shared/booking-engine.js`:
+
+    var STAFF_HOURS = {
+      markus: { open: '06:00', close: '13:00', breaks: ['09:30'] }
+    };
+
+En bevisst per-behandler-overstyring med egen fast pause. Den er
+dokumentert fem steder: i sin egen kommentar, i `stengte-tider.html`,
+og i kommentarene til migrasjon `0067` og `0068`. Dette er altså en
+produktbeslutning, ikke en rest og ikke en feil.
+
+Målt mot live, 2026-09-22:
+
+| Behandler | 30 min | 60 min |
+|---|---|---|
+| Markus | 06:00 → 12:30, 13 slots (09:30 mangler = pausen) | 06:00 → 12:00, 11 slots |
+| Sofie (og resten) | 07:00 → 14:30, 16 slots | 07:00 → 14:00, 15 slots |
+| «Markus' terapeuter» (pool) | 07:00 → 14:30 | 07:00 → 14:00 |
+
+Varighetslogikken er korrekt overalt: en 60-minutters time får ikke
+starte 12:30 hos Markus, og ikke 14:30 hos de andre. `fits()` sjekker
+`m + need * 30 > endMin` før slotet merkes ledig.
+
+> Underveis trodde jeg et øyeblikk at varighetslogikken var ødelagt for
+> Markus. Det var min egen målefeil: `generateSlotsForDay` tar
+> **varighet i minutter** som tredje argument, og jeg sendte en
+> tjeneste-UUID. `blocksFor()` ga da `NaN`, og alt så ledig ut. Koden
+> var riktig hele tiden.
+
+## Den ekte feilen: åpningstidene finnes tre steder
+
+Motoren vet om per-behandler-timer. To av tre admin-flater gjør det
+ikke.
+
+| Fil | Kilde | Kjenner per-behandler-timer? |
+|---|---|---|
+| `shared/booking-engine.js` | `HOURS` + `STAFF_HOURS`, via `getHoursForStaff()` | **Ja** — fasit |
+| `stengte-tider.html:586` | Kaller `E.getHoursForStaff(sid, 1)` | **Ja** — gjør det riktig |
+| `kalender.html:912` | `CLINIC_OPEN_MIN = 7*60, CLINIC_CLOSE_MIN = 15*60` | **Nei** |
+| `booking-admin.html:2608` | `HOURS_BY_DOW`, egen hardkodet kopi | **Nei** |
+
+`kalender.html` sin kommentar sier at vinduet «speiler HOURS i
+shared/booking-engine.js». Det gjør det for de sju behandlerne uten
+overstyring, og ikke for den ene som har den.
+
+Verre: `freeSlotTimes(dateStr, staffId)` **mottar** `staffId` og bruker
+den til å filtrere bookinger og finne lørdagsåpning — men vinduet er
+`openMin = CLINIC_OPEN_MIN` ubetinget på hverdager. Behandleren er i
+hånda; timene hennes blir aldri spurt om.
+
+Konsekvensen for Markus, hver hverdag, i adminkalenderen:
+
+| Rad | Kunden ser | Admin ser |
+|---|---|---|
+| 06:00, 06:30 | Ledig | **Vises ikke** |
+| 09:30 | Aldri (fast pause) | **Ledig** |
+| 13:00, 13:30, 14:00, 14:30 | Aldri (stengt 13:00) | **Ledig** |
+
+Sju rader per dag som ikke stemmer, for klinikkens hovedbehandler. En
+booking kunden faktisk legger 06:00 blir lagret riktig og vises som
+kort, men rutenettet rundt den er feil.
+
+## Hva jeg foreslår, og hvorfor jeg ikke gjorde det
+
+Rettelsen er ikke å fjerne 06:00. Den er å la de to admin-flatene spørre
+motoren, slik `stengte-tider.html` allerede gjør:
+
+- `kalender.html`: bytt `CLINIC_OPEN_MIN`/`CLINIC_CLOSE_MIN` i
+  `freeSlotTimes()` mot `E.getHoursForStaff(staffId, dow)`, og hopp over
+  `hrs.breaks` i slot-løkka. Konstantene beholdes som fallback hvis
+  motoren ikke er lastet.
+- `booking-admin.html`: samme for `HOURS_BY_DOW`.
+
+To filer, ett mønster som allerede finnes i kodebasen, ingen
+databaseendring og ingen migrasjon. Men det er **to lag** og det endrer
+hva admin tegner, så jeg stoppet og la det fram i stedet for å gjøre
+det.
+
+Det motsatte valget — å fjerne `STAFF_HOURS.markus` slik at alt blir
+07:00–15:00 — ville vært én linje, men det ville overkjørt en beslutning
+som er dokumentert fem steder, inkludert to appliserte migrasjoner. Det
+er ikke min avgjørelse.
+
+## Sidefunn
+
+**Den nattlige nullstillingen er ikke nattlig.** Cron står på
+`15 4 * * *` i UTC:
+
+| | Lokal tid i Oslo |
+|---|---|
+| Nå (sommertid) | **06:15** |
+| Etter 25. oktober (vintertid) | **05:15** |
+
+I sommerhalvåret kjører den altså 15 minutter *etter* at Markus åpner
+06:00. En booking en kunde legger 06:00–06:15 blir slettet minutter
+senere. Og selve tidspunktet flytter seg en time ved skiftet, fordi
+cron er UTC-fast. Vil du at den skal ligge fast klokka 03:00 norsk tid
+hele året, må jobben planlegges om — eller så må den tåle å flytte seg.
+
+**«I dag» regnes i besøkendes egen sone.** `isToday()` og
+60-minutters-bufferet i motoren bruker nettleserens lokale klokke, ikke
+Oslo. En besøkende i en annen tidssone får derfor «i dag» og
+«for sent å booke» regnet ut på sin egen klokke. For en norsk klinikk er
+det marginalt, men det er reelt.
+
+**Spesielle åpningsdager slår av pausen.** I `generateSlotsForDay`
+overstyrer en `special_open_days`-rad hele timevinduet med
+`breaks: []`. På en åpen lørdag er Markus' faste 09:30-pause dermed
+bookbar. Sannsynligvis utilsiktet, men det er en egen liten sak.
+
+## Ikke rammet
+
+Blokkerte tider (`stengte-tider.html`) leser fra motoren og er riktige.
+Varighetslogikken er riktig. Avbestillingsfristen på 24 timer er riktig
+og sommertidssikker. Ingen testrader ble opprettet i denne runden; null
+ikke-seed-rader i alle åtte tabeller.
