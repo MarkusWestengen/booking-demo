@@ -1017,6 +1017,9 @@ plass og alt så ut til å virke.
 
 **Jeg har ikke rettet det.** Grunnen står i neste avsnitt.
 
+> **Rettet i ettertid.** Se seksjonen «0074 — base_url og gammelt
+> prosjektnavn» nederst i dokumentet.
+
 ### Fem migrasjoner kan ikke ha kjørt som de står i git
 
 Da jeg skrev migrasjonen som skulle bytte `base_url`, ble den avvist:
@@ -1069,6 +1072,9 @@ To ting følger av det, og begge er dine:
 Si fra hvis du vil at jeg skriver migrasjonen når du har sagt hva som
 står der. Da gjør jeg det på ti minutter.
 
+> **Rettet i ettertid.** Se seksjonen «0074 — base_url og gammelt
+> prosjektnavn» nederst i dokumentet.
+
 ### Gammelt prosjektnavn i e-post til kunder
 
 Samme linje inneholder `MARKUS'&nbsp;ARENA` — monogrammet fra
@@ -1082,6 +1088,9 @@ E-postene bruker også den gamle varme paletten (`#3E6B47` grønn,
 Jeg har ikke rørt det. Du ba meg ikke skrive om tekst denne runden, og
 det henger uansett sammen med spørsmålet over: jeg vet ikke om det som
 kjører i databasen har den samme teksten.
+
+> **Rettet i ettertid.** Se seksjonen «0074 — base_url og gammelt
+> prosjektnavn» nederst i dokumentet.
 
 ### onboarding@resend.dev
 
@@ -1151,3 +1160,111 @@ Det krever å vente ut timen. Mekanismen er en glidende
 60-minuttersperiode i trigger-funksjonen
 (`created_at > now() - v_window`), og tabellen ryddes for hendelser
 eldre enn 24 timer. Jeg observerte blokkeringen, ikke frigivelsen.
+
+---
+
+# 0074 — base_url og gammelt prosjektnavn
+
+Sveipen over fant to plassholdere i e-postfunksjonene og lot dem stå,
+fordi repoet ikke er en tro kopi av databasen og jeg ikke hadde sett
+hva som faktisk kjørte. Denne runden fikk jeg lest kroppene ut av
+produksjon. De er nå rettet.
+
+**Metoden.** Ingen funksjonskropp er skrevet for hånd. Definisjonen
+leses ut av katalogen med `pg_get_functiondef()`, to strenger byttes i
+minnet, og resultatet kjøres tilbake med `execute`. Da er det som
+faktisk kjører fasit, og alt annet i kroppen står urørt: tekst, farger,
+logikk, og verdier som er satt for hånd i SQL-editoren.
+
+Kopien av kroppene slik de kjørte før endringen ligger i
+`docs/db-funksjoner-før-0074.sql`, committet før noe ble rørt.
+
+## Hva som faktisk sto i produksjon
+
+| Funksjon | Plassholder-`base_url` | Gammelt prosjektnavn |
+|---|---|---|
+| `send_booking_email` | Ja | Ja |
+| `process_pending_review_emails` | Ja | Nei |
+| `send_contact_message_email` | Nei | Ja |
+| `send_document_email` | Nei | Ja |
+
+To ting stemte ikke med det oppdraget forutsatte.
+
+**Navnet var ikke det git sier.** Git har `MARKUS'&nbsp;ARENA`.
+Produksjon hadde `ERIKS&nbsp;ARENA` — null treff på «MARKUS» som
+merkenavn i noen av kroppene. Kroppen som kjører er altså eldre enn
+den i git, fra før navnebyttet Erik → Markus. Det er samme observasjon
+som avsnittet «Fem migrasjoner kan ikke ha kjørt som de står i git»,
+sett fra den andre siden.
+
+**To funksjoner til var rammet.** Sluttkontrollen skulle bekrefte at
+ingen andre funksjoner i `public` hadde navnet. Den slo feil:
+`send_contact_message_email` og `send_document_email` hadde det også.
+`send_document_email` sender til `new.customer_email`, altså til kunden
+selv. De to er rettet i `0075` med samme metode.
+
+## Hva som ble byttet
+
+Eksakte strenger, ingenting annet:
+
+| Fra | Til | Hvor |
+|---|---|---|
+| `https://demo.westengenklinikk.example` | `https://booking-demo-rosy.vercel.app` | `0074`, 2 funksjoner |
+| `ERIKS&nbsp;ARENA` | `WESTENGEN&nbsp;KLINIKK` | `0074`, 1 funksjon · `0075`, 2 funksjoner |
+
+`&nbsp;` er HTML-entiteten, ikke et hardt mellomrom. Byteformen ble
+lest ut av dumpen før erstatningen ble skrevet.
+
+**Urørt med vilje.** `resend_key` står fortsatt som
+`REDACTED_RESEND_KEY` i alle fire. E-postene bruker fortsatt den gamle
+varme paletten. Og `notify_to` i `send_booking_email` er en ekte privat
+e-postadresse — den er operatørens eget valg og er ikke tatt i. Fordi
+repoet er offentlig er nøyaktig den ene linja maskert i den committede
+dumpen; verdien i databasen er uendret.
+
+## Sluttkontroll
+
+| Kontroll | Resultat |
+|---|---|
+| Ingen av de gamle strengene igjen | `dodt_domene=false`, `gammelt_navn=false`, `ny_url=true` for begge i `0074` |
+| Ingen andre funksjoner i `public` har det gamle navnet | 0 treff (`prokind = 'f'`, hele skjemaet) |
+| Diff før/etter, `process_pending_review_emails` | 1 endret linje — `base_url` |
+| Diff før/etter, `send_booking_email` | 2 endrede linjer — `base_url` og navnet |
+| Diff før/etter, `0075`-funksjonene | 1 endret linje hver — navnet |
+| Eier, `SECURITY DEFINER`, `search_path` | Uendret på alle fire: `postgres`, `true`, `{search_path=public, extensions}` |
+| Lenkene funksjonene nå bygger | `200` — `/avbestill.html?token=…` og `/anmeldelser.html?token=…` på live |
+
+Ingen uventede linjer i noen av diffene.
+
+## Repoet mot databasen etter dette
+
+De fem migrasjonene som ikke kunne kjøre — `0026`, `0028`, `0039`,
+`0040`, `0048` — er gjort kjørbare. Ett tegn per fil: apostrofen i
+`MARKUS'&nbsp;ARENA` er escapet til `''`. Ingenting annet er endret.
+`git diff` er fem linjer.
+
+**Forutsetningen ble bekreftet før filene ble rørt.** Alle fem står
+registrert i `supabase_migrations.schema_migrations` — 0026
+`email_brand_redesign`, 0028 `email_html_escape`, 0039
+`contact_messages`, 0040 `exercise_documents`, 0048
+`customer_confirmation_email`, 5 av 5. En `db push` kan derfor ikke
+kjøre dem på nytt mot produksjon.
+
+Det som er i sync nå: databasen er riktig, og prosjektet kan bygges opp
+fra bunn uten å stoppe på `0026`.
+
+**Det som fortsatt ikke er i sync:**
+
+- Filene beskriver en eldre tilstand enn den som kjører. Bygges
+  prosjektet fra bunn, gjenoppstår både plassholder-`base_url` og det
+  gamle navnet i `0026`–`0048`, og forsvinner først når `0074` og
+  `0075` kjører etterpå. Sluttresultatet blir riktig; mellomtilstanden
+  er det ikke.
+- Ingen migrasjon i git gjengir kroppene slik de faktisk sto i
+  produksjon. `docs/db-funksjoner-før-0074.sql` er den eneste kopien,
+  og den er dokumentasjon, ikke en migrasjon.
+- `resend_key` er fortsatt plassholderen. Ingen e-post går ut før den
+  er satt i SQL-editoren, og da må den settes i alle fire funksjonene.
+- Den private adressen i `notify_to` ligger fortsatt i en
+  `SECURITY DEFINER`-funksjon i en demo som er åpen. Den er ikke min å
+  bytte, men du bør bestemme om den skal stå der.
