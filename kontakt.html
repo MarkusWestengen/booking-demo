@@ -408,6 +408,7 @@
     try { if (window.turnstile) window.turnstile.reset(); } catch (_) {}
     // Tokenet er borte til widgeten har laget et nytt.
     setReady(false);
+    startVaktbikkje();
   }
 
   // ----- Turnstile-tilstand -> send-knappen ------------------------
@@ -425,6 +426,7 @@
     say(t('contact.captcha_wait', 'Sikkerhetssjekken kjører. Knappen åpner om et par sekunder.'));
   }
   window.wkTurnstileReady = function () {
+    stoppVaktbikkje();
     setReady(true);
     // Rydd bare vekk vår egen ventetekst. En kvittering eller en
     // feilmelding fra innsendingen skal bli staaende.
@@ -433,12 +435,32 @@
   window.wkTurnstileGone = function () {
     setReady(false);
     sayWait();
+    startVaktbikkje();
   };
   window.wkTurnstileFailed = function () {
+    stoppVaktbikkje();
     setReady(false);
     say(t('contact.captcha_failed_client',
           'Sikkerhetssjekken kom ikke gjennom. Last siden på nytt og prøv igjen.'), 'err');
   };
+  // Vaktbikkje: kommer tokenet aldri — Cloudflare struper, nettet er
+  // nede, eller widgeten henger — skal brukeren ikke sitte igjen med en
+  // laast knapp og «kjoerer» i det uendelige. Etter 25 sekunder byttes
+  // teksten til noe handlingsbart. Uten dette er en deaktivert knapp en
+  // blindvei, og det er verre enn feilmeldingen den erstattet.
+  var vaktbikkje = null;
+  function startVaktbikkje() {
+    if (vaktbikkje) clearTimeout(vaktbikkje);
+    vaktbikkje = setTimeout(function () {
+      var el = form.querySelector('input[name="cf-turnstile-response"]');
+      if (el && el.value) return;         // tokenet kom likevel
+      window.wkTurnstileFailed();
+    }, 25000);
+  }
+  function stoppVaktbikkje() {
+    if (vaktbikkje) { clearTimeout(vaktbikkje); vaktbikkje = null; }
+  }
+
   // Startstatus. Har tokenet allerede kommet (rask nettverk, eller
   // tilbake-navigasjon med bevart DOM), aapner vi med en gang.
   (function initCaptchaState() {
@@ -446,6 +468,7 @@
     if (el && el.value) { setReady(true); return; }
     setReady(false);
     sayWait();
+    startVaktbikkje();
   })();
 
   form.addEventListener('submit', function (e) {
