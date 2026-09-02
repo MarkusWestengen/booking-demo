@@ -2045,3 +2045,237 @@ Blokkerte tider (`stengte-tider.html`) leser fra motoren og er riktige.
 Varighetslogikken er riktig. Avbestillingsfristen på 24 timer er riktig
 og sommertidssikker. Ingen testrader ble opprettet i denne runden; null
 ikke-seed-rader i alle åtte tabeller.
+
+---
+
+# Siste runde: én kilde, klinikkens klokke, og full sluttkontroll
+
+Diagnosen i forrige seksjon fant at 06:00 ikke var tidssone, men en
+bevisst overstyring som to av tre admin-flater ikke kjente til.
+Overstyringen står. Det som er rettet, er alt som ikke visste om den —
+pluss det sluttkontrollen selv avdekket underveis.
+
+## Hva som ble rettet
+
+### 1. Åpningstidene finnes ett sted
+
+`shared/booking-engine.js` eier dem. `stengte-tider.html` spurte
+allerede motoren; nå gjør de tre andre det også.
+
+| Fil | Før | Nå |
+|---|---|---|
+| `kalender.html` | `CLINIC_OPEN_MIN = 7*60`, `CLINIC_CLOSE_MIN = 15*60` | `getHoursForStaff(staffId, dow)`, hopper over `hrs.breaks`. Konstantene beholdt som fallback. |
+| `booking-admin.html` | `HOURS_BY_DOW`, egen kopi | `staffHours(staffId, dow)` fra motoren, pauser hoppes over. Kopien beholdt som fallback. |
+| `venteliste.html` | `OPEN_FROM_MIN/TO_MIN` hardkodet 07:00–15:00 | Unionen av alle behandleres tider, fra motoren. Tidsvelgeren dekker nå 06:00–15:00, så man kan be om en tidlig time hos Markus. |
+
+`freeSlotTimes()` i kalenderen fikk `staffId` inn allerede, men brukte
+den bare til å filtrere bookinger. Nå styrer den også vinduet.
+
+### 2. Pauser gjelder også på engangsåpninger
+
+En `special_open_days`-rad overstyrte hele timevinduet med `breaks: []`,
+så Markus' faste 09:30-pause var bookbar på en åpen lørdag. Ny
+`breaksForStaff()` gir behandlerens pauser uavhengig av ukedag — de er
+hennes, ikke ukedagens.
+
+### 3. Klinikkens klokke, ikke besøkendes
+
+`isToday()` og 60-minutters-bufferet regnet i nettleserens lokale sone.
+Ny `osloNow()` i motoren regner i `Europe/Oslo` via `Intl`, med lokal
+klokke som fallback. Rettet fire steder i motoren og
+`todayStr`/`todayISO` i kalender, booking-admin og venteliste.
+`stengte-tider.html` brukte i tillegg **UTC-datoen** fem steder, som var
+feil hver kveld hele året.
+
+### 4. Nullstillingen ut av åpningstiden
+
+Migrasjon `0077`. Cron sto på `15 4 * * *` UTC = 06:15 norsk sommertid,
+et kvarter etter at Markus åpner. Flyttet til `0 1 * * *`:
+
+| | Lokal tid |
+|---|---|
+| Sommertid | 03:00 |
+| Vintertid | 02:00 |
+
+Kun `schedule` er endret. `command`, `database`, `username`, `nodename`,
+`nodeport` og `active` er verifisert uendret, og de tre andre jobbene er
+urørt.
+
+### 5. Tidsvinduet på kontaktskjemaet
+
+Turnstile bruker 6–10 sekunder på å utstede token. Send-knappen står nå
+deaktivert med «Sikkerhetssjekken kjører. Knappen åpner om et par
+sekunder», og låses igjen etter innsending til det nye tokenet er
+utstedt. Teksten er i i18n på begge språk.
+
+## Tre feil sluttkontrollen selv avdekket
+
+Disse fantes ikke før denne runden — jeg lagde dem, og fant dem ved å
+teste mot live i stedet for å lese min egen kode.
+
+**`osloNow()` frøs bestillingsflyten.** Den bygde en ny
+`Intl.DateTimeFormat` ved hvert kall, og `isToday()` kalles per dag i
+dag-løkkene. 28 dager × behandlere × slots ble til tusenvis av
+formatter-konstruksjoner. Formattereren bygges nå én gang og resultatet
+caches i 30 sekunder — langt kortere enn den 60-minutters bufferen
+verdien brukes til.
+
+**Den deaktiverte knappen var en blindvei.** Kom tokenet aldri — og
+Cloudflare sluttet faktisk å utstede tokens til testnettleseren etter
+mange raske løsninger — satt brukeren igjen med en låst knapp og
+«kjører» i det uendelige. Det er verre enn feilmeldingen den erstattet.
+En vaktbikkje bytter nå teksten til «Sikkerhetssjekken kom ikke
+gjennom. Last siden på nytt og prøv igjen» etter 25 sekunder.
+
+**Feilteksten ble stående når tokenet kom likevel.** Etter en hard feil
+åpnet knappen seg igjen, men beskjeden om å laste siden på nytt ble
+liggende ved siden av en knapp som virket. Ryddes nå bort. Funnet ved å
+kjøre tilstandsmaskinen gjennom alle seks overgangene.
+
+I tillegg to ting som ikke var feil i koden, men i utrullingen:
+
+**Service worker-cachen serverte gammel kalender.** `kalender.html` og
+`booking-admin.html` står på admin-skallets allowlist i `sw.js`. Uten en
+versjonsbump ville ansatte med PWA installert fortsatt fått den gamle
+kalenderen. Bumpet til `v82`.
+
+**Motoren på ventelista logget en konsollfeil.** Da den ble lagt til for
+åpningstidene, klaget den over at `shared/services.js` ikke var lastet.
+Alle andre sider som laster motoren laster `services.js` først; nå gjør
+ventelista det også.
+
+## Sluttkontroll
+
+### Åpningstider: alle tre flater stemmer nå
+
+Målt på live, samme dag, 2026-09-22:
+
+| Flate | Markus | Sofie / pool |
+|---|---|---|
+| Bestillingsflyten, 30 min | 06:00 → 12:30, 13 slots, ingen 09:30 | 07:00 → 14:30, 16 slots, 09:30 med |
+| Bestillingsflyten, 60 min | 06:00 → 12:00, 11 slots | 07:00 → 14:00, 15 slots |
+| Adminkalenderen | 06:00 → 12:30, ingen 09:30, ingen 13:00+ | 07:00 → 14:30, 09:30 med |
+| booking-admin, tilgjengelighet | 06:00 → 12:30, 13 slots, ingen 09:30 | 07:00 → 14:30, 16 slots |
+
+Varighetslogikken er intakt: en 60-minutters time får ikke starte 12:30
+hos Markus eller 14:30 hos de andre.
+
+### De fem offentlige endepunktene, i nettleser, med adminsesjon
+
+| Endepunkt | Resultat |
+|---|---|
+| Bestilling | `ok: true`, ref `TA-N38C-4017`, rad opprettet |
+| Avbestilling | `cancel_booking_by_token` → **200** `{"ok":true}`, kvitteringsskjerm. Andre forsøk → `already_cancelled`, altså idempotent |
+| Venteliste | Rad opprettet, `get_waitlist_position` → **200**, plass 3 |
+| Kontakt | **200** `{"ok":true}`, kvittering vist, rad i innboksen |
+| Anmeldelse | `submit_review_by_token` → **200** `{"ok":true}` |
+
+Alle med `admin@westengenklinikk.example` liggende i `localStorage` —
+tilstanden som avslørte tre feil tidligere.
+
+### Turnstile og ratelimit
+
+| Test | Status | Kropp |
+|---|---|---|
+| Tom token | **403** | `captcha_required` |
+| Ugyldig token | **403** | `captcha_failed` |
+| Honeypot utfylt | **200** | `{"ok":true}` — falsk suksess, **ingen rad opprettet** |
+| Kontakt 1–3 | **200** | `{"ok":true}` × 3 |
+| Kontakt 4 | **429** | `rate_limited` |
+
+Det fjerde forsøket ble sendt med ugyldig token med vilje og fikk
+likevel `429`, fordi kvoten sjekkes før Turnstile.
+
+Knappens tilstandsmaskin er kjørt gjennom alle overganger: ved last
+(låst + ventetekst), token kommer (åpen, tekst ryddet), token utløper
+(låst + ventetekst), hard feil (låst + «last siden på nytt»), og token
+kommer likevel (åpen, feiltekst ryddet).
+
+### Sider, lenker, konsoll og språk
+
+- **21 HTML-sider: alle 200.** Alle delte ressurser 200.
+  `sitemap.xml` gir 404 med vilje — robots.txt forklarer at den er
+  fjernet fordi demoen ikke skal indekseres.
+- **Ingen døde interne lenker.** Hver `href="*.html"` i repoet peker på
+  en fil som finnes.
+- **Ingen konsollfeil** på noen av sidene som laster motoren:
+  `bestilling`, `booking-admin`, `kalender`, `stengte-tider`,
+  `tjenester`, `venteliste`. Heller ingen på `kunder` eller `kontakt`.
+- **Begge språk**: de nye i18n-nøklene løser riktig på norsk og engelsk,
+  og språkbytte oppdaterer siden.
+- **Begge roller**: administrator og terapeut. Rollebytte logger inn som
+  `terapeut@westengenklinikk.example` og kalenderen viser hennes egne
+  timer.
+
+### Opprydding
+
+Seks testrader opprettet, seks slettet, fraværet bekreftet: null
+ikke-seed-rader i `bookings`, `contact_messages`, `waitlist`, `reviews`,
+`journal_entries`, `blocked_slots`, `holidays`, `special_open_days` og
+`exercise_documents`.
+
+Honeypot-innsendingen etterlot seg ingen rad — som er selve poenget med
+den.
+
+`anon_insert_events` (21) og `audit_log` (163) er driftslogger uten
+personopplysninger, og tømmes av den nattlige nullstillingen.
+
+---
+
+## Kjent og bevisst
+
+Dette står igjen med vilje. Ingenting av det er ukjent, og ingenting av
+det hindrer at demoen vises fram.
+
+**Demoen sender ikke e-post.** `resend_key` er plassholderen
+`REDACTED_RESEND_KEY` i alle fire e-postfunksjonene. Alle fire har nå
+vakten som gjør at de avslutter stille i stedet for å kalle Resend, så
+det logges ingen feil. Avsenderen er dessuten `onboarding@resend.dev`,
+som bare virker til adressen som eier Resend-kontoen. Skal demoen sende
+til andre, må et domene verifiseres hos Resend og `from_email` byttes.
+SMS er tilsvarende en no-op: `process_pending_sms_reminders` henter
+URL og hemmelighet fra Vault, og `vault.secrets` er tom.
+
+**Repoets migrasjoner beskriver en eldre tilstand enn produksjon.**
+Migrasjonene `0026`, `0028`, `0039`, `0040` og `0048` sto med en
+uescapet apostrof og kunne ikke kjøre; de er gjort kjørbare, men
+innholdet er bevisst byte-identisk ellers. Bygges databasen opp fra
+bunn, gjenoppstår derfor plassholder-`base_url` og det gamle
+prosjektnavnet i disse fem, og forsvinner først når `0074` og `0075`
+kjører etterpå. Sluttresultatet blir riktig; mellomtilstanden er det
+ikke. Ingen migrasjon i git gjengir kroppene slik de faktisk sto i
+produksjon — `docs/db-funksjoner-før-0074.sql` og
+`docs/db-funksjoner-før-0076.sql` er de eneste kopiene, og de er
+dokumentasjon, ikke migrasjoner.
+
+**Turnstile er bundet til `booking-demo-rosy.vercel.app`.**
+Kontaktskjemaet kan derfor ikke fullføres i lokal utvikling: widgeten
+gir feilkode `110200`, utsteder ingen token, og Edge-funksjonen svarer
+`403`. Resten av siden virker lokalt. Fire alternativer står beskrevet
+i seksjonen «Turnstile i produksjon»; ingen er valgt.
+
+**Cloudflare struper automatisert testing.** Etter fire–fem raske
+løsninger fra samme nettleser slutter widgeten å utstede tokens i noen
+minutter. Det er Cloudflares egen misbruksbeskyttelse, den rammer ikke
+vanlige besøkende, men den gjør automatisert testing av kontaktskjemaet
+tregt.
+
+**Markus åpner 06:00, klinikken 07:00.** Per-behandler-overstyringen er
+en produktbeslutning. Den offentlige teksten «Mandag–fredag,
+07:00–15:00» beskriver klinikkens rammer, ikke hver enkelt behandlers
+arbeidstid. De to henger sammen, men sier ikke det samme.
+
+**CSV-eksportene navngir filen med UTC-dato.** `audit-logg`,
+`meldinger`, `booking-admin` og `shared/gdpr.js` bruker
+`toISOString().slice(0,10)` i filnavnet. En eksport tatt etter midnatt
+norsk tid får gårsdagens dato i navnet. Kosmetisk; ingen logikk henger
+på det.
+
+**`supabase-js` lastes fra CDN uten SRI.** Versjonen er pinnet til
+`@2`, altså en flytende major, og en `integrity`-hash ville brutt siden
+ved hver patch-utgivelse oppstrøms. Bevisst avveining, ikke en
+forglemmelse.
+
+**Den private adressen er ute.** `notify_to` i `send_booking_email`
+peker nå på `post@westengenklinikk.example`. Adressen som sto der er
+maskert i begge sikkerhetskopiene i `docs/`.
