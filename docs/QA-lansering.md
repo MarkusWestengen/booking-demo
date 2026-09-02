@@ -1509,3 +1509,166 @@ bare ser `status = 'approved'`. `demo_reset()` sletter `reviews where
 not is_demo_seed`, så de forsvinner ved neste kjøring 04:15. Grunnen til
 at de fortsatt står er at de ble opprettet etter nattens nullstilling,
 ikke at nullstillingen lot dem være.
+
+---
+
+# 0076 — rester etter navnebytte
+
+De fire funnene fra sveipen av databasen er rettet. Migrasjon
+`0076_rester_etter_navnebytte.sql`, applisert 2026-09-02.
+
+Metoden er den samme som i `0074`/`0075` der funksjonskropper er
+involvert: definisjonen leses ut av katalogen med
+`pg_get_functiondef()`, endres i minnet, og kjøres tilbake. Ingen kropp
+er skrevet for hånd. Kopi av alle fire kropper før endringen ligger i
+`docs/db-funksjoner-før-0076.sql`, committet før noe ble rørt, med den
+private adressen maskert.
+
+## Hva som sto der, og hva som ble byttet
+
+### 1. Biografiene
+
+`staff_members.bio`, 8 av 9 rader:
+
+| Før | Etter | Rader |
+|---|---|---|
+| «Opplært direkte av **Erik**. Samme metodikk, samme grundighet.» | «Opplært direkte av **Markus**. …» | 7 |
+| «…alle opplært direkte i **Eriks** metoder.» | «…alle opplært direkte i **Markus'** metoder.» | 1 |
+
+Genitiven måtte tas først. Byttes `Erik` før `Eriks`, blir «Eriks» til
+«Markuss». Norsk genitiv av et navn som ender på s er apostrof alene.
+
+Erstatningen gikk mot verdiene som faktisk lå i radene, ikke mot
+strengene i oppdraget. `services` ble sjekket for samme formulering:
+null treff i `name`, `description` og `slug`. `staff_members.name` og
+`.role` var også rene — `terapeut` hadde allerede «Opplært av Markus
+selv» som rolle.
+
+**Presisering av gårsdagens rapport.** Jeg skrev at «behandlerlista på
+forsiden leser fra samme tabell». Det er upresist. Bioene var lesbare
+gjennom `anon`-API-et — det stemmer — men de ble ikke gjengitt på noen
+offentlig side: `behandlere.html` er adminsiden og viser ikke bio, og
+bestillingsflyten viser bare de to som er `bookable`, med teksten hentet
+fra `i18n` (`booking.staff.<id>.bio`) og databaseverdien kun som
+fallback. Begge i18n-filene sa allerede «Markus'». Eksponeringen var
+altså reell, men gikk gjennom API-et alene.
+
+### 2. Kolonnekommentaren
+
+`staff_members.color`:
+
+> Hex-farge (#RRGGBB) for behandlerens fargebar i admin-UI. **Tom
+> streng** = bruk frontend-fallback. Migrasjon 0049.
+
+Lest ut av katalogen, «Erik streng» byttet til «Tom streng», resten
+urørt.
+
+### 3. `notify_to`
+
+`send_booking_email` pekte på en privat gmail-adresse. Byttet til
+`post@westengenklinikk.example`, samme som de tre andre bruker.
+
+Adressen står ikke i migrasjonsfila. Den ble matchet med et mønster mot
+det som faktisk lå i katalogen — repoet er offentlig.
+
+### 4. Plassholdervakten
+
+Vakten ble lest ut av `process_pending_review_emails` og speilet inn i
+de tre andre, spleiset rett etter funksjonens egen `begin`:
+
+    if resend_key = 'REDACTED_RESEND_KEY' then
+      raise warning '<funksjon>: Resend-nøkkel er placeholder — hopper over (sandbox-modus).';
+      return new;
+    end if;
+
+To tilpasninger, begge nødvendige: funksjonsnavnet i meldingen, og
+`return new` i stedet for `return`, fordi de tre er trigger-funksjoner
+og ikke `void`. Kommentarlinja om cron-tikk er utelatt — den gjelder
+bare den køstyrte funksjonen. Funksjonene avslutter stille; de kaster
+ikke feil.
+
+## Verifisering
+
+| Kontroll | Resultat |
+|---|---|
+| «Erik» borte fra `bio` | 8 rader oppdatert, 0 treff igjen i `bio`, `name` og `role` |
+| Genitiv | `terapeut` har «Markus' metoder» med apostrof |
+| Kolonnekommentaren | «Tom streng = bruk frontend-fallback» |
+| `notify_to` byttet | Ja, og ingen `@gmail.com` igjen i noen funksjon i `public` |
+| Resten av kroppene | Diff mot sikkerhetskopien: `send_booking_email` 1 endret linje + 8 nye (vakten); `send_contact_message_email` og `send_document_email` 8 nye hver; `process_pending_review_emails` identisk. Null uventede linjer. |
+| Alle fire har vakten | Ja |
+| Eier / `SECURITY DEFINER` / `search_path` | Uendret på alle fire: `postgres`, `true`, `{search_path=public, extensions}` |
+| Returtyper | Uendret: `trigger` på de tre, `void` på den fjerde |
+
+### Ingen nye kall til Resend
+
+Alle tre kodeveiene ble utløst med ekte innsettinger: en booking, en
+kontaktmelding og en dokumentutsending.
+
+| Måling | Før | Etter |
+|---|---|---|
+| Rader i `net._http_response` | 13 | 13 |
+| Høyeste id | 693 (2026-09-02 10:54) | 693 |
+| Rader i `net.http_request_queue` | 0 | 0 |
+
+Lest to ganger, 14 sekunder fra hverandre. Null nye kall, null nye
+401-er, ingenting i kø. Til sammenligning ga de samme tre kodeveiene 13
+× `401 API key is invalid` før endringen.
+
+Testradene er slettet igjen og bekreftet borte: 0 igjen i `bookings`,
+`contact_messages` og `document_sends` på testadressen.
+
+### På live
+
+Hentet gjennom `anon`-API-et fra selve `booking-demo-rosy.vercel.app`,
+med sidens egen anon-nøkkel:
+
+    GET /rest/v1/staff_members?select=staff_id,name,bio&order=sortering
+    → 200, 9 rader, 0 treff på «Erik», «Markus' metoder» på plass
+
+Bestillingsflyten ble åpnet på live og de to behandlerkortene gjengir
+riktig tekst. Null forekomster av «Erik» i sidens tekst.
+
+---
+
+## Ordgrense-sveip
+
+Kolonnekommentaren beviste at et søk-og-erstatt uten ordgrense har
+truffet det norske ordet «tom». Jeg lette etter samme skade i begge
+retninger, over funksjonskropper, kommentarer, seed-data i alle
+tabeller, RLS-policyer, constraints, kolonne-defaults og `cron.job`.
+
+**Søkt etter:** et navn (`Markus`, `Erik`, `Toms`, `Tom`) med en
+bokstav rett foran eller en liten bokstav rett etter — altså navnet
+inne i et ord; feilformene `Markuss` og `Erikss` fra en genitiv som er
+byttet i feil rekkefølge; `Klinikk` og `Westengen` inne i et annet ord,
+som er samme feil den motsatte veien; og løsrevet «arena».
+
+**Funn: null.** Ingen ødelagte ord noe sted i databasen utenom
+kolonnekommentaren, som nå er rettet.
+
+Det som derimot finnes, er stedene der de samme ordene står helt
+legitimt. De er ikke feil, men de er nøyaktig det et nytt navnebytte
+uten ordgrense vil ødelegge. Denne lista er til å ta stilling til, ikke
+til å rette:
+
+| Sted | Tekst | Vurdering |
+|---|---|---|
+| `create_journal_entry()` | «Notatet kan ikke være **tomt**» | Vanlig norsk ord. Vil bli ødelagt av `tom` → et navn. |
+| `demo_seed()`, 4 steder | «audit-siden er **tom**», «en **tom** respons», «ikke er **tom**», «enn en **tom** liste» | Samme. Fire treff. |
+| `staff_members.color` | «**Tom** streng = bruk frontend-fallback» | Nettopp rettet. Var «Erik streng». |
+| `demo_seed()` og `journal_entries`, 11 rader | «**Symptom**fri ved siste kontroll» | Inneholder «tom». Ville blitt «Symp\<navn\>fri». |
+| `send_booking_email()` | «Westengen Klinikk — **automatisk** varsel» | Inneholder «tom». |
+| `send_contact_message_email()` | «**AUTOMATISK** VARSEL — WESTENGEN KLINIKK» | Samme, i versaler. |
+| `blocked_slots`, `holidays` (kommentar) | «Hele-**klinikken**-stenging», «Datoer hele **klinikken** er stengt» | Vanlig ord, ikke merkenavn. |
+| `send_booking_sms()`, `send_document_email()` | «kontakt **klinikken**» | Samme. |
+| Fire e-postfunksjoner | `post@westengen**klinikk**.example` | Domenet til den oppdiktede klinikken. Riktig som det er. |
+| `staff_members`, `waitlist`, `demo_seed()` | «**Markus'** terapeuter» | Riktig genitiv, fire steder. Ingen `Markuss`. |
+
+Ett funn til, som ikke er en navnerest men kom fram i samme sveip:
+
+| Sted | Tekst | Vurdering |
+|---|---|---|
+| `enforce_anon_insert_quota()` | «Vent litt og prøv igjen, eller ring klinikken på **+47 400 00 000**.» | Denne feilmeldingen går til `anon` når kvoten slår inn, altså rett til en besøkende. Nummeret er det oppdiktede demonummeret, samme som i e-postbunnteksten, men det er den ene plassen det faktisk vises til publikum. Vurder om det skal stå der. |
+
+**Ikke rettet.** Ingenting i disse to listene er endret.
