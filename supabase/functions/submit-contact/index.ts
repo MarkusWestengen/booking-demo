@@ -41,9 +41,20 @@ const ALLOWED_ORIGINS = new Set<string>([
   // "https://<ditt-prosjekt>.vercel.app") for at kontaktskjemaet
   // skal virke derfra. En origin du IKKE kontrollerer skal aldri
   // staa i denne lista - da kan den sida poste paa dine vegne.
+  "https://booking-demo-rosy.vercel.app",  // den publiserte demoen
   "http://localhost:8000",                 // lokal testing
-  "https://demo.westengenklinikk.example", // plassholder-domene
+  "http://127.0.0.1:8766",                 // lokal testing
 ]);
+
+// Plassholderen «https://demo.westengenklinikk.example» sto her i
+// stedet for den faktiske adressen. Curl bryr seg ikke om CORS, saa
+// funksjonen saa riktig ut i alle tester som ikke gikk gjennom en
+// nettleser. Fra den publiserte sida feilet den med «Failed to
+// fetch» — foer den i det hele tatt naadde funksjonens egen logikk.
+//
+// Preview-deployene fra Vercel («...-git-...vercel.app») staar med
+// vilje ikke her. De faar ny adresse per gren, og et jokertegn ville
+// aapnet for enhver vercel.app-side.
 
 function corsHeaders(origin: string | null): Record<string, string> {
   const h: Record<string, string> = {
