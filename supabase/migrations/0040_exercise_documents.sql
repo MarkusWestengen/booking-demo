@@ -169,7 +169,7 @@ begin
     || '<tr><td align="center" style="padding:32px 12px;">'
     || '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background-color:#ffffff;">'
     || '<tr><td align="center" bgcolor="#3E6B47" style="background-color:#3E6B47;padding:40px;">'
-    ||   '<div style="font-family:Georgia,serif;font-size:24px;letter-spacing:0.30em;color:#FAF7F1;">MARKUS'&nbsp;ARENA</div>'
+    ||   '<div style="font-family:Georgia,serif;font-size:24px;letter-spacing:0.30em;color:#FAF7F1;">MARKUS''&nbsp;ARENA</div>'
     ||   '<div style="font-family:Courier,monospace;font-size:11px;letter-spacing:0.24em;color:#A6C1AC;padding-top:14px;">ØVELSER &amp; OPPFØLGING</div>'
     || '</td></tr>'
     || '<tr><td style="padding:40px 40px 8px;">'
