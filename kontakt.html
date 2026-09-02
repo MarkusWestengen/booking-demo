@@ -427,7 +427,25 @@
         'Authorization': 'Bearer ' + CFG.supabaseAnonKey,
         'apikey': CFG.supabaseAnonKey
       },
-      body: JSON.stringify({ name: name, email: email, message: message, token: token })
+      // Feltnavnene maa hete det Edge-funksjonen leser. Den leser
+      // payload.turnstileToken og payload.company; her sto det «token»,
+      // og honeypoten ble aldri sendt i det hele tatt.
+      //
+      // Foelgen var at funksjonen alltid saa en tom token og alltid
+      // svarte 403 captcha_required. Skjemaet kunne ikke virke, uansett
+      // hvor riktig alt annet var. Det viste seg foerst da funksjonen
+      // faktisk ble deployet og kjeden testet mot live.
+      //
+      // Honeypoten sendes videre selv om nettleseren allerede har
+      // stoppet den: en bot som poster direkte mot funksjonen gaar
+      // utenom skjemaet, og da er serversjekken den eneste som teller.
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        message: message,
+        turnstileToken: token,
+        company: (fd.get('company') || '').trim()
+      })
     }).then(function (res) {
       return res.json().catch(function () { return {}; }).then(function (body) {
         return { ok: res.ok, status: res.status, body: body };
