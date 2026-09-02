@@ -500,9 +500,10 @@
 
 <script src="shared/booking-config.js"></script>
 <!-- Motoren lastes for aapningstidene alene: tidsvelgeren under skal
-     ikke ha sin egen kopi av dem. Den henter ingenting av seg selv —
-     loadStaff/loadServices kjoerer foerst ved ensureLoaded(), som denne
-     siden aldri kaller. -->
+     ikke ha sin egen kopi av dem. services.js maa staa foerst, slik den
+     gjoer paa alle andre sider som laster motoren — uten den logger
+     booking-engine «shared/services.js er ikke lastet» i konsollen. -->
+<script src="shared/services.js"></script>
 <script src="shared/booking-engine.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="i18n/i18n.js"></script>
