@@ -334,20 +334,33 @@
   //
   // Intl med hourCycle h23 gir 00–23 (h12/hour12:false kan gi «24»).
   // en-CA gir ISO-formatert dato, som lar seg sammenligne som streng.
+  // Formattereren bygges EN gang og resultatet caches i et halvt minutt.
+  // isToday()/isPastDate() kalles per dag i dag-løkkene, og en ny
+  // Intl.DateTimeFormat per kall er dyr nok til at 28 dager × behandlere
+  // × slots fryser renderen merkbart.
+  var _osloFmt = null, _osloCache = null, _osloCacheAt = 0;
   function osloNow() {
+    var na = Date.now();
+    if (_osloCache && (na - _osloCacheAt) < 30000) return _osloCache;
     try {
-      var p = new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'Europe/Oslo',
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
-      }).formatToParts(new Date()).reduce(function (a, x) { a[x.type] = x.value; return a; }, {});
-      return { date: p.year + '-' + p.month + '-' + p.day,
-               minutes: (+p.hour) * 60 + (+p.minute) };
+      if (!_osloFmt) {
+        _osloFmt = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Europe/Oslo',
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+        });
+      }
+      var p = _osloFmt.formatToParts(new Date()).reduce(
+        function (a, x) { a[x.type] = x.value; return a; }, {});
+      _osloCache = { date: p.year + '-' + p.month + '-' + p.day,
+                     minutes: (+p.hour) * 60 + (+p.minute) };
     } catch (e) {
       // Uten Intl/sonedata: fall tilbake til lokal klokke framfor å kaste.
       var n = new Date();
-      return { date: ymd(n), minutes: n.getHours() * 60 + n.getMinutes() };
+      _osloCache = { date: ymd(n), minutes: n.getHours() * 60 + n.getMinutes() };
     }
+    _osloCacheAt = na;
+    return _osloCache;
   }
   function isPastDate(date) { return ymd(date) < osloNow().date; }
   function isToday(date) { return ymd(date) === osloNow().date; }
