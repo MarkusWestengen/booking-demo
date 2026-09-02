@@ -23,6 +23,11 @@ RESEND_SETUP.md
 # Skriptene som verifiserer repoet. De kjoeres lokalt, ikke i drift.
 scripts/
 
+# Sluttkontrollen. Beskriver hva som er testet og hva som staar
+# igjen — nyttig i repoet, ingen grunn til at den ligger paa et
+# offentlig domene.
+docs/
+
 # Utviklerverktøy
 .claude/
 
