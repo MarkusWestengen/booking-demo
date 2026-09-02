@@ -6,7 +6,7 @@
 <title>Generér PWA-ikoner · Westengen Klinikk</title>
 <style>
   body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto;
-    padding: 20px; color: #171A21; }
+    padding: 20px; color: #0b1a2b; }
   h1 { font-size: 24px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; margin-top: 20px; }
   .icon { text-align: center; }
@@ -58,31 +58,32 @@ function drawIcon(canvas, opts) {
   var inset = s * safe;
 
   // Bakgrunn
-  ctx.fillStyle = '#171A21';
+  ctx.fillStyle = '#0b1a2b';   // blekk
   ctx.fillRect(0, 0, s, s);
 
-  // Grønn aksent-strek under teksten
-  ctx.fillStyle = '#464C8C';
+  // Aksentstrek under teksten. Fargen fulgte ikke med da paletten
+  // ble byttet, saa ikonene sto igjen med en lilla fra forrige runde.
+  ctx.fillStyle = '#427aa1';   // staalblaa
   var lineY = s * 0.75;
   var lineW = s * 0.78;
   ctx.fillRect((s - lineW) / 2, lineY, lineW, Math.max(2, s * 0.012));
 
-  // TA-monogram
+  // WK-monogram
   var fontSize = (s - inset * 2) * 0.55;
   ctx.font = '400 ' + fontSize + 'px Georgia, "Times New Roman", serif';
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
 
-  // Plassér T og A side-ved-side
+  // Plasser W og K side ved side
   var charSpacing = fontSize * 0.5;
   var centerY = s * 0.5;
 
-  ctx.fillStyle = '#F7F8FA';
-  ctx.fillText('T', s * 0.5 - charSpacing, centerY);
+  ctx.fillStyle = '#ebf2fa';
+  ctx.fillText('W', s * 0.5 - charSpacing, centerY);
 
-  ctx.fillStyle = '#7A80B8';
-  ctx.font = 'italic 400 ' + fontSize + 'px Georgia, "Times New Roman", serif';
-  ctx.fillText('A', s * 0.5 + charSpacing, centerY);
+  // Begge bokstavene i samme farge og vekt. Den kursive aksenten paa
+  // den andre bokstaven var en signatur fra en tidligere versjon.
+  ctx.fillText('K', s * 0.5 + charSpacing, centerY);
 }
 
 drawIcon(document.getElementById('c192'), { maskable: false });
