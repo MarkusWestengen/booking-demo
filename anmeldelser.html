@@ -410,7 +410,32 @@
   var CLINIC_PHONE = '+47 400 00 000';
   var CFG = window.WestengenKlinikkBackend || {};
   var sb = (window.supabase && CFG.supabaseUrl && CFG.supabaseAnonKey)
-    ? window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey)
+    // Klienten her skal IKKE plukke opp en innlogget sesjon.
+    //
+    // De to RPC-ene siden bruker er gitt til rollen anon alene
+    // (migrasjon 0042: «grant execute ... to anon»). Adminpanelet
+    // trenger dem ikke, og skal ikke ha dem.
+    //
+    // Da demoen begynte aa logge den besoekende inn av seg selv, fikk
+    // alle en sesjon i nettleseren. Standardklienten plukker den opp
+    // og sender admin-tokenet ogsaa herfra, altsaa som rollen
+    // authenticated — som faar 403. Enhver som hadde vaert innom
+    // adminpanelet foerst, fikk et anmeldelsesskjema som ikke virket.
+    //
+    // Samme feil som paa ventelista, samme loesning: et offentlig
+    // skjema skal ikke opptre som en innlogget ansatt.
+    ? window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+          storage: {
+            getItem: function () { return null; },
+            setItem: function () {},
+            removeItem: function () {}
+          }
+        }
+      })
     : null;
 
   var I18N = window.WestengenKlinikkI18n;
