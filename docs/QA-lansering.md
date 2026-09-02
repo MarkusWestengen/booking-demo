@@ -1268,3 +1268,244 @@ fra bunn uten å stoppe på `0026`.
 - Den private adressen i `notify_to` ligger fortsatt i en
   `SECURITY DEFINER`-funksjon i en demo som er åpen. Den er ikke min å
   bytte, men du bør bestemme om den skal stå der.
+
+---
+
+# Sveip av databasen
+
+Alle tidligere lekkasjesveip har gått over filer. `0074`/`0075` viste at
+funksjonskroppene i produksjon er eldre enn repoet, og at fire av dem bar
+et navn fra før omdøpingen. Denne runden går derfor over databasen selv.
+
+Rent lese- og rapportoppdrag. Ingenting er endret.
+
+**Flater som ble sett på:** funksjonskropper i alle skjemaer jeg har
+tilgang til, view- og matview-definisjoner, RLS-policyer (`USING` og
+`WITH CHECK`), kolonne-defaults, constraints, triggerdefinisjoner,
+kommentarer på tabeller og kolonner, egendefinerte typer, `cron.job`,
+seed-data i alle 17 tabeller i `public`, storage-buckets og -objekter,
+`auth.users`, `vault.secrets`, `net`-tabellene og
+`supabase_migrations.schema_migrations`.
+
+---
+
+## Hastegrad 1 — lesbart for publikum akkurat nå
+
+### «Erik» står i behandlerbiografiene
+
+`public.staff_members.bio`, 8 av 9 rader:
+
+| `staff_id` | Tekst |
+|---|---|
+| `sofie`, `henrik`, `jonas`, `amina`, `nora`, `lena`, `petter` | «Opplært direkte av **Erik**. Samme metodikk, samme grundighet.» |
+| `terapeut` | «Vi tildeler en av våre erfarne terapeuter, alle opplært direkte i **Eriks** metoder. Samme filosofi, samme grundighet.» |
+
+**Lesbart for publikum: ja.** `anon` har `SELECT` på kolonnen `bio`, og
+policyen `staff_members read active: anon` slipper gjennom alt med
+`aktiv = true`. Alle åtte radene er aktive. Én forespørsel mot
+`/rest/v1/staff_members?select=name,bio` gir dem ut, og behandlerlista
+på forsiden leser fra samme tabell.
+
+Dette er samme rest som `0074` fant i e-postmalene, på en flate ingen
+har sett på. Navnet på et tidligere kundeprosjekt står i klartekst i en
+offentlig arbeidsprøve.
+
+**Foreslått rettelse:** `update` av de åtte `bio`-verdiene. Verdt å
+merke seg: `demo_seed()` rører ikke `staff_members` i det hele tatt, og
+`demo_reset()` sletter bare rader med `is_demo_seed = false` der. En
+endring av teksten overlever altså den nattlige nullstillingen. Et
+forslag er «Opplært direkte av Markus. Samme metodikk, samme
+grundighet.» — men dette er din tekst, så si hva den skal være.
+
+---
+
+## Hastegrad 2 — forlater systemet, men er ikke lesbart via API-et
+
+### Privat e-postadresse i `send_booking_email`
+
+    notify_to text := 'm***************n@gmail.com';
+
+**Lesbart for publikum: nei.** Verken `anon` eller `authenticated` kan
+nå funksjonskropper gjennom PostgREST. Men adressen er mottaker for
+hvert bookingvarsel, så den forlater systemet hver gang noen bestiller.
+
+Kjent fra `0074`, som lot den stå etter regelen om å ikke røre noe
+annet i kroppene. Tas med her fordi sveipen skal være komplett.
+
+**Foreslått rettelse:** bytt til `post@westengenklinikk.example`, som de
+tre andre funksjonene allerede bruker, eller til en adresse du faktisk
+vil ha varsler på. Din avgjørelse.
+
+### Ekte gateadresse i e-postbunnteksten
+
+`send_booking_email`, `send_document_email` og
+`process_pending_review_emails` har alle
+
+    Westengen Klinikk · Storgata 1, 0155 Oslo
+
+og `send_document_email` i tillegg `+47 400 00 0**`.
+
+Storgata 1 i Oslo er en ekte adresse som tilhører noen andre. Den står i
+bunnteksten på e-post fra en oppdiktet klinikk. Telefonnummeret ser
+oppdiktet ut, men ligger i et gyldig norsk mobilnummerområde.
+
+**Lesbart for publikum: nei** — men det går ut i hver e-post.
+
+**Foreslått rettelse:** enten en åpenbart oppdiktet adresse, eller drop
+adresselinja. Nummeret bør merkes som demo eller fjernes.
+
+### Tre av fire e-postfunksjoner mangler plassholdervakten
+
+| Funksjon | Vakt mot plassholdernøkkel | Kaller `api.resend.com` |
+|---|---|---|
+| `process_pending_review_emails` | Ja | Ja |
+| `send_booking_email` | **Nei** | Ja |
+| `send_contact_message_email` | **Nei** | Ja |
+| `send_document_email` | **Nei** | Ja |
+
+Alle fire har fortsatt `resend_key = 'REDACTED_RESEND_KEY'`. De tre uten
+vakt sender likevel HTTP-kallet, med plassholderstrengen som
+bearer-token. `net._http_response` har 13 svar fra i dag mellom 10:45 og
+10:54 UTC, alle
+
+    {"statusCode":401,"name":"validation_error","message":"API key is invalid"}
+
+Tidsvinduet er nøyaktig nettlesertestene i forrige runde. Hver
+bestilling, kontaktmelding og dokumentutsending gjør altså i dag et
+utgående kall som garantert feiler.
+
+Ingen hemmelighet lekker — plassholderen er ikke en nøkkel. Men det er
+et utgående kall per hendelse, og svarene logges.
+
+**Lesbart for publikum: nei.** `net._http_response` har ingen grants til
+`anon` eller `authenticated`.
+
+**Foreslått rettelse:** samme vakt som `process_pending_review_emails`
+allerede har, i de tre andre.
+
+---
+
+## Hastegrad 3 — internt
+
+### Kolonnekommentaren avslører hvordan omdøpingen ble gjort
+
+`public.staff_members.color`:
+
+> Hex-farge (#RRGGBB) for behandlerens fargebar i admin-UI. **Erik
+> streng** = bruk frontend-fallback. Migrasjon 0049.
+
+Det skal stå «Tom streng». Et blindt søk-og-erstatt av `Tom` → `Erik`
+har truffet det norske ordet «tom». Kommentaren er den eneste plassen
+skaden er synlig i databasen, men den forklarer hvorfor
+`ERIKS&nbsp;ARENA` sto i produksjon mens git sa `MARKUS'&nbsp;ARENA`:
+navnet er byttet minst to ganger med tekstsøk, ikke med omtanke.
+
+**Lesbart for publikum: nei.** Kolonnekommentarer eksponeres ikke
+gjennom PostgREST.
+
+**Foreslått rettelse:** `comment on column` med «Tom streng».
+
+### Seed-telefonnumre i pasientdata
+
+`+47 400 00 0**`-serien (20 numre) står i `bookings.phone`,
+`journal_entries.patient_phone`, `waitlist.phone` og
+`contact_messages`, parvis med `@eksempel.example`-adresser.
+
+Numrene er systematiske og åpenbart oppdiktede, men ligger i et gyldig
+norsk mobilnummerområde og kan i prinsippet tilhøre en abonnent.
+
+**Lesbart for publikum: nei.** Ingen av de fire tabellene har `SELECT`
+for `anon`. `journal_entries` har ingen `SELECT`-grant i det hele tatt.
+
+**Foreslått rettelse:** ingen hast. Vil du ha full sikkerhet, bytt
+seriene i `demo_seed()` til noe utenfor tildelt nummerserie.
+
+### `cron.job.nodename` har default `'localhost'`
+
+Det er pg_cron sin egen kolonnedefault, ikke en plassholder noen har
+glemt. Alle fire jobbene kjører mot `localhost:5432`, som er riktig.
+Ingen handling.
+
+---
+
+## Flater som var rene
+
+| Flate | Funn |
+|---|---|
+| `auth.users` | 2 kontoer, `admin@` og `terapeut@westengenklinikk.example`. Ingen ekte adresse. |
+| Storage | Én bucket, `exercise-documents`, **ikke** offentlig. Null objekter. |
+| `vault.secrets` | Tom. `process_pending_reminders` og `process_pending_sms_reminders` henter URL og webhook-secret derfra, og er derfor no-ops. |
+| `net._http_response` | 13 rader, alle 401-svar. Ingen nøkkel i innholdet. Ikke lesbar for `anon`/`authenticated`. |
+| `supabase_migrations.schema_migrations` | 75 rader med full migrasjons-SQL. Verken `anon` eller `authenticated` har `USAGE` på skjemaet. |
+| Views og matviews | Finnes ikke i `public`. |
+| Triggerdefinisjoner, constraints, defaults, enum-verdier | Null treff. |
+| Ordet «test» | Null treff i funksjoner, null i data. Kommentartreffene er PostgreSQLs egne. |
+| `localhost`, `127.0.0.1`, private IP-er | Kun pg_cron-defaulten over. |
+| Organisasjonsnumre | Null treff. |
+| «Toms Arena», «Arena» | Null treff noe sted i databasen. |
+| `.example`-domener | Kun `westengenklinikk.example` og `eksempel.example`. Begge er reservert TLD og kan ikke registreres. |
+
+Merk at `blocked_slots` og `special_open_days` har `SELECT` for `anon`
+på kolonnenivå (`date, staff_id, time` og `date, staff_id, open_time,
+close_time`), ikke på tabellnivå. Ingen av kolonnene inneholder tekst.
+
+---
+
+## Cron-status
+
+`cron.job` — fire aktive jobber:
+
+| jobid | Navn | Plan | Kommando |
+|---|---|---|---|
+| 1 | `westengen-klinikk-24h-reminders` | `5 * * * *` | `select public.process_pending_reminders();` |
+| 3 | `westengen-klinikk-review-emails` | `15 * * * *` | `select public.process_pending_review_emails();` |
+| 4 | `westengen-klinikk-24h-sms-reminders` | `7 * * * *` | `select public.process_pending_sms_reminders();` |
+| 5 | `demo-nightly-reset` | `15 4 * * *` | `select public.demo_reset();` |
+
+`jobid = 2` finnes ikke. Ingen jobbnavn eller kommando inneholder rester.
+
+`cron.job_run_details`, rått:
+
+| Jobb | Status | Antall | Første | Siste |
+|---|---|---|---|---|
+| `demo-nightly-reset` | succeeded | 1 | 2026-09-02 04:15 UTC | 2026-09-02 04:15 UTC |
+| `westengen-klinikk-24h-reminders` | succeeded | 38 | 2026-09-01 01:05 UTC | 2026-09-02 14:05 UTC |
+| `westengen-klinikk-24h-sms-reminders` | succeeded | 38 | 2026-09-01 01:07 UTC | 2026-09-02 14:07 UTC |
+| `westengen-klinikk-review-emails` | succeeded | 38 | 2026-09-01 01:15 UTC | 2026-09-02 14:15 UTC |
+
+Null rader med annen status enn `succeeded`. Ingen feilmeldinger; alle
+`return_message` er `1 row`.
+
+**Den nattlige nullstillingen har kjørt.** Runid 84, 2026-09-02
+04:15:00 UTC, `succeeded`. Det er første bekreftede kjøring.
+
+Ett tall er tvetydig, og jeg lar det stå som det er: loggen starter
+2026-09-01 01:05 UTC, altså før 2026-09-01 04:15, men det finnes ingen
+kjøring av jobb 5 den natta. Enten ble jobben opprettet i løpet av
+2026-09-01, eller så uteble den kjøringen. Jeg kan ikke skille de to
+fra dataene som ligger der.
+
+### Innhold og etterlatte rader
+
+| Tabell | Totalt | Seed | Ikke seed |
+|---|---|---|---|
+| `services` | 4 | 4 | 0 |
+| `staff_services` | 36 | 36 | 0 |
+| `staff_members` | 9 | 9 | 0 |
+| `bookings` | 80 | 80 | 0 |
+| `journal_entries` | 54 | 54 | 0 |
+| `contact_messages` | 8 | 8 | 0 |
+| `exercise_documents` | 8 | 8 | 0 |
+| `blocked_slots` | 6 | 6 | 0 |
+| `waitlist` | 5 | 5 | 0 |
+| `holidays` | 2 | 2 | 0 |
+| `special_open_days` | 1 | 1 | 0 |
+| `reviews` | 10 | 8 | **2** |
+
+`services` og `staff_services` har innhold. De to ikke-seed-radene er
+mine testanmeldelser fra forrige runde, opprettet 2026-09-02 10:48 og
+10:51 UTC, begge satt til `rejected`. De er ikke synlige for `anon`, som
+bare ser `status = 'approved'`. `demo_reset()` sletter `reviews where
+not is_demo_seed`, så de forsvinner ved neste kjøring 04:15. Grunnen til
+at de fortsatt står er at de ble opprettet etter nattens nullstilling,
+ikke at nullstillingen lot dem være.
