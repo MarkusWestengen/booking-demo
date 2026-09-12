@@ -116,13 +116,13 @@ create policy "staff_members update: admin"
 insert into public.staff_members (staff_id, name, role, bio, bookable, is_pool, aktiv, sortering) values
   ('markus',     'Markus Westengen',   'Behandler', 'Timen settes opp hos Markus. Oppdiktet behandler i en oppdiktet klinikk.', true,  false, true, 10),
   ('terapeut', 'Markus'' terapeuter', 'Terapeut-team',            'Timen settes opp hos en av klinikkens terapeuter. Oppdiktet team i en oppdiktet klinikk.', true,  false, true, 20),
-  ('sofie',    'Sofie Aune',       'Daglig leder',                    'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 30),
-  ('henrik',   'Henrik Dal',       'Leder for produktutvikling',      'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 40),
-  ('jonas',    'Jonas Riis',       'Markedssjef',                     'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 50),
-  ('amina',    'Amina Nour',       'Trainee-koordinator',             'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 60),
-  ('nora',     'Nora Ellingsen',   'Pasientkoordinator',              'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 65),
-  ('lena',     'Lena Vik',         'Trainee',                         'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 70),
-  ('petter',   'Petter Holm',      'Trainee',                         'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 80)
+  ('sofie',    'Sofie Aune',       'Terapeut',                        'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 30),
+  ('henrik',   'Henrik Dal',       'Terapeut',                        'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 40),
+  ('jonas',    'Jonas Riis',       'Terapeut',                        'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 50),
+  ('amina',    'Amina Nour',       'Terapeut',                        'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 60),
+  ('nora',     'Nora Ellingsen',   'Terapeut',                        'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 65),
+  ('lena',     'Lena Vik',         'Terapeut',                        'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 70),
+  ('petter',   'Petter Holm',      'Terapeut',                        'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 80)
 on conflict (staff_id) do nothing;
 
 commit;

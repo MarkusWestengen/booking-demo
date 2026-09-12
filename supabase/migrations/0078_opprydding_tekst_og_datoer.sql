@@ -54,6 +54,14 @@ update public.staff_members
        bio  = 'Timen settes opp hos en av klinikkens terapeuter. Oppdiktet team i en oppdiktet klinikk.'
  where staff_id = 'terapeut';
 
+-- Rollene var organisasjonskartet til klinikken demoen kom fra, med
+-- navnene byttet: ledelse, markedsføring og trainees. De sier
+-- ingenting om bookingsystemet og gjør oppsettet sporbart.
+update public.staff_members
+   set role = 'Terapeut'
+ where staff_id not in ('markus', 'terapeut')
+   and role <> 'Terapeut';
+
 update public.staff_members
    set bio = 'Oppdiktet terapeut i en oppdiktet klinikk.'
  where staff_id <> 'terapeut'
@@ -546,7 +554,7 @@ begin
 
   select
       (select count(*) from public.staff_members
-        where concat_ws(' ', role, bio) ~* '(oppl.rt|metodikk|metoder|filosofi|grundighet|erfarne)')
+        where concat_ws(' ', role, bio) ~* '(oppl.rt|metodikk|metoder|filosofi|grundighet|erfarne|leder|sjef|koordinator|trainee)')
     + (select count(*) from public.services
         where description ~* '(senefeste|sykehistorie|hvorfor plagen|justering av planen|kartlegging)')
     + (select count(*) from public.reviews

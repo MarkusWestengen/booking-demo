@@ -32,6 +32,7 @@ const MOENSTRE = [
   /varig(e)? resultat|lasting results|kroppen tilbake|your body back/i,
   /raffinert gjennom/i,
   /grundig kartlegging/i,
+  /daglig leder|markedssjef|leder for produktutvikling|trainee-koordinator/i,
   /finne årsaken, ikke bare/i,
 ];
 

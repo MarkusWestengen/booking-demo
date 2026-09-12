@@ -177,7 +177,10 @@
   .footer-bottom { font-size: 12.5px; color: rgba(235, 242, 250, 0.66); }
 
   @media (max-width: 860px) {
-    .k-grid { grid-template-columns: 1fr; gap: 34px; }
+    /* minmax(0, 1fr): med bare «1fr» er minstebredden innholdets egen,
+       og Turnstile-widgeten (300 px fast) pluss kortets padding dyttet
+       rutenettet ut til 346 px. Siden rullet sidelengs på 320 og 375. */
+    .k-grid { grid-template-columns: minmax(0, 1fr); gap: 34px; }
     /* Skjemaet er ærendet på mobil — det skal ligge først. */
     .k-form-wrap { order: -1; }
   }
@@ -343,6 +346,20 @@
                  data-expired-callback="wkTurnstileGone"
                  data-timeout-callback="wkTurnstileGone"
                  data-error-callback="wkTurnstileFailed"></div>
+            <script>
+              /* Turnstile i normal størrelse er 300 px bred og får ikke
+                 plass i kortet under ca. 420 px. «compact» er 150 px.
+                 Må settes før api.js leser attributtet, derfor inline
+                 rett etter elementet. */
+              (function () {
+                try {
+                  if (window.matchMedia('(max-width: 419px)').matches) {
+                    var el = document.querySelector('.cf-turnstile');
+                    if (el) el.setAttribute('data-size', 'compact');
+                  }
+                } catch (_) {}
+              })();
+            </script>
 
             <div class="k-actions">
               <!-- Deaktivert til Turnstile har utstedt token. Med ekte
