@@ -70,7 +70,7 @@ Verifiser at den er live:
 curl -X POST \
   -H "X-Webhook-Secret: <din-secret>" \
   -H "Content-Type: application/json" \
-  -d '{"event":"confirmation","booking":{"name":"Test","email":"din@e-post.example","ref":"TA-TEST","date":"2026-06-01","time":"10:00","service_name":"Konsultasjon","staff_name":"Markus","duration":30}}' \
+  -d '{"event":"confirmation","booking":{"name":"Test","email":"din@e-post.example","ref":"WK-TEST","date":"2026-06-01","time":"10:00","service_name":"Konsultasjon","staff_name":"Markus","duration":30}}' \
   https://<project-ref>.supabase.co/functions/v1/send-booking-email
 ```
 
@@ -137,7 +137,7 @@ insert into public.bookings(
   id, ref, staff_id, staff_name, service_id, service_name,
   price, duration, date, time, name, email, phone, status, journal_consent
 ) values (
-  'bk_reminder_test', 'TA-REMIND', 'markus', 'Markus', 'markus-konsult', 'Test',
+  'bk_reminder_test', 'WK-REMIND', 'markus', 'Markus', 'markus-konsult', 'Test',
   100, 30,
   (now() + interval '24 hours')::date,
   (now() + interval '24 hours')::time,

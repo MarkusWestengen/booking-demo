@@ -27,7 +27,7 @@ begin;
 -- ----- waitlist-tabell ----------------------------------------
 create table if not exists public.waitlist (
   id                  uuid primary key default gen_random_uuid(),
-  ref                 text not null unique,              -- TA-WL-XXXX-XXXX
+  ref                 text not null unique,              -- WK-WL-XXXX-XXXX
   service_id          text,                              -- NULL: velges ved tildeling
   staff_id            text,                              -- 'markus' = Markus-køen, NULL = terapeut-køen
   staff_name          text not null,                     -- "Markus Westengen" / "Markus' terapeuter"
@@ -181,6 +181,6 @@ commit;
 --      'anon', 'public.cancel_waitlist_by_ref(text,text)', 'execute');  -- t
 --
 -- D) Uniform not_found:
---    select public.cancel_waitlist_by_ref('TA-WL-FINNES-IKKE', 'x@y.example');
+--    select public.cancel_waitlist_by_ref('WK-WL-FINNES-IKKE', 'x@y.example');
 --    -- {"ok":false,"reason":"not_found"}
 -- ============================================================

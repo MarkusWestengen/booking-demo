@@ -454,7 +454,7 @@
           <div class="field">
             <label for="cRef" data-i18n="waitlist.field_cref">Referansekode</label>
             <input id="cRef" type="text" autocomplete="off" placeholder="Skriv inn referansekoden fra ventelisten" required />
-            <div class="hint" data-i18n="waitlist.field_cref_hint">Står i bekreftelsen du fikk, f.eks. TA-WL-K7F2-1042.</div>
+            <div class="hint" data-i18n="waitlist.field_cref_hint">Står i bekreftelsen du fikk, f.eks. WK-WL-K7F2-1042.</div>
           </div>
           <div class="field">
             <label for="cEmail" data-i18n="cancel.field_email">E-postadresse</label>
@@ -585,7 +585,7 @@
       for (var i = 0; i < n; i++) s += A[Math.floor(Math.random() * A.length)];
       return s;
     }
-    return 'TA-WL-' + blk(4) + '-' + blk(4);
+    return 'WK-WL-' + blk(4) + '-' + blk(4);
   }
 
   function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }

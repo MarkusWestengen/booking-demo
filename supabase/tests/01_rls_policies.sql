@@ -84,7 +84,7 @@ begin
     id, ref, staff_id, staff_name, service_id, service_name,
     price, duration, date, time, name, email, phone, status, journal_consent
   ) values (
-    new_id, 'TA-TEST', 'markus', 'Markus Test', 'markus-konsult', 'Test',
+    new_id, 'WK-TEST', 'markus', 'Markus Test', 'markus-konsult', 'Test',
     100, 30, current_date + 30, '10:00', 'Test', 'rls-test@example.com', '12345678',
     'confirmed', true
   );
@@ -119,7 +119,7 @@ begin
     id, ref, staff_id, staff_name, service_id, service_name,
     price, duration, date, time, name, email, phone, status, journal_consent
   ) values (
-    test_id, 'TA-T4B', 'markus', 'Markus', 'markus-konsult', 'Test',
+    test_id, 'WK-T4B', 'markus', 'Markus', 'markus-konsult', 'Test',
     100, 30, test_date, '14:00', 'Test 4b', 'test4b@example.com', '111',
     'confirmed', false
   );
@@ -203,7 +203,7 @@ begin
     id, ref, staff_id, staff_name, service_id, service_name,
     price, duration, date, time, name, email, phone, status, journal_consent
   ) values (
-    new_id, 'TA-T4D', 'markus', 'Markus', 'markus-konsult', 'Test',
+    new_id, 'WK-T4D', 'markus', 'Markus', 'markus-konsult', 'Test',
     100, 30, test_date, '08:00', 'Test 4d', 'test4d@example.com', '222',
     'confirmed', false
   );
@@ -225,7 +225,7 @@ begin
     id, ref, staff_id, staff_name, service_id, service_name,
     price, duration, date, time, name, email, phone, status, journal_consent
   ) values (
-    test_id, 'TA-T4E', 'markus', 'Markus', 'markus-konsult', 'Test',
+    test_id, 'WK-T4E', 'markus', 'Markus', 'markus-konsult', 'Test',
     100, 30, test_date, '08:30', 'Test 4e', 'test4e@example.com', '333',
     'confirmed', false
   );
@@ -295,7 +295,7 @@ begin
     id, ref, staff_id, staff_name, service_id, service_name,
     price, duration, date, time, name, email, phone, status, journal_consent
   ) values (
-    base_id, 'TA-UNQ-1', 'markus', 'Markus', 'markus-konsult', 'Test', 100, 30,
+    base_id, 'WK-UNQ-1', 'markus', 'Markus', 'markus-konsult', 'Test', 100, 30,
     current_date + 60, '11:00', 'Slot A', 'rls-test-a@example.com', '11111111',
     'confirmed', true
   );
@@ -305,7 +305,7 @@ begin
       id, ref, staff_id, staff_name, service_id, service_name,
       price, duration, date, time, name, email, phone, status, journal_consent
     ) values (
-      base_id || '_dup', 'TA-UNQ-2', 'markus', 'Markus', 'markus-konsult', 'Test', 100, 30,
+      base_id || '_dup', 'WK-UNQ-2', 'markus', 'Markus', 'markus-konsult', 'Test', 100, 30,
       current_date + 60, '11:00', 'Slot B', 'rls-test-b@example.com', '22222222',
       'confirmed', true
     );

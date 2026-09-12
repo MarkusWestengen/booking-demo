@@ -5,7 +5,7 @@
 -- avbestille sin egen time fra avbestill.html — uten innlogging,
 -- og uten at anon får UPDATE-tilgang på bookings-tabellen.
 --
--- Kunden oppgir referansekode (TA-XXXX-XXXX) + e-post. RPC-en
+-- Kunden oppgir referansekode (WK-XXXX-XXXX) + e-post. RPC-en
 -- verifiserer paret, sjekker status + 24-timers-frist, og setter
 -- status = 'cancelled'.
 --
@@ -101,12 +101,12 @@ commit;
 --    -- Forvent: t
 --
 -- B) Uniform not_found (ingen oracle):
---    select public.cancel_booking_by_ref('TA-FINNES-IKKE', 'x@y.example');
+--    select public.cancel_booking_by_ref('WK-FINNES-IKKE', 'x@y.example');
 --    -- Forvent: {"ok":false,"reason":"not_found"}
 --
 -- C) Smoke-test med en ekte framtidig test-booking:
---    select public.cancel_booking_by_ref('TA-XXXX-XXXX', 'kunde@eksempel.example');
+--    select public.cancel_booking_by_ref('WK-XXXX-XXXX', 'kunde@eksempel.example');
 --    -- Forvent: {"ok":true,"ref":...,"date":...,"time":...,"staff_name":...}
---    -- Verifiser så: select status from public.bookings where ref='TA-XXXX-XXXX';
+--    -- Verifiser så: select status from public.bookings where ref='WK-XXXX-XXXX';
 --    --   → 'cancelled'
 -- ============================================================

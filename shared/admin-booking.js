@@ -39,7 +39,7 @@
         var nowIso = new Date().toISOString();
         var booking = {
           id: 'bk_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-          ref: 'TA-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Date.now().toString().slice(-4),
+          ref: 'WK-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Date.now().toString().slice(-4),
           staffId: payload.staffId, staffName: staff.name,
           serviceId: service.id, serviceName: service.name,
           price: service.price, duration: service.duration,

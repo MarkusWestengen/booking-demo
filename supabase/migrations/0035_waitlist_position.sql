@@ -68,7 +68,7 @@ commit;
 
 -- ============================================================
 -- Verifikasjon (kjør manuelt etter apply):
---   select public.get_waitlist_position('TA-WL-XXXX-XXXX');
+--   select public.get_waitlist_position('WK-WL-XXXX-XXXX');
 --   → heltall (1 = fremst i sitt segment), eller NULL hvis ukjent ref.
 --
 -- Som anon (anon-nøkkel) via RPC:

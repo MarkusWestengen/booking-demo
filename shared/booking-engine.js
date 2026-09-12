@@ -828,7 +828,7 @@
         var nowIso = new Date().toISOString();
         var booking = {
           id: generateBookingId(),
-          ref: 'TA-' + (Math.random().toString(36).slice(2, 6)).toUpperCase() + '-' + Date.now().toString().slice(-4),
+          ref: 'WK-' + (Math.random().toString(36).slice(2, 6)).toUpperCase() + '-' + Date.now().toString().slice(-4),
           // Ufordelte "Markus' terapeuter"-bookinger lagres med staff_id
           // NULL; admin tildeler en navngitt terapeut i booking-admin.
           // staff_name beholdes som kunde-vendt placeholder.
