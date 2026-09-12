@@ -3044,3 +3044,27 @@ versjonen.
 
 Repoet: alle fem verify-skript grønne, og `git grep` finner ingen av
 klassene utenom denne rapportens maskerte sitater.
+
+## 6 — Push og live
+
+Commits `6a239d0` (auth), `baf2e84` (opprydding), `e792da5` (denne
+rapporten), pushet til `master`. Før push: `supabase migration list`
+78 lokale = 78 remote, `db push --dry-run` «Remote database is up to
+date».
+
+| Kontroll på live | Resultat |
+|---|---|
+| `shared/auth.js` | `scope: 'local'` i begge kallene. De to gjenværende «`signOut()`» er kommentarer |
+| `ansatt.html`, `booking-admin.html`, `innstillinger.html`, `kalender.html` | Null `signOut()` uten argument |
+| `sw.js` | `shell-v85` |
+| `tjenester.html` | Null `'t**-'` |
+| Cache-headere på `shared/auth.js`, `sw.js`, admin-HTML | `Cache-Control: public, max-age=0, must-revalidate` |
+
+Den siste raden avgjør sidefunnet over: Vercel lar ikke nettleseren bruke
+en lagret kopi uten å revalidere, så `cache.add()` i `sw.js` får den nye
+fila. Problemet var testserverens manglende header, ikke live.
+
+**Står igjen:** én admin-sesjon (`332bb85b…`) opprettet da den ugyldige
+prøven på 8765 lastet `innstillinger.html` på nytt. Ikke logget ut:
+fanen på den origin-en kjørte gammel kode, og en utlogging derfra ville
+vært global. Den utløper av seg selv.
