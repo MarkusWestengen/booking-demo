@@ -16,7 +16,7 @@
 -- er notify_to = 'post@westengenklinikk.example', den oppdiktede
 -- klinikkens egen adresse. Den er riktig og røres ikke.
 --
--- Samme metode som 0074: definisjonen leses ut av katalogen, endres
+-- Samme fremgangsmåte som 0074: definisjonen leses ut av katalogen, endres
 -- i minnet, og kjøres tilbake. Ingen funksjonskropp er skrevet for
 -- hånd, og ingenting annet i kroppene er rørt.
 --

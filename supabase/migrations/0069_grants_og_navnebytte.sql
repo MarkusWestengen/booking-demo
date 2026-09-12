@@ -139,7 +139,7 @@ update public.staff_members
 
 update public.staff_members
    set name = 'Markus'' terapeuter',
-       role = 'Opplært av Markus selv'
+       role = 'Terapeut-team'
  where staff_id = 'terapeut';
 
 update public.bookings

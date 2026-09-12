@@ -44,9 +44,9 @@ Demoen forutsetter et eget, tomt prosjekt.
 `behandlere.html`, `meldinger.html`, `dokumenter.html`, `stengte-tider.html`,
 `audit-logg.html`, `innstillinger.html`, `set-password.html`.
 
-**Ikke med.** Klinikkens markedsføringssider, forside med filosofi og
-kundehistorier, ansattoversikt, behandlingsmetode og nettbutikk, er fjernet.
-Demoen skal vise systemet, ikke kulissen.
+**Ikke med.** Markedsføringssidene og nettbutikken demoen ble laget ut av er
+fjernet, og det samme er tekst som beskrev en behandlingsmåte, opplæring,
+erfaring eller resultater. Demoen skal vise systemet, ikke kulissen.
 
 ---
 
@@ -186,7 +186,7 @@ select public.demo_reset();
 
 Alle personer i demoen er oppdiktet. E-postadressene ligger på `.example`, et
 toppdomene som per RFC 2606 aldri kan registreres. Telefonnumrene er varianter
-av `400 00 000`. Adressen `Bregneveien 12, 0283 Oslo` er en plassholder.
+av `400 00 000`. Adressen `Eksempelveien 12, 0000 Oslo` er en plassholder.
 
 Nettstedet er merket permanent: en pille i headeren på hver side, en linje i
 bunnteksten, og et varsel på kontakt-, vilkårs- og personvernsiden. `robots.txt` avviser

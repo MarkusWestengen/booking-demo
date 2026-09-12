@@ -1327,7 +1327,7 @@ grundighet.» — men dette er din tekst, så si hva den skal være.
 
 ### Privat e-postadresse i `send_booking_email`
 
-    notify_to text := 'm***************n@gmail.com';
+    notify_to text := '<privat gmail-adresse, maskert>';
 
 **Lesbart for publikum: nei.** Verken `anon` eller `authenticated` kan
 nå funksjonskropper gjennom PostgREST. Men adressen er mottaker for
@@ -1345,11 +1345,11 @@ vil ha varsler på. Din avgjørelse.
 `send_booking_email`, `send_document_email` og
 `process_pending_review_emails` har alle
 
-    Westengen Klinikk · Storgata 1, 0155 Oslo
+    Westengen Klinikk · <ekte gateadresse i Oslo, maskert>
 
 og `send_document_email` i tillegg `+47 400 00 0**`.
 
-Storgata 1 i Oslo er en ekte adresse som tilhører noen andre. Den står i
+Adressen er en ekte adresse i Oslo som tilhører noen andre. Den står i
 bunnteksten på e-post fra en oppdiktet klinikk. Telefonnummeret ser
 oppdiktet ut, men ligger i et gyldig norsk mobilnummerområde.
 

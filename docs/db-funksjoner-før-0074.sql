@@ -22,6 +22,10 @@
 --   search_path   public, extensions
 --   overloads     ingen, én oid per navn
 --
+-- MASKERING (2026-09-12)
+--   Bunnteksten hadde ekte gateadresser i Oslo (to ulike). Den staar som
+--   REDIGERT_EKTE_ADRESSE her, og byttes i produksjon av 0078.
+--
 -- ============================================================
 -- EN LINJE ER MASKERT I DENNE FILA
 -- ------------------------------------------------------------
@@ -108,7 +112,7 @@ begin
       || '<p style="margin: 16px 0 0 0; font-size: 12px; color: #888; word-break: break-all;">'
       || 'Eller kopier denne lenken: ' || review_url || '</p>'
       || '</div>'
-      || '<p style="margin-top: 28px; font-size: 12px; color: #999;">Westengen Klinikk · Storgata 1, 0155 Oslo</p>'
+      || '<p style="margin-top: 28px; font-size: 12px; color: #999;">Westengen Klinikk · REDIGERT_EKTE_ADRESSE</p>'
       || '</div></body></html>';
 
     perform net.http_post(
@@ -200,7 +204,7 @@ begin
       ||     '<tr><td width="110" style="padding:12px 16px 12px 0;border-bottom:1px solid #ECE6DA;font-family:Courier,monospace;font-size:11px;letter-spacing:0.07em;color:#76776F;vertical-align:top;">PRIS</td>'
       ||       '<td style="padding:12px 0;border-bottom:1px solid #ECE6DA;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#15191A;">' || price_str || '</td></tr>'
       ||     '<tr><td width="110" style="padding:12px 16px 12px 0;border-bottom:1px solid #ECE6DA;font-family:Courier,monospace;font-size:11px;letter-spacing:0.07em;color:#76776F;vertical-align:top;">STED</td>'
-      ||       '<td style="padding:12px 0;border-bottom:1px solid #ECE6DA;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#15191A;">Storgata 1, 0155 Oslo</td></tr>'
+      ||       '<td style="padding:12px 0;border-bottom:1px solid #ECE6DA;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#15191A;">REDIGERT_EKTE_ADRESSE</td></tr>'
       ||     '<tr><td width="110" style="padding:12px 16px 12px 0;font-family:Courier,monospace;font-size:11px;letter-spacing:0.07em;color:#76776F;vertical-align:top;">REFERANSE</td>'
       ||       '<td style="padding:12px 0;font-family:Courier,monospace;font-size:14px;color:#15191A;">' || e_ref || '</td></tr>'
       ||   '</table>'
@@ -217,7 +221,7 @@ begin
       ||   '</div>'
       || '</td></tr>'
       || '<tr><td align="center" bgcolor="#15191A" style="background-color:#15191A;padding:26px 40px;">'
-      ||   '<div style="font-family:Courier,monospace;font-size:10px;letter-spacing:0.14em;color:#5f6058;">WESTENGEN KLINIKK · ROSENBORGGATA 8, 0356 OSLO · +47 400 00 000</div>'
+      ||   '<div style="font-family:Courier,monospace;font-size:10px;letter-spacing:0.14em;color:#5f6058;">WESTENGEN KLINIKK · REDIGERT_EKTE_ADRESSE · +47 400 00 000</div>'
       || '</td></tr>'
       || '</table></td></tr></table></body></html>';
 
@@ -440,7 +444,7 @@ begin
     || '</td></tr>'
     || '<tr><td align="center" bgcolor="#15191A" style="background-color:#15191A;padding:30px 40px;">'
     ||   '<div style="font-family:Georgia,serif;font-size:15px;letter-spacing:0.20em;color:#FAF7F1;">WESTENGEN KLINIKK</div>'
-    ||   '<div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.7;color:#8f9089;padding-top:9px;">Storgata 1, 0155 Oslo<br>+47 400 00 000</div>'
+    ||   '<div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.7;color:#8f9089;padding-top:9px;">REDIGERT_EKTE_ADRESSE<br>+47 400 00 000</div>'
     || '</td></tr>'
     || '</table></td></tr></table></body></html>';
 

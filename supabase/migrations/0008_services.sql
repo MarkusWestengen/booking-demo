@@ -175,7 +175,7 @@ create policy "staff_services: admin update"
 -- ============================================================
 insert into public.services (slug, name, description, duration_min, price_nok, sort_order, is_active)
 values
-  ('markus-konsult', 'Konsultasjon (Markus)',           'Førstegangsvurdering med Markus. Grundig kartlegging av plager.',          30, 4000, 10, true),
+  ('markus-konsult', 'Konsultasjon (Markus)',           'Første time hos Markus. Oppdiktet tjeneste i demoen.',                     30, 4000, 10, true),
   ('markus-videre',  'Videre behandling (Markus)',      'Oppfølgingstime etter første konsultasjon.',                            30, 3000, 20, true),
   ('ter-konsult', 'Konsultasjon (terapeut)',      'Førstegangsvurdering med en av Markus'' terapeuter.',                       30, 2000, 30, true),
   ('ter-videre',  'Videre behandling (terapeut)', 'Oppfølgingstime etter første konsultasjon.',                            30, 1500, 40, true)

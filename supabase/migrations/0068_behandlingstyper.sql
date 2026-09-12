@@ -60,19 +60,19 @@ insert into public.services
   (slug, name, description, duration_min, price_nok, sort_order, is_active, is_public)
 values
   ('forstegangsvurdering', 'Førstegangsvurdering',
-   'Full gjennomgang av plagen: sykehistorie, bevegelsestester og en plan for videre forløp. Sett av en time.',
+   'Første time for nye kunder. Oppdiktet tjeneste i demoen.',
    60, 1290, 10, true, true),
 
   ('oppfolging', 'Oppfølgingstime',
-   'Videre behandling etter førstegangsvurderingen, med justering av planen underveis.',
+   'For kunder som har vært her før. Oppdiktet tjeneste i demoen.',
    30, 790, 20, true, true),
 
   ('trykkbolge', 'Trykkbølgebehandling',
-   'Fokusert behandling av senefeste og muskulatur som ikke har gitt seg av hvile alene.',
+   'Oppdiktet tjeneste i demoen.',
    30, 690, 30, true, true),
 
   ('bevegelsesanalyse', 'Bevegelsesanalyse',
-   'Video- og styrketesting for deg som vil vite hvorfor plagen kommer tilbake. Avsluttes med et treningsopplegg.',
+   'Oppdiktet tjeneste i demoen.',
    60, 1490, 40, true, true)
 on conflict (slug) do update
   set name         = excluded.name,
@@ -229,9 +229,9 @@ begin
   )
   select
     b.id, b.email, b.phone, b.staff_id, b.staff_name,
-    'Undersøkelse av ' || lower(b.notes) || '. Redusert bevegelighet på '
-      || 'motsatt side, sannsynlig kompensasjon. Behandlet mykvev og '
-      || 'ledd, ga to øvelser til hjemmebruk. Ny vurdering om to uker.',
+    'Demonotat for ' || lower(b.notes) || '. Innholdet er konstruert '
+      || 'for demonstrasjonen og gjelder ingen virkelig pasient. '
+      || 'Notatet beskriver ingen behandling.',
     b.date + time '16:00',
     true
   from public.bookings b
@@ -249,20 +249,20 @@ begin
      'Kan jeg flytte timen min på torsdag til uka etter? Jeg er bortreist.',
      'read',     now() - interval '1 day',    true),
     ('Solveig Bakkan', 'solveig.bakkan@eksempel.example',
-     'Takk for sist. Kjeven er mye bedre. Trenger jeg flere timer, eller '
-     || 'holder det med øvelsene?',
+     'Hei. Har dere ledig time tidlig på morgenen i løpet av '
+     || 'de neste ukene?',
      'answered', now() - interval '4 days',   true);
 
   insert into public.reviews (name, rating, body, status, created_at, is_demo_seed)
   values
-    ('Sindre K.',  5, 'Fant årsaken på første time etter to sesonger med '
-                   || 'ryggsmerter. Grundig og rolig gjennomgang.',
+    ('Sindre K.',  5, 'Oppdiktet anmeldelse. Teksten er fyll, slik at '
+                   || 'moderasjonskøen i adminpanelet ikke står tom.',
      'approved', now() - interval '9 days',  true),
-    ('Amalie H.',  5, 'Hodepinen jeg trodde hørte til jobben er nesten borte. '
-                   || 'Fikk konkrete øvelser og en forklaring jeg forsto.',
+    ('Amalie H.',  5, 'Oppdiktet anmeldelse. Ingen ekte kunde står bak '
+                   || 'den, og den beskriver ingen behandling.',
      'approved', now() - interval '21 days', true),
-    ('Terje Ø.',   4, 'God hjelp med hoften. Litt vanskelig å få time på '
-                   || 'ettermiddagen, men verdt ventingen.',
+    ('Terje Ø.',   4, 'Oppdiktet anmeldelse til vurdering, så køen i '
+                   || 'adminpanelet har noe å vise.',
      'pending',  now() - interval '2 days',  true);
 
   insert into public.waitlist (

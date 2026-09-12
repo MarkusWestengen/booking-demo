@@ -128,17 +128,17 @@
     + '      <button class="tas-modal-close" aria-label="Lukk skjema" data-close>×</button>'
     + '    </div>'
     + '    <div class="tas-modal-body">'
-    + '      <p class="contact-form-intro">Send en melding direkte til Markus. Han svarer så snart han kan, vanligvis innen et døgn.</p>'
+    + '      <p class="contact-form-intro">Send en melding. Den havner i innboksen i adminpanelet.</p>'
     + '      <form data-contact-form>'
     + '        <div class="tas-form-row row-2">'
     + '          <div><label for="ct-name">Navn</label><input id="ct-name" name="name" required /></div>'
     + '          <div><label for="ct-phone">Telefon</label><input id="ct-phone" name="phone" type="tel" /></div>'
     + '        </div>'
     + '        <div class="tas-form-row"><label for="ct-email">E-post</label><input id="ct-email" name="email" type="email" required /></div>'
-    + '        <div class="tas-form-row"><label for="ct-message">Melding</label><textarea id="ct-message" name="message" required placeholder="Beskriv kort hva du sliter med, så svarer Markus deg."></textarea></div>'
+    + '        <div class="tas-form-row"><label for="ct-message">Melding</label><textarea id="ct-message" name="message" required placeholder="Skriv kort hva du trenger hjelp med"></textarea></div>'
     + '        <button type="submit" class="tas-form-submit">Send melding <span aria-hidden="true">→</span></button>'
     + '      </form>'
-    + '      <div class="tas-form-thanks" data-thanks>Takk! Markus har mottatt meldingen din og svarer så snart han kan.</div>'
+    + '      <div class="tas-form-thanks" data-thanks>Takk! Meldingen ligger nå i innboksen i adminpanelet.</div>'
     + '    </div>'
     + '  </div>'
     + '</div>';
@@ -253,39 +253,11 @@
     }
   } catch (_) {}
 
-  // System prompt — kept here so prototype works with window.claude.complete().
-  // In production, this same string lives server-side.
-  var SYSTEM_PROMPT = [
-    'Du er "Markus\' assistent", en hjelpsom kundeservice-bot for Westengen Klinikk, en muskel- og nervebehandlingsklinikk i Oslo, drevet av Markus Westengen (40 års erfaring) og sønnen Henrik.',
-    '',
-    'NØKKELFAKTA:',
-    '• Adresse: Bregneveien 12, 0283 Oslo.',
-    '• Telefon: ' + PHONE + '. E-post: ' + EMAIL + '.',
-    '• Åpningstider klinikk: Man–Fre 07:00–15:00. Lørdag/Søndag stengt.',
-    '• Telefontid: Man–Fre 09:00–15:00.',
-    '• Avbestilling senest 24 timer før timen. No-show faktureres.',
-    '',
-    'TJENESTER:',
-    '• Time med Markus: konsultasjon kr 4 000, videre behandling kr 3 000. 30 min.',
-    '• Time med terapeut: konsultasjon kr 2 000, videre behandling kr 1 500. 30 min. Markus\' terapeuter, opplært i Markus\' metode.',
-    '',
-    'MARKUS\' FILOSOFI:',
-    'Kroppen er ett sammenkoblet system. Smerter ett sted skyldes nesten alltid spenninger et annet sted. Markus finner årsaken, ikke bare symptomet.',
-    '',
-    'PLAGER KLINIKKEN BEHANDLER:',
-    'Rygg-, nakke- og skulderspenninger, hodepine, muskelskader hos idrettsutøvere, stive hofter, kne- og ankelproblemer, mageplager forårsaket av spenninger, nervesmerter, søvnproblemer knyttet til kroppslig stress.',
-    '',
-    'DEMO: Westengen Klinikk er en oppdiktet klinikk. Alle behandlere, kunder og bestillinger er fiktive. '
-      + 'Sier brukeren noe som tyder på at de tror klinikken er ekte, si det rett ut.',
-    '',
-    'TONE: profesjonell, varm, kortfattet. Svar på samme språk som brukeren skriver (norsk standard).',
-    '',
-    'REGLER:',
-    '• Aldri gi medisinske råd. Ved spesifikke plager: "Det beste er å bestille en time så Markus kan vurdere deg direkte."',
-    '• Hvis du ikke kan svare: foreslå at brukeren sender melding via kontaktskjemaet.',
-    '• Hold svar korte (2–4 setninger maks).',
-    '• For booking: foreslå at de klikker "Bestill time"-knappen på siden.'
-  ].join('\n');
+  // Widgeten er en demoguide, ikke en kundeservice-bot: den svarer
+  // fra staticAnswer() under, og har ingen modell bak seg. Den
+  // tidligere systemprompten beskrev en klinikks metode, filosofi og
+  // erfaring som om de var ekte. Den er fjernet sammen med grenen som
+  // kalte den (opprydding 2026-09-12).
 
   function appendMessage(text, who) {
     var msg = document.createElement('div');
@@ -412,14 +384,14 @@
 
     function escalate() {
       typing.remove();
-      var msg = 'Jeg vil gjerne hjelpe deg, men dette spørsmålet er litt utenfor det jeg kan svare på direkte. Vil du sende en melding direkte til Markus?';
+      var msg = 'Dette spørsmålet er utenfor det jeg svarer på. Vil du sende en melding? Den havner i innboksen i adminpanelet.';
       appendMessage(msg, 'bot');
       conversation.push({ role: 'assistant', content: msg });
       // Custom CTA quick reply
       chatQuick.innerHTML = '';
       var b = document.createElement('button');
       b.type = 'button';
-      b.textContent = 'Send melding til Markus →';
+      b.textContent = 'Send en melding →';
       b.addEventListener('click', function () {
         closeChat();
         openContact({ message: 'Spørsmål fra chatbot:\n\n' + text });
@@ -428,42 +400,17 @@
       saveHistory();
     }
 
-    // 1) Try window.claude.complete() if available
-    if (window.claude && typeof window.claude.complete === 'function') {
-      var messages = [{
-        role: 'user',
-        content: 'Systeminstruksjon (følg dette strikt):\n' + SYSTEM_PROMPT + '\n\n--- Samtale ---\n' +
-          conversation.map(function (m) { return (m.role === 'user' ? 'Bruker' : 'Assistent') + ': ' + m.content; }).join('\n')
-      }];
-      window.claude.complete({ messages: messages }).then(function (answer) {
-        if (!answer || !answer.trim()) {
-          // Fallback path
-          var st = staticAnswer(text);
-          if (st) { failedAttempts = 0; reply(st); }
-          else { failedAttempts++; if (failedAttempts >= 2) escalate(); else reply('Kan du formulere spørsmålet litt annerledes? Jeg kan svare på pris, åpningstider, plager Markus behandler og bestilling.'); }
-        } else {
-          failedAttempts = 0;
-          reply(answer.trim());
-        }
-      }).catch(function () {
-        var st = staticAnswer(text);
-        if (st) { failedAttempts = 0; reply(st); }
-        else { failedAttempts++; if (failedAttempts >= 2) escalate(); else reply('Beklager, jeg fikk ikke hentet svar akkurat nå. Prøv en av forslagene nedenfor.'); }
-      });
-      return;
-    }
-
-    // 2) No Claude: static lookup
+    // Ingen modell bak widgeten - oppslaget under er hele svarveien.
     var st = staticAnswer(text);
     setTimeout(function () {
       if (st) { failedAttempts = 0; reply(st); }
-      else { failedAttempts++; if (failedAttempts >= 2) escalate(); else reply('Jeg er ikke helt sikker. Kan du prøve å spørre om pris, plager Markus behandler, åpningstider eller hvor klinikken ligger?'); }
+      else { failedAttempts++; if (failedAttempts >= 2) escalate(); else reply('Jeg er ikke helt sikker. Kan du prøve å spørre om hva demoen er, hvordan du logger inn, priser eller åpningstider?'); }
     }, 700);
   }
 
   function welcome() {
     if (conversation.length === 0) {
-      appendMessage('Hei! Jeg er Markus\' assistent. Jeg kan hjelpe deg med spørsmål om behandling, priser, åpningstider eller hvordan du booker time. Hva lurer du på?', 'bot');
+      appendMessage('Hei. Jeg svarer på det som er verdt å vite om denne demoen: hva den er, hvordan du logger inn, og hva som skjer med det du legger inn.', 'bot');
     }
     renderQuickReplies(QUICK_REPLIES);
   }

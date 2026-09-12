@@ -26,6 +26,11 @@ const MOENSTRE = [
   [/tomsarena|toms-arena|toms\.arena/gi, 'gammelt prosjektnavn'],
   // Norske telefonnumre som ikke er plassholderen 400 00 000.
   [/\+47[ ]?(?!400[ ]?00[ ]?000)\d{2}[ ]?\d{2}[ ]?\d{2}[ ]?\d{2}/g, 'telefonnummer'],
+  // Norske gateadresser. Plassholderen er Eksempelveien 12, 0000 Oslo:
+  // gatenavnet finnes ikke i Kartverkets adresseregister, og 0000 er
+  // ikke et postnummer. Tidligere plassholdere var ekte adresser.
+  [/\b(?!Eksempelveien)[A-ZÆØÅ][a-zæøå]+(?:gata|gaten|veien|vegen|gate|vei) \d+[A-Za-z]?,? \d{4}\b/g, 'gateadresse'],
+  [/\b(?!EKSEMPELVEIEN)[A-ZÆØÅ]{3,}(?:GATA|GATEN|VEIEN|VEGEN) \d+,? \d{4}\b/g, 'gateadresse'],
   // Adresser paa LAN.
   [/\b(?:192\.168|10\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01]))\.\d{1,3}\.\d{1,3}\b/g, 'LAN-adresse'],
   // Hemmeligheter.

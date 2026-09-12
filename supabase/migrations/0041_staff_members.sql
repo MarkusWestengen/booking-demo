@@ -115,14 +115,14 @@ create policy "staff_members update: admin"
 -- on conflict do nothing → re-apply bevarer admin-redigeringer.
 insert into public.staff_members (staff_id, name, role, bio, bookable, is_pool, aktiv, sortering) values
   ('markus',     'Markus Westengen',   'Behandler', 'Timen settes opp hos Markus. Oppdiktet behandler i en oppdiktet klinikk.', true,  false, true, 10),
-  ('terapeut', 'Markus'' terapeuter', 'Opplært av Markus selv',            'Vi tildeler en av våre erfarne terapeuter, alle opplært direkte i Markus'' metoder. Samme filosofi, samme grundighet.', true,  false, true, 20),
-  ('sofie',    'Sofie Aune',       'Daglig leder',                    'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 30),
-  ('henrik',   'Henrik Dal',       'Leder for produktutvikling',      'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 40),
-  ('jonas',    'Jonas Riis',       'Markedssjef',                     'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 50),
-  ('amina',    'Amina Nour',       'Trainee-koordinator',             'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 60),
-  ('nora',     'Nora Ellingsen',   'Pasientkoordinator',              'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 65),
-  ('lena',     'Lena Vik',         'Trainee',                         'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 70),
-  ('petter',   'Petter Holm',      'Trainee',                         'Opplært direkte av Markus. Samme metodikk, samme grundighet.', false, true, true, 80)
+  ('terapeut', 'Markus'' terapeuter', 'Terapeut-team',            'Timen settes opp hos en av klinikkens terapeuter. Oppdiktet team i en oppdiktet klinikk.', true,  false, true, 20),
+  ('sofie',    'Sofie Aune',       'Daglig leder',                    'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 30),
+  ('henrik',   'Henrik Dal',       'Leder for produktutvikling',      'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 40),
+  ('jonas',    'Jonas Riis',       'Markedssjef',                     'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 50),
+  ('amina',    'Amina Nour',       'Trainee-koordinator',             'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 60),
+  ('nora',     'Nora Ellingsen',   'Pasientkoordinator',              'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 65),
+  ('lena',     'Lena Vik',         'Trainee',                         'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 70),
+  ('petter',   'Petter Holm',      'Trainee',                         'Oppdiktet terapeut i en oppdiktet klinikk.', false, true, true, 80)
 on conflict (staff_id) do nothing;
 
 commit;

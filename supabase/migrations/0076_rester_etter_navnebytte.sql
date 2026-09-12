@@ -59,7 +59,7 @@ begin;
 -- Erstatningen går mot det som faktisk står i radene. Genitiven må
 -- tas først: bytter vi «Erik» før «Eriks», blir «Eriks» til
 -- «Markuss». Norsk genitiv av et navn som ender på s er apostrof
--- alene — «Markus' metoder», ikke «Markus's».
+-- alene — «Markus'», ikke «Markus's».
 do $do$
 declare
   n int;
@@ -230,7 +230,7 @@ commit;
 --
 -- A) Biografiene:
 --      select staff_id, bio from public.staff_members order by sortering;
---    -- Forvent: ingen «Erik», «Markus' metoder» med apostrof.
+--    -- Forvent: ingen «Erik», genitiv skrevet «Markus'» med apostrof.
 --
 -- B) Kolonnekommentaren:
 --      select col_description('public.staff_members'::regclass, attnum)

@@ -225,7 +225,7 @@
       wrap.appendChild(el('h3', { class: 'tabf-h' }, opts.skipConsent
         ? 'Behandler'
         : t('booking.step1.heading', 'Hvem vil du bestille time hos?')));
-      wrap.appendChild(el('p', { class: 'tabf-sub' }, t('booking.step1.intro', 'To veier til samme grundige behandling. Velg det som passer deg best.')));
+      wrap.appendChild(el('p', { class: 'tabf-sub' }, t('booking.step1.intro', 'To valg i demoen: Markus selv, eller terapeut-teamet.')));
       var grid = el('div', { class: 'tabf-staff-grid' });
       E.STAFF.forEach(function (s) {
         // bookable:false → staff vises ikke som kort i kunde-flyten (typisk
@@ -243,10 +243,6 @@
                          .map(function (w) { return w.charAt(0).toUpperCase(); })
                          .join('') || '·';
         var avatar = lagAvatar(s.id, initials);
-        var tenureNote = s.id === 'terapeut'
-          ? el('p', { class: 'tabf-staff-tenure', style: 'font-size:13px; opacity:.7; font-style:italic; margin:8px 0 0;' },
-              t('booking.step1.therapist_tenure', 'Markus\' erfarne terapeuter har vært tilknyttet klinikken i minst 2 år.'))
-          : null;
         var card = el('button', {
           type: 'button',
           class: 'tabf-staff-card' + (state.staffId === s.id ? ' selected' : ''),
@@ -260,7 +256,6 @@
             ])
           ]),
           el('p', { class: 'tabf-staff-bio' }, t('booking.staff.' + s.id + '.bio', s.bio)),
-          tenureNote,
           el('div', { class: 'tabf-staff-foot' }, [
             el('span', { class: 'tabf-staff-cta' }, t('booking.step1.choose', 'Velg →'))
           ])
@@ -774,7 +769,7 @@
         el('div', null, [el('dt', null, t('booking.confirm.sum_behandler', 'Behandler')), el('dd', null, b.staffName)]),
         el('div', null, [el('dt', null, t('booking.confirm.sum_service', 'Tjeneste')), el('dd', null, b.serviceName)]),
         el('div', null, [el('dt', null, t('booking.confirm.sum_when', 'Når')), el('dd', null, E.formatDateLong(b.date) + ' ' + t('booking.confirm.sum_at', 'kl.') + ' ' + b.time)]),
-        el('div', null, [el('dt', null, t('booking.confirm.sum_where', 'Hvor')), el('dd', null, t('booking.confirm.sum_where_val', 'Bregneveien 12, 0283 Oslo'))]),
+        el('div', null, [el('dt', null, t('booking.confirm.sum_where', 'Hvor')), el('dd', null, t('booking.confirm.sum_where_val', 'Eksempelveien 12, 0000 Oslo'))]),
         el('div', null, [el('dt', null, t('booking.confirm.sum_price', 'Pris')), el('dd', null, E.formatPrice(b.price))])
       ]);
       wrap.appendChild(sum);
@@ -840,7 +835,7 @@
         'DTSTART:' + fmt(start),
         'DTEND:' + fmt(end),
         'SUMMARY:Westengen Klinikk - ' + b.serviceName + ' med ' + b.staffName,
-        'LOCATION:Bregneveien 12\\, 0283 Oslo',
+        'LOCATION:Eksempelveien 12\\, 0000 Oslo',
         'DESCRIPTION:Referanse: ' + b.ref + '. Avbestilling senest 24 timer før.',
         'END:VEVENT','END:VCALENDAR'
       ].join('\r\n');
