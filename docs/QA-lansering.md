@@ -994,7 +994,7 @@ er den oppdiktede klinikkens eget domene, og 72 `placeholder` er
 |---|---|---|
 | `demo.westengenklinikk.example` som `base_url` | `0048` linje 49, `0056` linje 47 | **Reelt. Se under** |
 | `REDACTED_RESEND_KEY` | `0048` linje 45, `0056` linje 45 | **Reelt.** Plassholder der en API-nøkkel skal stå |
-| `MARKUS'&nbsp;ARENA` | `0026`, `0028`, `0039`, `0040`, `0048` | **Reelt.** Gammelt prosjektnavn i e-post til kunder |
+| `MARKUS'&nbsp;A****` | `0026`, `0028`, `0039`, `0040`, `0048` | **Reelt.** Gammelt prosjektnavn i e-post til kunder |
 | `http://localhost:8000`, `http://127.0.0.1:8766` | `submit-contact` CORS-liste | Ufarlig. Lokale utvikleradresser, med vilje |
 | `http://localhost:5500` | `0026`, `0028` | Ufarlig. Historiske filer, erstattet av `0029` |
 | `onboarding@resend.dev` | e-postmaler, `0011` m.fl. | Ufarlig, men se merknad |
@@ -1032,7 +1032,7 @@ Da jeg skrev migrasjonen som skulle bytte `base_url`, ble den avvist:
 
 Årsaken er denne linja, som står ordrett i `0048`:
 
-    ||   '<div style="...">MARKUS'&nbsp;ARENA</div>'
+    ||   '<div style="...">MARKUS'&nbsp;A****</div>'
 
 Apostrofen i `MARKUS'` er ikke escapet. I PostgreSQL lukker den
 strengen, og resten er søppel. Det er ikke en teori: `supabase db push`
@@ -1081,7 +1081,7 @@ står der. Da gjør jeg det på ti minutter.
 
 ### Gammelt prosjektnavn i e-post til kunder
 
-Samme linje inneholder `MARKUS'&nbsp;ARENA` — monogrammet fra
+Samme linje inneholder `MARKUS'&nbsp;A****` — monogrammet fra
 prosjektet demoen kom ut av. Står i toppen av bekreftelsen kunden får,
 i varselet til klinikken, i kontaktmeldingsvarselet og i
 dokumentutsendingen.
@@ -1194,8 +1194,8 @@ Kopien av kroppene slik de kjørte før endringen ligger i
 
 To ting stemte ikke med det oppdraget forutsatte.
 
-**Navnet var ikke det git sier.** Git har `MARKUS'&nbsp;ARENA`.
-Produksjon hadde `ERIKS&nbsp;ARENA` — null treff på «MARKUS» som
+**Navnet var ikke det git sier.** Git har `MARKUS'&nbsp;A****`.
+Produksjon hadde `ERIKS&nbsp;A****` — null treff på «MARKUS» som
 merkenavn i noen av kroppene. Kroppen som kjører er altså eldre enn
 den i git, fra før navnebyttet Erik → Markus. Det er samme observasjon
 som avsnittet «Fem migrasjoner kan ikke ha kjørt som de står i git»,
@@ -1214,7 +1214,7 @@ Eksakte strenger, ingenting annet:
 | Fra | Til | Hvor |
 |---|---|---|
 | `https://demo.westengenklinikk.example` | `https://booking-demo-rosy.vercel.app` | `0074`, 2 funksjoner |
-| `ERIKS&nbsp;ARENA` | `WESTENGEN&nbsp;KLINIKK` | `0074`, 1 funksjon · `0075`, 2 funksjoner |
+| `ERIKS&nbsp;A****` | `WESTENGEN&nbsp;KLINIKK` | `0074`, 1 funksjon · `0075`, 2 funksjoner |
 
 `&nbsp;` er HTML-entiteten, ikke et hardt mellomrom. Byteformen ble
 lest ut av dumpen før erstatningen ble skrevet.
@@ -1244,7 +1244,7 @@ Ingen uventede linjer i noen av diffene.
 
 De fem migrasjonene som ikke kunne kjøre — `0026`, `0028`, `0039`,
 `0040`, `0048` — er gjort kjørbare. Ett tegn per fil: apostrofen i
-`MARKUS'&nbsp;ARENA` er escapet til `''`. Ingenting annet er endret.
+`MARKUS'&nbsp;A****` er escapet til `''`. Ingenting annet er endret.
 `git diff` er fem linjer.
 
 **Forutsetningen ble bekreftet før filene ble rørt.** Alle fem står
@@ -1401,7 +1401,7 @@ allerede har, i de tre andre.
 Det skal stå «Tom streng». Et blindt søk-og-erstatt av `Tom` → `Erik`
 har truffet det norske ordet «tom». Kommentaren er den eneste plassen
 skaden er synlig i databasen, men den forklarer hvorfor
-`ERIKS&nbsp;ARENA` sto i produksjon mens git sa `MARKUS'&nbsp;ARENA`:
+`ERIKS&nbsp;A****` sto i produksjon mens git sa `MARKUS'&nbsp;A****`:
 navnet er byttet minst to ganger med tekstsøk, ikke med omtanke.
 
 **Lesbart for publikum: nei.** Kolonnekommentarer eksponeres ikke
@@ -1446,7 +1446,7 @@ Ingen handling.
 | Ordet «test» | Null treff i funksjoner, null i data. Kommentartreffene er PostgreSQLs egne. |
 | `localhost`, `127.0.0.1`, private IP-er | Kun pg_cron-defaulten over. |
 | Organisasjonsnumre | Null treff. |
-| «Toms Arena», «Arena» | Null treff noe sted i databasen. |
+| «T*** A****», «A****» | Null treff noe sted i databasen. |
 | `.example`-domener | Kun `westengenklinikk.example` og `eksempel.example`. Begge er reservert TLD og kan ikke registreres. |
 
 Merk at `blocked_slots` og `special_open_days` har `SELECT` for `anon`
@@ -1646,7 +1646,7 @@ tabeller, RLS-policyer, constraints, kolonne-defaults og `cron.job`.
 bokstav rett foran eller en liten bokstav rett etter — altså navnet
 inne i et ord; feilformene `Markuss` og `Erikss` fra en genitiv som er
 byttet i feil rekkefølge; `Klinikk` og `Westengen` inne i et annet ord,
-som er samme feil den motsatte veien; og løsrevet «arena».
+som er samme feil den motsatte veien; og løsrevet «a****».
 
 **Funn: null.** Ingen ødelagte ord noe sted i databasen utenom
 kolonnekommentaren, som nå er rettet.
@@ -2294,6 +2294,9 @@ Commits: `8168cd8`, `5e597b2`, `9561746`, pluss denne rapporten.
 
 ## Det viktigste først: databasen er ikke endret
 
+> **Oppdatert:** `0078` er kjørt og verifisert i produksjon. Se
+> [0078 i produksjon, og migrasjonsloggen ryddet](#0078-i-produksjon-og-migrasjonsloggen-ryddet).
+
 **Migrasjon `0078` er skrevet og testet, men ikke kjørt i produksjon.**
 Verken Supabase-CLI-en eller Supabase-kontoen som er logget inn i
 nettleseren har tilgang til prosjektet `pfyidlnztpwjnpxpoheu`. CLI-en
@@ -2726,3 +2729,318 @@ Settes en ekte nøkkel, vil seedingen forsøke å sende til
 `.example`-adresser. Uendret oppførsel, større volum.
 
 **Service worker-cache** er bumpet til `v84`.
+
+---
+
+# 0078 i produksjon, og migrasjonsloggen ryddet
+
+2026-09-12, kveld. Markus kjørte `0078` mot `pfyidlnztpwjnpxpoheu`.
+Deretter: kontroll av at den slo gjennom, et nytt sveip av hele
+databasen, og rydding av migrasjonsloggen etter funnene.
+
+Alle funn er maskert. Tilgang var `postgres` via Management API
+(`supabase db query --linked`) med et midlertidig access-token. Tokenet
+er ikke skrevet ned noe sted (søkt i repo, git-historikk, scratchpad,
+`~/.claude`, `~/.supabase`, shell-profiler og PowerShell-historikk; proben
+bevist mot en plantet verdi). Det bør roteres.
+
+## 1 — 0078 slo gjennom
+
+| Kontroll | Resultat |
+|---|---|
+| Biografier | 9 av 9 nøytrale |
+| Tjenestebeskrivelser | 4 av 4 byttet |
+| Kundesitater | 8 av 8 anmeldelser starter med «Oppdiktet anmeldelse»; meldingen om bedring byttet; journalen er «Demonotat 1–5» |
+| Gateadresser | Null i funksjonskropper i alle skjemaer, kommentarer, defaults, policyer, cron og migrasjonslogg. De tre e-postfunksjonene har «Eksempelveien 12, 0000 Oslo» |
+| Behandlerroller | Sju «Terapeut», «Terapeut-team», Markus «Behandler» |
+| Chatbot-prompten | Lå i `shared/components.js`, ikke i databasen. Live-fila er byte-identisk med HEAD; null treff i databasen |
+| Datovindu | 2026-08-13 … 2026-12-21 (−30 / +100), 83 kommende, 35 / 19 / 15 / 14 per måned. Likt replikaen. Null i helg, på stengt dag eller bekreftet i fortiden |
+| Registrert | `0078` står i `schema_migrations` |
+
+`select public.demo_reset()` kjørt én gang, som i oppskriften. Samme vindu
+og antall etterpå, og testanmeldelsen fra forrige runde er borte.
+Nattjobben er aktiv 01:00.
+
+## 2 — Sveipet
+
+Definisjoner (funksjoner, views, policyer, defaults, constraints,
+triggere, kommentarer, enum, rolleinnstillinger, cron, vault, `net`,
+migrasjonsloggen) og data i alle tabeller i `public`, `auth`, `storage`
+og `realtime`. Token- og passordkolonner utelatt ved eksport.
+
+Tabellene appen bruker var rene. To funn:
+
+**`auth.sessions`: ekte IP-adresser.** To offentlige adresser,
+`1**.***.**.*2` og `5*.***.***.**7`, med user-agent (Windows/Chrome,
+iPhone/Safari, curl, headless Chrome). 65 sesjoner, 1.–12. september, på
+begge demokontoene. Ikke lesbart for `anon` eller `authenticated`.
+`demo_reset()` rydder ikke tabellen. **Ikke rørt, etter beslutning.**
+
+**`supabase_migrations.schema_migrations`: historikken var ikke ryddet.**
+Loggen lagrer SQL-en slik den ble kjørt første gang. Repoet var ryddet,
+loggen ikke:
+
+| Klasse | Hvor |
+|---|---|
+| Privat gmail-adresse `m**************@g****.com` | 0011, 0025, 0026, 0028, 0029, 0048 |
+| Ekte gateadresse `S******a 1, 0*** Oslo` | 0026, 0028, 0040, 0043, 0048, 0056 |
+| Ekte gateadresse `R***********a 8, 0*** OSLO` | 0048 |
+| LAN-adresse `192.168.*.***` | 0026, 0028, 0029 |
+| Testadresse på registrerbart domene `k****@e*******.no` | 0022 |
+| Gammelt navn `E***` (også `E****&nbsp;A****` i e-posthoder og `e***-konsult`-slugs) | 26 migrasjoner, 134 treff |
+| Gammelt navn `T**` som staff-id, slug og i migrasjonsnavn (`0030 t**_flat_price`, `0044 t**_videre_price_3000`) | 0008, 0015, 0030, 0032, 0033, 0041, 0044, 0049 |
+| Seks opprinnelige staff-id-er fra klinikken demoen kom fra, blant dem fornavnet i `0038 seed_d*****_staff_services` | 0015, 0038, 0041 |
+| Prefikset `T*-` | 0022, 0023, 0035 |
+| Arvede biografier, roller, kundesitater, behandlingsnotater, tjenestebeskrivelser | 0008, 0015, 0041, 0067, 0068, 0069, 0070 |
+
+Verken `anon` eller `authenticated` har `SELECT` på loggen, og den kjøres
+aldri igjen.
+
+**Korreksjon til en tidligere påstand i samme økt:** at loggen avvek fra
+repoet i alle 78 migrasjoner var feil. Statements i loggen er repofilene
+ordrett, bare delt opp og uten semikolon; sammenligningen tok ikke
+hensyn til det.
+
+## 3 — Migrasjonsloggen skrevet om
+
+### Backup først
+
+`C:\Users\marku\supabase-backup\schema_migrations-pfyidlnztpwjnpxpoheu-2026-09-12-foer-rydding.json`,
+78 rader, md5 `0dbd265b37a29653da25b21c1e6b23ff` regnet ut i databasen og
+lokalt, lik. Ved siden av ligger `…-GJENOPPRETT.sql`, som setter loggen
+tilbake. Fila ligger utenfor repoet og utenfor OneDrive fordi den
+inneholder funnene i klartekst. Slett den når den ikke trengs.
+
+Utgangspunkt: `migration list` 78 lokale = 78 remote, `db push --dry-run`
+«Remote database is up to date».
+
+### Erstatningene
+
+Samme verdier som repoet og `0078` bruker, hentet fra diffen i
+oppryddingscommitene og fra dagens migrasjonsfiler:
+
+| Fra | Til |
+|---|---|
+| gmail-adressen | `post@westengenklinikk.example` |
+| gateadressene | `Eksempelveien 12, 0000 Oslo` / `EKSEMPELVEIEN 12, 0000 OSLO` |
+| LAN-adressen, «(M*****' Live Server» | `localhost`, «(lokal Live Server» |
+| `k****@e*******.no`, og en énbokstavs `.no`-adresse i 0022, 0023 og 0053 | `kunde@eksempel.example`, `x@y.example` |
+| `westengenklinikk.no` i en kommentar i 0011 | `westengenklinikk.example` |
+| `E***` / `E****s` / `e***` | `Markus` / `Markus'` / `markus` |
+| `T**` som id og slug | `markus` |
+| de seks opprinnelige id-ene | `sofie`, `henrik`, `jonas`, `amina`, `petter`, `lena` |
+| `T*-` | `WK-` |
+| `E*** streng` i kolonnekommentaren (0049) | `Tom streng`, som databasen har etter `0076` |
+| biografier, roller, sitater, notater, tjenester | tekstene fra `0078` |
+| migrasjonsnavnene | `markus_flat_price`, `markus_videre_price_3000`, `seed_lena_staff_services` (repoets filnavn) |
+
+**Én bevisst avvikelse.** 0069, 0072, 0074, 0075 og 0076 handler om
+selve navnebyttet. Der ville «Markus» gjort `E*** -> Markus` til
+`Markus -> Markus`, og loggen sluttet å si noe. Der står
+`[tidligere navn]` og `tidligere-id` i stedet.
+
+**Ikke tatt med:** repoets senere endringer som ikke er opprydding
+(`is_public` i 0068, tallene i 0015 og 0038, omformatering i 0050, 0051 og
+0057). Loggen skal fortsatt vise hva som ble kjørt.
+
+38 rader endret. Versjonsnumre og antall statements per migrasjon er
+uendret.
+
+### Kjøringen
+
+Én `DO`-blokk, atomisk, med to vakter: loggens md5 må være backupens før
+noe skrives, og resultatet må ha nøyaktig den md5-en som er regnet ut
+lokalt, ellers rulles alt tilbake.
+
+Vaktene ble bevist mot plantede feil før den ekte kjøringen:
+
+| Plantet | Resultat |
+|---|---|
+| Gjenopprettingsskriptet mot feil utgangstilstand | `ERROR: schema_migrations er ikke i forventet utgangstilstand`; md5 uendret |
+| Ryddeskriptet med feil forventet md5 | Alle 38 oppdateringer kjørt, så `ERROR: resultatet avviker fra forventet md5; rulles tilbake`; md5 uendret |
+
+Ekte kjøring: md5 `bc1a4c66a5f83c3184fba71e855952a6`, som forventet. 78
+rader, `0000`–`0078`.
+
+### Etterpå
+
+| Kontroll | Resultat |
+|---|---|
+| `supabase migration list --linked` | 78 lokale, 78 remote, identisk med før |
+| `supabase db push --linked --dry-run` | «Remote database is up to date.» |
+| Sveipet på nytt, migrasjonsloggen | Null treff i klassene over |
+
+Sveipets nye mønstre (opprinnelige id-er, `T**` som id/slug,
+registrerbare domener, `grunnlegger ·`) er bevist mot backupen: alle slår
+ut på loggen slik den var.
+
+Det sveipet fortsatt melder i loggen, og hvorfor det står:
+
+| Treff | Hva det er |
+|---|---|
+| «tom», 30 steder | Det norske ordet: «tom liste», «står tom», «tom telefon» |
+| Ordliste i 0078 | Kontrollblokken i `0078`, som leter etter nettopp disse ordene. Identisk med repoet; å skrive den om ville forfalsket hva proben sjekker |
+| «Samme metode som 0074» (0075) | Teknisk fremgangsmåte, ikke behandling |
+| `MARKUS''&nbsp;A****` (0026, 0028, 0039, 0040, 0048, 0074) | Arvet fra det gamle prosjektnavnet. **Fjernet i neste runde**, se «A**** ut, lokal utlogging og restene i repoet» |
+| Fire sifre + ord («0008 var») | Migrasjonsnumre i løpende tekst |
+| `000000000`, `52428800` | Pseudonymisert telefon i `gdpr_erase_patient`, filgrense i bytes |
+| `https://evil/phish`, `https://phish.evil` | Oppdiktede angrepseksempler i kommentarer |
+
+## 4 — auth.sessions endret seg underveis, ikke av oss
+
+Etter ryddingen hadde `auth.sessions` 6 rader, mot 65 ved eksporten
+tidligere samme kveld. Alle admin-sesjonene var borte; de 6 som står er
+terapeutkontoens.
+
+Ingen SQL i denne runden rørte `auth`, og de to prøvekjøringene ble
+rullet tilbake. Auth-loggen i Supabase viser hva som skjedde:
+
+| UTC | Hendelse |
+|---|---|
+| 19:49:43 | `POST /token` (refresh), `admin@westengenklinikk.example` |
+| 19:50:21 | `POST /logout`, 204, `admin@westengenklinikk.example` |
+| 19:50:59 | autovacuum på `auth.sessions` |
+
+En nettleser med frontenden logget ut admin. `sb.auth.signOut()` uten
+argument har `scope: 'global'` i supabase-js v2 og sletter **alle**
+sesjoner for brukeren.
+
+**Feil funnet av dette:** demokontoene er delt. Én besøkende som logger
+ut, går tom for tid (`shared/auth.js` `doLogout`) eller åpner
+`ansatt.html` (som kaller `signOut()` før innlogging), logger ut alle
+andre som er inne som samme rolle. `signOut({ scope: 'local' })` på
+stedene som kaller den retter det. Ikke endret.
+
+## 5 — Repoet, ikke endret
+
+> **Oppdatert:** ryddet i neste runde, se
+> [A**** ut, lokal utlogging og restene i repoet](#a-ut-lokal-utlogging-og-restene-i-repoet).
+
+Sveipet gjaldt databasen. Underveis viste det seg at repoet selv har:
+
+- «E***» i 0069 og 0072–0076, og `t**-`-slugs i kommentarer i 0030,
+  0032, 0033 og 0044. `verify-lekkasje` har ikke disse navnene.
+- «Markus streng» i kolonnekommentaren i `0049_staff_colors.sql`. Skal
+  være «Tom streng», som databasen har.
+- «Pasientkoordinatoren» i en kommentar i `0015_seed_new_staff.sql`.
+
+---
+
+# A**** ut, lokal utlogging og restene i repoet
+
+Natten til 2026-09-13. Tre oppdrag: det gamle monogrammet ut overalt,
+`signOut()` til lokal utlogging, og restene i repoet fra forrige runde.
+
+## 1 — A**** ut
+
+`MARKUS'&nbsp;A****` var arvet fra det gamle prosjektnavnet.
+
+| Flate | Før | Gjort |
+|---|---|---|
+| Produksjonens funksjonskropper | Allerede rene. Null treff i alle skjemaer; hodene i `send_booking_email`, `send_contact_message_email` og `send_document_email` sier `WESTENGEN&nbsp;KLINIKK` (`0074`/`0075`) | Ingenting å gjøre, kontrollert |
+| Repoet, e-postmalene i 0026, 0028, 0039, 0040, 0048 | `MARKUS''&nbsp;A****` | `WESTENGEN&nbsp;KLINIKK`, samme som produksjon |
+| Repoet, 0074 og 0075 | Konstanten og kommentarene siterte det gamle hodet | `[TIDLIGERE&nbsp;NAVN]`. Kommentaren i 0074 om den uescapede apostrofen er omformulert, siden den ikke lenger kan sitere linja |
+| `docs/db-funksjoner-før-0074.sql` | Det gamle hodet, fire steder | `[TIDLIGERE&nbsp;NAVN]` |
+| Migrasjonsloggen | Samme som repoet | Samme regler, se under |
+| Denne rapporten | Sitater i tidligere avsnitt | Maskert `A****` |
+| `scripts/verify-lekkasje.mjs` | Fanget bare den sammenskrevne varianten | Nytt mønster `\barena\b`. Bevist: plantet fil gir treff og exit 1 |
+
+## 2 — Lokal utlogging
+
+Alle sju kallene er nå `signOut({ scope: 'local' })`: `shared/auth.js`
+(tidsavbrudd og `logoutAndRedirect`), `ansatt.html` (før
+auto-innlogging), `booking-admin.html` (to fallbacker),
+`innstillinger.html` og `kalender.html`. Service worker-cache `v85`.
+
+### Prøven
+
+Lokal server mot produksjonens auth, to sesjoner på admin-kontoen: A i
+nettleseren, B laget direkte mot auth-API-et som «en annen besøkende».
+
+| Steg | Resultat |
+|---|---|
+| Før | A og B finnes i `auth.sessions` |
+| Siden har lastet ny kode | `logoutAndRedirect` inneholder `'local'` |
+| «Logg ut» → bekreft i appens dialog | Forespørselen er `POST /auth/v1/logout?scope=local`, fanget med en fetch-logg som overlever redirecten |
+| Nettleseren etterpå | På `ansatt.html` med innloggingsskjemaet; ingen sesjonsnøkkel i `localStorage` |
+| A | Borte fra `auth.sessions` |
+| B | Står, og fornyer tokenet sitt (200) |
+| B logger seg ut selv (opprydding) | 204; fornyelse etterpå 400. Beviser at fornyelsesproben ser en død sesjon |
+
+Serveren ble også isolert først: to sesjoner via API-et, den ene logget ut
+med `scope=local`, den andre fornyet med 200.
+
+### Den første prøven var ugyldig, og hvorfor
+
+Første forsøk på `127.0.0.1:8765` tok med seg B. Siden kjørte den
+**gamle** `auth.js`: kopien i service worker-cachen hadde ikke
+`scope: 'local'`, mens serveren hadde det. `sw.js` precacher med
+`cache.add(url)`, som kan svares fra nettleserens HTTP-cache, og Pythons
+testserver sender ingen `Cache-Control`. Nettleseren hadde en gammel
+kopi fra tidligere lokale runder på samme origin. En fetch-logg viste
+`logout?scope=global`. Prøven ble gjentatt på `127.0.0.1:8766`, en origin
+uten historikk, og besto.
+
+De to ugyldige forsøkene sendte `scope=global` mot admin-kontoen,
+21:46:23 og ca. 21:49 UTC. Admin-sesjonene ble listet rett før begge; de
+eneste som fantes var testsesjonene fra prøven. Ingen andre ble logget ut.
+
+**Sidefunn:** samme mekanisme kan i prinsippet ramme en besøkende som har
+en gammel kopi i HTTP-cachen når ny `sw.js` installeres. Se kontrollen av
+live under.
+
+## 3 — Restene i repoet
+
+| Hvor | Gjort |
+|---|---|
+| 0069, 0072, 0074, 0075, 0076 | «E***» → `[tidligere navn]` / `tidligere-id`, de samme reglene som migrasjonsloggen fikk. Kjører fortsatt som no-op på en fersk kjede, siden 0041 allerede seeder `markus` |
+| 0030, 0044 | `slug like 't**-%'` → `'markus-%'` (kommentarer) |
+| 0032, 0033 | `slug = 't**-test'` → `'markus-test'` (kommentarer) |
+| 0049 | «Markus streng» → «Tom streng», som databasen har. I tillegg `t**=#3E6B47` → `markus=#3E6B47` i en kommentar, samme klasse |
+| 0015 | «Pasientkoordinatoren» → «Nora» |
+| `tjenester.html` | **Ikke på lista, men samme klasse:** legacy-prefikset `'t**-'` i `eligibleStaffFor` og hjelpeteksten → `'markus-'`, som er det de gamle katalograddene heter i repoet. Produksjon har null slugs med noen av prefiksene, så oppførselen endres ikke der |
+
+Kontroll av SQL-endringene: alle endrede kodelinjer har samme antall
+apostrofer før og etter, bortsett fra de fem malene der `MARKUS''` (escapet)
+forsvant. PL/pgSQL-kroppene i alle 16 endrede migrasjoner er parset med
+`pglast.parse_plpgsql`: ingen syntaksfeil. Proben bevist: en plantet
+uescapet apostrof i 0026 gir `syntax error at or near "KLINIKK"`. Kjeden
+`0000`–`0078` er ikke kjørt på nytt i replika i denne runden.
+
+## 4 — Migrasjonsloggen
+
+Backup først: `C:\Users\marku\supabase-backup\schema_migrations-pfyidlnztpwjnpxpoheu-2026-09-12-foer-monogram.json`,
+md5 `bc1a4c66a5f83c3184fba71e855952a6`, lik i databasen og lokalt. Med
+gjenopprettingsskript ved siden av.
+
+Samme regler som repoet. I tillegg «Samme metode som 0074» → «Samme
+fremgangsmåte» i 0075, repoets formulering fra `8168cd8`.
+
+Sju rader endret (0026, 0028, 0039, 0040, 0048, 0074, 0075). Atomisk
+`DO`-blokk med md5-vakt før og etter; vakten bevist mot plantet feil md5
+(rullet tilbake, loggen urørt). Resultat: md5
+`5c2837618336e14cac171cd79b9ca6d6`, 78 rader.
+
+Loggen står nå ordrett i repoet for alle migrasjoner utenom de kjente
+senere endringene (0015, 0038, 0041, 0050, 0051, 0053, 0063, 0065, 0068).
+Før runden avvek også 0030, 0032, 0033, 0044, 0049, 0069, 0072, 0074, 0075
+og 0076.
+
+## 5 — Sveipet på nytt
+
+Databasen, alle flater, eksportert på nytt fra produksjon.
+
+| Klasse | Treff |
+|---|---|
+| `A****`, gamle navn og id-er, `T*-`, arvet tekst | 0 (utenom kontrollblokken i 0078, uendret) |
+| E-post, registrerbare domener, gateadresser | 0 |
+| IP og user-agent | Bare `auth.sessions`, ikke rørt |
+| Gjenværende falske positiver | Som forrige runde: «tom» som norsk ord, migrasjonsnumre, pseudonymisert telefon, filgrense, to oppdiktede phishing-eksempler |
+
+**Rettelse av eget verktøy:** oppsummeringen av sveipet delte funnøklene på
+`|`, og mange mønstre inneholder `|`. Et første «sum: 0» var derfor ikke
+til å stole på. Rettet og kjørt på nytt; tallene over er fra den rettede
+versjonen.
+
+Repoet: alle fem verify-skript grønne, og `git grep` finner ingen av
+klassene utenom denne rapportens maskerte sitater.
