@@ -171,8 +171,9 @@ en toast, ett sted i frontend, uten at et eneste kallsted er endret.
 
 **Nattlig nullstilling (`0067`).** `demo_reset()` sletter alt besøkende har lagt
 inn, tømmer driftsloggene og genererer innholdet på nytt med dagens dato som
-utgangspunkt. Kalenderen har derfor alltid noe i forrige uke, noe i dag og noe
-neste uke, uansett når demoen åpnes.
+utgangspunkt. Kalenderen har derfor alltid historikk en måned tilbake, tette
+uker rett fram, og spredte timer i drøyt tre måneder, uansett når demoen åpnes
+(migrasjon `0078`).
 
 Trenger du å rydde umiddelbart:
 

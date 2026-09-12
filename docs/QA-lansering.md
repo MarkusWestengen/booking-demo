@@ -2279,3 +2279,450 @@ forglemmelse.
 **Den private adressen er ute.** `notify_to` i `send_booking_email`
 peker nå på `post@westengenklinikk.example`. Adressen som sto der er
 maskert i begge sikkerhetskopiene i `docs/`.
+
+---
+
+# Opprydding 2026-09-12
+
+Fire oppdrag: arvet markedsføringstekst ut, et systematisk sveip etter
+ekte personopplysninger, datoer som ligger fram i tid, og oppskriften
+for å rotere Turnstile-hemmeligheten.
+
+Sikkerhetstag før noe ble rørt: `pre-opprydding-2026-09-12` (pushet).
+
+Commits: `8168cd8`, `5e597b2`, `9561746`, pluss denne rapporten.
+
+## Det viktigste først: databasen er ikke endret
+
+**Migrasjon `0078` er skrevet og testet, men ikke kjørt i produksjon.**
+Verken Supabase-CLI-en eller Supabase-kontoen som er logget inn i
+nettleseren har tilgang til prosjektet `pfyidlnztpwjnpxpoheu`. CLI-en
+svarer «Your account does not have the necessary privileges», og
+dashbordet sender videre til organisasjonslista, som bare inneholder to
+andre prosjekter. Prosjektet ligger altså under en annen konto.
+
+Uten den tilgangen når jeg databasen bare som `anon` og som demo-admin
+gjennom PostgREST. Skrivesperren fra `0066` avviser endringer på
+seed-rader for alle andre enn `postgres`, så tekst, seed-generator og
+funksjonskropper kan ikke rettes derfra. Det er riktig oppførsel, ikke
+en feil.
+
+Det betyr at dette **fortsatt står i produksjon** til `0078` er kjørt:
+
+- de gamle biografiene og rollene i `staff_members` (lesbare for anon)
+- de gamle tjenestebeskrivelsene, som vises i steg 2 i bestillingsflyten
+- kundesitatene i `reviews`, kundehistorien i `contact_messages` og
+  metodetekstene i journalnotatene
+- to ekte gateadresser i bunnteksten på e-postfunksjonene
+- datovinduet på −30 til +10 dager
+
+Frontenden er ryddet og deployet. Kortene i steg 1 henter tekst fra
+i18n-filene, som vinner over databasen, så de er allerede riktige på
+live.
+
+### Slik kjøres 0078 (Markus)
+
+1. Logg inn på supabase.com med kontoen som eier
+   `pfyidlnztpwjnpxpoheu`.
+2. SQL Editor → New query → lim inn hele
+   `supabase/migrations/0078_opprydding_tekst_og_datoer.sql` → Run.
+3. Forvent `NOTICE`-linjer med antall funksjoner som fikk ny adresse
+   (produksjon: 3 eller 4), og
+   `0078: N kommende bestillinger (… neste uke, … om 3–6 uker, … om 11–14 uker)`.
+   Feiler en av kontrollene, ruller hele transaksjonen tilbake og
+   ingenting er endret.
+4. Kontroll:
+
+        select min(date), max(date),
+               count(*) filter (where date >= current_date) as kommende
+          from public.bookings where is_demo_seed;
+        select public.demo_reset();
+        -- samme spørring igjen: samme vindu, samme antall
+
+5. Registrer migrasjonen, så `db push` ikke prøver den igjen:
+   `supabase migration repair 0078 --status applied --linked`
+
+Migrasjonen er idempotent og kan kjøres to ganger.
+
+## Hvordan 0078 er testet
+
+Supabase sitt eget Postgres-image, samme versjon som prosjektet
+(`public.ecr.aws/supabase/postgres:17.6.1.166`), i Docker. Et tynt
+forspill legger inn det Supabase-plattformen ellers leverer
+(`auth.jwt()`, noen kolonner i `auth.users`, `storage.buckets`,
+publikasjonen `supabase_realtime`).
+
+**Hele kjeden `0000`–`0078` kjører fra tom base uten en eneste feil.**
+Det har den ikke gjort før denne runden (se «Fem migrasjoner kan ikke ha
+kjørt som de står i git»).
+
+Så ble produksjonstilstanden plantet i replikaen — gamle roller, gamle
+biografier, gammel tjenestetekst, en funksjon med gateadresse i
+bunnteksten i både store og små bokstaver — og `0078` kjørt oppå. Alt
+ble rettet.
+
+### Proben i 0078, bevist mot plantede feil
+
+`0078` avslutter med en kontrollblokk som kaster exception og ruller
+tilbake hvis noe står igjen. Hver kontroll ble tvunget til å feile:
+
+| Plantet | Resultat |
+|---|---|
+| Ingenting (ren) | `NOTICE: 83 kommende bestillinger (13 / 10 / 16)` |
+| Gammel biografi i `staff_members` | `ERROR: 1 rad(er) med arvet tekst står igjen` |
+| Gammel rolle («Markedssjef») | `ERROR: 1 rad(er) med arvet tekst står igjen` |
+| Kundesitat i `reviews` | `ERROR: 1 rad(er) med arvet tekst står igjen` |
+| Alle timer etter +60 slettet | `ERROR: framtidige bestillinger mangler (uke 13, neste mnd 10, 3 mnd 0)` |
+| Bekreftet time i fortiden | `ERROR: bekreftet seed-time i fortiden` |
+| Gateadresse i små bokstaver (ikke tatt av erstatningen) | `ERROR: en funksjonskropp har fortsatt en gateadresse` |
+
+Etter full kjede: `pg_dump` av hele `public`-skjemaet (funksjonskropper,
+kommentarer, policyer, defaults, constraints) og alle data i replikaen
+har null gateadresser utenom plassholderen, null e-postdomener utenom
+`.example`, og null telefonnumre utenom `+47 400 00 0xx`.
+
+---
+
+## 1 — Arvet tekst
+
+### De tre navngitte tekstene
+
+| Tekst | Hvor den sto | Gjort |
+|---|---|---|
+| «Vi tildeler en av våre erfarne terapeuter, alle opplært direkte i Markus' metoder. Samme filosofi, samme grundighet.» | `booking.staff.terapeut.bio` (no/en), `shared/booking-engine.js`, `staff_members.bio`, `0041` | Erstattet med «Timen settes opp hos en av klinikkens terapeuter. Oppdiktet team i en oppdiktet klinikk.» Speiler Markus-kortets eksisterende nøytrale tekst, så kortene er symmetriske. |
+| «Markus' erfarne terapeuter har vært tilknyttet klinikken i minst 2 år.» | `booking.step1.therapist_tenure` (no/en), `shared/booking-flow.js` | Nøkkelen slettet i begge språk. Elementet som rendret linja er fjernet. |
+| «Behandling hos Markus selv» / «Behandling hos en av Markus' dyktige terapeuter» | `waitlist.staff_markus_sub`, `waitlist.staff_therapist_sub` (no/en), `venteliste.html` | Begge nøkler slettet. `<span class="wk-choice-sub">` fjernet. Bare navnet står igjen. |
+
+**Om «underteksten under de to valgene i bestillingsflyten».** De to
+sitatene står ordrett på ventelistesiden, ikke i steg 1 av bestillingen.
+Steg 1 har en annen undertekst under hvert valg (bio-en over). Begge
+flatene er ryddet.
+
+**Valgradene uten undertekst.** `choice.css` hadde allerede en variant
+for tittel alene. Målt på 320, 375, 768, 1024 og 1440, norsk og engelsk:
+begge radene 49 px høye (over minstemålet på 44), like høye, radioknappen
+midtstilt på tittelen (25 / 24 px fra toppen), én linje, ingen sidelengs
+rulling. Ingen CSS-endring var nødvendig.
+
+Kortene i steg 1 har `flex: 1` på bio-feltet, så bunnlinja står
+fortsatt på lik høyde i begge kortene uten ansiennitetslinja. Kontrollert
+visuelt på 320, 768 og 1440, begge språk.
+
+### Sveipet
+
+Søkt i alle HTML-filer, begge i18n-filer, all JS og CSS, alle
+migrasjoner (seed-data og funksjonskropper), e-postmalene i
+funksjonskroppene, produksjonskopiene i `docs/`, README, DEMO_SETUP,
+RESEND_SETUP og kommentarer. I databasen: alle tabeller som er lesbare
+for demo-admin (se punkt 2).
+
+| # | Hvor | Hva sto | Gjort |
+|---|---|---|---|
+| 1 | `shared/components.js`, chatbotens systemprompt | «drevet av Markus Westengen (40 års erfaring) og sønnen Henrik», «Markus' terapeuter, opplært i Markus' metode», en egen blokk «MARKUS' FILOSOFI» om kroppen som sammenkoblet system, og en liste over plager klinikken behandler | **Hele prompten slettet**, sammen med grenen som brukte den. Den kalte `window.claude.complete()`, som ikke finnes i en nettleser; widgeten er merket «Demoguide / Forhåndsdefinerte svar» og svarer fra `staticAnswer()`. Største gjenværende avsnitt i repoet. |
+| 2 | `shared/components.js`, velkomst, fallback, eskalering | «Hei! Jeg er Markus' assistent … spørsmål om behandling», «plager Markus behandler», «send en melding direkte til Markus» | Omskrevet til demoguidens egen tone, uten behandling. |
+| 3 | `shared/components.js`, kontaktmodal | «Han svarer så snart han kan, vanligvis innen et døgn», «Beskriv kort hva du sliter med, så svarer Markus deg» | «Send en melding. Den havner i innboksen i adminpanelet.» Påstanden om svartid er borte. |
+| 4 | `shared/booking-engine.js`, fallback-katalog | Rolle «Opplært av Markus selv»; seks terapeuter med «Opplært direkte av Markus. Samme metodikk, samme grundighet.» | Rolle «Terapeut-team»; bio «Oppdiktet terapeut i en oppdiktet klinikk.» |
+| 5 | `staff_members` (DB, `0041`, `0069`, `0078`) | Samme biografier som 4, og roller som var organisasjonskartet til klinikken demoen kom fra: daglig leder, leder for produktutvikling, markedssjef, trainee-koordinator, pasientkoordinator, trainee | Biografier som 4. Alle navngitte terapeuter har rollen «Terapeut». Rollene gjorde oppsettet sporbart og sa ingenting om bookingsystemet. |
+| 6 | `services.description` (DB, `0008`, `0068`, `0078`) | «Full gjennomgang av plagen: sykehistorie, bevegelsestester og en plan for videre forløp», «Fokusert behandling av senefeste og muskulatur som ikke har gitt seg av hvile alene», «Video- og styrketesting for deg som vil vite hvorfor plagen kommer tilbake», og i en utgått tjeneste «Grundig kartlegging av plager» | «Første time for nye kunder. Oppdiktet tjeneste i demoen.», «For kunder som har vært her før. …», «Oppdiktet tjeneste i demoen.» Tjenestenavnene står; et bookingsystem trenger noe å booke. |
+| 7 | `reviews` (DB, `0067`, `0068`, `0070`, `demo_seed()`) | Åtte kundesitater med resultater: «Fant årsaken på første time etter to sesonger med ryggsmerter», «Hodepinen … er nesten borte», «Kom inn med lav skulder og gikk ut med en plan», «Ankelen har holdt seg i ro siden» og tilsvarende | Alle åtte byttet til tekst som starter med «Oppdiktet anmeldelse» og ikke sier noe om behandling. Stjerner og status er beholdt, så moderasjonskøen fortsatt demonstrerer seg selv. |
+| 8 | `contact_messages` (samme filer) | «Takk for sist. Kjeven er mye bedre. Trenger jeg flere timer, eller holder det med øvelsene?» | «Hei. Har dere ledig time tidlig på morgenen i løpet av de neste ukene?» De sju andre er spørsmål om booking og står. |
+| 9 | Journalnotater (`0067`, `0068`, `0070`, `demo_seed()`) | Fem notater som beskrev en behandlingsmåte: «Redusert utslag på motsatt side, sannsynlig kompensasjon. Behandlet mykvev og ledd», «Reduserte behandlingsfrekvens til hver tredje uke», «Prøvde annen teknikk», «Symptomfri ved siste kontroll» | Beholdt som fem notater (journalen er en funksjon demoen viser), men teksten er «Demonotat 1–5» uten behandlingsinnhold. |
+| 10 | `vilkar.html` § 5 | «Markus Westengen er autorisert helsepersonell og følger gjeldende krav til faglig forsvarlighet. Behandlingen baseres på en grundig vurdering, og du blir informert om forventet effekt …» | Påstanden om autorisasjon og behandlingsmåte er fjernet. Punktet sier nå at demoen ikke tar stilling til behandlingsfaglige forhold, og hva punktet ville inneholdt i en ekte klinikk. |
+| 11 | i18n, døde nøkler, no og en | `nav.philosophy` «Filosofi», `nav.stories` «Kundehistorier», `nav.treatment` «Behandlingsmåte», `nav.about` «Om Markus», `behandlere.heading_em` «varig resultat», `behandlere.markus.meta_spec_val` «Komplekse, kroniske plager», `behandlere.terapeut.meta_bg_val` «Treningsfaglig + Markus' teknikker», `final_cta.heading_em` «kroppen tilbake», `reviews.section_heading` «Det kundene sier», butikk, samarbeidspartner og resten av de samme blokkene | **54 nøkler slettet** i begge språk. Ingen ble brukt av noen side eller slått opp dynamisk (kontrollert mot `t('behandlere.' + id + '.name')`-mønstrene i `booking-flow.js`, som bruker `.name` og `.role`, som står). |
+| 12 | i18n, levende nøkler | `booking.step1.intro` «To veier til samme grundige behandling», `chat.static.plager` med «Filosofien hans er å finne årsaken», to fallback-tekster, `contact.modal.intro/thanks` | Omskrevet nøytralt i begge språk. |
+| 13 | `shared/public.css` | Rundt 370 linjer stil for kundehistoriesidene (`.hist-*`: sitatkort, pullquote, «bildeløse kundehistorier»), og en toppkommentar om at filen het `kundehistorier.css` | Slettet. Kontrollert først at ingen side eller JS bruker en `.hist-`-klasse, og at utsnittet ikke inneholdt andre selektorer. |
+| 14 | Referansekoder | Prefikset `TA-` i bestillinger og venteliste, i hjelpetekstene og eksemplene | `WK-`, som seed-dataene allerede brukte. `TA` var initialene til klinikken demoen ble laget ut av. RPC-ene matcher hele koden, ikke prefikset. |
+| 15 | Kommentarer | `DEMO_SETUP.md` («forside med filosofi og kundehistorier»), sitater i kommentarer i `0075` og `0076` | Omformulert så de ikke gjengir teksten. |
+
+**Null treff** i repoet på eliteidrett, verdensrekord, mesterskap, NRK,
+Tour de France, landslag, olympisk eller navngitte utøvere, verken før
+eller etter. Den klassen var fjernet i en tidligere runde. Treffene som
+fantes, var metode, opplæring, erfaring, resultater og kundesitater.
+
+**Ikke endret, med vilje:**
+
+- Navnene Westengen Klinikk og Markus Westengen, og gruppenavnet
+  «Markus' terapeuter».
+- Tjenestenavnene og prisene. Data bookingsystemet trenger.
+- Kundenes «plage»-felt i seed-dataene («Ryggsmerter, sykling»). Det er
+  hva en kunde skriver i bestillingsnotatet, ikke en påstand om
+  behandling.
+- Øvelsesdokumentenes titler («Nakkeøvelser, nivå 1»). Filnavn i et
+  dokumentarkiv.
+- Historiske sitater i tidligere avsnitt av denne rapporten.
+
+### Ny kontroll: `scripts/verify-arvet-tekst.mjs`
+
+Rent node-skript for den raske gaten. Ordlista er bygget av det som
+faktisk sto i repoet. Unntar bare seg selv og denne rapporten.
+
+Bevist: med `i18n/no.json` fra før oppryddingen lagt tilbake gir den 29
+treff og exit 1. Med dagens fil: «ingen arvet markedsfoeringstekst».
+
+---
+
+## 2 — Personopplysninger
+
+### Hva som ble sett på
+
+**Repoet:** alle tekstfiler, inkludert migrasjoner, funksjonskropper,
+kommentarer, tester, docs og produksjonskopiene av funksjonene.
+
+**Databasen, det jeg når:** alle 14 tabellene demo-admin kan lese i sin
+helhet (`bookings` 78, `contact_messages` 8, `reviews` 8, `waitlist` 5,
+`blocked_slots`, `holidays`, `special_open_days`, `services`,
+`staff_services`, `staff_members`, `exercise_documents`,
+`document_sends`, `audit_log` 160, `journal_audit` 107),
+journalnotatene gjennom `get_journal_entries`, egen `auth.users`-rad
+gjennom `/auth/v1/user`, og storage-API-et (tomt for admin).
+
+**Databasen, det jeg ikke når:** funksjonskropper, kommentarer, policyer,
+constraints, defaults, `cron.job`, andre rader i `auth.users`, storage
+som `service_role`, `anon_insert_events`. Dekket på to andre måter:
+repoet er sveipet (definisjonene står i migrasjonene), og hele kjeden er
+bygget og dumpet i replikaen. Der produksjon er kjent å avvike fra
+repoet (e-postfunksjonene, jf. `0074`) bygger funnene på kopiene i
+`docs/` fra 2026-09-02.
+
+### Funn
+
+| # | Hva | Hvor | Ekte? | Gjort |
+|---|---|---|---|---|
+| 1 | Gateadresse `S*******a 1, 01** Oslo` | Bunnteksten i `send_booking_email`, `send_document_email`, `process_pending_review_emails` i **produksjon**; kopiene i `docs/` | **Ja.** Kartverkets adresseregister: finnes, eksakt postnummer. Rapportert 2026-09-02, aldri rettet. | Erstattes i produksjon av `0078` (c). Maskert som `REDIGERT_EKTE_ADRESSE` i begge kopiene. |
+| 2 | Gateadresse `R***********a 8, 03** Oslo` | Bunnteksten (store bokstaver) i `send_booking_email` i **produksjon**; kopiene i `docs/` | **Ja.** Kartverket: finnes, eksakt postnummer. **Nytt funn**: lekkasjeskriptets nye adressemønster fant den. | Som 1. |
+| 3 | Gateadresse `B*********n 12` (med postnummer 0283) | Plassholderadressen: i18n (8 steder), `bestilling.html`, `vilkar.html`, `venteliste.html`, `avbestill.html`, `anmeldelser.html`, `booking-flow.js`, `DEMO_SETUP.md`, e-postmalene i seks migrasjoner | **Ja.** Kartverket: gatenummeret finnes i Oslo, med postnummer `08**`. Kombinasjonen med 0283 er ugyldig, men nummeret peker på en ekte eiendom. Siden sa «adressen peker ikke på et virkelig sted». | Byttet overalt til **`Eksempelveien 12, 0000 Oslo`**. «Eksempelveien» gir null treff i Kartverkets register for hele landet, og 0000 er ikke et postnummer. Samme prinsipp som `.example` og `400 00 000`. |
+| 4 | Privat gmail-adresse | Denne rapporten, «Privat e-postadresse i send_booking_email» | Ja, allerede delvis maskert | Maskeringen matchet fortsatt lekkasjeskriptet (exit 1). Byttet til `<privat gmail-adresse, maskert>`. Adressen selv ble fjernet fra produksjon i `0076`. |
+
+**Null funn:**
+
+- **E-post:** alle adresser i repo og database ligger på `.example`,
+  bortsett fra Resends offentlige testavsender `onboarding@resend.dev`.
+- **Telefon:** bare `+47 400 00 000` og variantene `400 00 011–030`,
+  pluss testnummeret `400 00 099` fra denne runden.
+- **Organisasjonsnumre:** ingen.
+- **Navn i kunderegister, journal, meldinger, anmeldelser, bookinger og
+  venteliste:** 20 kunder satt sammen av vanlige for- og etternavn. Ingen
+  kombinasjon er ført tilbake til en person. Behandlernavnene ble byttet
+  i `0069`; rollene er nå nøytrale (tekstfunn 5).
+- **Storage:** ingen buckets eller objekter synlige for admin;
+  øvelsesdokumentene peker på `demo-prosjekt.supabase.co`, en attrapp.
+- **auth.users (egen rad):** `admin@westengenklinikk.example`.
+
+### Lekkasjeskriptet utvidet
+
+`scripts/verify-lekkasje.mjs` har fått to mønstre for norske
+gateadresser (vanlig og store bokstaver), med plassholderen unntatt.
+
+Bevist: første versjon slo **ikke** ut på en plantet `B*********n 12`.
+Årsaken var backspace-tegn i regexen fra skriptet som skrev den. Rettet;
+deretter gir plantet adresse treff og exit 1, dagens repo «ingen treff».
+Det var denne proben som fant funn 2.
+
+---
+
+## 3 — Datoer
+
+### Hva som allerede var riktig
+
+`demo_seed()` var relativ fra før: alt regnes som `current_date` pluss
+et intervall, og `demo_reset()` kaller den hver natt kl. 01:00 UTC
+(`0077`). Bekreftet i produksjon: radene i dag har `created_at`
+2026-09-12 01:00 UTC. Problemet var vinduet, ikke metoden. Bestillingene
+gikk fra −30 til +10 dager, så ingenting lå lenger fram enn halvannen
+uke.
+
+### Hva 0078 endrer
+
+| Innhold | Før | Etter |
+|---|---|---|
+| Bestillinger | −30 … +10 | −30 … −1 historikk; 0 … +21 tett (som før); +22 … +100 annenhver hverdag, Markus og én terapeut per dag, vekselvis |
+| Stengte dager | +21 og +22 (ofte en helg, altså usynlig) | Første hverdag fra og med +24 og +60. Bestillingsløkka hopper over dem. |
+| Åpne lørdager | Neste lørdag | Neste lørdag og lørdagen ni uker etter |
+| Blokkeringer | Seks innen +7; én (jonas 14:00) overlappet en 60-minutters time 13:30 | Samme seks, jonas flyttet til 14:30, pluss +38 og +75 |
+| Venteliste | Ønsker fra −2 til +30 | Samme fem, pluss ett ønske +45 … +80 |
+| `created_at` på bestillinger | `now() − (offset + 40)`: timer tre måneder fram ble «bestilt» for fire måneder siden | 3–22 dager før timen, aldri i framtiden |
+| Meldinger, anmeldelser, journal, dokumenter, logg | Fortid | Uendret; fortid gir mening der |
+
+Ingen faste datoer: `pg_proc` for `demo_seed` og `demo_reset` har null
+datolitteraler.
+
+### Bekreftet at datoene flytter seg
+
+I replikaen, med samme `demo_reset()` som i produksjon:
+
+| Kjøring | `current_date` | Første | Siste | Kommende |
+|---|---|---|---|---|
+| `demo_reset()`, UTC | 2026-09-12 | 2026-08-13 | 2026-12-21 | 83 |
+| `demo_reset()` igjen | 2026-09-12 | 2026-08-13 | 2026-12-21 | 83 (idempotent) |
+| `demo_reset()`, tidssone UTC+14 (i morgen) | 2026-09-13 | 2026-08-14 | 2026-12-22 | 84 |
+
+Fordeling framover: september 35, oktober 19, november 15, desember 14.
+Null timer i helg, null på stengte dager, null blokkeringer oppå en time.
+
+I **produksjon** er dette ikke bekreftet, fordi `demo_reset()` bare kan
+kjøres som `service_role` eller `postgres`. Det er steg 4 i oppskriften
+over.
+
+---
+
+## 4 — Turnstile-hemmeligheten
+
+Den nåværende secret har ligget i en chatlogg. Den er ikke rørt.
+
+### Én korreksjon til premisset
+
+At kontaktskjemaet avviser alt i sekundene mellom rotering og ny secret,
+stemmer bare for én av to måter å rotere på. Cloudflare holder den gamle
+nøkkelen gyldig i **to timer** når du roterer i dashbordet. Det gir intet
+avvisningsvindu, men den lekkede nøkkelen virker også i to timer til.
+Vil du ha den død med en gang, må du rotere gjennom API-et med
+`invalidate_immediately: true`, og da får du vinduet.
+
+Risikoen ved en lekket Turnstile-secret er lav: den lar noen verifisere
+tokens mot widgeten, ikke utstede dem. **Anbefaling: dashbordvarianten.**
+
+### A. Dashbordet (anbefalt, ingen avbrudd)
+
+1. dash.cloudflare.com → velg kontoen → **Turnstile** i venstremenyen.
+2. Velg widgeten med site key `0x4AAAAAAElCRZstoX978mDR`.
+3. **Settings** → **Rotate Secret Key** → bekreft. Kopier den nye
+   hemmeligheten.
+4. Innen to timer, i repoet:
+
+        npx supabase secrets set TURNSTILE_SECRET_KEY=<ny secret> --project-ref pfyidlnztpwjnpxpoheu
+
+   Krever innlogging med kontoen som eier prosjektet.
+5. Kontroller at digesten er byttet:
+
+        npx supabase secrets list --project-ref pfyidlnztpwjnpxpoheu
+
+   `TURNSTILE_SECRET_KEY` skal ha en annen digest enn `b47585f1…db053`.
+6. Send en melding gjennom skjemaet på live. Forvent «Takk! Meldingen er
+   sendt.» Slett den i innboksen.
+
+En ny rotasjon kan ikke startes før de to timene er over.
+
+### B. API-et (lekket nøkkel død med en gang)
+
+    curl -X POST \
+      "https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/challenges/widgets/0x4AAAAAAElCRZstoX978mDR/rotate_secret" \
+      -H "Authorization: Bearer <API-token med Turnstile Edit>" \
+      -H "Content-Type: application/json" \
+      -d '{"invalidate_immediately": true}'
+
+Svaret inneholder `result.secret`. Kjør `supabase secrets set` (steg 4
+over) **umiddelbart**. I tiden mellom de to kommandoene avviser
+Edge-funksjonen **alle** meldinger med `403 captcha_failed`, og
+besøkende ser «Bekreft at du ikke er en robot, og prøv igjen». Ingen
+melding blir halvveis lagret, fordi ingenting skrives før valideringen er
+godkjent; de blir bare aldri sendt. Ha begge kommandoene klare i hver sin
+terminal før du kjører den første.
+
+---
+
+## 5 — Verifisering
+
+### Sjekkliste
+
+| | Status |
+|---|---|
+| De tre navngitte tekstene borte, også fra i18n i begge språk | **Ja** i repo og på live. I databasen står den ene i `staff_members.bio` til `0078` er kjørt; den vises ikke på live fordi i18n vinner. |
+| Valgradene riktige uten undertekst, 320 og oppover | **Ja.** 49 px, like høye, midtstilt, ingen rulling, 320–1440, begge språk. |
+| Sveipet i punkt 1 listet | **Ja**, 15 punkter over. |
+| Null treff på eliteidrett, verdensrekord, Tour de France, NRK, utøvere | **Ja**, repo og lesbar database. |
+| Null ekte e-post, telefon eller adresser i repo | **Ja.** `verify-lekkasje` og `verify-arvet-tekst` rene. |
+| … i databasen | **Nei, ikke før `0078` er kjørt.** To ekte gateadresser står i produksjonens e-postfunksjoner. Tabellene har ingen. |
+| Kommende bookinger og ledige tider fram i tid | **Delvis.** Produksjon: 19 kommende, siste 2026-09-22. Etter `0078`: 83, siste om 100 dager. |
+| Datoene relative, bekreftet med `demo_reset()` | **Ja i replikaen.** Ikke kjørt i produksjon. |
+| Fem offentlige endepunkter gjennom nettleseren på live, med adminsesjon | **Ja**, se under. |
+| Ingen konsollfeil, begge språk, 320–1440 | **Ja**, se under. |
+| Testrader ryddet og bekreftet borte | **Delvis**, se under. |
+
+### Endepunktene
+
+Live, Chrome, adminsesjon liggende i `localStorage`
+(`sb-pfyidlnztpwjnpxpoheu-auth-token`), ekte skjemaer. Testdata:
+`Testrad Opprydding`, `testrad.opprydding@westengenklinikk.example`,
+`+47 400 00 099`.
+
+| Endepunkt | Resultat |
+|---|---|
+| Bestilling | Markus → Førstegangsvurdering → tirsdag 22. september 06:30 → detaljer → «Timen er bekreftet», referanse `TA-TD77-6460`, adresse «Eksempelveien 12, 0000 Oslo». (Testet før `TA-` → `WK-`.) |
+| Avbestilling | Referanse + e-post → «Timen din er avbestilt». Status i basen: `cancelled`. |
+| Venteliste | Markus, fra 1. oktober → «Du står på ventelista», `TA-WL-JESW-8KM6`. |
+| Kontakt | Turnstile utstedte token uten utfordring (794 tegn), knappen åpnet, «Takk! Meldingen er sendt.» |
+| Anmeldelse | Med `review_token` fra en gjennomført seed-time → «Takk for anmeldelsen!» |
+
+Ingen konsollfeil under noen av dem.
+
+To av skjemaene måtte fylles ut med verktøyets `form_input` i stedet for
+tastetrykk, fordi Turnstile-iframen tok tastaturfokus. Innsendingen var
+et ekte klikk på sidens egen knapp i alle fem.
+
+### Konsoll og bredder
+
+Konsollsporingen ble bevist først: en plantet `throw` og en plantet
+`console.error` ble begge fanget.
+
+Deretter, på live: alle 8 offentlige sider og alle 10 adminsider, norsk
+og engelsk, ved ekte navigasjon med sporingen aktiv. **Null feil.**
+
+Bredder: live sender `frame-ancestors 'none'`, så sidene kan ikke legges
+i iframes der, og nettleservinduet lot seg ikke gjøre smalere enn
+skrivebordsbredde. Breddene er derfor målt på en lokal server med
+**byte-identiske filer**: SHA-256 av 15 endrede filer på live er lik
+HEAD. 320, 375, 768, 1024 og 1440, norsk og engelsk, åtte offentlige
+sider: ingen sidelengs rulling.
+
+**Målingen fant en feil som ikke var min:** `kontakt.html` rullet
+sidelengs på 320 og 375 (dokumentbredde 378 px). Kontrollert mot filene
+fra før oppryddingen: samme 378 px. Turnstile-widgeten i normal størrelse
+er 300 px fast, og kortet rundt dyttet rutenettet til 346 px. Rettet i
+`9561746`: `minmax(0, 1fr)` på rutenettet, og widgeten rendres i
+`compact` under 420 px. Etter rettelsen: ingen rulling på noen bredde,
+begge språk. At Cloudflare godtar `compact` med produksjonsnøkkelen er
+bekreftet på live: en compact-widget utstedte gyldig token.
+
+**Ikke verifisert:** at en besøkende med faktisk smal skjerm får token
+gjennom compact-widgeten ende til ende på live. Grenen kan ikke utløses
+fra et skrivebordsvindu.
+
+### Testrader
+
+| Tabell | Rad | Status |
+|---|---|---|
+| `bookings` | `TA-TD77-6460` | Slettet, bekreftet borte |
+| `waitlist` | `TA-WL-JESW-8KM6` | Slettet, bekreftet borte |
+| `contact_messages` | Testrad Opprydding | Slettet, bekreftet borte |
+| `reviews` | «Testrad O.», 4 stjerner | **Står igjen**, satt til `rejected`. Admin har ingen delete-policy på anmeldelser (403), med vilje. Slettes av nullstillingen 01:00 UTC. |
+| `audit_log`, `journal_audit` | Én rad hver fra testene | Står igjen. Tømmes av nullstillingen. |
+
+Anmeldelsen brukte `review_token` til seed-timen
+`demo-20260911-sofie-58`. Nullstillingen genererer timen og tokenet på
+nytt.
+
+### Raske gater, sist kjørt
+
+    verify-arvet-tekst   ingen arvet markedsfoeringstekst
+    verify-i18n          i18n OK (522 nøkler, var 576)
+    verify-inline-js     21 inline-blokker, 0 med feil
+    verify-lekkasje      ingen treff
+    verify-lenker        30 filer sjekket, alle interne lenker finnes
+
+## Sidefunn
+
+**Linjeslutt.** Arbeidskopien bruker LF (indeksen er LF,
+`core.autocrlf` er `true`). Skriptene jeg redigerte med skrev CRLF, og
+det brakk `0076` i replikaen: den leter etter `\nbegin\n` i en
+funksjonskropp fra `0048`, og med CRLF fantes ikke strengen. Git ville
+normalisert ved commit, men SQL-editoren og `db push` leser
+arbeidskopien. Alle berørte filer er satt tilbake til LF før commit, og
+kjeden er kjørt på nytt.
+
+**Seedingen fyrer e-posttriggeren.** Hver seedet bestilling kjører
+`send_booking_email`, som i dag hopper over fordi Resend-nøkkelen er
+plassholderen. Med `0078` blir det 142 slike per natt i stedet for 78.
+Settes en ekte nøkkel, vil seedingen forsøke å sende til
+`.example`-adresser. Uendret oppførsel, større volum.
+
+**Service worker-cache** er bumpet til `v84`.
