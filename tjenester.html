@@ -490,7 +490,7 @@
   function $(id) { return document.getElementById(id); }
 
   // Hvilke STAFF-medlemmer som kan utføre en gitt tjeneste:
-  //   slug starter med 'tom-' → kun Markus
+  //   slug starter med 'markus-' → kun Markus
   //   slug starter med 'ter-' → kun de 5 navngitte terapeutene
   //     (ikke Markus, ikke 'terapeut'-paraplyen — som ikke er en utfører)
   //   ellers (legacy/ukjent prefix) → alle utenom 'terapeut'-paraplyen
@@ -499,10 +499,10 @@
   function eligibleStaffFor(svc) {
     var slug = (svc && svc.slug) ? svc.slug : '';
     // Legacy: den gamle katalogen hadde pris bakt inn i slugen, og
-    // 'tom-'/'ter-'-prefikset avgjorde hvem som kunne utfoere.
+    // 'markus-'/'ter-'-prefikset avgjorde hvem som kunne utfoere.
     // Radene er deaktivert, men beholdt for gamle bookinger, saa
     // reglene staar igjen her for at de skal telles riktig.
-    if (slug.indexOf('tom-') === 0) {
+    if (slug.indexOf('markus-') === 0) {
       return STAFF.filter(function (s) { return s.id === 'markus'; });
     }
     if (slug.indexOf('ter-') === 0) {
@@ -908,7 +908,7 @@
     // Liten kontekst-linje som forklarer hvorfor listen er begrenset.
     var slug = (svc && svc.slug) ? svc.slug : '';
     var staffHelp = '';
-    if (slug.indexOf('tom-') === 0) {
+    if (slug.indexOf('markus-') === 0) {
       staffHelp = '<div class="form-help" style="margin-top:6px;">Markus-tjenester utføres kun av Markus selv.</div>';
     } else if (slug.indexOf('ter-') === 0) {
       staffHelp = '<div class="form-help" style="margin-top:6px;">Terapeut-tjenester utføres av terapeut-teamet (ikke Markus).</div>';

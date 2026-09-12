@@ -71,7 +71,7 @@ select 'petter', id from public.services
  where slug in ('ter-konsult', 'ter-videre')
 on conflict do nothing;
 
--- Pasientkoordinatoren tar ogsa imot pasienter, og trenger derfor
+-- Nora tar ogsa imot pasienter, og trenger derfor
 -- samme koblinger som resten av poolen.
 insert into public.staff_services (staff_id, service_id)
 select 'nora', id from public.services

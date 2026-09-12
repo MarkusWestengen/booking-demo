@@ -4,12 +4,12 @@
 -- Sveipen av databasen (docs/QA-lansering.md) fant fire ting.
 -- Alle fire rettes her.
 --
---   1. staff_members.bio hadde «Erik» i 8 av 9 rader. anon har SELECT
+--   1. staff_members.bio hadde «[tidligere navn]» i 8 av 9 rader. anon har SELECT
 --      på kolonnen, og policyen slipper gjennom alt med aktiv = true,
 --      så navnet på et tidligere kundeprosjekt sto lesbart for
 --      publikum på behandlerlista.
 --
---   2. Kolonnekommentaren på staff_members.color sa «Erik streng».
+--   2. Kolonnekommentaren på staff_members.color sa «[tidligere navn] streng».
 --      Det skal være «Tom streng». Et søk-og-erstatt uten ordgrense
 --      har truffet det norske ordet «tom». Den kommentaren er
 --      grunnen til at vi vet hvordan navnebyttene ble gjort.
@@ -57,7 +57,7 @@ begin;
 -- 1) Biografiene
 -- ------------------------------------------------------------
 -- Erstatningen går mot det som faktisk står i radene. Genitiven må
--- tas først: bytter vi «Erik» før «Eriks», blir «Eriks» til
+-- tas først: bytter vi «[tidligere navn]» før «[tidligere navn]s», blir «[tidligere navn]s» til
 -- «Markuss». Norsk genitiv av et navn som ender på s er apostrof
 -- alene — «Markus'», ikke «Markus's».
 do $do$
@@ -65,28 +65,28 @@ declare
   n int;
 begin
   update public.staff_members
-     set bio = replace(replace(bio, 'Eriks', 'Markus'''), 'Erik', 'Markus')
-   where bio like '%Erik%';
+     set bio = replace(replace(bio, '[tidligere navn]s', 'Markus'''), '[tidligere navn]', 'Markus')
+   where bio like '%[tidligere navn]%';
   get diagnostics n = row_count;
 
   raise notice '0076: % biografi(er) oppdatert', n;
 
   if exists (
     select 1 from public.staff_members
-     where coalesce(bio, '')  like '%Erik%'
-        or coalesce(name, '') like '%Erik%'
-        or coalesce(role, '') like '%Erik%'
+     where coalesce(bio, '')  like '%[tidligere navn]%'
+        or coalesce(name, '') like '%[tidligere navn]%'
+        or coalesce(role, '') like '%[tidligere navn]%'
   ) then
-    raise exception '0076: «Erik» står igjen i staff_members';
+    raise exception '0076: «[tidligere navn]» står igjen i staff_members';
   end if;
 
   if exists (
     select 1 from public.services
-     where coalesce(name, '')        like '%Erik%'
-        or coalesce(description, '') like '%Erik%'
-        or coalesce(slug, '')        like '%Erik%'
+     where coalesce(name, '')        like '%[tidligere navn]%'
+        or coalesce(description, '') like '%[tidligere navn]%'
+        or coalesce(slug, '')        like '%[tidligere navn]%'
   ) then
-    raise exception '0076: «Erik» står i services — ikke forventet, se etter';
+    raise exception '0076: «[tidligere navn]» står i services — ikke forventet, se etter';
   end if;
 end
 $do$;
@@ -110,9 +110,9 @@ begin
     raise exception '0076: fant ingen kommentar på staff_members.color';
   end if;
 
-  if position('Erik streng' in gammel) > 0 then
+  if position('[tidligere navn] streng' in gammel) > 0 then
     execute format('comment on column public.staff_members.color is %L',
-                   replace(gammel, 'Erik streng', 'Tom streng'));
+                   replace(gammel, '[tidligere navn] streng', 'Tom streng'));
     raise notice '0076: kolonnekommentaren rettet';
   else
     raise notice '0076: kolonnekommentaren var allerede rettet';
@@ -230,7 +230,7 @@ commit;
 --
 -- A) Biografiene:
 --      select staff_id, bio from public.staff_members order by sortering;
---    -- Forvent: ingen «Erik», genitiv skrevet «Markus'» med apostrof.
+--    -- Forvent: ingen «[tidligere navn]», genitiv skrevet «Markus'» med apostrof.
 --
 -- B) Kolonnekommentaren:
 --      select col_description('public.staff_members'::regclass, attnum)

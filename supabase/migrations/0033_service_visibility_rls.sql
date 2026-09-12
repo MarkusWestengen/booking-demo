@@ -90,7 +90,7 @@ commit;
 --      select slug, is_active, is_public from public.services order by sort_order;
 --
 -- Røyktest av skjuling:
---      update public.services set is_public = false where slug = 'tom-test';
+--      update public.services set is_public = false where slug = 'markus-test';
 --      → anon mister både services-raden OG staff_services-koblingen;
 --        innlogget intern flyt ser den fortsatt.
 -- ============================================================

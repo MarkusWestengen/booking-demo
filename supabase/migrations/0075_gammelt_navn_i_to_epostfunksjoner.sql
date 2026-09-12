@@ -4,8 +4,8 @@
 -- Punkt 4 i sluttkontrollen av 0074 var å bekrefte at ingen ANDRE
 -- funksjoner i public har det gamle navnet. Bekreftelsen slo feil:
 --
---   send_contact_message_email    «ERIKS&nbsp;ARENA» i e-posthodet
---   send_document_email           «ERIKS&nbsp;ARENA» i e-posthodet
+--   send_contact_message_email    «[TIDLIGERE&nbsp;NAVN]» i e-posthodet
+--   send_document_email           «[TIDLIGERE&nbsp;NAVN]» i e-posthodet
 --
 -- Samme defekt som i send_booking_email, samme flate: tekst som går
 -- ut til folk. send_document_email sender til new.customer_email,
@@ -33,7 +33,7 @@ declare
   def   text;
   ny    text;
   n     int := 0;
-  GAMMELT_NAVN constant text := 'ERIKS&nbsp;ARENA';
+  GAMMELT_NAVN constant text := '[TIDLIGERE&nbsp;NAVN]';
   NYTT_NAVN    constant text := 'WESTENGEN&nbsp;KLINIKK';
 begin
   for def in
@@ -80,7 +80,7 @@ commit;
 --      select proname from pg_proc p
 --        join pg_namespace n on n.oid = p.pronamespace
 --       where n.nspname = 'public' and p.prokind = 'f'
---         and prosrc ilike '%eriks%';
+--         and prosrc ilike '%[tidligere navn]%';
 --    -- Forvent: null rader.
 --
 -- B) Eier, security og search_path er uendret på begge:

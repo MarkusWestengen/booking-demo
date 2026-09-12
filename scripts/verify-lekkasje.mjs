@@ -24,6 +24,9 @@ const MOENSTRE = [
   // ikke et domene.
   [/westengenklinikk\.(?:no|com|net|org|dev|io|app|se|dk)/gi, 'registrerbart domene'],
   [/tomsarena|toms-arena|toms\.arena/gi, 'gammelt prosjektnavn'],
+  // Monogrammet i e-posthodene het «<navn>&nbsp;ARENA» i to runder
+  // etter at prosjektnavnet ellers var byttet.
+  [/\barena\b/gi, 'gammelt prosjektnavn'],
   // Norske telefonnumre som ikke er plassholderen 400 00 000.
   [/\+47[ ]?(?!400[ ]?00[ ]?000)\d{2}[ ]?\d{2}[ ]?\d{2}[ ]?\d{2}/g, 'telefonnummer'],
   // Norske gateadresser. Plassholderen er Eksempelveien 12, 0000 Oslo:

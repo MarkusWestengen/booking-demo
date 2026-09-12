@@ -56,7 +56,7 @@ commit;
 -- Verifikasjon (kjør manuelt etter apply):
 --   select slug, name, price_nok, is_active
 --     from public.services
---    where slug like 'tom-%'
+--    where slug like 'markus-%'
 --    order by sort_order;
 -- Forvent: markus-konsult = 4000 OG markus-videre = 4000.
 --

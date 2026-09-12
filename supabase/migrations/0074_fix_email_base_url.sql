@@ -9,7 +9,7 @@
 --      avbestillingslenke i hver bekreftelse, og hver lenke i hver
 --      anmeldelses-e-post, pekte ingen steder.
 --
---   2. send_booking_email hadde «ERIKS&nbsp;ARENA» i e-posthodet.
+--   2. send_booking_email hadde «[TIDLIGERE&nbsp;NAVN]» i e-posthodet.
 --      Det er navnet på et tidligere kundeprosjekt, og skal ikke stå
 --      i e-post fra en offentlig arbeidsprøve. Migrasjon 0072 fjernet
 --      de arkiverte tjenestene med samme navn; dette var siste stedet
@@ -19,17 +19,14 @@
 -- HVORFOR DENNE FILA IKKE INNEHOLDER FUNKSJONSKROPPENE
 -- ------------------------------------------------------------
 -- Migrasjonene 0026, 0028, 0039, 0040 og 0048 står som applisert,
--- men kan ikke ha kjørt slik de står i git: linja
+-- men kan ikke ha kjørt slik de sto i git: e-posthodet i dem hadde
+-- et navn i genitiv, og apostrofen var ikke escapet. `supabase db push`
+-- avviser nøyaktig de bytene med SQLSTATE 42601. Repoet er derfor ikke
+-- en tro kopi av databasen for disse funksjonene.
 --
---     ||   '<div style="...">MARKUS'&nbsp;ARENA</div>'
---
--- har en uescapet apostrof, og `supabase db push` avviser nøyaktig
--- de bytene med SQLSTATE 42601. Repoet er derfor ikke en tro kopi av
--- databasen for disse funksjonene.
---
--- Det ble bekreftet ved uttak: git sier «MARKUS'&nbsp;ARENA»,
--- produksjon sier «ERIKS&nbsp;ARENA». Kroppen som kjører er eldre enn
--- den i git, fra før navnebyttet Erik til Markus.
+-- Det ble bekreftet ved uttak: git hadde genitivsformen, produksjon
+-- hadde «[TIDLIGERE&nbsp;NAVN]». Kroppen som kjører er eldre enn
+-- den i git, fra før navnebyttet [tidligere navn] til Markus.
 --
 -- Derfor skrives ingen CREATE OR REPLACE FUNCTION her. Definisjonen
 -- leses ut av katalogen, endres i minnet, og kjøres tilbake. Da er
@@ -66,7 +63,7 @@ declare
   n_rort     int := 0;
   GAMMEL_URL constant text := 'https://demo.westengenklinikk.example';
   NY_URL     constant text := 'https://booking-demo-rosy.vercel.app';
-  GAMMELT_NAVN constant text := 'ERIKS&nbsp;ARENA';
+  GAMMELT_NAVN constant text := '[TIDLIGERE&nbsp;NAVN]';
   NYTT_NAVN    constant text := 'WESTENGEN&nbsp;KLINIKK';
 begin
   for def in
@@ -123,7 +120,7 @@ commit;
 -- A) Ingen av funksjonene har de gamle strengene:
 --      select proname,
 --             position('demo.westengenklinikk.example' in prosrc) > 0 as har_dodt_domene,
---             position('ERIKS'                         in prosrc) > 0 as har_gammelt_navn
+--             position('[TIDLIGERE NAVN]'                         in prosrc) > 0 as har_gammelt_navn
 --        from pg_proc p join pg_namespace n on n.oid = p.pronamespace
 --       where n.nspname = 'public'
 --         and proname in ('send_booking_email', 'process_pending_review_emails');
@@ -139,6 +136,6 @@ commit;
 -- C) Ingen andre funksjoner i public har spor av noe av det:
 --      select proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace
 --       where n.nspname = 'public'
---         and (prosrc ilike '%westengenklinikk.example%' or prosrc ilike '%eriks%');
+--         and (prosrc ilike '%westengenklinikk.example%' or prosrc ilike '%[tidligere navn]%');
 --    -- Forvent: null rader.
 -- ============================================================

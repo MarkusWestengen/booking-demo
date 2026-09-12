@@ -12,14 +12,14 @@
 -- hver natt, så koblingen kan ikke oppstå igjen heller.
 --
 -- Det som blir igjen er fire arkiverte rader som bare admin ser, med
--- navn fra en tidligere versjon av demoen: «Konsultasjon (Erik)» og
--- «Videre behandling (Erik)». Navnet Erik finnes ikke andre steder i
+-- navn fra en tidligere versjon av demoen: «Konsultasjon ([tidligere navn])» og
+-- «Videre behandling ([tidligere navn])». Navnet [tidligere navn] finnes ikke andre steder i
 -- prosjektet lenger. Sammen med dem ligger 18 koblingsrader i
 -- staff_services som ikke peker på noe man kan bestille.
 --
 -- Sidenotat til den som leser 0068: UPDATE-en der traff på
--- 'markus-konsult' og 'markus-videre', men radene het 'erik-konsult'
--- og 'erik-videre'. De to ble deaktivert av noe annet. Filen er
+-- 'markus-konsult' og 'markus-videre', men radene het 'tidligere-id-konsult'
+-- og 'tidligere-id-videre'. De to ble deaktivert av noe annet. Filen er
 -- allerede kjørt og røres ikke; det står her fordi det forklarer
 -- hvorfor opprydningen ikke skjedde av seg selv.
 --
@@ -31,7 +31,7 @@ begin;
 
 do $$
 declare
-  gamle_slugs text[] := array['erik-konsult', 'erik-videre',
+  gamle_slugs text[] := array['tidligere-id-konsult', 'tidligere-id-videre',
                               'ter-konsult', 'ter-videre'];
   gamle_ider  uuid[];
   brukt       int;
@@ -84,6 +84,6 @@ commit;
 --    -- Forvent: 0
 --
 -- C) Ingen spor av det gamle navnet:
---      select count(*) from public.services where name ilike '%erik%';
+--      select count(*) from public.services where name ilike '%[tidligere navn]%';
 --    -- Forvent: 0
 -- ============================================================

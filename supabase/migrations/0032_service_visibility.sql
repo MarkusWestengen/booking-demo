@@ -64,6 +64,6 @@ commit;
 --   /rest/v1/services?select=*&is_active=eq.true (inntil Markus flipper en).
 --
 -- Internt:
---   update public.services set is_public = false where slug = 'tom-test';
+--   update public.services set is_public = false where slug = 'markus-test';
 --   → kunde-flyten skjuler den umiddelbart, admin ser den fortsatt.
 -- ============================================================

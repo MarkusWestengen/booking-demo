@@ -25,7 +25,7 @@ alter table public.staff_members
 
 comment on column public.staff_members.color is
   'Hex-farge (#RRGGBB) for behandlerens fargebar i admin-UI. '
-  'Markus streng = bruk frontend-fallback. Migrasjon 0049.';
+  'Tom streng = bruk frontend-fallback. Migrasjon 0049.';
 
 -- Seed: distinkt, dempet palett i klinikkens toneleie.
 -- Kun rader som IKKE allerede har farge (idempotent + bevarer valg).
@@ -44,7 +44,7 @@ commit;
 -- Verifikasjon (kjør manuelt etter apply):
 --   select staff_id, name, color from public.staff_members
 --    order by sortering;
---   -- Forvent: tom=#3E6B47 (grønn), øvrige distinkte farger.
+--   -- Forvent: markus=#3E6B47 (grønn), øvrige distinkte farger.
 -- Ende-til-ende: booking-admin → Bestillinger viser fargebar per
 -- behandler; behandlere.html viser fargevelger + swatch per kort.
 -- ============================================================

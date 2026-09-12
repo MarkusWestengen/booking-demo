@@ -48,7 +48,7 @@
 -- direkte tilgang skal fortsatt være stengt.
 --
 --
--- FEIL 2: Erik Westengen står igjen i databasen
+-- FEIL 2: [tidligere navn] står igjen i databasen
 --
 -- Navnebyttet ble gjort i migrasjonsfilene, men 0008, 0041, 0065 og
 -- 0067 var allerede applisert. `supabase db push` hopper over dem,
@@ -59,7 +59,7 @@
 -- Resultatet er en database som spriker: 0068 var ny og ble kjørt,
 -- og demo_seed() der lager bookinger med staff_id = 'markus' — en
 -- behandler som ikke finnes i staff_members, der raden fortsatt
--- heter 'erik'. Kalenderen viser altså timer hos noen som ikke står
+-- heter 'tidligere-id'. Kalenderen viser altså timer hos noen som ikke står
 -- i behandlerlista.
 --
 -- Idempotent. Atomisk via begin/commit.
@@ -96,7 +96,7 @@ grant select, insert on public.audit_log to authenticated;
 
 
 -- ============================================================
--- (b) Erik -> Markus i databasen
+-- (b) [tidligere navn] -> Markus i databasen
 -- ------------------------------------------------------------
 -- staff_id er text uten fremmednøkler, så navnet må rettes i hver
 -- tabell som bærer det. Rekkefølgen er likegyldig; det finnes ingen
@@ -109,13 +109,13 @@ declare
   t text;
 begin
   -- staff_members har staff_id som primærnøkkel. Finnes 'markus'
-  -- allerede (fra en tidligere delvis kjøring), fjernes 'erik' i
+  -- allerede (fra en tidligere delvis kjøring), fjernes 'tidligere-id' i
   -- stedet for at vi får en nøkkelkollisjon.
   if exists (select 1 from public.staff_members where staff_id = 'markus')
-     and exists (select 1 from public.staff_members where staff_id = 'erik') then
-    delete from public.staff_members where staff_id = 'erik';
+     and exists (select 1 from public.staff_members where staff_id = 'tidligere-id') then
+    delete from public.staff_members where staff_id = 'tidligere-id';
   else
-    update public.staff_members set staff_id = 'markus' where staff_id = 'erik';
+    update public.staff_members set staff_id = 'markus' where staff_id = 'tidligere-id';
   end if;
 
   -- Alle tabeller som bærer en staff_id.
@@ -125,7 +125,7 @@ begin
   ] loop
     if to_regclass('public.' || t) is not null then
       execute format('update public.%I set staff_id = %L where staff_id = %L',
-                     t, 'markus', 'erik');
+                     t, 'markus', 'tidligere-id');
     end if;
   end loop;
 end $$;
@@ -143,29 +143,29 @@ update public.staff_members
  where staff_id = 'terapeut';
 
 update public.bookings
-   set staff_name = replace(replace(staff_name, 'Eriks', 'Markus'''), 'Erik', 'Markus')
- where staff_name like '%Erik%';
+   set staff_name = replace(replace(staff_name, '[tidligere navn]s', 'Markus'''), '[tidligere navn]', 'Markus')
+ where staff_name like '%[tidligere navn]%';
 
 update public.waitlist
-   set staff_name = replace(replace(staff_name, 'Eriks', 'Markus'''), 'Erik', 'Markus')
- where staff_name like '%Erik%';
+   set staff_name = replace(replace(staff_name, '[tidligere navn]s', 'Markus'''), '[tidligere navn]', 'Markus')
+ where staff_name like '%[tidligere navn]%';
 
 update public.journal_entries
-   set staff_name = replace(replace(staff_name, 'Eriks', 'Markus'''), 'Erik', 'Markus')
- where staff_name like '%Erik%';
+   set staff_name = replace(replace(staff_name, '[tidligere navn]s', 'Markus'''), '[tidligere navn]', 'Markus')
+ where staff_name like '%[tidligere navn]%';
 
 
 -- ============================================================
 -- (c) Den gamle tjenestekatalogen
 -- ------------------------------------------------------------
 -- 0068 deaktiverte 'markus-konsult' og 'markus-videre'. De slugene
--- finnes ikke i denne databasen: her heter de fortsatt 'erik-*',
+-- finnes ikke i denne databasen: her heter de fortsatt 'tidligere-id-*',
 -- fordi 0008 var applisert før navnebyttet. Derfor sto de gamle
 -- tjenestene igjen som aktive ved siden av de fire nye.
 -- ============================================================
 update public.services
    set is_active = false
- where slug in ('erik-konsult', 'erik-videre', 'ter-konsult', 'ter-videre',
+ where slug in ('tidligere-id-konsult', 'tidligere-id-videre', 'ter-konsult', 'ter-videre',
                 'markus-konsult', 'markus-videre');
 
 
@@ -173,7 +173,7 @@ update public.services
 -- (d) Demobrukernes app_metadata
 -- ------------------------------------------------------------
 -- Rollen var riktig hele veien, men staff_id og staff_name pekte på
--- 'erik'/'Erik Westengen'. Frontend leser begge derfra (shared/auth.js),
+-- 'tidligere-id'/'[tidligere navn]'. Frontend leser begge derfra (shared/auth.js),
 -- så en terapeut ville fått feil kalender etter navnebyttet.
 --
 -- jsonb || jsonb overskriver bare nøklene vi oppgir, så provider,
@@ -212,7 +212,7 @@ commit;
 --    -- Forvent SELECT på alle fem, og INSERT/UPDATE/DELETE der
 --    --   (a) gir det. audit_log skal IKKE ha UPDATE eller DELETE.
 --
--- B) Ingen Erik igjen:
+-- B) Ingen [tidligere navn] igjen:
 --    select staff_id, name from public.staff_members order by sortering;
 --    select distinct staff_id, staff_name from public.bookings;
 --    select raw_app_meta_data from auth.users
