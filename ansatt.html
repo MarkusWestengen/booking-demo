@@ -385,7 +385,7 @@ if ('serviceWorker' in navigator) {
     show('bootView');
     var _acct = (window.WestengenKlinikkAuth && window.WestengenKlinikkAuth.demoAccount(_auto))
       || { email: 'admin@westengenklinikk.example', password: 'demo-admin-2026' };
-    sb.auth.signOut().catch(function () {}).then(function () {
+    sb.auth.signOut({ scope: 'local' }).catch(function () {}).then(function () {
       return sb.auth.signInWithPassword({ email: _acct.email, password: _acct.password });
     }).then(function (res) {
       if (res && res.error) throw res.error;

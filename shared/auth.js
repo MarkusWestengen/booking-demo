@@ -86,7 +86,7 @@
     function doLogout() {
       hideModal();
       try { sessionStorage.setItem('__ta_logout_reason', 'timeout'); } catch (_) {}
-      sb.auth.signOut().finally(function () {
+      sb.auth.signOut({ scope: 'local' }).finally(function () {
         // Hard reload til samme side viser login-skjermaet
         window.location.reload();
       });
@@ -397,10 +397,13 @@
     });
   }
 
+  // scope 'local' overalt: demokontoene er delt. Standarden 'global'
+  // sletter alle sesjoner paa kontoen, saa en besoekende som logget ut
+  // sparket ut alle andre som var inne med samme rolle.
   function logoutAndRedirect(sb) {
     var done = function () { try { window.location.replace(AUTH_REDIRECT); } catch (_) {} };
     try {
-      sb.auth.signOut().then(done, done);
+      sb.auth.signOut({ scope: 'local' }).then(done, done);
     } catch (_) { done(); }
   }
 

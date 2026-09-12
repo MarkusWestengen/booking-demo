@@ -1611,12 +1611,12 @@
       showAuthError(message, raw);
       setTimeout(function () {
         if (window.WestengenKlinikkAuth) window.WestengenKlinikkAuth.logoutAndRedirect(sb);
-        else sb.auth.signOut().then(function () { window.location.replace('ansatt.html'); });
+        else sb.auth.signOut({ scope: 'local' }).then(function () { window.location.replace('ansatt.html'); });
       }, 1500);
       return;
     }
     if (window.WestengenKlinikkAuth) window.WestengenKlinikkAuth.logoutAndRedirect(sb);
-    else sb.auth.signOut().then(function () { window.location.replace('ansatt.html'); });
+    else sb.auth.signOut({ scope: 'local' }).then(function () { window.location.replace('ansatt.html'); });
   }
 
   // Bind logout button (delegated since it's added dynamically)

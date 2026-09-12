@@ -1087,7 +1087,7 @@
     if (window.WestengenKlinikkAuth && window.WestengenKlinikkAuth.logoutAndRedirect) {
       window.WestengenKlinikkAuth.logoutAndRedirect(sb);
     } else {
-      sb.auth.signOut().then(function () { window.location.replace('ansatt.html'); });
+      sb.auth.signOut({ scope: 'local' }).then(function () { window.location.replace('ansatt.html'); });
     }
   }
   document.addEventListener('click', function (e) {
