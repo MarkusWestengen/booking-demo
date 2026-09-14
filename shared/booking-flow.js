@@ -429,13 +429,13 @@
                 on: { click: function () { state.date = dateValue; goTo(4); } }
               }, [
                 el('div', { class: 'tabf-cal-day' }, String(d.day)),
-                el('div', { class: 'tabf-cal-mon' }, E.MONTHS_NO[d.month].slice(0, 3)),
+                el('div', { class: 'tabf-cal-mon' }, E.monthShort(d.month)),
                 el('div', { class: 'tabf-cal-status' }, d.slotCount + ' ' + t('booking.step3.slot_count_suffix', 'ledig'))
               ]);
             } else {
               btn = el('div', { class: cellCls }, [
                 el('div', { class: 'tabf-cal-day' }, String(d.day)),
-                el('div', { class: 'tabf-cal-mon' }, E.MONTHS_NO[d.month].slice(0, 3)),
+                el('div', { class: 'tabf-cal-mon' }, E.monthShort(d.month)),
                 el('div', { class: 'tabf-cal-status' }, !d.isOpen ? t('booking.step3.closed', 'Stengt') : t('booking.step3.full', 'Fullt'))
               ]);
             }

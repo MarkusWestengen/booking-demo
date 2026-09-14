@@ -903,9 +903,28 @@
   var DAYS_NO_LONG  = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
   var DAYS_NO_SHORT = ['Søn','Man','Tir','Ons','Tor','Fre','Lør'];
   var MONTHS_NO     = ['januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember'];
-  function formatDateLong(s)  { var d = parseYMD(s); return DAYS_NO_LONG[d.getDay()] + ' ' + d.getDate() + '. ' + MONTHS_NO[d.getMonth()]; }
-  function formatDateShort(s) { var d = parseYMD(s); return DAYS_NO_SHORT[d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth() + 1); }
-  function formatPrice(n) { return 'kr ' + n.toLocaleString('no-NO').replace(/,/g, ' '); }
+  // Ukedager og måneder kommer fra Intl etter valgt språk. Listene over
+  // står igjen for kode som leser dem direkte, men brukes ikke her.
+  function loc() {
+    var I = window.WestengenKlinikkI18n;
+    return (I && typeof I.locale === 'function') ? I.locale() : 'nb-NO';
+  }
+  function stor(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function formatDateLong(s) {
+    return stor(parseYMD(s).toLocaleDateString(loc(), { weekday: 'long', day: 'numeric', month: 'long' }));
+  }
+  function formatDateShort(s) {
+    var d = parseYMD(s);
+    var dag = d.toLocaleDateString(loc(), { weekday: 'short' }).replace('.', '');
+    return stor(dag) + ' ' + d.getDate() + '/' + (d.getMonth() + 1);
+  }
+  function monthShort(m) {
+    return new Date(2000, m, 1).toLocaleDateString(loc(), { month: 'short' }).replace('.', '').slice(0, 3);
+  }
+  function formatPrice(n) {
+    n = Number(n) || 0;
+    return loc() === 'en-GB' ? 'NOK ' + n.toLocaleString('en-GB') : 'kr ' + n.toLocaleString('nb-NO');
+  }
 
   // ----- Export ---------------------------------------------------
   window.WestengenKlinikkBookingEngine = {
@@ -927,6 +946,7 @@
     blockSlot: blockSlot, unblockSlot: unblockSlot, toggleHoliday: toggleHoliday,
     ymd: ymd, parseYMD: parseYMD,
     formatDateLong: formatDateLong, formatDateShort: formatDateShort, formatPrice: formatPrice,
+    monthShort: monthShort,
     DAYS_NO_LONG: DAYS_NO_LONG, DAYS_NO_SHORT: DAYS_NO_SHORT, MONTHS_NO: MONTHS_NO
   };
 })();

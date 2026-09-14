@@ -97,9 +97,8 @@
   .nav-shell .nav .nav-cta {
     flex: 1 1 auto; width: 100%; justify-content: space-between;
   }
-  /* Språk-menyen må åpne venstrejustert når velgeren står til venstre,
-     ellers renner den ut av skjermen mot venstre. */
-  .nav-shell .nav-cta .lang-menu { left: 0; right: auto; }
+  /* Språkmenyen: se shared/i18n.css. Den var venstrejustert her fra da
+     velgeren sto til venstre; velgeren står nå til høyre. */
 }
 
 /* ============================================================

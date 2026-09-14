@@ -486,7 +486,7 @@
         'color:#4a5c6f;font-family:"JetBrains Mono",ui-monospace,monospace;' +
         'border-right:1px solid #cfe0f0;white-space:nowrap;}' +
       '#wkRoleSwitch button{border:0;background:transparent;cursor:pointer;' +
-        'padding:5px 12px;font-size:12.5px;font-weight:500;color:#064789;' +
+        'min-height:32px;padding:0 12px;font-size:12.5px;font-weight:500;color:#064789;' +
         'white-space:nowrap;font-family:inherit;' +
         'transition:background .15s ease,color .15s ease;}' +
       '#wkRoleSwitch button:hover:not([aria-current]){background:#cfe0f0;}' +
@@ -495,8 +495,8 @@
       '#wkRoleSwitch button:focus-visible{outline:2px solid #064789;' +
         'outline-offset:-3px;}' +
       '#wkRoleSwitch button[disabled]{opacity:.55;cursor:progress;}' +
-      '@media (max-width:560px){#wkRoleSwitch .wk-rs-lab{display:none;}' +
-        '#wkRoleSwitch button{padding:5px 9px;font-size:12px;}}';
+      '@media (max-width:640px){#wkRoleSwitch .wk-rs-lab{display:none;}' +
+        '#wkRoleSwitch button{min-height:44px;padding:0 12px;font-size:13px;}}';
     document.head.appendChild(st);
   }
 

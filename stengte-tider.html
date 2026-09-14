@@ -13,12 +13,14 @@
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data:;
   connect-src 'self' https://*.supabase.co wss://*.supabase.co;
-  frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';
 ">
 
 <title>Stengte tider · Westengen Klinikk</title>
+<!-- Språk: nøkler, tekstkatalogen og locale for datoer. I <head>, så
+     siden kan holdes skjult til engelsk er klar. -->
+<script src="i18n/i18n.js"></script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b1a2b'/%3E%3Ctext x='16' y='20' font-family='Georgia,serif' font-size='15' font-weight='500' text-anchor='middle' fill='%23ebf2fa'%3EWK%3C/text%3E%3Crect x='7' y='24' width='18' height='2' fill='%23427aa1'/%3E%3C/svg%3E" />
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -630,7 +632,7 @@
     });
   }
   function fmtDate(dateStr) {
-    return new Date(dateStr + 'T00:00:00').toLocaleDateString('no-NO', { weekday: 'short', day: 'numeric', month: 'short' });
+    return new Date(dateStr + 'T00:00:00').toLocaleDateString(WestengenKlinikkI18n.locale(), { weekday: 'short', day: 'numeric', month: 'short' });
   }
   // «Aktive blokkeringer» gruppert per BEHANDLER → dato → tider.
   // Kun PRESENTASJON. Slette-kallene mot blocked_slots er UENDRET
@@ -962,7 +964,7 @@
   // ============================================================
   function formatHolidayDate(d) {
     try {
-      var s = new Date(d + 'T00:00:00').toLocaleDateString('no-NO',
+      var s = new Date(d + 'T00:00:00').toLocaleDateString(WestengenKlinikkI18n.locale(),
         { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
       return s.charAt(0).toUpperCase() + s.slice(1);
     } catch (e) { return d; }

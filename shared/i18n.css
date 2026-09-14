@@ -22,11 +22,6 @@
   cursor: pointer;
   transition: all .15s ease;
 }
-.tas-lang .lang-btn .flag {
-  font-size: 16px;
-  line-height: 1;
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Twemoji Mozilla', sans-serif;
-}
 .tas-lang .lang-btn:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
 .tas-lang .lang-btn .chev {
   width: 8px; height: 8px;
@@ -44,16 +39,23 @@
 }
 .tas-lang.tas-lang-light .lang-btn:hover { border-color: var(--ink, #0b1a2b); }
 
+/* Menyen er festet til knappen: rett under den, høyrejustert mot
+   knappens høyre kant. Knappen står ytterst til høyre i headeren på
+   alle bredder, så en meny som vokser mot venstre fra den kanten holder
+   seg innenfor skjermen, også på 320. z-index over innholdet, men under
+   dialoger (demo-arket ligger på 10050). */
 .tas-lang .lang-menu {
-  position: absolute; top: calc(100% + 8px); right: 0;
+  position: absolute; top: calc(100% + 6px); right: 0; left: auto;
   background: var(--paper, #ebf2fa);
   border: 1px solid var(--rule, rgba(11,26,43,.16));
-  min-width: 220px;
-  box-shadow: 0 12px 32px -12px rgba(11, 26, 43,0.18);
+  min-width: 168px;
+  max-width: calc(100vw - 32px);
+  padding: 4px 0;
+  box-shadow: 0 12px 32px -12px rgba(11, 26, 43,0.28);
   opacity: 0; visibility: hidden;
   transform: translateY(-4px);
   transition: opacity .15s ease, transform .15s ease, visibility 0s linear .15s;
-  z-index: 70;
+  z-index: 1000;
 }
 .tas-lang.open .lang-menu {
   opacity: 1; visibility: visible;
@@ -61,11 +63,12 @@
   transition: opacity .15s ease, transform .15s ease;
 }
 .tas-lang .lang-menu button {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
   width: 100%;
-  padding: 12px 16px;
+  min-height: 44px;
+  padding: 10px 16px;
   background: transparent;
-  border: none; border-bottom: 1px solid var(--rule, rgba(11,26,43,.16));
+  border: none;
   font-family: 'Inter', sans-serif;
   font-size: 14px; font-weight: 500;
   color: var(--ink, #0b1a2b);
@@ -73,13 +76,15 @@
   text-align: left;
   transition: background .15s ease;
 }
-.tas-lang .lang-menu button:last-child { border-bottom: none; }
+.tas-lang .lang-menu button + button { border-top: 1px solid var(--rule, rgba(11,26,43,.16)); }
 .tas-lang .lang-menu button:hover { background: var(--paper-2, #dde8f3); }
-.tas-lang .lang-menu button.active { color: var(--green, #064789); }
-.tas-lang .lang-menu button .code {
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-  font-size: 18px;
-  line-height: 1;
+.tas-lang .lang-menu button:focus-visible { outline: 2px solid var(--green, #064789); outline-offset: -2px; }
+/* Valgt språk: farge OG et hakemerke, så valget ikke bare bæres av farge. */
+.tas-lang .lang-menu button.active { color: var(--green, #064789); font-weight: 600; }
+.tas-lang .lang-menu button.active::after {
+  content: ''; width: 10px; height: 5px; flex: none;
+  border-left: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(-45deg);
 }
 .tas-lang .lang-menu[dir="rtl"] button { text-align: right; }
 
@@ -142,22 +147,13 @@ html[dir="rtl"] .tas-chat { left: 24px; right: auto; }
 html[dir="rtl"] .tas-chat-panel { left: 0; right: auto; }
 
 /* ============================================================
-   Issue C — mobil: hold språkmenyen innenfor viewporten.
-   På smal mobil sitter .tas-lang midt i headeren (språk ·
-   "Bestill time" · hamburger), så en knappe-anker'et absolutt-
-   meny renner utenfor skjermkanten. Vi pinner den til viewporten
-   med position:fixed slik at fiksen er uavhengig av hvilken side
-   den brukes på. Scoped til .nav-cta så .topbar-varianten på
-   juridiske sider (egen, høyrejustert plassering) ikke berøres.
+   Mobil: knappen er trykkflate (44 px) og menyen blir der den er.
+   Tidligere ble menyen festet til viewporten med position: fixed og en
+   gjettet topp, og header-nav.css satte den venstrejustert fra den
+   gangen språkvelgeren sto til venstre i headeren. Begge deler er
+   borte; regelen under slår header-nav.css sin (0,3,0).
    ============================================================ */
-@media (max-width: 640px) {
-  .nav-cta .tas-lang .lang-menu {
-    position: fixed;
-    top: 66px;           /* rett under den ~66px høye mobil-headeren */
-    right: 8px; left: auto;
-    max-width: calc(100vw - 16px);
-  }
-  html[dir="rtl"] .nav-cta .tas-lang .lang-menu {
-    left: 8px; right: auto;
-  }
-}
+.nav-shell .nav-cta .tas-lang .lang-menu,
+.topbar .tas-lang .lang-menu { right: 0; left: auto; }
+html[dir="rtl"] .nav-shell .nav-cta .tas-lang .lang-menu { left: 0; right: auto; }
+.tas-lang .lang-btn { min-height: 44px; }

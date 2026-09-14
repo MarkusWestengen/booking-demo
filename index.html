@@ -12,7 +12,6 @@
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: https:;
   connect-src 'self' https://*.supabase.co wss://*.supabase.co;
-  frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';
 ">
@@ -53,15 +52,16 @@
      Mørk flate, samme språk som headeren, så det leser som en
      ramme rundt demoen og ikke som noe klinikken selv sier.
      ============================================================ */
+  /* Lead er naa bare overskriften. Doerene kommer rett etter, paa samme
+     moerke flate, saa overskrift og valg leses som én aapning. */
   .lead {
     background: var(--ink); color: var(--paper);
-    padding: 84px 0 76px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 64px 0 36px;
   }
   .lead-eyebrow {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
-    color: var(--green-soft); margin: 0 0 18px;
+    color: var(--green-soft); margin: 0 0 16px;
   }
   .lead h1 {
     font-family: var(--font-display); font-weight: 600;
@@ -89,11 +89,13 @@
   /* Ingen kursiv aksent. Det andre leddet skilles med vekt og farge
      i stedet — samme hierarki, uten malens signaturgrep. */
   .lead h1 em { font-style: normal; color: rgba(235,242,250,0.62); font-weight: 500; }
+  /* Ingressen, etter doerene. Lys flate, samme maalestokk som foer. */
+  .intro { background: var(--paper); padding: 56px 0 8px; }
   .lead-body {
-    max-width: 54ch; font-size: 16.5px; line-height: 1.62;
-    color: rgba(235,242,250,0.74); margin: 0 0 14px;
+    max-width: 62ch; font-size: 17px; line-height: 1.62;
+    color: var(--ink-2); margin: 0;
   }
-  .lead-body strong { color: var(--paper); font-weight: 500; }
+  .lead-body strong { color: var(--ink); font-weight: 600; }
 
 
   /* ---------- Hva som ligger bak ---------- */
@@ -132,8 +134,17 @@
      og 7,3:1. */
   .footer-bottom { font-size: 12.5px; color: rgba(235, 242, 250, 0.66); }
 
+  /* Paa telefon staar alt paa samme venstrekant som merket i headeren
+     (16 px): overskrift, doerer, ingress og seksjonene under. Doerene
+     trenger bredden for aa staa side om side. */
+  @media (max-width: 560px) {
+    main .container { padding-left: 16px; padding-right: 16px; }
+  }
   @media (max-width: 760px) {
-    .lead { padding: 56px 0 52px; }
+    .lead { padding: 32px 0 20px; }
+    .lead h1 { margin-bottom: 0; }
+    .intro { padding: 36px 0 4px; }
+    .lead-body { font-size: 16px; }
   }
 </style>
 </head>
@@ -154,13 +165,13 @@
       </div>
       <div class="nav-cta">
         <div class="lang tas-lang">
-          <button class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-            <span class="flag" data-current-lang>🇳🇴</span>
+          <button class="lang-btn" type="button" aria-haspopup="true" aria-expanded="false">
+            <span class="lang-cur" data-current-lang>Norsk</span>
             <span class="chev"></span>
           </button>
-          <div class="lang-menu" role="listbox">
-            <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
-            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>          </div>
+          <div class="lang-menu">
+            <button data-lang="no" lang="no" class="active">Norsk</button>
+            <button data-lang="en" lang="en">English</button>          </div>
         </div>
         <a class="btn btn-primary btn-arrow" href="bestilling.html"><span data-i18n="nav.book_cta">Bestill time</span> <span>→</span></a>
         <button class="nav-hamburger" type="button" aria-label="Meny" data-i18n-aria-label="nav.menu_aria" aria-expanded="false" aria-controls="navMobile">
@@ -192,12 +203,11 @@
 
 <main>
 
-<!-- ============ HVA DETTE ER ============ -->
+<!-- ============ OVERSKRIFT ============ -->
 <section class="lead">
   <div class="container">
     <p class="lead-eyebrow" data-i18n="landing.eyebrow">Arbeidsprøve</p>
     <h1 data-i18n-html="landing.heading">Booking- og administrasjonssystem <em>for en klinikk</em></h1>
-    <p class="lead-body" data-i18n-html="landing.body1">Et komplett bookingsystem for en klinikk. Kunder bestiller time selv, avbestiller med en lenke, og setter seg på venteliste når alt er fullt. På innsiden ligger kalender for hver behandler, kunderegister, journal med samtykke, en logg over hvem som har åpnet hvilke opplysninger, meldinger fra nettsiden, og styring av tjenester, behandlere og stengte dager.</p>
   </div>
 </section>
 
@@ -240,6 +250,16 @@
       </div>
 
     </div>
+  </div>
+</section>
+
+<!-- ============ HVA DETTE ER ============
+     Ingressen stod foer over doerene, og paa telefon maatte man rulle
+     forbi den for aa se valget som er hele poenget med siden. Teksten
+     er den samme; den staar bare etter valget naa. -->
+<section class="intro">
+  <div class="container">
+    <p class="lead-body" data-i18n-html="landing.body1">Et komplett bookingsystem for en klinikk. Kunder bestiller time selv, avbestiller med en lenke, og setter seg på venteliste når alt er fullt. På innsiden ligger kalender for hver behandler, kunderegister, journal med samtykke, en logg over hvem som har åpnet hvilke opplysninger, meldinger fra nettsiden, og styring av tjenester, behandlere og stengte dager.</p>
   </div>
 </section>
 

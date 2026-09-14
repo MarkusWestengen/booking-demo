@@ -92,6 +92,15 @@
     /* På lyse flater (sider uten mørk header) snus kontrasten. */
     '.wk-demo-badge.on-light{border-color:#064789;color:#04315b;background:#cfe0f0;}',
     '.wk-demo-badge.on-light:hover{background:#DADDEF;}',
+    /* I seksjonslinja er merket underordnet seksjonsnavnet: ingen ramme
+       og ingen flate, bare dempet tekst med prikken foran. Trefflata er
+       fortsatt 44 px hoey; den utvides usynlig rundt teksten. */
+    '.wk-section-bar .wk-demo-badge.on-light{position:relative;border:0;background:transparent;',
+      'padding:0;color:#4a5c6f;font-size:10px;letter-spacing:.1em;flex:0 0 auto;}',
+    '.wk-section-bar .wk-demo-badge.on-light::before{background:#427aa1;}',
+    '.wk-section-bar .wk-demo-badge.on-light::after{content:"";position:absolute;',
+      'left:-8px;right:-8px;top:50%;height:44px;transform:translateY(-50%);}',
+    '.wk-section-bar .wk-demo-badge.on-light:hover{background:transparent;color:#064789;}',
     /* Reservefeste når siden ikke har header å henge seg på. */
     '.wk-demo-badge.floating{position:fixed;left:12px;bottom:12px;z-index:9998;}',
     '@media (max-width:560px){.wk-demo-badge{font-size:9px;padding:4px 8px;letter-spacing:.08em;}}',
@@ -144,25 +153,80 @@
        top-tall til seksjonslinja, legges begge inn i en felles
        sticky wrapper. Da folger de hverandre av seg selv, uansett
        hva den enkelte siden gjor med topbaren sin. */
+    /* To grupper, ingen loese elementer:
+         venstre  seksjonen (det viktigste) med demo-merket underordnet
+         hoyre    verktoyene: rolle, spraak, veien til nettsiden
+       Én rad paa bred skjerm, midtstilt paa samme linje. Paa telefon
+       alltid to rader, i samme rekkefoelge, med samme luft: seksjonen
+       oeverst, verktoyene under. Ingen flex-wrap som bestemmer selv. */
     '.wk-admin-head{position:sticky;top:0;z-index:50;}',
     '.wk-section-bar{background:#fff;border-bottom:1px solid #cfe0f0;',
       'font-family:Inter,system-ui,sans-serif;}',
-    '.wk-section-bar .wk-inner{margin:0 auto;padding:7px 20px;',
-      'display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap;}',
-    '.wk-section-bar .wk-where{font-size:14px;font-weight:600;color:#064789;}',
-    '.wk-section-bar .wk-bar-right{display:flex;align-items:center;margin-left:auto;',
-      'gap:10px 16px;flex-wrap:wrap;}',
-    '.wk-section-bar .wk-to-site{font-size:13px;color:#064789;',
-      'text-decoration:underline;text-underline-offset:3px;',
+    '.wk-section-bar .wk-inner{margin:0 auto;padding-top:8px;padding-bottom:8px;',
+      'min-height:52px;box-sizing:border-box;display:flex;align-items:center;',
+      'justify-content:space-between;gap:8px 24px;}',
+    '.wk-section-bar .wk-head{display:flex;align-items:baseline;gap:6px 12px;min-width:0;}',
+    '.wk-section-bar .wk-crumb{font-size:13px;color:#4a5c6f;white-space:nowrap;}',
+    '.wk-section-bar .wk-crumb a{color:inherit;text-decoration:none;}',
+    '.wk-section-bar .wk-crumb a:hover{color:#064789;text-decoration:underline;',
+      'text-underline-offset:3px;}',
+    '.wk-section-bar .wk-crumb span{margin-left:6px;color:#8a99a8;}',
+    '.wk-section-bar .wk-where{margin:0;font-size:16px;line-height:1.25;font-weight:600;',
+      'letter-spacing:-0.01em;color:#0b1a2b;white-space:nowrap;overflow:hidden;',
+      'text-overflow:ellipsis;min-width:0;}',
+    '.wk-section-bar .wk-tools{display:flex;align-items:center;gap:12px;flex:0 0 auto;}',
+    '.wk-section-bar .wk-to-site{display:inline-flex;align-items:center;min-height:32px;',
+      'font-size:13px;color:#064789;text-decoration:underline;text-underline-offset:3px;',
       'text-decoration-thickness:1px;white-space:nowrap;}',
     '.wk-section-bar .wk-to-site:hover{color:#427aa1;}',
     '.wk-section-bar .wk-to-site:focus-visible{outline:2px solid #064789;',
       'outline-offset:3px;}',
-    /* Paa telefon bryter linja i to: navn og pille oeverst,
-       rollebryter og lenke under. Hoyre gruppe holdes samlet paa
-       en rad, ellers blir baren tre etasjer hoy paa 320 px. */
-    '@media (max-width:640px){.wk-section-bar .wk-where{font-size:13px;}',
-      '.wk-section-bar .wk-bar-right{flex-wrap:nowrap;gap:12px;}}',
+    /* Spraakvelgeren i verktoygruppa: samme komponent som paa
+       kundesidene (shared/i18n.css er ikke lastet her), lys variant. */
+    '.wk-section-bar .tas-lang{position:relative;display:inline-block;}',
+    '.wk-section-bar .tas-lang .lang-btn{display:inline-flex;align-items:center;gap:8px;',
+      'min-height:32px;padding:0 10px;background:#fff;border:1px solid #cfe0f0;',
+      'font:500 12.5px Inter,system-ui,sans-serif;color:#064789;cursor:pointer;}',
+    '.wk-section-bar .tas-lang .lang-btn:hover{border-color:#427aa1;}',
+    '.wk-section-bar .tas-lang .lang-btn:focus-visible{outline:2px solid #064789;outline-offset:2px;}',
+    '.wk-section-bar .tas-lang .chev{width:7px;height:7px;border-right:1.5px solid currentColor;',
+      'border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);}',
+    '.wk-section-bar .tas-lang .lang-menu{position:absolute;top:calc(100% + 6px);right:0;',
+      'min-width:168px;padding:4px 0;background:#fff;border:1px solid #cfe0f0;',
+      'box-shadow:0 12px 32px -12px rgba(11,26,43,.28);z-index:1000;display:none;}',
+    '.wk-section-bar .tas-lang.open .lang-menu{display:block;}',
+    '.wk-section-bar .tas-lang .lang-menu button{display:flex;align-items:center;',
+      'justify-content:space-between;width:100%;min-height:44px;padding:10px 16px;',
+      'background:transparent;border:0;font:500 14px Inter,system-ui,sans-serif;',
+      'color:#0b1a2b;text-align:left;cursor:pointer;}',
+    '.wk-section-bar .tas-lang .lang-menu button+button{border-top:1px solid #cfe0f0;}',
+    '.wk-section-bar .tas-lang .lang-menu button:hover{background:#ebf2fa;}',
+    '.wk-section-bar .tas-lang .lang-menu button.active{color:#064789;font-weight:600;}',
+    '.wk-section-bar .tas-lang .lang-menu button.active::after{content:"";width:10px;height:5px;',
+      'border-left:2px solid currentColor;border-bottom:2px solid currentColor;',
+      'transform:translateY(-2px) rotate(-45deg);}',
+    /* To rader naar én ikke rommer alt (maales i mountSectionBar, ikke
+       gjettet med et tall: engelsk og norsk er ulikt lange, og hver side
+       har sin egen innholdsbredde). Samme oppsett som paa telefon. */
+    '.wk-section-bar.wk-stablet .wk-inner{flex-direction:column;align-items:stretch;',
+      'padding-top:10px;padding-bottom:10px;gap:8px;}',
+    '.wk-section-bar.wk-stablet .wk-head .wk-demo-badge{margin-left:auto;}',
+    '.wk-section-bar.wk-stablet .wk-tools{justify-content:flex-start;}',
+    '.wk-section-bar.wk-stablet .wk-to-site{margin-left:auto;}',
+    '@media (max-width:640px){',
+      '.wk-section-bar .wk-inner{flex-direction:column;align-items:stretch;',
+        'padding-top:10px;padding-bottom:10px;gap:8px;}',
+      '.wk-section-bar .wk-head .wk-demo-badge{margin-left:auto;}',
+      /* Paa telefon staar forelderen i menyen og i bunnlinja allerede. */
+      '.wk-section-bar .wk-crumb{display:none;}',
+      '.wk-section-bar .wk-tools{justify-content:space-between;}',
+      '.wk-section-bar .wk-to-site{min-height:44px;margin-left:0;}',
+      /* Spraaket ligger i menyen paa telefon, se shared/admin-nav.js. */
+      '.wk-section-bar .wk-tools .tas-lang{display:none;}',
+    '}',
+    /* Under 400 px faar seksjonsnavnet plassen: merket sier bare «Demo».
+       Hele teksten staar i title og i dialogen bak merket. */
+    '@media (max-width:400px){.wk-section-bar .wk-badge-mer{display:none;}}',
 
     /* ---- Låsemerke på seed-rader i admin ---- */
     '.wk-seed-lock{display:inline-flex;align-items:center;gap:4px;',
@@ -279,7 +343,16 @@
     var badge = doc.createElement('button');
     badge.type = 'button';
     badge.className = 'wk-demo-badge';
-    badge.textContent = BADGE_TEXT;
+    // To deler, så « · fiktive data» kan vike i seksjonslinja på smal
+    // skjerm. Teksten er den samme som før.
+    var del1 = doc.createElement('span');
+    del1.textContent = 'DEMO';
+    var del2 = doc.createElement('span');
+    del2.className = 'wk-badge-mer';
+    del2.textContent = '· fiktive data';
+    badge.appendChild(del1);
+    badge.appendChild(del2);
+    badge.setAttribute('aria-label', BADGE_TEXT);
     badge.title = t('demo.badge_title',
       'Demonstrasjonsversjon med fiktive data. Klikk for detaljer.');
     badge.setAttribute('aria-haspopup', 'dialog');
@@ -303,10 +376,10 @@
     // text-overflow:ellipsis for aa kunne korte ned et langt
     // merkenavn. Pillen ble derfor klippet bort av den regelen og
     // var i praksis usynlig i hele panelet.
-    var where = doc.querySelector('.wk-section-bar .wk-where');
-    if (where && where.parentNode) {
+    var head = doc.querySelector('.wk-section-bar .wk-head');
+    if (head) {
       badge.classList.add('on-light');
-      where.parentNode.insertBefore(badge, where.nextSibling);
+      head.appendChild(badge);
       return;
     }
 
@@ -341,32 +414,72 @@
   // Linja ligger i normal flyt rett under topbaren, ikke fixed. Da
   // kan ingenting i den legge seg oppaa noe annet, uansett bredde.
   // ============================================================
-  // Fil -> [i18n-nokkel, norsk tekst]. Ansattsidene laster ikke
-  // i18n/i18n.js — panelet er norsk — saa den norske teksten her er
-  // den som faktisk vises. Nokkelen staar klar til den dagen panelet
-  // ogsaa skal finnes paa engelsk.
+  // Fil -> [i18n-nokkel, norsk tekst, forelder]. Navnet er det samme som
+  // menypunktet siden hører til, slik at seksjonslinja, den grønne
+  // bunnlinja og det markerte punktet i menyen sier det samme. Sider
+  // som ikke er et eget menypunkt (kundekortet, stengte tider, loggen)
+  // har en forelder: menypunktet man kommer dit fra.
   var SECTIONS = {
     'kalender.html':      ['admin.section.kalender',      'Kalender'],
-    'booking-admin.html': ['admin.section.oversikt',      'Bookinger'],
+    'booking-admin.html': ['admin.section.oversikt',      'Oversikt'],
     'kunder.html':        ['admin.section.kunder',        'Kunder'],
-    'kunde-detalj.html':  ['admin.section.kunde',         'Kundekort'],
+    'kunde-detalj.html':  ['admin.section.kunde',         'Kundekort',         'kunder.html'],
     'tjenester.html':     ['admin.section.tjenester',     'Tjenester'],
     'behandlere.html':    ['admin.section.behandlere',    'Behandlere'],
     'meldinger.html':     ['admin.section.meldinger',     'Meldinger'],
     'dokumenter.html':    ['admin.section.dokumenter',    'Dokumenter'],
-    'stengte-tider.html': ['admin.section.stengte',       'Stengte tider'],
-    'audit-logg.html':    ['admin.section.audit',         'Logg over oppslag'],
+    'stengte-tider.html': ['admin.section.stengte',       'Stengte tider',     'innstillinger.html'],
+    'audit-logg.html':    ['admin.section.audit',         'Logg over oppslag', 'innstillinger.html'],
     'innstillinger.html': ['admin.section.innstillinger', 'Innstillinger']
   };
+
+  function denneSiden() {
+    return (root.location.pathname.split('/').pop() || '').toLowerCase();
+  }
+
+  // Leses av shared/admin-nav.js, som markerer riktig menypunkt og
+  // setter samme navn i bunnlinja.
+  function seksjon(fil) {
+    fil = fil || denneSiden();
+    var sec = SECTIONS[fil];
+    if (!sec) return null;
+    var forelder = sec[2] ? SECTIONS[sec[2]] : null;
+    return {
+      fil: fil,
+      navn: t(sec[0], sec[1]),
+      noekkel: sec[0],
+      menypunkt: sec[2] || fil,
+      forelder: forelder ? { fil: sec[2], navn: t(forelder[0], forelder[1]), noekkel: forelder[0] } : null
+    };
+  }
+
+  function lagSpraakvelger() {
+    var I = root.WestengenKlinikkI18n;
+    if (!I) return null;
+    var navn = { no: 'Norsk', en: 'English' };
+    var lang = I.getLanguage();
+    var w = doc.createElement('div');
+    // data-last-paa-nytt: adminsidene bygger datoer og tabeller ved
+    // lasting, saa et spraakbytte laster siden paa nytt (i18n.js).
+    w.className = 'lang tas-lang';
+    w.setAttribute('data-last-paa-nytt', '');
+    w.innerHTML =
+      '<button class="lang-btn" type="button" aria-haspopup="true" aria-expanded="false">' +
+        '<span data-current-lang>' + navn[lang] + '</span><span class="chev" aria-hidden="true"></span>' +
+      '</button>' +
+      '<div class="lang-menu">' +
+        '<button type="button" data-lang="no" lang="no">Norsk</button>' +
+        '<button type="button" data-lang="en" lang="en">English</button>' +
+      '</div>';
+    return w;
+  }
 
   function mountSectionBar() {
     var topbar = doc.querySelector('.topbar');
     if (!topbar || doc.querySelector('.wk-section-bar')) return;
 
-    var file = (root.location.pathname.split('/').pop() || '').toLowerCase();
-    var sec = SECTIONS[file];
+    var sec = seksjon();
     if (!sec) return;   // ikke en av adminsidene
-    var key = sec[0];
 
     var bar = doc.createElement('div');
     bar.className = 'wk-section-bar';
@@ -374,14 +487,35 @@
     var inner = doc.createElement('div');
     inner.className = 'wk-inner';
 
-    var where = doc.createElement('span');
+    var head = doc.createElement('div');
+    head.className = 'wk-head';
+
+    if (sec.forelder) {
+      var crumb = doc.createElement('span');
+      crumb.className = 'wk-crumb';
+      var up = doc.createElement('a');
+      up.href = sec.forelder.fil;
+      up.setAttribute('data-i18n', sec.forelder.noekkel);
+      up.textContent = sec.forelder.navn;
+      var sep = doc.createElement('span');
+      sep.setAttribute('aria-hidden', 'true');
+      sep.textContent = '›';
+      crumb.appendChild(up);
+      crumb.appendChild(sep);
+      head.appendChild(crumb);
+    }
+
+    var where = doc.createElement('p');
     where.className = 'wk-where';
-    where.setAttribute('data-i18n', key);
-    where.textContent = t(key, sec[1]);
-    inner.appendChild(where);
+    where.setAttribute('data-i18n', sec.noekkel);
+    where.textContent = sec.navn;
+    head.appendChild(where);
+    inner.appendChild(head);
 
     var right = doc.createElement('div');
-    right.className = 'wk-bar-right';
+    right.className = 'wk-tools';
+    right.setAttribute('role', 'group');
+    right.setAttribute('aria-label', t('admin.tools', 'Verktøy'));
 
     // Rollevelgeren monteres hit av shared/auth.js, saa snart rollen
     // er kjent. Slotten staar tom inntil da.
@@ -389,6 +523,9 @@
     slot.id = 'wkRoleSlot';
     slot.style.display = 'flex';
     right.appendChild(slot);
+
+    var spraak = lagSpraakvelger();
+    if (spraak) right.appendChild(spraak);
 
     var back = doc.createElement('a');
     back.className = 'wk-to-site';
@@ -417,16 +554,33 @@
       if (r === r) inner.style.paddingRight = r + 'px';
     }
 
-    var head = doc.createElement('div');
-    head.className = 'wk-admin-head';
-    topbar.parentNode.insertBefore(head, topbar);
-    head.appendChild(topbar);
-    head.appendChild(bar);
+    var wrap = doc.createElement('div');
+    wrap.className = 'wk-admin-head';
+    topbar.parentNode.insertBefore(wrap, topbar);
+    wrap.appendChild(topbar);
+    wrap.appendChild(bar);
+    if (root.WestengenKlinikkI18n) root.WestengenKlinikkI18n.translate(bar);
+
+    // Én rad eller to: prøv én, og gå over til to hvis seksjonsnavnet
+    // må kortes ned eller verktøyene ikke får plass. Måles på nytt når
+    // vinduet endres og når rollevelgeren kommer inn (den monteres
+    // først når innloggingen er klar).
+    function vurderRader() {
+      bar.classList.remove('wk-stablet');
+      if (root.matchMedia('(max-width:640px)').matches) return;
+      var trang = where.scrollWidth > where.clientWidth + 1 ||
+                  inner.scrollWidth > inner.clientWidth + 1 ||
+                  head.getBoundingClientRect().right > right.getBoundingClientRect().left;
+      if (trang) bar.classList.add('wk-stablet');
+    }
 
     // Paddingen kan endre seg paa et breakpoint, saa den maales om
     // naar vinduet endrer stoerrelse.
     mirrorWidth();
-    root.addEventListener('resize', mirrorWidth);
+    vurderRader();
+    root.addEventListener('resize', function () { mirrorWidth(); vurderRader(); });
+    if (root.ResizeObserver) new root.ResizeObserver(vurderRader).observe(right);
+    if (root.MutationObserver) new root.MutationObserver(vurderRader).observe(inner, { childList: true, subtree: true, characterData: true });
   }
 
   // ============================================================
@@ -618,6 +772,7 @@
   // Eksport
   // ============================================================
   root.WestengenKlinikkDemo = {
+    seksjon: seksjon,
     open: openSheet,
     close: closeSheet,
     toast: toast,

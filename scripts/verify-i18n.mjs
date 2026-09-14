@@ -23,7 +23,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const I18N = join(ROOT, 'i18n');
 
 const langs = readdirSync(I18N)
-  .filter((f) => f.endsWith('.json'))
+  .filter((f) => f.endsWith('.json') && !f.endsWith('-tekst.json'))
   .map((f) => f.replace('.json', ''))
   .sort();
 
@@ -54,6 +54,27 @@ for (const l of langs.slice(1)) {
   }
   for (const k of keys) {
     if (!baseKeys.has(k)) problems.push(`mangler i ${base}.json: ${k}`);
+  }
+}
+
+// ----- 1b) Tekstkatalogene (i18n/<språk>-tekst.json) -----------
+// Nøkkelen er norsk kildetekst, verdien er oversettelsen. Ingen tomme
+// verdier, og hvert mønster i _moenstre må være et gyldig regulært
+// uttrykk, ellers stopper hele katalogen i nettleseren.
+for (const f of readdirSync(I18N).filter((x) => x.endsWith('-tekst.json'))) {
+  let kat;
+  try { kat = JSON.parse(readFileSync(join(I18N, f), 'utf8')); }
+  catch (e) { problems.push(`${f} er ikke gyldig JSON: ${e.message}`); continue; }
+  for (const [k, v] of Object.entries(kat)) {
+    if (k === '_meta') continue;
+    if (k === '_moenstre') {
+      for (const m of v) {
+        try { new RegExp(m[0], 'u'); } catch (e) { problems.push(`${f}: ugyldig mønster ${m[0]}: ${e.message}`); }
+        if (typeof m[1] !== 'string' || !m[1].trim()) problems.push(`${f}: mønster uten erstatning: ${m[0]}`);
+      }
+      continue;
+    }
+    if (typeof v !== 'string' || v.trim() === '') problems.push(`tom verdi i ${f}: ${k}`);
   }
 }
 

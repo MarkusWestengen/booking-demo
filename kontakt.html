@@ -18,7 +18,6 @@
   img-src 'self' data: https:;
   connect-src 'self' https://*.supabase.co wss://*.supabase.co;
   frame-src https://challenges.cloudflare.com;
-  frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';
 ">
@@ -209,13 +208,13 @@
       </div>
       <div class="nav-cta">
         <div class="lang tas-lang">
-          <button class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-            <span class="flag" data-current-lang>🇳🇴</span>
+          <button class="lang-btn" type="button" aria-haspopup="true" aria-expanded="false">
+            <span class="lang-cur" data-current-lang>Norsk</span>
             <span class="chev"></span>
           </button>
-          <div class="lang-menu" role="listbox">
-            <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
-            <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>          </div>
+          <div class="lang-menu">
+            <button data-lang="no" lang="no" class="active">Norsk</button>
+            <button data-lang="en" lang="en">English</button>          </div>
         </div>
         <a class="btn btn-primary btn-arrow" href="bestilling.html"><span data-i18n="nav.book_cta">Bestill time</span> <span>→</span></a>
         <button class="nav-hamburger" type="button" aria-label="Meny" data-i18n-aria-label="nav.menu_aria" aria-expanded="false" aria-controls="navMobile">

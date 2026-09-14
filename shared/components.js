@@ -55,6 +55,13 @@
       ? window.WestengenKlinikkI18n.t(key, fb) : fb;
   }
 
+  // Tekst som ikke ligger i DOM-en (her: forhåndsutfylt skjemafelt), slått
+  // opp i tekstkatalogen direkte.
+  function bt2(norsk) {
+    var I = window.WestengenKlinikkI18n;
+    return (I && typeof I.tekst === 'function') ? I.tekst(norsk) : norsk;
+  }
+
   // ============ BOOKING MODAL =====================================
   var bookingHTML = ''
     + '<div class="tas-modal-overlay booking-overlay" role="dialog" aria-modal="true" aria-labelledby="booking-title">'
@@ -259,9 +266,13 @@
   // erfaring som om de var ekte. Den er fjernet sammen med grenen som
   // kalte den (opprydding 2026-09-12).
 
-  function appendMessage(text, who) {
+  // fritekst=true for det brukeren selv har skrevet. Den teksten er
+  // brukerens og skal ikke gjennom tekstkatalogen; hurtigsvarene og
+  // guidens egne svar skal.
+  function appendMessage(text, who, fritekst) {
     var msg = document.createElement('div');
     msg.className = 'tas-msg tas-msg-' + (who || 'bot');
+    if (fritekst) msg.setAttribute('translate', 'no');
     // Convert links + line breaks
     // Escape også " og ' FØR linkify — ellers kan en URL som inneholder
     // anførselstegn bryte ut av href-attributtet (self-XSS, revisjon
@@ -342,28 +353,30 @@
   // Keyed by simple keyword match.
   function staticAnswer(q) {
     var s = q.toLowerCase();
-    if (/(hva er dette|hva du|demo|arbeidspr|portef)/.test(s)) {
+    // Ordene står på norsk og engelsk. Svarene er norske og går gjennom
+    // tekstkatalogen når siden er på engelsk.
+    if (/(hva er dette|hva du|demo|arbeidspr|portef|what is this|what's this|portfolio)/.test(s)) {
       return 'Dette er et bookingsystem vist fram som arbeidsprove. Kundeflyten kan du klikke gjennom her; resten \u2014 kalender, kunderegister, journal og audit-logg \u2014 ligger bak innloggingen, og den er publisert pa forsiden.';
     }
-    if (/(logg|innlogg|passord|konto|bruker|admin)/.test(s)) {
+    if (/(logg|innlogg|passord|konto|bruker|admin|log ?in|sign ?in|password|account)/.test(s)) {
       return 'Innloggingen star apent pa forsiden. Det er to kontoer: en administrator og en terapeut. Logg inn med begge \u2014 forskjellen mellom dem er poenget, ikke en detalj.';
     }
-    if (/(ekte|virkelig|fiktiv|oppdiktet|data|personer|finnes)/.test(s)) {
+    if (/(ekte|virkelig|fiktiv|oppdiktet|data|personer|finnes|real|fake|fictional|invented|people|exist)/.test(s)) {
       return 'Nei. Klinikken, behandlerne, kundene og alle bestillinger er oppdiktet. E-postadressene ligger pa .example, et toppdomene som aldri kan registreres. Skriv likevel ikke inn noe ekte \u2014 det du legger inn er synlig for alle som logger inn.';
     }
-    if (/(pris|kost|hva.+koster|hvor mye)/.test(s)) {
+    if (/(pris|kost|hva.+koster|hvor mye|price|cost|how much)/.test(s)) {
       return 'Prisene ligger i databasen, ikke i koden: konsultasjon kr 4 000 eller kr 2 000 avhengig av behandler, videre behandling kr 3 000 eller kr 1 500. Alle timer er 30 minutter. En administrator kan endre dem i adminpanelet uten ny utrulling.';
     }
-    if (/(apning|apent|nar|tid|time.+lang)/.test(s)) {
+    if (/(apning|apent|nar|tid|time.+lang|opening|hours|when)/.test(s)) {
       return 'Bookingmotoren regner med mandag\u2013fredag 07:00\u201315:00, i luker pa 30 minutter. Helger er stengt. Ledige tider genereres fra disse rammene og fra det som allerede er booket.';
     }
-    if (/(avbest|kansell)/.test(s)) {
+    if (/(avbest|kansell|cancel)/.test(s)) {
       return 'Avbestilling gar inntil 24 timer for timen, med referansekoden fra bekreftelsen. Du kan prove det: bestill en time, og bruk koden pa avbestillingssiden.';
     }
     if (/(bestil|book|reserv)/.test(s)) {
       return 'Bruk \u00abBestill time\u00bb. Du velger behandler, tjeneste og tidspunkt, og far en referansekode til slutt. Bestillingen din blir en helt vanlig rad du kan endre og slette \u2014 i motsetning til radene som fulgte med demoen.';
     }
-    if (/(nullstill|slett|reset|forsvinner|lagres)/.test(s)) {
+    if (/(nullstill|slett|reset|forsvinner|lagres|delete|saved|stored|disappear)/.test(s)) {
       return 'Alt du legger inn slettes ved den nattlige nullstillingen. Radene som fulgte med demoen er skrivebeskyttet i databasen: knappene virker, men lagringen avvises med en forklaring, slik at panelet ser likt ut for neste besokende.';
     }
     return null;
@@ -394,7 +407,7 @@
       b.textContent = 'Send en melding →';
       b.addEventListener('click', function () {
         closeChat();
-        openContact({ message: 'Spørsmål fra chatbot:\n\n' + text });
+        openContact({ message: bt2('Spørsmål fra chatbot:') + '\n\n' + text });
       });
       chatQuick.appendChild(b);
       saveHistory();
@@ -437,7 +450,7 @@
     e.preventDefault();
     var v = chatInput.value.trim();
     if (!v) return;
-    appendMessage(v, 'user');
+    appendMessage(v, 'user', true);
     chatInput.value = '';
     chatQuick.innerHTML = '';
     handleUserMessage(v);

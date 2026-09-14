@@ -15,7 +15,6 @@
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: https:;
   connect-src 'self' https://*.supabase.co wss://*.supabase.co;
-  frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';
 ">
@@ -110,13 +109,13 @@
     <div style="display:flex;align-items:center;gap:14px;">
       <a href="index.html" data-i18n="legal.terms.back">← Tilbake til klinikken</a>
       <div class="lang tas-lang">
-        <button class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-          <span class="flag" data-current-lang>🇳🇴</span>
+        <button class="lang-btn" type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="lang-cur" data-current-lang>Norsk</span>
           <span class="chev"></span>
         </button>
-        <div class="lang-menu" role="listbox">
-          <button data-lang="no" class="active"><span>Norsk</span><span class="code">🇳🇴</span></button>
-          <button data-lang="en"><span>English</span><span class="code">🇬🇧</span></button>        </div>
+        <div class="lang-menu">
+          <button data-lang="no" lang="no" class="active">Norsk</button>
+          <button data-lang="en" lang="en">English</button>        </div>
       </div>
     </div>
   </div>

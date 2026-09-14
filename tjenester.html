@@ -13,12 +13,14 @@
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data:;
   connect-src 'self' https://*.supabase.co wss://*.supabase.co;
-  frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';
 ">
 
 <title>Tjenester · Westengen Klinikk</title>
+<!-- Språk: nøkler, tekstkatalogen og locale for datoer. I <head>, så
+     siden kan holdes skjult til engelsk er klar. -->
+<script src="i18n/i18n.js"></script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b1a2b'/%3E%3Ctext x='16' y='20' font-family='Georgia,serif' font-size='15' font-weight='500' text-anchor='middle' fill='%23ebf2fa'%3EWK%3C/text%3E%3Crect x='7' y='24' width='18' height='2' fill='%23427aa1'/%3E%3C/svg%3E" />
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -677,7 +679,7 @@
         '<div class="svc-slug">' + escapeHtml(s.slug) + '</div>' +
       '</div>' +
       '<div class="svc-meta">' + s.duration_min + ' min<br>' +
-        'kr ' + Number(s.price_nok || 0).toLocaleString('no-NO').replace(/,/g, ' ') +
+        WestengenKlinikkI18n.beloep(s.price_nok) +
       '</div>' +
       '<button class="svc-staff-pill" data-act="staff" data-id="' + escapeHtml(s.id) + '" type="button">' +
         escapeHtml(staffLabel) +
@@ -901,7 +903,7 @@
              '<input type="checkbox" name="staff" value="' + escapeHtml(st.id) + '"' +
         (assignedSet[st.id] ? ' checked' : '') + '>' +
         '<span class="wk-choice-text">' + escapeHtml(st.name) +
-        ' <span style="color:var(--muted);font-size:11px;">(' + escapeHtml(st.id) + ')</span></span>' +
+        ' <span style="color:var(--muted);font-size:11px;" translate="no">(' + escapeHtml(st.id) + ')</span></span>' +
         '</label>';
     }).join('');
 

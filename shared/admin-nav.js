@@ -5,7 +5,7 @@
    horisontalt) med ÉN grønn stripe: sidetittel til venstre + en ren
    «Meny»-knapp til høyre. Knappen åpner et gjennomarbeidet popup-ark
    (bunn-sheet) med ALLE destinasjonene som touch-vennlige kort.
-   Desktop er uendret. Admin er norsk-only — ingen i18n.
+   Desktop er uendret. Teksten går gjennom tekstkatalogen (i18n.js).
 
    Rolle-synlighet (data-admin-only) speiles inn i arket når det åpnes,
    så terapeut/admin ser akkurat samme sett som de skal. Idempotent,
@@ -125,48 +125,49 @@
       '.bn-sheet-ov.open{opacity:1;visibility:visible;}' +
       '.bn-sheet{position:fixed;left:0;right:0;bottom:0;z-index:9501;background:var(--paper,#ebf2fa);' +
         'border-top:3px solid var(--green,#064789);box-shadow:0 -14px 36px rgba(11, 26, 43,.18);' +
-        'padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));max-height:86vh;overflow-y:auto;' +
+        'padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));max-height:86vh;overflow-y:auto;' +
         'transform:translateY(100%);transition:transform .28s cubic-bezier(.22,.61,.36,1);}' +
       '.bn-sheet.open{transform:translateY(0);}' +
+      /* Arket er bygget ovenfra og ned etter hva man bruker det til:
+         sidene øverst, som er grunnen til å åpne det, og kontoen
+         (språk, varsler, logg ut) nederst som en avsluttende rad. Et
+         «ADMIN»-hode og to brede kontoknapper over rutenettet er borte;
+         rollen står allerede i seksjonslinja. Alt får plass uten
+         rulling på 375 x 667. */
       '.bn-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;' +
-        'padding:16px 16px 12px;border-bottom:1px solid var(--rule,rgba(11,26,43,.16));' +
+        'padding:6px 8px 6px 16px;border-bottom:1px solid var(--rule,rgba(11,26,43,.16));' +
         'position:sticky;top:0;background:var(--paper,#ebf2fa);z-index:1;}' +
-      '.bn-sheet-head h2{font-family:\'Fraunces\',Georgia,serif;font-weight:400;font-size:21px;letter-spacing:-0.01em;margin:0;}' +
-      '.bn-sheet-close{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex:0 0 auto;' +
-        'border:1px solid var(--rule,rgba(11,26,43,.16));background:transparent;color:var(--ink-2,#26384b);' +
-        'font-size:22px;line-height:1;cursor:pointer;}' +
-      '.bn-sheet-close:hover{border-color:var(--green,#064789);color:var(--green-deep,#04315b);}' +
-      '.bn-sheet-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px;}' +
-      '.bn-sheet-list .bn-btn{display:flex !important;flex-direction:row;align-items:center;gap:12px;' +
-        'padding:16px 14px;min-width:0;background:#fff;border:1px solid var(--rule,rgba(11,26,43,.16));' +
+      '.bn-sheet-head h2{font-family:\'Fraunces\',Georgia,serif;font-weight:400;font-size:19px;letter-spacing:-0.01em;margin:0;}' +
+      '.bn-sheet-close{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;flex:0 0 auto;' +
+        'border:0;background:transparent;color:var(--ink-2,#26384b);' +
+        'font-size:24px;line-height:1;cursor:pointer;}' +
+      '.bn-sheet-close:hover{color:var(--green-deep,#04315b);background:var(--paper-2,#dde8f3);}' +
+      '.bn-sheet-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px;}' +
+      '.bn-sheet-list .bn-btn{display:flex !important;flex-direction:row;align-items:center;gap:10px;' +
+        'min-height:48px;padding:10px 12px;min-width:0;box-sizing:border-box;background:#fff;border:1px solid var(--rule,rgba(11,26,43,.16));' +
         'color:var(--ink,#0b1a2b);text-decoration:none;cursor:pointer;text-align:left;' +
-        'font-family:\'Inter\',system-ui,sans-serif;font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;}' +
+        'font-family:\'Inter\',system-ui,sans-serif;font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;' +
+        'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
       '.bn-sheet-list .bn-btn .bn-ico{display:flex !important;margin:0;flex:0 0 auto;color:var(--green-deep,#04315b);' +
         'font-size:18px;line-height:1;}' +
       '.bn-sheet-list .bn-btn:hover{border-color:var(--green-soft,#8fc1e0);}' +
       '.bn-sheet-list .bn-btn.active{border-color:var(--green,#064789);background:var(--green-tint,#cfe0f0);color:var(--green-deep,#04315b);}' +
-      /* ---- Konto-seksjon: header-handlingene flyttet inn i menyen ---- */
-      '.bn-acct{padding:14px 14px 6px;display:flex;flex-direction:column;gap:10px;}' +
-      '.bn-acct>*{min-width:0;}' +
-      /* Rolle-rad (identitet) — divider under skiller fra handlingene */
-      '.bn-acct #whoChip,.bn-acct #roleBadge{display:block !important;width:100%;box-sizing:border-box;' +
-        'background:transparent !important;color:var(--ink,#0b1a2b) !important;border:0 !important;' +
-        'font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;' +
-        'padding:2px 2px 12px;margin:0;border-bottom:1px solid var(--rule,rgba(11,26,43,.16)) !important;}' +
-      /* Varsling-mount får egen rad med god tap-høyde (≥44px) */
-      '.bn-acct #varslingMount{display:flex !important;align-items:center;min-height:48px;padding:2px;}' +
-      /* Lenker + logg ut som fulle rader */
-      '.bn-acct #topActions,.bn-acct #topbarRight{display:flex;flex-direction:column;gap:8px;margin:0;}' +
-      '.bn-acct #topActions a,.bn-acct #topActions button,' +
-      '.bn-acct #topbarRight a,.bn-acct #topbarRight button{display:flex;align-items:center;gap:10px;' +
-        'width:100%;box-sizing:border-box;min-height:48px;margin:0;padding:13px 14px;' +
-        'border:1px solid var(--rule,rgba(11,26,43,.16));background:#fff;border-radius:0;' +
-        'font-family:\'Inter\',system-ui,sans-serif;font-size:14px;font-weight:500;letter-spacing:0;' +
-        'color:var(--ink,#0b1a2b);text-decoration:none;text-align:left;cursor:pointer;}' +
-      '.bn-acct #topActions a:hover,.bn-acct #topActions button:hover,' +
-      '.bn-acct #topbarRight a:hover,.bn-acct #topbarRight button:hover{border-color:var(--green-soft,#8fc1e0);}' +
-      '.bn-acct #topActions #logoutBtn,.bn-acct #topbarRight #logoutBtn{' +
-        'color:#7a1912;border-color:#e2c6c0;font-weight:600;}' +
+      /* ---- Kontoraden nederst ---- */
+      '.bn-foot{display:flex;align-items:center;gap:8px;padding:12px 14px 0;' +
+        'border-top:1px solid var(--rule,rgba(11,26,43,.16));}' +
+      '.bn-lang{display:inline-flex;border:1px solid var(--rule,rgba(11,26,43,.16));background:#fff;flex:0 0 auto;}' +
+      '.bn-lang button{min-height:44px;padding:0 12px;border:0;background:transparent;cursor:pointer;' +
+        'font-family:\'Inter\',system-ui,sans-serif;font-size:13px;font-weight:500;color:var(--green,#064789);}' +
+      '.bn-lang button+button{border-left:1px solid var(--rule,rgba(11,26,43,.16));}' +
+      '.bn-lang button[aria-pressed="true"]{background:var(--green,#064789);color:#fff;cursor:default;}' +
+      '.bn-foot #varslingMount{display:inline-flex !important;align-items:center;min-height:44px;}' +
+      '.bn-logout{margin-left:auto;min-height:44px;padding:0 16px;border:1px solid #e2c6c0;background:#fff;' +
+        'font-family:\'Inter\',system-ui,sans-serif;font-size:14px;font-weight:600;color:#7a1912;cursor:pointer;}' +
+      '.bn-logout:hover{border-color:#7a1912;}' +
+      /* Kontohandlingene i headeren (rolle-chip, lenker, logg ut) vises
+         ikke på telefon. Logg ut nås fra kontoraden i menyen, lenkene
+         står i rutenettet, og rollen står i seksjonslinja. */
+      '@media (max-width:760px){.topbar #whoChip,.topbar #roleBadge,.topbar #topActions,.topbar #topbarRight{display:none !important;}}' +
       /* ---- Sentrer logoen i topp-headeren på mobil. Headeren er ryddet
          (konto-nodene flyttet til menyen ≤760px), så kun .brand står igjen.
          Tving row + center deterministisk på tvers av begge header-mønstre
@@ -197,7 +198,9 @@
 
     // ---- Popup-ark med ALLE destinasjonene ----
     var ov = document.createElement('div'); ov.className = 'bn-sheet-ov';
-    var sheet = document.createElement('div'); sheet.className = 'bn-sheet'; sheet.setAttribute('role', 'menu');
+    var sheet = document.createElement('div'); sheet.className = 'bn-sheet';
+    sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-modal', 'true');
+    sheet.setAttribute('aria-label', 'Meny');
 
     var head = document.createElement('div'); head.className = 'bn-sheet-head';
     var h2 = document.createElement('h2'); h2.textContent = 'Meny';
@@ -205,47 +208,92 @@
     closeBtn.className = 'bn-sheet-close'; closeBtn.setAttribute('aria-label', 'Lukk'); closeBtn.innerHTML = '&times;';
     head.appendChild(h2); head.appendChild(closeBtn);
 
-    var list = document.createElement('div'); list.className = 'bn-sheet-list';
+    var list = document.createElement('nav'); list.className = 'bn-sheet-list';
+    list.setAttribute('aria-label', 'Sider');
     var pairs = btns.map(function (b) { var c = b.cloneNode(true); list.appendChild(c); return [b, c]; });
 
-    // ---- Konto-seksjon: flytt header-handlingene (rolle, varsling,
-    //      lenker, logg ut) inn i menyen på mobil; tilbake i headeren på
-    //      desktop. Vi flytter de EKSISTERENDE nodene (samme id-er) så all
-    //      side-JS (setWhoChip/setTopActions, varsling-mount på
-    //      #varslingMount, #logoutBtn-handler) virker uendret — kun ny
-    //      plassering. Støtter begge header-mønstrene:
-    //        #whoChip|#roleBadge (rolle), #varslingMount (varsling),
-    //        #topActions|#topbarRight (lenker + logg ut).
-    var acct = document.createElement('div'); acct.className = 'bn-acct';
-    var slots = [];
-    ['#whoChip', '#roleBadge', '#varslingMount', '#topActions', '#topbarRight'].forEach(function (sel) {
-      var el = document.querySelector(sel);
-      if (el) slots.push({ el: el, parent: el.parentNode, next: el.nextSibling });
-    });
+    // ---- Kontoraden: språk, varsler, logg ut ----
+    var foot = document.createElement('div'); foot.className = 'bn-foot';
 
-    sheet.appendChild(head); sheet.appendChild(acct); sheet.appendChild(list);
+    var I = window.WestengenKlinikkI18n;
+    if (I) {
+      var lang = document.createElement('div'); lang.className = 'bn-lang';
+      lang.setAttribute('role', 'group');
+      lang.setAttribute('aria-label', t('admin.lang_label', 'Språk'));
+      [['no', 'Norsk'], ['en', 'English']].forEach(function (l) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.lang = l[0]; b.textContent = l[1];
+        b.setAttribute('translate', 'no');
+        b.setAttribute('aria-pressed', I.getLanguage() === l[0] ? 'true' : 'false');
+        b.addEventListener('click', function () {
+          if (I.getLanguage() === l[0]) return;
+          // Adminsidene bygger datoer og tabeller ved lasting: last på nytt.
+          try { localStorage.setItem('westengen-klinikk-lang', l[0]); } catch (_) {}
+          location.reload();
+        });
+        lang.appendChild(b);
+      });
+      foot.appendChild(lang);
+    }
+
+    // Varslingsknappen flyttes hit på telefon og tilbake i headeren på
+    // bred skjerm. Den er selvstendig (varsling.js binder på knappen),
+    // så noden kan flyttes uten at noe annet må vite det.
+    var varsling = document.getElementById('varslingMount');
+    var varslingHjem = varsling ? { parent: varsling.parentNode, next: varsling.nextSibling } : null;
+
+    // Logg ut: sidene bygger sin egen #logoutBtn i headeren, ofte etter
+    // at innloggingen er klar, og lytter på den der. Knappen her trykker
+    // på den, så bekreftelsen og utloggingen går samme vei som før.
+    var logout = document.createElement('button');
+    logout.type = 'button'; logout.className = 'bn-logout';
+    logout.textContent = t('logout_confirm_yes', 'Logg ut');
+    logout.addEventListener('click', function () {
+      var orig = document.getElementById('logoutBtn');
+      if (orig) orig.click();
+    });
+    foot.appendChild(logout);
+
+    sheet.appendChild(head); sheet.appendChild(list); sheet.appendChild(foot);
     ov.appendChild(sheet);
     document.body.appendChild(ov);
 
-    // Responsiv plassering: ≤760px = nodene i menyen, ellers i headeren.
     var mq = window.matchMedia('(max-width:760px)');
     function placeAccount() {
+      if (!varsling) return;
       if (mq.matches) {
-        slots.forEach(function (s) { acct.appendChild(s.el); });
-        acct.style.display = slots.length ? '' : 'none';
-      } else {
-        slots.forEach(function (s) {
-          if (s.next && s.next.parentNode === s.parent) s.parent.insertBefore(s.el, s.next);
-          else s.parent.appendChild(s.el);
-        });
+        foot.insertBefore(varsling, logout);
+      } else if (varslingHjem.parent) {
+        if (varslingHjem.next && varslingHjem.next.parentNode === varslingHjem.parent) varslingHjem.parent.insertBefore(varsling, varslingHjem.next);
+        else varslingHjem.parent.appendChild(varsling);
       }
     }
     if (mq.addEventListener) mq.addEventListener('change', placeAccount);
     else if (mq.addListener) mq.addListener(placeAccount);
     placeAccount();
 
+    // Seksjonen denne siden hører til (shared/demo-mode.js): samme navn
+    // i bunnlinja som i seksjonslinja, og riktig menypunkt markert også
+    // på sider som ikke er et eget punkt (kundekort, stengte tider, logg).
+    function brukSeksjon() {
+      var D = window.WestengenKlinikkDemo;
+      var sek = D && typeof D.seksjon === 'function' ? D.seksjon() : null;
+      if (!sek) return;
+      title.textContent = sek.navn;
+      pairs.forEach(function (p) {
+        var href = (p[1].getAttribute('href') || '').split('/').pop();
+        var aktiv = href ? href === sek.menypunkt : p[0].classList.contains('active');
+        p[1].classList.toggle('active', aktiv);
+        if (aktiv) p[1].setAttribute('aria-current', 'page'); else p[1].removeAttribute('aria-current');
+      });
+    }
+    brukSeksjon();
+    document.addEventListener('DOMContentLoaded', brukSeksjon);
+    window.addEventListener('load', brukSeksjon);
+
     function syncRole() {
       pairs.forEach(function (p) { p[1].style.display = (p[0].style.display === 'none') ? 'none' : ''; });
+      logout.hidden = !document.getElementById('logoutBtn');
     }
     function open() { syncRole(); ov.classList.add('open'); sheet.classList.add('open'); menuBtn.setAttribute('aria-expanded', 'true'); }
     function close() { sheet.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); setTimeout(function () { ov.classList.remove('open'); }, 240); }

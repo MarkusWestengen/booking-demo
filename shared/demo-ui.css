@@ -243,7 +243,9 @@
    kledd: kundeflaten er lys som sidene den fører til, adminpanelet
    er invertert som skallet bak innlogging. To rom, ikke to knapper.
    ============================================================ */
-.doors-section { padding: 0 0 12px; }
+/* Doerene ligger rett under overskriften. Luft over, saa de ikke
+   kleber seg til den moerke flaten, men mindre enn en ny seksjon. */
+.doors-section { padding: 28px 0 0; background: var(--paper); }
 .doors-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -380,11 +382,24 @@
    RESPONSIVT
    ============================================================ */
 @media (max-width: 860px) {
-  .doors-grid { grid-template-columns: 1fr; }
-  .door-panel { padding: 30px 24px 28px; }
+  .door-panel { padding: 28px 22px 24px; }
   .spec-row { grid-template-columns: 1fr; gap: 6px; }
   .page-facts > div { border-right: 0; margin-right: 0; padding-right: 0; width: 100%; border-top: 1px solid var(--hair); }
   .page-facts > div:first-child { border-top: 0; }
+}
+/* Telefon: fortsatt to kort side om side. Valget er paret, og det skal
+   synes foer man ruller. Teksten er den samme; typografien strammes. */
+@media (max-width: 560px) {
+  .doors-section { padding-top: 16px; }
+  .door-panel { padding: 16px 12px 14px; }
+  .door-role { font-size: 9.5px; letter-spacing: 0.1em; margin-bottom: 10px; gap: 6px; }
+  .door-role::before { width: 12px; }
+  .door-panel h2 { font-size: 19px; line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .door-panel > p { font-size: 13px; line-height: 1.45; margin-bottom: 12px; }
+  .door-list { margin-bottom: 14px; }
+  .door-list li { font-size: 12.5px; line-height: 1.4; padding: 7px 0 7px 12px; }
+  .door-list li::before { top: 14px; width: 6px; }
+  .door-cta { padding: 12px 10px; font-size: 13.5px; gap: 6px; min-height: 44px; box-sizing: border-box; }
 }
 @media (max-width: 560px) {
   .page-head { padding-top: 34px; }

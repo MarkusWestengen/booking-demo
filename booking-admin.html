@@ -24,12 +24,14 @@
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data:;
   connect-src 'self' https://*.supabase.co wss://*.supabase.co;
-  frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';
 ">
 
 <title>Oversikt · Westengen Klinikk</title>
+<!-- Språk: nøkler, tekstkatalogen og locale for datoer. I <head>, så
+     siden kan holdes skjult til engelsk er klar. -->
+<script src="i18n/i18n.js"></script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b1a2b'/%3E%3Ctext x='16' y='20' font-family='Georgia,serif' font-size='15' font-weight='500' text-anchor='middle' fill='%23ebf2fa'%3EWK%3C/text%3E%3Crect x='7' y='24' width='18' height='2' fill='%23427aa1'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1816,20 +1818,28 @@
     d.setDate(d.getDate() + n);
     return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
   }
-  var DAYS_NO  = ['søn','man','tir','ons','tor','fre','lør'];
-  var MONTHS_NO = ['januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember'];
   function formatDateNo(dateStr) {
     if (!dateStr) return '–';
     var p = dateStr.split('-');
     var d = new Date(+p[0], +p[1] - 1, +p[2]);
-    return DAYS_NO[d.getDay()] + ' ' + d.getDate() + '. ' + MONTHS_NO[d.getMonth()];
+    // Etter valgt språk: «tir. 15. sep.» / «Tue 15 Sept».
+    return d.toLocaleDateString(WestengenKlinikkI18n.locale(), { weekday: 'short', day: 'numeric', month: 'long' });
   }
   function formatTimeShort(t) { return (t || '').slice(0, 5); }
-  function formatPrice(n) { return 'kr ' + (n || 0).toLocaleString('no-NO').replace(/,/g, ' '); }
+  // «Klinikken er stengt på søndager.» Ukedagen i flertall bøyes ulikt
+  // på de to språkene, så setningen bygges her i stedet for i katalogen.
+  function stengtUkedag(dow) {
+    var loc = WestengenKlinikkI18n.locale();
+    var dag = new Date(2024, 0, 7 + dow).toLocaleDateString(loc, { weekday: 'long' });
+    return loc === 'en-GB'
+      ? 'The clinic is closed on ' + dag + 's.'
+      : 'Klinikken er stengt på ' + dag + 'er.';
+  }
+  function formatPrice(n) { return WestengenKlinikkI18n.beloep(n); }
   function formatCreatedAt(iso) {
     if (!iso) return '–';
     var d = new Date(iso);
-    return d.toLocaleString('no-NO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleString(WestengenKlinikkI18n.locale(), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
   function statusLabel(s) {
     return ({ confirmed: 'Bekreftet', completed: 'Fullført', cancelled: 'Avlyst', no_show: 'No-show' })[s] || s || '–';
@@ -2255,7 +2265,7 @@
         '<a href="tel:' + escapeHtml(b.phone || '') + '">' + escapeHtml(b.phone || '–') + '</a>' +
         (b.phone ? '<button class="copy-btn" data-copy="' + escapeHtml(b.phone) + '">Kopier</button>' : '') +
         '</div></td></tr>' +
-      (b.notes ? '<tr><td>Notater</td><td><div class="notes">' + escapeHtml(b.notes) + '</div></td></tr>' : '') +
+      (b.notes ? '<tr><td>Notater</td><td><div class="notes" translate="no">' + escapeHtml(b.notes) + '</div></td></tr>' : '') +
       '<tr><td>Bestilt</td><td>' + escapeHtml(formatCreatedAt(b.created_at)) + '</td></tr>' +
       '</table>';
   }
@@ -2746,7 +2756,7 @@
     if (!hrs) {
       wrap.innerHTML = headerHtml +
         '<div class="state-card"><h3>Stengt</h3>' +
-        '<p>Klinikken er stengt på ' + escapeHtml(['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'][dow]) + 'er.</p></div>';
+        '<p>' + escapeHtml(stengtUkedag(dow)) + '</p></div>';
       return;
     }
 
@@ -2990,15 +3000,20 @@
   function wlFormatDateRange(from, to) {
     if (!from) return '–';
     if (to && to !== from) return formatDateNo(from) + ' – ' + formatDateNo(to);
-    return 'fra ' + formatDateNo(from);
+    return spraak('fra ', 'from ') + formatDateNo(from);
+  }
+  // Linja «Ønsket: …» settes sammen av flere biter i én tekstnode, så
+  // småordene velges her etter språk i stedet for i tekstkatalogen.
+  function spraak(norsk, engelsk) {
+    return WestengenKlinikkI18n.locale() === 'en-GB' ? engelsk : norsk;
   }
   function wlFormatTimePref(from, to) {
     var f = from ? formatTimeShort(from) : '';
     var tt = to ? formatTimeShort(to) : '';
-    if (f && tt) return 'kl. ' + f + '–' + tt;
-    if (f) return 'fra kl. ' + f;
-    if (tt) return 'innen kl. ' + tt;
-    return 'tid: fleksibel';
+    if (f && tt) return spraak('kl. ', '') + f + '–' + tt;
+    if (f) return spraak('fra kl. ', 'from ') + f;
+    if (tt) return spraak('innen kl. ', 'by ') + tt;
+    return spraak('tid: fleksibel', 'time: flexible');
   }
 
   function loadWaitlist() {
@@ -3035,7 +3050,7 @@
           '<div class="wl-sub">' + escapeHtml(w.ref || '') + ' · ' +
             escapeHtml(w.phone || '') + ' · ' + escapeHtml(w.email || '') +
             ' · meldt på ' + escapeHtml(formatCreatedAt(w.created_at)) + '</div>' +
-          (notes ? '<div class="wl-notes">' + escapeHtml(notes) + '</div>' : '') +
+          (notes ? '<div class="wl-notes" translate="no">' + escapeHtml(notes) + '</div>' : '') +
         '</div>' +
         '<div class="wl-card-actions">' +
           '<button class="btn-primary" data-wl-assign="' + escapeHtml(w.id) + '">Tildel time</button>' +
@@ -3381,10 +3396,10 @@
     var body = (r.body || '').trim();
     return '<div class="wl-card">' +
         '<div class="wl-main">' +
-          '<div class="wl-name">' + escapeHtml(r.name || '–') +
+          '<div class="wl-name"><span translate="no">' + escapeHtml(r.name || '–') + '</span>' +
             ' <span style="color:var(--green);letter-spacing:2px;">' + revStars(r.rating) + '</span></div>' +
           '<div class="wl-sub">meldt ' + escapeHtml(formatCreatedAt(r.created_at)) + '</div>' +
-          (body ? '<div class="wl-notes">' + escapeHtml(body) + '</div>' : '') +
+          (body ? '<div class="wl-notes" translate="no">' + escapeHtml(body) + '</div>' : '') +
         '</div>' +
         '<div class="wl-card-actions">' +
           '<button class="btn-primary" data-rev-approve="' + escapeHtml(r.id) + '">Godkjenn</button>' +
