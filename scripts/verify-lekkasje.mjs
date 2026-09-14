@@ -22,7 +22,7 @@ const MOENSTRE = [
   // Registrerbare domener som ligner klinikkens.
   // Bare ekte toppdomener. «WestengenKlinikk.openBooking» i JS er
   // ikke et domene.
-  [/westengenklinikk\.(?:no|com|net|org|dev|io|app|se|dk)/gi, 'registrerbart domene'],
+  [/westengenklinikk\.(?:no|com|net|org|dev|io|app|se|dk)\b/gi, 'registrerbart domene'],
   [/tomsarena|toms-arena|toms\.arena/gi, 'gammelt prosjektnavn'],
   // Monogrammet i e-posthodene het «<navn>&nbsp;ARENA» i to runder
   // etter at prosjektnavnet ellers var byttet.

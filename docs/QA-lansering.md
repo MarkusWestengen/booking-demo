@@ -2825,7 +2825,7 @@ oppryddingscommitene og fra dagens migrasjonsfiler:
 | gateadressene | `Eksempelveien 12, 0000 Oslo` / `EKSEMPELVEIEN 12, 0000 OSLO` |
 | LAN-adressen, «(M*****' Live Server» | `localhost`, «(lokal Live Server» |
 | `k****@e*******.no`, og en énbokstavs `.no`-adresse i 0022, 0023 og 0053 | `kunde@eksempel.example`, `x@y.example` |
-| `westengenklinikk.no` i en kommentar i 0011 | `westengenklinikk.example` |
+| `westengenklinikk.n*` i en kommentar i 0011 | `westengenklinikk.example` |
 | `E***` / `E****s` / `e***` | `Markus` / `Markus'` / `markus` |
 | `T**` som id og slug | `markus` |
 | de seks opprinnelige id-ene | `sofie`, `henrik`, `jonas`, `amina`, `petter`, `lena` |
