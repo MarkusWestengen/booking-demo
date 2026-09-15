@@ -923,6 +923,10 @@
       '<div class="form-row">' +
         '<label for="fName">Navn *</label>' +
         '<input type="text" id="fName" required maxlength="120" value="' + escapeHtml(svc ? svc.name : '') + '">' +
+        // Engelsk tekst for databasetekst ligger i tekstkatalogen, ikke i en
+        // kolonne. ponytail: et felt for engelsk navn krever en kolonne og en
+        // migrasjon; til da sier panelet fra.
+        '<div class="form-help" id="fNameEnHelp">Engelsk: navnet og beskrivelsen vises på norsk også når engelsk er valgt, til de er lagt inn i i18n/en-tekst.json. Legg dem inn begge steder.</div>' +
       '</div>' +
       // STEG 8 — URL-navn (slug) skjules: et auto-generert, internt felt
       // ikke-tekniske brukere ikke trenger å se. <input> beholdes (skjult
