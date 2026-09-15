@@ -221,12 +221,15 @@
       '.wk-section-bar .wk-crumb{display:none;}',
       '.wk-section-bar .wk-tools{justify-content:space-between;}',
       '.wk-section-bar .wk-to-site{min-height:44px;margin-left:0;}',
-      /* Spraaket ligger i menyen paa telefon, se shared/admin-nav.js. */
-      '.wk-section-bar .wk-tools .tas-lang{display:none;}',
+      /* Rollevelger og lenke fyller andre rad paa 320 px, saa spraaket
+         flyttes opp i foerste rad, til hoyre for merket (vurderRader). */
+      '.wk-section-bar .wk-head{align-items:center;}',
+      '.wk-section-bar .wk-head .tas-lang{order:1;flex:0 0 auto;}',
+      '.wk-section-bar .tas-lang .lang-btn{min-height:44px;}',
     '}',
-    /* Under 400 px faar seksjonsnavnet plassen: merket sier bare «Demo».
+    /* Paa telefon (640 px og under) faar seksjonsnavnet og spraaket plassen: merket sier bare «Demo».
        Hele teksten staar i title og i dialogen bak merket. */
-    '@media (max-width:400px){.wk-section-bar .wk-badge-mer{display:none;}}',
+    '@media (max-width:640px){.wk-section-bar .wk-badge-mer{display:none;}}',
 
     /* ---- Låsemerke på seed-rader i admin ---- */
     '.wk-seed-lock{display:inline-flex;align-items:center;gap:4px;',
@@ -567,6 +570,11 @@
     // først når innloggingen er klar).
     function vurderRader() {
       bar.classList.remove('wk-stablet');
+      if (spraak) {
+        var smal = root.matchMedia('(max-width:640px)').matches;
+        if (smal && spraak.parentNode !== head) head.appendChild(spraak);
+        if (!smal && spraak.parentNode !== right) right.insertBefore(spraak, back);
+      }
       if (root.matchMedia('(max-width:640px)').matches) return;
       var trang = where.scrollWidth > where.clientWidth + 1 ||
                   inner.scrollWidth > inner.clientWidth + 1 ||
