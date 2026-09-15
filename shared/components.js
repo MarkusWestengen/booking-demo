@@ -356,28 +356,28 @@
     // Ordene står på norsk og engelsk. Svarene er norske og går gjennom
     // tekstkatalogen når siden er på engelsk.
     if (/(hva er dette|hva du|demo|arbeidspr|portef|what is this|what's this|portfolio)/.test(s)) {
-      return 'Dette er et bookingsystem vist fram som arbeidsprove. Kundeflyten kan du klikke gjennom her; resten \u2014 kalender, kunderegister, journal og audit-logg \u2014 ligger bak innloggingen, og den er publisert pa forsiden.';
+      return 'Dette er et bookingsystem vist fram som arbeidsprøve. Kundeflyten kan du klikke gjennom her; resten \u2014 kalender, kunderegister, journal og audit-logg \u2014 ligger i adminpanelet, som åpner seg selv fra forsiden.';
     }
     if (/(logg|innlogg|passord|konto|bruker|admin|log ?in|sign ?in|password|account)/.test(s)) {
-      return 'Innloggingen star apent pa forsiden. Det er to kontoer: en administrator og en terapeut. Logg inn med begge \u2014 forskjellen mellom dem er poenget, ikke en detalj.';
+      return 'Du trenger ikke logge inn: adminpanelet logger deg inn selv. Det er to roller, administrator og terapeut, og du bytter mellom dem i toppen av panelet. Prøv begge \u2014 forskjellen mellom dem er poenget, ikke en detalj.';
     }
     if (/(ekte|virkelig|fiktiv|oppdiktet|data|personer|finnes|real|fake|fictional|invented|people|exist)/.test(s)) {
-      return 'Nei. Klinikken, behandlerne, kundene og alle bestillinger er oppdiktet. E-postadressene ligger pa .example, et toppdomene som aldri kan registreres. Skriv likevel ikke inn noe ekte \u2014 det du legger inn er synlig for alle som logger inn.';
+      return 'Nei. Klinikken, behandlerne, kundene og alle bestillinger er oppdiktet. E-postadressene ligger på .example, et toppdomene som aldri kan registreres. Skriv likevel ikke inn noe ekte \u2014 det du legger inn er synlig for alle som åpner adminpanelet.';
     }
     if (/(pris|kost|hva.+koster|hvor mye|price|cost|how much)/.test(s)) {
-      return 'Prisene ligger i databasen, ikke i koden: konsultasjon kr 4 000 eller kr 2 000 avhengig av behandler, videre behandling kr 3 000 eller kr 1 500. Alle timer er 30 minutter. En administrator kan endre dem i adminpanelet uten ny utrulling.';
+      return 'Prisene ligger i databasen, ikke i koden: Førstegangsvurdering kr 1 290 (60 minutter), Oppfølgingstime kr 790 (30 minutter), Trykkbølgebehandling kr 690 (30 minutter) og Bevegelsesanalyse kr 1 490 (60 minutter), likt hos alle behandlere. En administrator kan endre dem i adminpanelet uten ny utrulling.';
     }
     if (/(apning|apent|nar|tid|time.+lang|opening|hours|when)/.test(s)) {
-      return 'Bookingmotoren regner med mandag\u2013fredag 07:00\u201315:00, i luker pa 30 minutter. Helger er stengt. Ledige tider genereres fra disse rammene og fra det som allerede er booket.';
+      return 'Bookingmotoren regner med mandag\u2013fredag 07:00\u201315:00 hos terapeutene og 06:00\u201313:00 hos Markus, i luker på 30 minutter. Helger er stengt. Ledige tider genereres fra disse rammene og fra det som allerede er booket.';
     }
     if (/(avbest|kansell|cancel)/.test(s)) {
-      return 'Avbestilling gar inntil 24 timer for timen, med referansekoden fra bekreftelsen. Du kan prove det: bestill en time, og bruk koden pa avbestillingssiden.';
+      return 'Avbestilling går inntil 24 timer før timen, med referansekoden fra bekreftelsen. Du kan prøve det: bestill en time, og bruk koden på avbestillingssiden.';
     }
     if (/(bestil|book|reserv)/.test(s)) {
-      return 'Bruk \u00abBestill time\u00bb. Du velger behandler, tjeneste og tidspunkt, og far en referansekode til slutt. Bestillingen din blir en helt vanlig rad du kan endre og slette \u2014 i motsetning til radene som fulgte med demoen.';
+      return 'Bruk \u00abBestill time\u00bb. Du velger behandler, tjeneste og tidspunkt, og får en referansekode til slutt. Bestillingen din blir en helt vanlig rad du kan endre og slette \u2014 i motsetning til radene som fulgte med demoen.';
     }
     if (/(nullstill|slett|reset|forsvinner|lagres|delete|saved|stored|disappear)/.test(s)) {
-      return 'Alt du legger inn slettes ved den nattlige nullstillingen. Radene som fulgte med demoen er skrivebeskyttet i databasen: knappene virker, men lagringen avvises med en forklaring, slik at panelet ser likt ut for neste besokende.';
+      return 'Alt du legger inn slettes ved den nattlige nullstillingen, bortsett fra filer du laster opp under Dokumenter. Radene som fulgte med demoen er skrivebeskyttet i databasen: knappene virker, men lagringen avvises med en forklaring, slik at panelet ser likt ut for neste besøkende.';
     }
     return null;
   }

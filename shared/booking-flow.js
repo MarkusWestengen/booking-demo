@@ -342,7 +342,7 @@
       var sv = E.SERVICES[state.staffId].find(function (s) { return s.id === state.serviceId; });
       wrap.appendChild(el('div', { class: 'tabf-eyebrow' }, t('booking.step3.eyebrow', 'Trinn 3 av 5') + ' · ' + staff.name + ' · ' + sv.name));
       wrap.appendChild(el('h3', { class: 'tabf-h' }, t('booking.step3.heading', 'Velg dag')));
-      wrap.appendChild(el('p', { class: 'tabf-sub' }, t('booking.step3.intro', 'Klinikken er åpen mandag–fredag 07:00–15:00. Vi viser de neste fire ukene.')));
+      wrap.appendChild(el('p', { class: 'tabf-sub' }, t('booking.step3.intro', 'Klinikken er åpen mandag–fredag 06:00–15:00. Vi viser de neste fire ukene.')));
 
       var loading = el('div', { class: 'tabf-empty' }, t('booking.step3.loading', 'Laster ledige dager…'));
       wrap.appendChild(loading);
