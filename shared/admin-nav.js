@@ -161,6 +161,7 @@
       '.bn-lang button+button{border-left:1px solid var(--rule,rgba(11,26,43,.16));}' +
       '.bn-lang button[aria-pressed="true"]{background:var(--green,#064789);color:#fff;cursor:default;}' +
       '.bn-foot #varslingMount{display:inline-flex !important;align-items:center;min-height:44px;}' +
+      '.bn-foot #varslingMount button{min-width:44px;min-height:44px;box-sizing:border-box;}' +
       '.bn-logout{margin-left:auto;min-height:44px;padding:0 16px;border:1px solid #e2c6c0;background:#fff;' +
         'font-family:\'Inter\',system-ui,sans-serif;font-size:14px;font-weight:600;color:#7a1912;cursor:pointer;}' +
       '.bn-logout:hover{border-color:#7a1912;}' +

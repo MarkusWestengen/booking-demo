@@ -169,7 +169,12 @@ const SCENARIER = {
     if (await klikk(page, 'form button[type=submit]')) await samle('tomt skjema sendt');
   },
   'index.html': async (page, samle) => {
-    if (await klikk(page, '.wk-demo-badge', 600)) await samle('demodialog');
+    // Demomerket er skjult under 420 px; dialogen aapnes da fra koden.
+    if (!(await klikk(page, '.wk-demo-badge', 600))) {
+      await page.evaluate(() => window.WestengenKlinikkDemo && window.WestengenKlinikkDemo.open());
+      await vent(page, 600);
+    }
+    await samle('demodialog');
     await page.keyboard.press('Escape');
     if (await klikk(page, '.lang-btn', 400)) await samle('spraakmeny');
   },
@@ -224,9 +229,9 @@ const ADMIN_SCENARIER = {
     if (await klikk(page, '.send-btn')) await samle('send til kunde');
   },
   'kunder.html': async (page, samle) => {
-    const lenke = await page.$('a[href*="kunde-detalj.html?email"]');
-    if (lenke) {
-      await page.goto(new URL(await lenke.getAttribute('href'), BASE + '/').href, { waitUntil: 'load' });
+    const kort = await page.$('.cust-card[data-url]');
+    if (kort) {
+      await page.goto(new URL(await kort.getAttribute('data-url'), BASE + '/').href, { waitUntil: 'load' });
       await page.waitForLoadState('networkidle', { timeout: 12000 }).catch(() => {});
       await vent(page, 2500);
       await samle('kundekort');

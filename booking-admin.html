@@ -691,7 +691,9 @@
       background: #fff; border: 1px solid var(--rule);
       padding: 14px 16px; margin-bottom: 10px;
       display: grid;
-      grid-template-columns: 1fr auto;
+      /* minmax(0, 1fr): en lang e-postadresse i navnecella dyttet ellers
+         kolonnen ut av kortet, og siden rullet sidelengs paa 320 px. */
+      grid-template-columns: minmax(0, 1fr) auto;
       grid-template-areas:
         "when status"
         "name name"
@@ -702,7 +704,7 @@
     }
     .booking-table tbody tr:hover td { background: transparent; }
     .booking-table tbody tr:last-child { margin-bottom: 0; }
-    .booking-table td { display: block; padding: 0; border: 0; vertical-align: baseline; }
+    .booking-table td { display: block; padding: 0; border: 0; vertical-align: baseline; min-width: 0; overflow-wrap: anywhere; }
     .booking-table td.col-date    { grid-area: when; font-size: 14px; }
     .booking-table td.col-time    { display: none; }
     .booking-table td.col-name    { grid-area: name; }
@@ -1822,8 +1824,10 @@
     if (!dateStr) return '–';
     var p = dateStr.split('-');
     var d = new Date(+p[0], +p[1] - 1, +p[2]);
-    // Etter valgt språk: «tir. 15. sep.» / «Tue 15 Sept».
-    return d.toLocaleDateString(WestengenKlinikkI18n.locale(), { weekday: 'short', day: 'numeric', month: 'long' });
+    // Etter valgt språk: «tir 15. september» / «Tue 15 September».
+    var loc = WestengenKlinikkI18n.locale();
+    var dag = d.toLocaleDateString(loc, { weekday: 'short' }).replace('.', '');
+    return dag + ' ' + d.toLocaleDateString(loc, { day: 'numeric', month: 'long' });
   }
   function formatTimeShort(t) { return (t || '').slice(0, 5); }
   // «Klinikken er stengt på søndager.» Ukedagen i flertall bøyes ulikt
