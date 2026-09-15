@@ -86,11 +86,14 @@
      i stedet — samme hierarki, uten malens signaturgrep. */
   .intro h1 em { font-style: normal; color: var(--muted); font-weight: 500; }
   /* Ingressen, etter doerene. Lys flate, samme maalestokk som foer. */
-  .intro { background: var(--paper); padding: 56px 0 8px; }
+  .intro { background: var(--paper); padding: 56px 0; }
+  /* 49ch gir 60–68 tegn per linje i Inter; 62ch ga 75–82, fordi «ch» er
+     bredden av sifferet 0, som er bredere enn en gjennomsnittlig bokstav. */
   .lead-body {
-    max-width: 62ch; font-size: 17px; line-height: 1.62;
+    max-width: 49ch; font-size: 17px; line-height: 1.65;
     color: var(--ink-2); margin: 0;
   }
+  .lead-body + .lead-body { margin-top: 1em; }
   .lead-body strong { color: var(--ink); font-weight: 600; }
 
 
@@ -141,7 +144,7 @@
   }
   @media (max-width: 760px) {
     .intro h1 { margin-bottom: 16px; }
-    .intro { padding: 36px 0 4px; }
+    .intro { padding: 36px 0; }
     .lead-body { font-size: 16px; }
   }
 </style>
@@ -214,11 +217,11 @@
       <div class="door-panel door-panel--public">
         <p class="door-role" data-i18n="landing.door_public_role">Kundeflyt</p>
         <h2 data-i18n="landing.door_public_h">Bestill en time</h2>
-        <p data-i18n="landing.door_public_p">Slik en kunde møter systemet. Ingen konto, ingenting å fylle ut først.</p>
+        <p data-i18n="landing.door_public_p">Ingen konto.</p>
         <ul class="door-list">
-          <li data-i18n="landing.door_public_1">Velg behandler, tjeneste og tid mot ekte ledig-tid-oppslag</li>
-          <li data-i18n="landing.door_public_2">Avbestill med referansekode, eller meld deg pa venteliste</li>
-          <li data-i18n="landing.door_public_3">Send en melding og se den dukke opp i innboksen bak</li>
+          <li data-i18n="landing.door_public_1">Ekte ledige tider</li>
+          <li data-i18n="landing.door_public_2">Avbestill med kode</li>
+          <li data-i18n="landing.door_public_3">Send en melding</li>
         </ul>
         <a class="door-cta" href="bestilling.html">
           <span data-i18n="landing.door_book">Prøv bookingflyten</span> <span class="arr" aria-hidden="true">→</span>
@@ -228,11 +231,11 @@
       <div class="door-panel door-panel--admin">
         <p class="door-role" data-i18n="landing.door_admin_role">Adminpanel</p>
         <h2 data-i18n="landing.door_admin_h">Se hva som ligger bak</h2>
-        <p data-i18n="landing.door_admin_p">Halvparten av systemet ligger her. Du kommer rett inn.</p>
+        <p data-i18n="landing.door_admin_p">Du kommer rett inn.</p>
         <ul class="door-list">
-          <li data-i18n="landing.door_admin_1">Kalender, kunderegister og pasientjournal med samtykke</li>
-          <li data-i18n="landing.door_admin_2">En logg som fanger hvert oppslag, ikke bare hver endring</li>
-          <li data-i18n="landing.door_admin_3">To roller. Bytt mellom dem i toppen av panelet og se hva som forsvinner</li>
+          <li data-i18n="landing.door_admin_1">Pasientjournal</li>
+          <li data-i18n="landing.door_admin_2">Logg over oppslag</li>
+          <li data-i18n="landing.door_admin_3">To roller</li>
         </ul>
         <a class="door-cta" href="kalender.html">
           <span data-i18n="landing.door_admin">Apne adminpanelet</span> <span class="arr" aria-hidden="true">→</span>
@@ -251,7 +254,8 @@
   <div class="container">
     <p class="lead-eyebrow" data-i18n="landing.eyebrow">Arbeidsprøve</p>
     <h1 data-i18n-html="landing.heading">Booking- og administrasjonssystem <em>for en klinikk</em></h1>
-    <p class="lead-body" data-i18n-html="landing.body1">Et komplett bookingsystem for en klinikk. Kunder bestiller time selv, avbestiller med en lenke, og setter seg på venteliste når alt er fullt. På innsiden ligger kalender for hver behandler, kunderegister, journal med samtykke, en logg over hvem som har åpnet hvilke opplysninger, meldinger fra nettsiden, og styring av tjenester, behandlere og stengte dager.</p>
+    <p class="lead-body" data-i18n-html="landing.body1">Et komplett bookingsystem for en klinikk. Kunder bestiller time selv, avbestiller med en lenke, og setter seg på venteliste når alt er fullt.</p>
+    <p class="lead-body" data-i18n-html="landing.body2">På innsiden ligger kalender for hver behandler, kunderegister, journal med samtykke, en logg over hvem som har åpnet hvilke opplysninger, meldinger fra nettsiden, og styring av tjenester, behandlere og stengte dager.</p>
   </div>
 </section>
 
