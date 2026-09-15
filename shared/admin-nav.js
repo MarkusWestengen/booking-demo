@@ -155,11 +155,6 @@
       /* ---- Kontoraden nederst ---- */
       '.bn-foot{display:flex;align-items:center;gap:8px;padding:12px 14px 0;' +
         'border-top:1px solid var(--rule,rgba(11,26,43,.16));}' +
-      '.bn-lang{display:inline-flex;border:1px solid var(--rule,rgba(11,26,43,.16));background:#fff;flex:0 0 auto;}' +
-      '.bn-lang button{min-height:44px;padding:0 12px;border:0;background:transparent;cursor:pointer;' +
-        'font-family:\'Inter\',system-ui,sans-serif;font-size:13px;font-weight:500;color:var(--green,#064789);}' +
-      '.bn-lang button+button{border-left:1px solid var(--rule,rgba(11,26,43,.16));}' +
-      '.bn-lang button[aria-pressed="true"]{background:var(--green,#064789);color:#fff;cursor:default;}' +
       '.bn-foot #varslingMount{display:inline-flex !important;align-items:center;min-height:44px;}' +
       '.bn-foot #varslingMount button{min-width:44px;min-height:44px;box-sizing:border-box;}' +
       '.bn-logout{margin-left:auto;min-height:44px;padding:0 16px;border:1px solid #e2c6c0;background:#fff;' +
@@ -213,29 +208,10 @@
     list.setAttribute('aria-label', 'Sider');
     var pairs = btns.map(function (b) { var c = b.cloneNode(true); list.appendChild(c); return [b, c]; });
 
-    // ---- Kontoraden: språk, varsler, logg ut ----
+    // ---- Kontoraden: varsler, logg ut ----
+    // Språket står i seksjonslinja på alle bredder (shared/demo-mode.js),
+    // og sto her i tillegg. Én plass er nok.
     var foot = document.createElement('div'); foot.className = 'bn-foot';
-
-    var I = window.WestengenKlinikkI18n;
-    if (I) {
-      var lang = document.createElement('div'); lang.className = 'bn-lang';
-      lang.setAttribute('role', 'group');
-      lang.setAttribute('aria-label', t('admin.lang_label', 'Språk'));
-      [['no', 'Norsk'], ['en', 'English']].forEach(function (l) {
-        var b = document.createElement('button');
-        b.type = 'button'; b.lang = l[0]; b.textContent = l[1];
-        b.setAttribute('translate', 'no');
-        b.setAttribute('aria-pressed', I.getLanguage() === l[0] ? 'true' : 'false');
-        b.addEventListener('click', function () {
-          if (I.getLanguage() === l[0]) return;
-          // Adminsidene bygger datoer og tabeller ved lasting: last på nytt.
-          try { localStorage.setItem('westengen-klinikk-lang', l[0]); } catch (_) {}
-          location.reload();
-        });
-        lang.appendChild(b);
-      });
-      foot.appendChild(lang);
-    }
 
     // Varslingsknappen flyttes hit på telefon og tilbake i headeren på
     // bred skjerm. Den er selvstendig (varsling.js binder på knappen),
