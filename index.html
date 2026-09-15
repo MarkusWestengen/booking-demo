@@ -52,18 +52,14 @@
      Mørk flate, samme språk som headeren, så det leser som en
      ramme rundt demoen og ikke som noe klinikken selv sier.
      ============================================================ */
-  /* Lead er naa bare overskriften. Doerene kommer rett etter, paa samme
-     moerke flate, saa overskrift og valg leses som én aapning. */
-  .lead {
-    background: var(--ink); color: var(--paper);
-    padding: 64px 0 36px;
-  }
+  /* Doerene staar foerst, rett under headeren. Overskriften og
+     ingressen kommer etter dem, paa lys flate. */
   .lead-eyebrow {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
-    color: var(--green-soft); margin: 0 0 16px;
+    color: var(--green); margin: 0 0 16px;
   }
-  .lead h1 {
+  .intro h1 {
     font-family: var(--font-display); font-weight: 600;
     font-size: clamp(30px, 6vw, 58px); line-height: 1.02;
     letter-spacing: -0.038em; margin: 0 0 22px; max-width: 18ch;
@@ -88,7 +84,7 @@
   }
   /* Ingen kursiv aksent. Det andre leddet skilles med vekt og farge
      i stedet — samme hierarki, uten malens signaturgrep. */
-  .lead h1 em { font-style: normal; color: rgba(235,242,250,0.62); font-weight: 500; }
+  .intro h1 em { font-style: normal; color: var(--muted); font-weight: 500; }
   /* Ingressen, etter doerene. Lys flate, samme maalestokk som foer. */
   .intro { background: var(--paper); padding: 56px 0 8px; }
   .lead-body {
@@ -141,12 +137,10 @@
     main .container { padding-left: 16px; padding-right: 16px; }
   }
   @media (max-width: 360px) {
-    .lead { padding-top: 24px; }
-    .lead h1 { font-size: 28px; }
+    .intro h1 { font-size: 28px; }
   }
   @media (max-width: 760px) {
-    .lead { padding: 32px 0 20px; }
-    .lead h1 { margin-bottom: 0; }
+    .intro h1 { margin-bottom: 16px; }
     .intro { padding: 36px 0 4px; }
     .lead-body { font-size: 16px; }
   }
@@ -207,14 +201,6 @@
 
 <main>
 
-<!-- ============ OVERSKRIFT ============ -->
-<section class="lead">
-  <div class="container">
-    <p class="lead-eyebrow" data-i18n="landing.eyebrow">Arbeidsprøve</p>
-    <h1 data-i18n-html="landing.heading">Booking- og administrasjonssystem <em>for en klinikk</em></h1>
-  </div>
-</section>
-
 <!-- ============ TO DOERER ============
      Valget er hovedgrepet paa forsiden: to likeverdige innganger,
      ikke to knapper nederst i en tekstblokk. Adminpanelet aapner
@@ -258,11 +244,13 @@
 </section>
 
 <!-- ============ HVA DETTE ER ============
-     Ingressen stod foer over doerene, og paa telefon maatte man rulle
-     forbi den for aa se valget som er hele poenget med siden. Teksten
-     er den samme; den staar bare etter valget naa. -->
+     Overskriften og ingressen stod foer over doerene, og dyttet valget
+     som er hele poenget med siden ned. Teksten er den samme; den staar
+     bare etter valget naa. -->
 <section class="intro">
   <div class="container">
+    <p class="lead-eyebrow" data-i18n="landing.eyebrow">Arbeidsprøve</p>
+    <h1 data-i18n-html="landing.heading">Booking- og administrasjonssystem <em>for en klinikk</em></h1>
     <p class="lead-body" data-i18n-html="landing.body1">Et komplett bookingsystem for en klinikk. Kunder bestiller time selv, avbestiller med en lenke, og setter seg på venteliste når alt er fullt. På innsiden ligger kalender for hver behandler, kunderegister, journal med samtykke, en logg over hvem som har åpnet hvilke opplysninger, meldinger fra nettsiden, og styring av tjenester, behandlere og stengte dager.</p>
   </div>
 </section>
