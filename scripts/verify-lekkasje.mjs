@@ -41,6 +41,10 @@ const MOENSTRE = [
   [/sk_live_|sk_test_|SUPABASE_SERVICE_ROLE_KEY\s*=\s*ey/g, 'hemmelig noekkel'],
 ];
 
+// Treffet skrives maskert: foerste og siste tegn staar, bokstaver og
+// sifre imellom blir *. Utskriften skal kunne limes inn i en rapport.
+const masker = (t) => t.length < 3 ? '*'.repeat(t.length)
+  : t[0] + t.slice(1, -1).replace(/[\p{L}\d]/gu, '*') + t.slice(-1);
 const funn = [];
 function gaa(dir) {
   for (const navn of readdirSync(dir)) {
@@ -51,18 +55,24 @@ function gaa(dir) {
     if (!TEKST.has(extname(sti))) continue;
     if (navn === EGEN_FIL) continue;
     const linjer = readFileSync(sti, 'utf8').split('\n');
-    linjer.forEach((l, i) => {
+    linjer.forEach((linje, i) => {
+      // Escapet tekst (JSON, SQL-strenger): «\nStorgata 1» har ingen
+      // ordgrense foran gatenavnet, og «\"service_role\"» ikke noe rent
+      // sitattegn. Escapene byttes mot to mellomrom foer matching.
+      const l = linje.replace(/\\[nrt"']/g, '  ');
       for (const [re, navn2] of MOENSTRE) {
-        re.lastIndex = 0;
-        const m = re.exec(l);
-        if (!m) continue;
-        if (GODKJENT.some((g) => g.test(m[0]))) continue;
-        funn.push(`${sti}:${i + 1}  [${navn2}]  ${m[0]}`);
+        // Alle treff paa linja, ikke bare det foerste: en funksjonskropp
+        // eller en eksportert rad kan staa paa én linje.
+        for (const m of l.matchAll(re)) {
+          if (GODKJENT.some((g) => g.test(m[0]))) continue;
+          funn.push(`${sti}:${i + 1}  [${navn2}]  ${masker(m[0])}`);
+        }
       }
     });
   }
 }
-gaa('.');
+// Uten argument: repoet. Med en katalog: den, f.eks. en eksport av databasen.
+gaa(process.argv[2] || '.');
 
 if (funn.length) {
   console.log(`${funn.length} treff:`);
