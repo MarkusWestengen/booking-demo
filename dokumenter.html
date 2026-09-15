@@ -107,6 +107,10 @@
   .doc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
   .doc-send { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--rule);
     display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  /* display:flex over slaar ut hidden-attributtet: skjemaet sto aapent
+     under hvert dokument. */
+  .doc-send[hidden] { display: none; }
+  .doc-placeholder { font-size: 12.5px; color: var(--muted); }
   .doc-send input { padding: 7px 10px; font: inherit; font-size: 13px;
     border: 1px solid var(--rule); background: #fff; min-width: 220px; }
   .doc-send input:focus { outline: 2px solid var(--green); outline-offset: -2px; }
@@ -396,6 +400,7 @@
     var admin = isAdmin();
     var when = d.created_at ? new Date(d.created_at).toLocaleDateString(WestengenKlinikkI18n.locale()) : '';
     // Filnavnet er en id, ikke tekst: «skulder-2.pdf» ble «shoulder-2.pdf» paa engelsk.
+    var utenFil = d.is_demo_seed === true;
     var fileLine = [d.file_name ? '<span translate="no">' + escapeHtml(d.file_name) + '</span>' : '', when].filter(Boolean).join(' · ');
     return '<div class="doc" data-doc="' + escapeHtml(d.id) + '">' +
       '<div class="doc-row">' +
@@ -404,16 +409,20 @@
           '<div class="doc-file">' + fileLine + '</div>' +
         '</div>' +
         '<div class="doc-actions">' +
-          '<button class="btn btn-sm send-btn" data-id="' + escapeHtml(d.id) + '" data-title="' + escapeHtml(d.title || '') + '" data-path="' + escapeHtml(d.storage_path) + '">Send til kunde</button>' +
+          // Dokumentene som foelger med demoen, har en sti men ingen fil i
+          // lagringen. En lenke til dem ville gitt 404, saa de kan ikke sendes.
+          (utenFil
+            ? '<span class="doc-placeholder">Plassholder uten fil. Kan ikke sendes.</span>'
+            : '<button class="btn btn-sm send-btn" data-id="' + escapeHtml(d.id) + '" data-title="' + escapeHtml(d.title || '') + '" data-path="' + escapeHtml(d.storage_path) + '">Send til kunde</button>') +
           (admin ? '<button class="btn btn-sm btn-danger del-btn" data-id="' + escapeHtml(d.id) + '" data-path="' + escapeHtml(d.storage_path) + '" data-title="' + escapeHtml(d.title || '') + '">Slett</button>' : '') +
         '</div>' +
       '</div>' +
-      '<div class="doc-send" hidden>' +
+      (utenFil ? '' : '<div class="doc-send" hidden>' +
         '<input type="email" class="send-email" list="bookingEmails" maxlength="320" placeholder="Skriv inn kundens e-postadresse">' +
         '<button class="btn btn-sm btn-primary send-go">Send</button>' +
         '<button class="btn btn-sm send-cancel">Avbryt</button>' +
         '<span class="send-status"></span>' +
-      '</div>' +
+      '</div>') +
     '</div>';
   }
   function renderCats() {

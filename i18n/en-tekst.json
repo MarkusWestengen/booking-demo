@@ -891,6 +891,8 @@
 
   "Engelsk: navnet og beskrivelsen vises på norsk også når engelsk er valgt, til de er lagt inn i i18n/en-tekst.json. Legg dem inn begge steder.": "English: the name and description stay in Norwegian when English is selected, until they are added to i18n/en-tekst.json. Add them in both places.",
 
+  "Plassholder uten fil. Kan ikke sendes.": "Placeholder without a file. Cannot be sent.",
+
   "_moenstre": [
     ["^(\\d+) meldinger$", "$1 messages"],
     ["^(\\d+) melding$", "$1 message"],
