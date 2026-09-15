@@ -80,8 +80,11 @@
   .card h2 { font-family: 'JetBrains Mono', monospace; font-size: 11px;
     letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2);
     margin: 0 0 12px; font-weight: 500; }
-  .kvp { display: grid; grid-template-columns: 130px 1fr;
+  /* minmax(0, 1fr) og anywhere: en lang e-postadresse kunne ellers ikke
+     brytes, og kortet dyttet siden sidelengs paa 320 px. */
+  .kvp { display: grid; grid-template-columns: 130px minmax(0, 1fr);
     gap: 6px 12px; font-size: 14px; }
+  .kvp > * { min-width: 0; overflow-wrap: anywhere; }
   .kvp .k { color: var(--muted); }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
   .stat { text-align: left; }
@@ -177,14 +180,14 @@
   @media (max-width: 600px) {
     h1 { font-size: 22px; }
     .stats { grid-template-columns: 1fr 1fr; }
-    .kvp { grid-template-columns: 100px 1fr; }
+    .kvp { grid-template-columns: 100px minmax(0, 1fr); }
     .card { padding: 16px 18px; }
     .gdpr-actions { gap: 8px; }
     .gdpr-actions .btn-ghost, .gdpr-actions .btn-danger { flex: 1 1 calc(50% - 4px); min-width: 0; }
   }
   @media (max-width: 380px) {
     .stats { grid-template-columns: 1fr; }
-    .kvp { grid-template-columns: 80px 1fr; gap: 4px 8px; }
+    .kvp { grid-template-columns: 80px minmax(0, 1fr); gap: 4px 8px; }
   }
   /* Issue V — skjul sidetittel-em i admin-headeren på smal mobil.
      "Westengen Klinikk KUNDE" fikk ikke plass og ble avkuttet; bottom-nav

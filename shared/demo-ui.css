@@ -401,6 +401,15 @@
   .door-list li::before { top: 14px; width: 6px; }
   .door-cta { padding: 12px 10px; font-size: 13.5px; gap: 6px; min-height: 44px; box-sizing: border-box; }
 }
+/* 320-klassen: engelsk tekst er lengre, og knappene skal fortsatt staa
+   i foerste skjermbilde. Litt tettere lister, ellers det samme. */
+@media (max-width: 360px) {
+  .door-panel { padding: 14px 10px 12px; }
+  .door-panel > p { margin-bottom: 10px; }
+  .door-list { margin-bottom: 12px; }
+  .door-list li { padding: 5px 0 5px 11px; }
+  .door-list li::before { top: 12px; }
+}
 @media (max-width: 560px) {
   .page-head { padding-top: 34px; }
   .page-head h1 { max-width: none; }
