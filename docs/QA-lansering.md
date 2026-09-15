@@ -3068,3 +3068,324 @@ fila. Problemet var testserverens manglende header, ikke live.
 prøven på 8765 lastet `innstillinger.html` på nytt. Ikke logget ut:
 fanen på den origin-en kjørte gammel kode, og en utlogging derfra ville
 vært global. Den utløper av seg selv.
+
+---
+
+# Runde 2026-09-15
+
+Fem oppdrag: oversettelsene som manglet, språkvelgeren, mobilmenyen i
+adminpanelet, toppen av adminpanelet og forsiden. Alt på branch
+`runde/2026-09-15`, ikke merget.
+
+Sikkerhetstag før noe ble rørt: `pre-runde-2026-09-15` (pushet).
+
+## 1 — Hvor den uoversatte teksten faktisk lå
+
+Kartlagt før noe ble endret, med en første versjon av proben mot koden
+slik den var: **955 treff på norsk tekst** med engelsk valgt, fordelt på
+19 sider. Teksten lå fem steder:
+
+| Hvor | Hva | Omfang |
+|---|---|---|
+| **Adminpanelet, sidenes egen JavaScript og HTML** | Hele panelet. De elleve adminsidene lastet ikke `i18n/i18n.js` i det hele tatt; kommentarene sa «admin er norsk-only». Knapper, tabeller, dialoger, feilmeldinger, tomtilstander, `<title>`. | ~800 strenger, 12 000 linjer |
+| **Databasen** | Tjenestenavn og -beskrivelser (`services`), roller og biografier (`staff_members`), dokumenttitler (`exercise_documents`). `bookings.service_name` og `staff_name` er *kopier* av teksten, uten id å slå opp på. | 4 tjenester, 9 behandlere, 8 dokumenter |
+| **Datoformatering, hardkodet norsk** | `DAYS_NO_LONG`/`MONTHS_NO` i `booking-engine.js` (datolinja «Fredag 25. september»), egne kopier i `kalender.html` og `booking-admin.html`, og `toLocaleString('no-NO')` i ti adminsider. Beløp som `'kr ' + … toLocaleString('no-NO')` sju steder. | 21 steder |
+| **Demoguiden, `shared/components.js`** | Hele innholdet hardkodet: overskrift, advarselen, velkomst, hurtigsvar, alle svar, fallback og eskalering. Nøkkelordene i svarmotoren fantes bare på norsk, så et engelsk spørsmål fikk aldri svar. | ~30 strenger |
+| **Enkeltsteder på kundesidene** | Plassholdere i avbestill- og ventelisteskjemaene, demomerket og -dialogens `title`, hamburgerens `aria-label`, to avsnitt i `vilkar.html`, kontaktmodalen i `components.js`. | ~40 strenger |
+
+Bestillingsflyten selv (trinnene, knappene) var allerede oversatt med
+nøkler. Det som sto igjen der, var databaseteksten og datoene.
+
+## 2 — Løsningen for databasetekst, og for resten
+
+**Valgt: én oversettelsestabell i frontend, `i18n/en-tekst.json`, med den
+norske teksten som nøkkel.** Det er gettext-prinsippet: kildeteksten er
+nøkkelen. Ingen engelsk kolonne i databasen.
+
+Hvorfor ikke en engelsk kolonne: bookingradene har `service_name` som
+kopi av tjenestenavnet. En `name_en`-kolonne i `services` ville ikke
+nådd de seedede bookingene eller noen booking laget før kolonnen
+fantes, uten en migrasjon til og endret seed. Tabellen i frontend treffer
+teksten hvor den enn står, og krever ingen databaseendring.
+
+Den samme tabellen løste adminpanelet. Å legge `t('nøkkel', …)` rundt
+~800 strenger i elleve siders innebygde JavaScript ville vært en
+omskriving av panelet; i stedet slår `i18n.js` opp tekst i DOM-en mens
+siden bygges:
+
+| Del | Hva den gjør |
+|---|---|
+| `i18n/en-tekst.json` | 861 oppføringer norsk → engelsk, pluss 31 mønstre for tekst med tall og navn i («20 av 20 kunder», «Side 1 av 3», «Åpne kunde …»). Ordliste i fila: behandler = practitioner, terapeut = therapist, kunde = client, journal = record. |
+| Nøklene i `no.json`/`en.json` | Legges inn i tabellen automatisk ved lasting. En tekst som står hardkodet ett sted og som nøkkel et annet, trenger bare nøkkelen. |
+| Oppslaget | Hel tekst først, så mønstre, så kjente fraser inne i en lengre tekst som er satt sammen i kode. Frasene er begrenset til nøkler som ikke kan være et engelsk ord (flere ord, minst seks tegn eller æøå), så «time» og «Tid» aldri treffer engelsk tekst. |
+| `MutationObserver` | Oversetter tekstnoder og `placeholder`, `title`, `aria-label`, `alt` og knappers `value` når de legges inn. Siden holdes skjult til katalogen er lastet, høyst 1,5 s, så det blir ikke norsk blaff. |
+| `translate="no"` | HTML-standardens merke. Tekst fra brukere (meldinger, bookingnotater, journalnotater, anmeldelser, ventelistenotater) og tekniske id-er står under det og røres ikke. |
+| Tilbake til norsk | Kundesidene setter originalene tilbake på stedet. Adminsidene laster på nytt, fordi de bygger datoer og tabeller ved lasting. |
+
+**Datoer og beløp formateres med `Intl` etter valgt språk**, aldri med
+norske navnelister: `WestengenKlinikkI18n.locale()` gir `nb-NO` eller
+`en-GB`, og `beloep()` gir «kr 1 290» / «NOK 1,290». Før språkfilene er
+lastet, gjelder det lagrede valget, så en side som tegner datoer tidlig
+ikke får norske ukedager. Tre setninger bøyes ulikt på de to språkene og
+bygges derfor i kode («Klinikken er stengt på søndager», ventelistas
+«fra/kl./innen»).
+
+Demoguiden svarer nå på engelske spørsmål: nøkkelordene står på begge
+språk. Svarene er fortsatt norske i koden og går gjennom tabellen.
+
+**Det tabellen ikke kan:** tekst i databasen som en administrator endrer,
+får ingen oversettelse før noen legger den inn i tabellen. Et nytt
+tjenestenavn vises på norsk i engelsk grensesnitt. For en demo med fire
+tjenester er det riktig avveining; i drift ville en engelsk kolonne vært
+det rette.
+
+## 3 — Språkvelgeren
+
+| | Før | Nå |
+|---|---|---|
+| Plassering, telefon | `position: fixed` mot viewporten med gjettet topp (`i18n.css`), og `left: 0` fra `header-nav.css` fra den gangen velgeren sto til venstre. Menyen la seg øverst til venstre på skjermen, over innholdet. | `position: absolute`, rett under knappen (6 px), høyrejustert mot knappens høyre kant, `z-index: 1000` (under dialogene på 10050). Begge de gamle reglene er fjernet. |
+| Innhold | 🇳🇴 / 🇬🇧 på knappen og i menyen. Windows viser flaggene som «NO» og «GB». | «Norsk» / «English» som tekst. Valgt språk har farge **og** et hakemerke, så valget ikke bare bæres av farge. |
+| Trykkflate | Valgene 42–43 px | Knapp og valg minst 44 px |
+| Adminpanelet | Ingen velger | Samme velger i verktøygruppa i seksjonslinja (over 640 px), og som «Norsk \| English» i kontoraden i mobilmenyen. Bytte laster adminsiden på nytt. |
+
+**Sidefunn:** `personvern.html` lastet `demo-ui.css` før `header-nav.css`,
+i motsatt rekkefølge av de andre sidene. Merket ble derfor sentrert og
+språkvelgeren havnet til venstre på telefon. Rekkefølgen er rettet, og
+headeren er lik de andre sidene.
+
+## 4 — Mobilmenyen i adminpanelet
+
+Arket er bygget ovenfra og ned etter bruk:
+
+| Før | Nå |
+|---|---|
+| «Meny»-hode, så «ADMIN» med strek under, en «…»-varslingsknapp, «Admin-panel» og «Logg ut» som to fulle bredder, **så** rutenettet. Rutenettet startet 311 px ned i arket. | «Meny»-hode (lukkeknapp 44 px), rutenettet rett under (starter 72 px ned), og en kontorad nederst: språk, varsler, «Logg ut». |
+| «ADMIN» | Borte. Rollen står i seksjonslinja. |
+| «Admin-panel» og sidenes andre topplenker | Ikke i arket; de peker på sider som allerede står i rutenettet. På bred skjerm står de i headeren som før. |
+| «Logg ut» | Nederst til høyre som en avsluttende handling, dempet rød ramme. Knappen trykker på sidens egen `#logoutBtn`, så bekreftelsesdialogen og lokal utlogging går samme vei som før. |
+| Rader 54 px | 48 px, ikoner og to kolonner beholdt |
+| Markert punkt | Stengte tider og loggen over oppslag markerte ingenting, og bunnlinja sa «Westengen Klinikk». Nå markeres forelderen (Innstillinger), og bunnlinja har samme navn som seksjonslinja. |
+
+Målt på kalenderen, 375 × 812: arket er 371 px høyt, mot 579 før. Ingen rulling på 320–414 × 812, begge språk, alle adminsider, og heller ikke på 320 og 375 × 667 på engelsk, som har lengst tekst.
+
+## 5 — Toppen av adminpanelet
+
+To grupper, ikke fire løse elementer:
+
+- **Seksjonen**, venstre: navnet i 16 px halvfet blekk (før 14 px blått, likt lenkene), og demo-merket underordnet som dempet tekst uten ramme og flate. Merket beholder 44 px trefflate, utvidet usynlig. Undersider har forelder foran: «Innstillinger › Stengte tider», «Kunder › Kundekort».
+- **Verktøyene**, høyre, i én `role="group"`: rollevelger, språk, «Til nettsiden».
+
+Brekkingen er bestemt, ikke overlatt til `flex-wrap`:
+
+| Bredde | Oppsett |
+|---|---|
+| Over 640 px, alt får plass | Én rad, begge grupper midtstilt på samme linje |
+| Over 640 px, seksjonsnavnet måtte kortes eller verktøyene ikke får plass | To rader: seksjonen øverst med merket til høyre, verktøyene under med «Til nettsiden» til høyre. Måles, ikke gjettet med et tall: engelsk og norsk er ulikt lange, og hver adminside har sin egen innholdsbredde (720 px på kalenderen, 1300 på meldinger). |
+| 640 px og under | Alltid to rader. Forelderen skjules (den står i bunnlinja og menyen), språket ligger i menyen, rollevelger og lenke er 44 px høye. Under 400 px sier merket bare «Demo»; hele teksten står i `aria-label` og i dialogen. |
+
+**Seksjonsindikatoren stemte ikke overalt:** `booking-admin.html` het
+«Bookinger» i seksjonslinja og «Oversikt» i menyen og i `<title>`. Nå
+«Oversikt» begge steder (engelsk «Overview»).
+
+## 6 — Forsiden
+
+| Før | Nå |
+|---|---|
+| Øyebrynstekst, overskrift og den lange ingressen på mørk flate, **så** de to dørene, som stablet seg under 860 px. På 375 startet dørene etter et helt skjermbilde med tekst. | Øyebrynstekst og overskrift, **så** dørene side om side på alle bredder, **så** ingressen, uendret, i egen seksjon rett under. |
+
+- **Side om side også på 375 og 320.** Prøvd først, som du ba om, og det holdt: 16–22 tegn per linje i listene, alt lesbart. Begge dørknappene står i første skjermbilde på 320, 375 og 414 (812 px høyde), begge språk.
+- **Paret:** samme ramme og 1 px skillelinje mellom dem, lik høyde, knappene på samme grunnlinje nederst. Kundeflyten lys som sidene den fører til, adminpanelet mørkt som skallet bak. Det var grepet fra før; det er beholdt.
+- **Typografien strammes på telefon**, ikke teksten: 19 px overskrift, 13 px brødtekst, 12,5 px lister, knapper 44 px høye. Under 360 px litt tettere lister og 28 px hovedoverskrift, fordi engelsk er lengre.
+- Alt innhold på forsiden står på samme venstrekant som merket i headeren (16 px) på telefon. Før sto headeren på 16 og innholdet på 32.
+- **Ingen tekst er skrevet om.** Norsk tekst er sammenlignet mot koden før runden, side for side: bare demomerket (nå to spenn) og språkknappen («Norsk» i stedet for flagg) skiller.
+- **Desktop:** som før, bare med ingressen etter dørene. Dørene begynner 437 px ned på 1280.
+
+## 7 — Proben: `scripts/probe-norsk.mjs`
+
+Laster hver side på engelsk i en ekte nettleser (Playwright, 375 px og
+1280 px) og melder fra om norsk tekst som står igjen. Den ser alle
+tekstnoder, også i lukkede dialoger og menyer, pluss `placeholder`,
+`title`, `aria-label`, `alt` og `<title>`. Den går gjennom tilstander som
+bare finnes etter en handling, og skriver ut hvilke den faktisk nådde:
+
+| Side | Tilstander |
+|---|---|
+| Bestilling | trinn 1–5, demoguiden, alle hurtigsvar, to ukjente spørsmål til eskalering |
+| Oversikt | alle fem faner, bookingdetaljer, ny booking trinn 1 og 2 |
+| Kalender | bookingdetaljer |
+| Tjenester, Behandlere | ny og rediger |
+| Dokumenter | «Send til kunde» |
+| Kunder | kundekortet til første kunde |
+| Forsiden | demodialogen, språkmenyen |
+| Alle adminsider | demodialogen, mobilmenyen |
+
+Ingen tilstand sender inn noe, og journalen åpnes ikke (hvert oppslag
+skrives til loggen over oppslag).
+
+Norsk kjennes igjen på æøå eller et ord fra en liste over norske ord som
+ikke også er engelske. Den hopper bevisst over tre ting, og teller dem:
+
+- tekst under `translate="no"` (brukertekst og id-er)
+- personnavn, kjent på formen: to ord med stor forbokstav etter hverandre, ingen av dem på ordlista («Thea Molvær»)
+- innholdet i `<textarea>`, som er feltverdi, ikke grensesnitt
+
+Den sjekker også at merkenavnet ikke er oversatt.
+
+### Bevist
+
+| Plantet | Resultat |
+|---|---|
+| `PLANT=1`: «Timen din er bekreftet og lagret» inn i siden etter oversetting | Fanget på begge sidene, exit 1 |
+| «Klinikk» tatt ut av katalogen, så ordmerket blir «Clinic» | «MERKENAVN OVERSATT: WestengenClinic», exit 1 |
+| Koden før runden | 955 treff |
+
+To feil i proben ble funnet mens den ble skrevet, og rettet før den ble
+stolt på: `\b` foran «Ø» (JavaScript-ens `\b` kjenner bare ASCII, så
+navn med Ø ble ikke gjenkjent), og en profil som gjenbrukte en gammel
+service worker og dermed viste proben filer som ikke fantes på serveren
+lenger. Proben starter nå en tom nettleser hver gang, med service
+workere blokkert.
+
+**Sidefunn i en eksisterende probe:** `scripts/verify-lekkasje.mjs`
+hadde et backspace-tegn (0x08) der det skulle stått `\b`, i mønsteret for
+registrerbare domener. Mønsteret krevde et kontrolltegn etter
+toppdomenet og kunne aldri treffe; det har vært grønt på feil grunnlag
+siden det ble lagt inn. Rettet og bevist mot en plantet adresse. Det ene
+treffet det da fant, et sitat i denne rapporten, er maskert. Egen commit.
+
+`scripts/verify-i18n.mjs` behandlet `en-tekst.json` som et tredje språk.
+Den kjenner nå katalogene: ingen tomme verdier, og hvert mønster må være
+et gyldig regulært uttrykk. Bevist mot en plantet tom verdi og et
+uavsluttet mønster.
+
+## 8 — Verifisering
+
+### Sjekkliste
+
+| | Status |
+|---|---|
+| Engelsk: null norsk tekst i bestillingsflyten, adminpanelet og demoguiden | **Ja.** `probe-norsk`: 21 sider, 0 treff, både 375 og 1280 px. 19 tekster under `translate="no"` og 299 personnavn med æøå hoppet over med vilje, se over. |
+| Datoer og ukedager følger valgt språk | **Ja.** «Tuesday 15 September at 12:00», «NOK 1,290» i bestillingsflyten på preview; ukestripa i kalenderen «TU/WE» mot «TI/ON». Norsk er uendret, kontrollert tekst for tekst mot koden før runden. |
+| Språkvelgeren under knappen, uten emoji, innenfor skjermen, 320–1440 | **Ja.** Målt på alle åtte kundesider, sju bredder, begge språk: rett under knappen, høyrejustert mot den, innenfor skjermen, øverst (ingenting over den), ingen emoji, valgene 44 px. Samme måling mot koden før runden: 28 feil på to sider. |
+| Mobilmenyen: ADMIN borte, Logg ut nederst, alt uten rulling på 375 | **Ja**, alle elleve adminsider, se punkt 4. |
+| Toppen av adminpanelet likt på alle sider, forutsigbar brekking | **Ja.** Målt på alle elleve adminsider, sju bredder, begge språk: seksjonen og verktøyene i hver sin gruppe, midtstilt på én linje når det er plass og verktøyene under seksjonen ellers, navnet aldri kuttet, trykkflater 44 px på telefon, bunnlinja og seksjonslinja sier det samme. |
+| Forsiden: dørene først, teksten under, lesbart på 375 | **Ja**, se punkt 6. |
+| Desktop uendret der det ikke er nevnt | **Ja.** Piksel-diff på 1280 mot koden før runden, ti sider: kundesidene skiller seg bare i headerlinja (språkknappen). `vilkar.html` er 6 px lenger, fordi språkknappen nå er 44 px høy. Adminsidene skiller seg i seksjonslinja, som var oppdraget. |
+| Fem offentlige endepunkter gjennom ekte skjemaer, med adminsesjon | **Ja**, se under. |
+| Ingen konsollfeil, 320–1440, begge språk | **Ja**, se under. |
+| Testrader ryddet og bekreftet borte | **Delvis**, som forrige runde: anmeldelsen står igjen som `rejected`, se under. |
+
+### Endepunktene
+
+Chrome, adminsesjon for `admin@westengenklinikk.example` liggende i
+`localStorage`. Testdata: `Testrad Runde`,
+`testrad.runde@westengenklinikk.example`, `+47 400 00 099`.
+
+Branchen er ikke merget, så produksjon kjører fortsatt koden fra før
+runden. Fire endepunkter er derfor testet på Vercels preview av branchen
+(`booking-demo-hwy3sbta7-…vercel.app`, commit `dbefdc9`), som er koden som
+skal inn. Kontaktskjemaet kan ikke fullføres der, fordi Turnstile er
+bundet til produksjonsdomenet (kjent, se «Turnstile i produksjon»). Det er
+testet på live.
+
+| Endepunkt | Hvor | Resultat |
+|---|---|---|
+| Bestilling, engelsk | preview | Markus → Initial assessment → Tuesday 15 September 12:00 → «Your appointment is confirmed», `WK-46UQ-4921` |
+| Bestilling, norsk | preview | Markus → Førstegangsvurdering → fredag 18. september 06:00 → «Timen er bekreftet», `WK-UTZ1-3513` |
+| Avbestilling, engelsk | preview | `WK-UTZ1-3513` + e-post → «Confirm cancellation» → «Your appointment is cancelled». Den første bookingen lå under 24 timer fram og kunne ikke avbestilles, derfor to. |
+| Venteliste, engelsk | preview | Markus, fra 1. oktober → «You're on the waiting list», `WK-WL-KYG3-N8SX` |
+| Anmeldelse, engelsk | preview | `review_token` fra seed-timen `demo-20260911-sofie-52` → «Thank you for your review!» |
+| Kontakt | preview | Som ventet: ingen token, knappen låst, «The security check did not go through. Reload the page and try again.», nå på engelsk |
+| Kontakt | live | Token utstedt, knappen åpnet, «Takk! Meldingen er sendt.» |
+
+### Konsoll og bredder
+
+Lokal server med filene fra HEAD, Playwright, service workere blokkert:
+19 sider × 320, 375, 414, 768, 1024, 1280 og 1440 × norsk og engelsk,
+266 sidevisninger. I hver er konsollfeil, sidelengs rulling,
+seksjonslinja, mobilmenyen og forsidens dører målt. Sjekkene er bevist
+mot koden før runden, der de fanget ADMIN-hodet, «Logg ut» over
+rutenettet, rutenettet 311 px ned, trykkflater under 44 px, manglende
+markering og feil navn i bunnlinja på stengte tider, og konsollfeilen
+under.
+
+Første sveip: **5 feil**, alle på 320 px, alle rettet og sveipet på nytt:
+
+| Feil | Fantes før runden? | Rettet |
+|---|---|---|
+| Oversikten rullet sidelengs (352 px): en lang e-postadresse dyttet bookingkortets kolonne ut | Ja | `minmax(0, 1fr)` og `overflow-wrap: anywhere` |
+| Kundekortet rullet sidelengs (365 px), samme årsak i nøkkel/verdi-rutenettet | Ja | Samme |
+| Menyknappen på de to sidene kunne ikke trykkes; innholdet som rant ut, la seg over den | Ja | Forsvant med de to over |
+| Forsidens dørknapper under første skjermbilde på engelsk 320 px (845 px) | Nei, min | Strammere lister og overskrift under 360 px |
+
+Etter rettelsene: **0 feil.**
+
+**Konsollfeil fjernet:** alle 21 sider hadde `frame-ancestors 'none'` i
+CSP-en i `<meta>`, der nettleseren ignorerer direktivet og logger en feil
+på hver side. Det leveres allerede som HTTP-header fra `vercel.json`, så
+linja i `<meta>` er fjernet. Sikkerheten er uendret.
+
+Kontaktsidens Turnstile svarer 400 lokalt, som er den kjente
+domenebindingen. Sveipet tillater det bare mot `localhost`.
+
+### Testrader
+
+| Tabell | Rad | Status |
+|---|---|---|
+| `bookings` | `WK-46UQ-4921`, `WK-UTZ1-3513` | Slettet, bekreftet borte |
+| `waitlist` | `WK-WL-KYG3-N8SX` | Slettet, bekreftet borte |
+| `contact_messages` | Testrad Runde | Slettet, bekreftet borte |
+| `reviews` | «Testrad R.», 4 stjerner | **Står igjen**, satt til `rejected`. Admin har ingen delete-policy på anmeldelser (403). Slettes av nullstillingen. |
+
+Kontrollert etterpå: null ikke-seed-rader i `bookings`, `waitlist`,
+`contact_messages`, `blocked_slots`, `holidays`, `special_open_days`,
+`exercise_documents`, `services` og `staff_members`; én i `reviews`, den
+over. Ryddingen gikk mot REST-API-et med demokontoen, ikke gjennom
+nettleseren, og ble logget ut med `scope=local`.
+
+Probene logger inn på nytt ved hver kjøring (tom nettleser), så
+`auth.sessions` har fått flere admin-sesjoner fra denne maskinen i natt.
+De utløper av seg selv.
+
+### Raske gater, sist kjørt
+
+    verify-arvet-tekst   ingen arvet markedsfoeringstekst
+    verify-i18n          i18n OK
+    verify-inline-js     21 inline-blokker, 0 med feil
+    verify-lekkasje      ingen treff
+    verify-lenker        30 filer sjekket, alle interne lenker finnes
+
+Service worker-cache bumpet til `v86`.
+
+## 9 — Avvik fra bestillingen
+
+1. **Overskriften står over dørene.** Ingressen er flyttet ned, som bestilt. Øyebrynsteksten og `<h1>` står igjen over dørene, strammere: siden trenger én overskrift før valget, ellers begynner den med to kort uten sammenheng. Dørene er likevel i første skjermbilde på telefon.
+2. **Språkvelgeren i adminpanelet ligger i menyen på telefon**, ikke i verktøygruppa. Rollevelger, språk og «Til nettsiden» fikk ikke plass på én rad på 320 px med 44 px trykkflater. På bred skjerm står den i verktøygruppa.
+3. **Tekst fra brukere oversettes ikke**: meldinger, bookingnotater, journalnotater, anmeldelser og ventelistenotater. Seed-dataene er norske og vises norsk i engelsk panel, merket `translate="no"`. Å oversette det en kunde har skrevet, ville vært feil i et ekte system. Proben teller dem for seg.
+4. **Personnavn med æøå** («Terje Østby») gjenkjennes på formen i proben, ikke ved merking. De vises for mange steder til at hvert er merket.
+5. **Databasetekst via tabell i frontend, ikke kolonne.** Et nytt tjenestenavn lagt inn i panelet får ingen engelsk versjon før noen legger den inn i `en-tekst.json`. Se punkt 2.
+6. **Demoguidens svar er oversatt ordrett**, også der de ikke stemmer med demoen lenger, se sidefunn.
+7. **Kontaktskjemaet er testet på live**, de fire andre på preview. Se Endepunktene.
+8. **Terapeutrollen er ikke probet på engelsk.** Rollen ser et utvalg av de samme sidene med de samme tekstene, men proben kjører som administrator.
+9. **Proben krever Playwright.** Repoet har ingen `package.json` med vilje (Vercel ville installert den ved hver utrulling), så modulen hentes fra `PLAYWRIGHT_MODULE`. Oppskriften står øverst i fila.
+
+## Sidefunn
+
+**Demoguidens svar stemmer ikke med demoen lenger.** «Innloggingen står
+åpent på forsiden» (panelet åpner seg selv nå), «Alle timer er 30
+minutter», og prisene kr 4 000 / 2 000 (tjenestene i basen koster
+kr 690–1 490 og varer 30–60 minutter). Svarene mangler også æøå
+(«arbeidsprove», «pa»). Ikke endret: det var ikke oppdraget.
+
+**`vilkar.html` har de samme gamle prisene.** Oversatt ordrett.
+
+**`personvern.html` lastet CSS i feil rekkefølge**, se punkt 3. Rettet.
+
+**Varslingsknappen i mobilmenyen** viser «…» i en nettleser der service
+workere er blokkert, fordi den venter på registreringen. I en vanlig
+nettleser viser den bjella. Trykkflata er satt til 44 px.
+
+## Commits
+
+`7c2c310` (verify-lekkasje), `0969136`, `8fedbd0`, `dbefdc9`, og denne
+rapporten. Pushet til `runde/2026-09-15`. Ikke merget til `master`.
