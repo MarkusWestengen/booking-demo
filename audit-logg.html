@@ -397,6 +397,8 @@
       // applyRoleGates. Uten den kom en terapeut ikke tilbake til
       // administrator fra denne siden.
       window.WestengenKlinikkAuth.applyRoleGates((session.user.app_metadata || {}).role || 'therapist');
+      // Logg ut i mobilmenyen trykker paa #logoutBtn, og skjules uten den.
+      setTopActions('<button id="logoutBtn">Logg ut</button>');
       show('forbiddenView');
       return;
     }
