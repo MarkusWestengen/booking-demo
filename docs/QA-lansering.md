@@ -3389,3 +3389,335 @@ nettleser viser den bjella. Trykkflata er satt til 44 px.
 
 `7c2c310` (verify-lekkasje), `0969136`, `8fedbd0`, `dbefdc9`, og denne
 rapporten. Pushet til `runde/2026-09-15`. Ikke merget til `master`.
+
+---
+
+# Runde 2026-09-15, del 2
+
+Seks punkter: faktafeil i demoguiden og vilkårene, overskriften på
+forsiden, språkvelgeren på telefon, nye tjenestenavn, terapeutrollen på
+engelsk, og verifisering på nytt. Branch `runde/2026-09-15`, ikke merget.
+
+**Tilgang.** Supabase-CLI-en på maskinen er logget inn på en annen konto
+og har ikke tilgang til `pfyidlnztpwjnpxpoheu` (403). Alt mot databasen er
+derfor gjort gjennom REST-API-et med demokontoene og anon-nøkkelen. Hva det
+betyr for sveipet, står under punkt 6.
+
+## 1 — Demoguiden og vilkårene
+
+Kildene, lest i dag, ikke fra hukommelsen:
+
+| Påstand | Kilde | Verdi |
+|---|---|---|
+| Priser og varighet | `services` (REST, anon og admin) | Førstegangsvurdering kr 1 290 / 60 min, Oppfølgingstime kr 790 / 30, Trykkbølgebehandling kr 690 / 30, Bevegelsesanalyse kr 1 490 / 60. Alle fire aktive og offentlige |
+| Pris per behandler | `staff_services` | Ingen overstyring: alle ni behandlere har alle fire tjenestene, prisen står bare på tjenesten |
+| Åpningstider | `shared/booking-engine.js` (`HOURS`, `STAFF_HOURS`) | Man–fre 07:00–15:00, Markus 06:00–13:00, luker på 30 min. Ligger i koden, ikke i databasen |
+| Avbestillingsfrist | `cancel_booking` (0024) | 24 timer. Bekreftet i praksis: avbestillingen under gikk gjennom for en time 3 døgn fram |
+| Innlogging | `shared/auth.js` | Panelet logger inn selv som administrator; rollene byttes i toppen. Passordene står ikke lenger på forsiden |
+| Hva nullstillingen sletter | `demo_reset()` (0071) | Alle besøkendes rader i ni tabeller, katalogtillegg og driftslogger. **Ikke** filer i lagringen |
+
+### Hva som var feil, og hva det er nå
+
+**Demoguiden** (`shared/components.js`, engelsk i `i18n/en-tekst.json`):
+
+| Svar | Feil | Nå |
+|---|---|---|
+| Hva er dette | «ligger bak innloggingen, og den er publisert på forsiden» | «ligger i adminpanelet, som åpner seg selv fra forsiden» |
+| Innlogging | «Innloggingen står åpent på forsiden. Det er to kontoer … Logg inn med begge» | «Du trenger ikke logge inn: adminpanelet logger deg inn selv. Det er to roller … du bytter mellom dem i toppen av panelet» |
+| Er dataene ekte | «synlig for alle som logger inn» | «synlig for alle som åpner adminpanelet» |
+| Priser | kr 4 000 / 2 000 / 3 000 / 1 500 «avhengig av behandler», «Alle timer er 30 minutter» | De fire tjenestene med pris og varighet, «likt hos alle behandlere» |
+| Åpningstider | «mandag–fredag 07:00–15:00» | «07:00–15:00 hos terapeutene og 06:00–13:00 hos Markus» |
+| Nullstilling | «Alt du legger inn slettes» | «… bortsett fra filer du laster opp under Dokumenter» |
+| Avbestilling, bestilling | Ingen faktafeil | Uendret innhold |
+
+Alle åtte svarene manglet æøå («arbeidsprove», «pa», «besokende»). Rettet
+i de samme strengene.
+
+«En administrator kan endre dem i adminpanelet uten ny utrulling» står
+igjen. Det stemmer for systemet. I demoen avvises endringen av en
+seed-tjeneste, og det forklarer nullstillingssvaret.
+
+**Vilkårene** (`vilkar.html`):
+
+| Punkt | Feil | Nå |
+|---|---|---|
+| 2, åpningstid | kl. 07:00–15:00 | kl. 06:00–15:00 (Markus fra 06:00) |
+| 3, avbestilling | «gjøres på e-post eller telefon» | «på avbestillingssiden med referansekoden fra bekreftelsen, eller på e-post eller telefon» |
+| 4, priser | «Time med Markus Westengen: Konsultasjon kr 4 000 · Videre behandling kr 3 000 (30 min)», «Time med terapeut: … kr 2 000 · … kr 1 500» | De fire tjenestene, «likt hos alle behandlere» |
+| Dato | «Sist oppdatert: 8. mai 2026» | 15. september 2026 |
+
+Telefontid, betaling med kort/Vipps og bekreftelse på e-post er ikke
+endret: det er klinikkinstallasjonens vilkår, og demonotatet øverst sier
+at de ikke gjelder noen.
+
+**Samme feil to steder til, rettet:**
+
+- `bestilling.html`, «Rammene i demoen», som sier at verdiene er «de bookingmotoren faktisk regner med»: «30 minutter per time» → «30 eller 60 minutter, etter tjeneste», og 07:00 → 06:00. Også bunnteksten og introen på trinn 3.
+- `i18n/no.json` og `en.json` hadde sju `chat.static.*`-nøkler med de gamle prisene og «Innloggingen står åpent». Ingen kode bruker dem. Slettet.
+
+### Proben: `scripts/verify-priser.mjs`
+
+Et rent node-script, altså en rask gate. Leser tjenestene fra databasen
+som anon, samme vei som bestillingssiden, og krever:
+
+- hver aktiv, offentlig tjeneste med riktig pris og varighet i demoguidens prissvar, på norsk og engelsk (navnet oversatt gjennom katalogen)
+- hver tjeneste i vilkårenes prisliste (`<ul data-priser>`), norsk og engelsk
+- ingen pris i demoguiden eller vilkårene som ikke finnes i databasen, og ingen tjeneste i vilkårene som ikke er aktiv
+- varighetene i `spec.duration_val`, begge språk, lik mengden i databasen
+
+| Plantet | Resultat |
+|---|---|
+| Ingen | `priser OK`, exit 0 |
+| Vilkårene: Førstegangsvurdering kr 1 390 | exit 1, «står som kr 1 390, databasen sier kr 1 290» og «kr 1 390 finnes ikke i databasen» |
+| Demoguiden, engelsk: Movement analysis 30 minutes | exit 1, «forventet … (60 minutes)» |
+| Demoguiden: «konsultasjon kr 4 000» lagt til | exit 1, «kr 4 000 finnes ikke i databasen» (og engelsk mangler) |
+| `spec.duration_val`: «30 minutter per time» | exit 1, «databasen har 30 og 60 minutter» |
+| Koden før runden | exit 1, 35 avvik |
+
+**Feil i proben funnet under beviset:** `process.exit()` etter `fetch`
+krasjer Node 24 på Windows (libuv-assert) og gir exit 127, ikke 1. Det
+hadde sett ut som et krasj, ikke et avvik. Proben setter `process.exitCode`.
+
+## 2 — Overskriften på forsiden
+
+Flyttet ned sammen med ingressen. Den mørke `.lead`-seksjonen er borte;
+øyebrynstekst og `<h1>` står nå øverst i `.intro`, på lys flate, rett over
+ingressen. Teksten er uendret.
+
+| | Før | Nå |
+|---|---|---|
+| Dørene, 320 × 812, engelsk | etter overskriften | 72 px ned (rett under headeren), knappene ender 633 px ned |
+| 1280 | 437 px ned | rett under headeren |
+
+`<h1>` kommer etter dørenes `<h2>` i dokumentet. Det er prisen for at
+kortene står først.
+
+## 3 — Språkvelgeren i adminpanelet på telefon
+
+**Plassert i første rad i seksjonslinja, til høyre for demomerket**, på
+640 px og under. Rollevelger og «Til nettsiden» fyller andre rad på 320,
+men første rad hadde plass. Over 640 px står den i verktøygruppa som før.
+Knappen er 44 px høy på telefon.
+
+For å få plass sier demomerket «Demo» på hele telefonbredden (før: under
+400 px). Uten det ble «Logg over oppslag» kuttet på norsk 414 px.
+
+Språket står fortsatt også i kontoraden i mobilmenyen, så det finnes to
+steder på telefon. Ikke fjernet i denne runden, fordi menyen da måtte
+måles på nytt på alle sider. Kan tas ut av `shared/admin-nav.js`.
+
+**Målt** på alle elleve adminsider, 320, 360, 375, 414, 640, 641, 768 og
+1280, begge språk (176 sidevisninger): knappen synlig og innenfor skjermen,
+44 px på telefon, ikke over seksjonsnavnet, merket eller verktøyene,
+seksjonsnavnet ikke kuttet, ingen sidelengs rulling, og menyen åpner seg
+innenfor skjermen. **0 feil.** Samme måling mot koden før: 88 feil
+(knappen skjult på alle sider på 320 og 414).
+
+## 4 — Nye tjenestenavn
+
+Valgt: **melding i panelet.** Et felt for engelsk navn krever en kolonne
+og en migrasjon, og jeg har ikke tilgang til å kjøre migrasjoner. Under
+navnefeltet i «Ny tjeneste» og «Rediger tjeneste» står det nå:
+
+> Engelsk: navnet og beskrivelsen vises på norsk også når engelsk er
+> valgt, til de er lagt inn i i18n/en-tekst.json. Legg dem inn begge steder.
+
+På engelsk står den på engelsk. Vil du ha feltet i stedet, er det en
+kolonne `name_en` og `description_en` i `services` og en linje i
+`tekst()`-oppslaget.
+
+## 5 — Terapeutrollen på engelsk
+
+`probe-norsk.mjs` tar nå `ROLLE=terapeut`. Den logger inn med rollens
+konto før adminsidene, og **kontrollerer på hver adminside hvilken konto
+sesjonen faktisk tilhører**. Bevist: med innloggingen plantet til admin
+melder den «innlogget som admin@…, ikke terapeut@…». Kontrollen slo også
+til i praksis: i en kjøring med fire nettlesere samtidig gikk
+forhåndsinnloggingen ut på tid, auto-innloggingen ga admin, og proben
+feilet på 11 sider i stedet for å bli grønn som feil rolle.
+
+Funnet og rettet:
+
+| Hvor | Feil | Rettet |
+|---|---|---|
+| Oversikt, Innstillinger | Kontoens e-post «terapeut@…» (proben) | `translate="no"`, det er en id |
+| Kunder | «sist 14 Dec 2026» og «1 bookings» | Mønster `sist …` → «last …»; entall i kilden |
+| Stengte tider | «· 2 blokkeringer» | Mønstre for entall og flertall |
+| Dokumenter | Filnavn oversatt: «skulder-2.pdf» ble «shoulder-2.pdf», «nakke-1.pdf» ikke | `translate="no"` på filnavnet |
+| Bestilling, oppsummering og bekreftelse | Behandler = «Therapist» (Markus er ikke terapeut) | «Practitioner», som ordlista sier |
+
+**Proben så ikke de tre første norske.** «sist», «blokkering», «blokkeringer»
+og «bookinger» sto ikke på ordlista, og ingen av dem har æøå. Den var
+grønn på feil grunnlag også for administrator, som ser de samme sidene.
+Funnet ved å gå gjennom panelet som terapeut med skjermbilder. Ordene er
+lagt til, og bevist mot koden før rettelsen: 21 treff på Kunder og
+Stengte tider, 0 etter. At et filnavn blir *over*-oversatt, kan proben
+ikke se.
+
+Som terapeut sendes Tjenester og Behandlere til kalenderen; proben
+skriver det ut. Loggen over oppslag viser «You do not have access to the
+access log».
+
+## 6 — Verifisering
+
+### probe-norsk.mjs
+
+| Rolle | 375 | 1280 |
+|---|---|---|
+| Administrator | 21 sider, 0 treff | 21 sider, 0 treff |
+| Terapeut | 21 sider, 0 treff | 21 sider, 0 treff |
+
+Kjørt etter alle rettelser. Hoppet over med vilje, som før: 17 (admin) og
+11 (terapeut) tekster under `translate="no"`, og personnavn med æøå.
+
+### verify-lekkasje.mjs
+
+**To nye feil i proben, funnet ved å plante.** Sveipet av databasen går
+over en JSON-eksport, og der planter jeg én verdi per mønster i en ekte
+rad. Tre av ti gikk forbi:
+
+1. **Escapet tekst.** I JSON står linjeskift som `\n`. «\nP*********, ***5» har ingen ordgrense foran gatenavnet, så begge adressemønstrene bommet. `\"s**********e\": \"e**` bommet på nøkkelmønsteret. Det samme gjelder SQL og JS med escapede strenger i repoet.
+2. **Bare første treff per mønster per linje.** `re.exec` én gang. En funksjonskropp eller en eksportert rad på én linje med to adresser ga ett funn.
+
+Rettet: escapene byttes mot mellomrom før matching, og alle treff på
+linja telles. Treffene skrives maskert, og skriptet tar en katalog som
+argument.
+
+| Plantet (én verdi per mønster, i én rad) | Før rettelsen | Etter |
+|---|---|---|
+| e-post, registrerbart domene, to prosjektnavn, telefon, LAN, hemmelig nøkkel | fanget | fanget |
+| gateadresse, gateadresse i versaler, service role key | **ikke fanget** | fanget |
+| To e-postadresser på én linje | 1 funn | 2 funn |
+
+**Sveipet, med den rettede proben:**
+
+| Flate | Resultat |
+|---|---|
+| Repoet, HEAD (alle tekstfiler) | **0 treff** |
+| Databasen, alt API-et gir ut | **0 treff** |
+| Git-historikken, `git log -p --all` (60 commits) | **281 treff**, se under |
+
+Databasen ble eksportert som anon, administrator og terapeut: alle 17
+tabeller i `public` (admin kan lese 15; `anon_insert_events` og
+`journal_entries` gir 403 gjennom REST), alle 50 journalnotater gjennom
+`get_journal_entries` for hver av de 20 kundene, begge demobrukerne i
+`auth`, og lagringsbøtta `exercise-documents`.
+
+**Ikke sveipet, fordi jeg ikke har `postgres`-tilgang:** funksjonskropper,
+views, policyer, defaults, triggere, kommentarer, `cron.job`, `vault`,
+`net`, `supabase_migrations.schema_migrations`, `auth.sessions` og
+`auth.users` utover de to demobrukerne. Det var der de tidligere funnene
+lå. Påstanden «databasen er ren» gjelder derfor bare dataene, ikke
+definisjonene. For et fullt sveip: `supabase login` med kontoen som eier
+prosjektet, så `supabase db query --linked`, og samme skript over
+eksporten.
+
+**Oppslagene i journalen** skrev 20 `journal_view`-rader til loggen over
+oppslag, som administrator. De slettes av nullstillingen i natt.
+
+**Funn i git-historikken**, maskert. HEAD er ren for alle; dette er
+tidligere versjoner av filer, og historikken er pushet:
+
+| Klasse | Treff | Hvor |
+|---|---|---|
+| Gateadresse `S******* *, ***5` | 116 | 22 filer i 9 commits (sider, i18n, `DEMO_SETUP.md`, rapporten) |
+| Gateadresse `B********** **, ***3` | 58 | 16 filer i 3 commits |
+| Gateadresse `R************ *, ***6` | 4 | `docs/db-funksjoner-før-0074.sql` og `-0076.sql`, i 3 commits |
+| Gammelt prosjektnavn `A***A`, `A***a`, `a***a` | 89 | Migrasjoner (e-postmaler), rapporten, og `verify-lekkasje.mjs` selv |
+| Registrerbart domene `w***************.*o` | 2 | Rapporten, før maskeringen |
+| E-post `…n@g****.com` | 2 | Rapporten: en tidligere maskering lot siste tegn før @ og domenet stå |
+| Gammelt prosjektnavn `t*******a`, `t***-****a`, nøkkelprefiks `s*_****_` | 10 | `verify-lekkasje.mjs` sine egne mønstre. Ikke lekkasje |
+
+Ikke endret. Å fjerne dem krever omskriving av historikken og force-push,
+og det er din beslutning.
+
+### Endepunktene gjennom de ekte skjemaene
+
+Fire er testet mot en lokal server med filene fra branchen, koblet til
+produksjonsdatabasen: det er koden som skal inn, og den treffer de ekte
+RPC-ene. Kontaktskjemaet er testet på live i Chrome, fordi Turnstile er
+bundet til produksjonsdomenet og ikke utsteder token i en headless
+nettleser. `kontakt.html` og `submit-contact` er uendret mot `master`.
+
+Testdata: `Testrad Runde`, `testrad.runde@westengenklinikk.example`,
+`+47 400 00 099`.
+
+| Endepunkt | Resultat |
+|---|---|
+| Bestilling, engelsk | Markus → Initial assessment · 60 min → Thursday 17 September at 06:00, NOK 1,290 → «Your appointment is confirmed», `WK-M8QW-6762`. Lagret med `price` 1290, `duration` 60 |
+| Bestilling, norsk | Markus → Førstegangsvurdering · 60 min → fredag 18. september kl. 06:00, kr 1 290 → «Timen er bekreftet», `WK-VPWT-4572` |
+| Avbestilling, engelsk | `WK-VPWT-4572` + e-post → «Confirm cancellation» → bekreftet. `status = cancelled` i databasen. Teksten på kvitteringen fikk jeg ikke skilt fra skjult tekst i DOM-en; databasen er beviset |
+| Venteliste, engelsk | Markus, fra 1. oktober → «You're on the waiting list», `WK-WL-2ASQ-WGK9` |
+| Anmeldelse, engelsk | `review_token` fra seed-timen `demo-20260817-markus-1` → «Thank you for your review!» |
+| Kontakt, live, Chrome | Turnstile åpnet knappen → «Takk! Meldingen er sendt. Vi svarer så snart vi kan.» |
+
+Null konsollfeil i de fire lokale.
+
+### Konsoll og bredder
+
+Lokal server, Playwright, service workere blokkert. 320, 375, 414, 768,
+1024, 1280 og 1440 × norsk og engelsk:
+
+| | Sider | Sidevisninger | Feil |
+|---|---|---|---|
+| Offentlig | 8 | 112 | 0 |
+| Administrator | 13 | 182 | 0 |
+| Terapeut | 13 | 182 | 0 |
+
+Hver visning sjekker konsollfeil og sidefeil, sidelengs rulling, og på
+adminsidene at sesjonen tilhører riktig konto. Bevist før kjøringen:
+en plantet `console.error`, et plantet 2000 px bredt element, og en
+plantet innlogging som admin i terapeutkjøringen ble alle fanget.
+Unntak, som før: Turnstile svarer 400 på `kontakt.html` mot `localhost`.
+
+På live gir Turnstile-iframen selv `%c%d font-size:0;color:transparent NaN`
+som konsollfeil i headless Chrome. Den kommer fra Cloudflares kode, ikke
+vår, og er ikke med i tallene over.
+
+### Testrader
+
+| Tabell | Rad | Status |
+|---|---|---|
+| `bookings` | `WK-M8QW-6762`, `WK-VPWT-4572` | Slettet |
+| `waitlist` | `WK-WL-2ASQ-WGK9` | Slettet |
+| `contact_messages` | Testrad Runde | Slettet |
+| `reviews` | «Testrad R.», 4 stjerner | **Står igjen**, satt til `rejected`. Admin har ikke `DELETE` på tabellen (403). Ikke synlig for anon. Slettes av nullstillingen |
+
+Kontrollert etterpå som admin: null rader med `is_demo_seed = false` i
+`bookings`, `waitlist`, `contact_messages`, `blocked_slots`, `holidays`,
+`special_open_days`, `exercise_documents`, `services`, `staff_members`
+og `staff_services`; én i `reviews`, den over. Alle REST-sesjoner er
+logget ut med `scope=local`.
+
+### Raske gater, sist kjørt
+
+    verify-arvet-tekst   ingen arvet markedsfoeringstekst
+    verify-i18n          i18n OK
+    verify-inline-js     21 inline-blokker, 0 med feil
+    verify-lekkasje      ingen treff
+    verify-lenker        30 filer sjekket, alle interne lenker finnes
+    verify-priser        priser OK: 4 tjenester
+
+Service worker-cache bumpet til `v87`.
+
+## Det jeg ikke fikk til
+
+1. **Fullt sveip av databasen.** Bare dataene. Definisjonene, migrasjonsloggen, `cron`, `vault` og `auth.sessions` krever `postgres`, og CLI-en her er logget inn på en annen konto. Se punkt 6.
+2. **Engelsk navn som felt.** Krever en migrasjon jeg ikke kan kjøre. Løst med melding, se punkt 4.
+3. **Kvitteringsteksten etter avbestilling** er bekreftet i databasen, ikke lest av siden.
+
+## Sidefunn, ikke endret
+
+- **Seed-dokumentene finnes ikke i lagringen.** `exercise_documents` har åtte rader med `demo/*.pdf`, men bøtta er tom (`object/sign` gir 404 for `demo/nakke-1.pdf`). «Send til kunde» kan derfor ikke lage en fungerende lenke for dem.
+- **Loggen over oppslag som terapeut** viser ingen rollevelger, så man kommer ikke tilbake til administrator fra den siden uten å gå til en annen.
+- **Tidligere maskering i rapporten** lot `…n@g****.com` stå; den er i historikken, se over.
+- **«Synlig for kunder (offentlig)»** i tjenesteskjemaet står med samme versaler og monospace som feltetikettene over, mye større enn teksten ellers i raden.
+- `legal.terms.heading` i `no.json` sier «Vilkår for bestilling, behandling og kjøp», HTML-en «… og behandling». Det finnes ikke noe kjøp i demoen.
+
+## Commits
+
+`012ceee` (demoguide, vilkår, verify-priser), `df95028` (forsiden),
+`7251400` (språkvelgeren), `df0ea8b` (tjenestenavn), `c60bf18`
+(terapeutrollen, proben), `73265b1` (cache), `e5044bb` (Practitioner),
+`1d00aba` (verify-lekkasje), og denne rapporten. Pushet til
+`runde/2026-09-15`. Ikke merget til `master`.
