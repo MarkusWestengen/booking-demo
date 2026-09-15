@@ -294,7 +294,7 @@ over den regelen.
 
 ### Fire arkiverte tjenester med et gammelt navn
 
-«Konsultasjon (Erik)» og «Videre behandling (Erik)» lå igjen fra før
+«Konsultasjon (E***)» og «Videre behandling (E***)» lå igjen fra før
 0068, sammen med 18 koblingsrader som ikke pekte på noe man kunne
 bestille. Bare admin så dem, men de lå der. Migrasjon `0072` sletter
 dem, og sletter ingenting hvis en booking fortsatt peker hit.
@@ -688,7 +688,7 @@ jokertegn ville åpnet for enhver `vercel.app`-side.
 | Meldingen i databasen | Rad med `status: new`, `is_demo_seed: false` |
 | Meldingen i innboksen | Synlig i `meldinger.html` på live, 03:45:29 |
 | CORS-preflight | 204 med `Access-Control-Allow-Origin` for demoens adresse |
-| Venteliste, ekte skjema på live | Kvittering med referanse `TA-WL-X4F7-BMHU`, køplass 3 |
+| Venteliste, ekte skjema på live | Kvittering med referanse `T*-WL-X4F7-BMHU`, køplass 3 |
 | Ventelista med adminsesjon i nettleseren | Virket. Det var nettopp den tilstanden som brøt den før |
 | Ventelisteraden i databasen | Riktig behandler, dato, status `waiting` |
 | Rollebytte på live | Begge veier, fra kalenderen |
@@ -1113,7 +1113,7 @@ ventelistefeilen og anmeldelsesfeilen.
 
 | Endepunkt | Nettverkssvar | Rad i basen | Synlig der den skal |
 |---|---|---|---|
-| Bestilling | `201 POST bookings` | Ja, ref `TA-FEYI-6107` | Kvittering med referanse, behandler, tid, pris |
+| Bestilling | `201 POST bookings` | Ja, ref `T*-FEYI-6107` | Kvittering med referanse, behandler, tid, pris |
 | Avbestilling | `200 rpc/cancel_booking_by_ref` | Status satt til `cancelled` | «Timen din er avbestilt» med referanse |
 | Venteliste | `201 POST waitlist` + `200 rpc/get_waitlist_position` | Ja, riktig behandler og dato | Kvittering med referanse og køplass |
 | Kontakt | `200 submit-contact` | Ja, `status: new` | «Takk! Meldingen er sendt» |
@@ -1197,7 +1197,7 @@ To ting stemte ikke med det oppdraget forutsatte.
 **Navnet var ikke det git sier.** Git har `MARKUS'&nbsp;A****`.
 Produksjon hadde `ERIKS&nbsp;A****` — null treff på «MARKUS» som
 merkenavn i noen av kroppene. Kroppen som kjører er altså eldre enn
-den i git, fra før navnebyttet Erik → Markus. Det er samme observasjon
+den i git, fra før navnebyttet E*** → Markus. Det er samme observasjon
 som avsnittet «Fem migrasjoner kan ikke ha kjørt som de står i git»,
 sett fra den andre siden.
 
@@ -1295,14 +1295,14 @@ seed-data i alle 17 tabeller i `public`, storage-buckets og -objekter,
 
 ## Hastegrad 1 — lesbart for publikum akkurat nå
 
-### «Erik» står i behandlerbiografiene
+### «E***» står i behandlerbiografiene
 
 `public.staff_members.bio`, 8 av 9 rader:
 
 | `staff_id` | Tekst |
 |---|---|
-| `sofie`, `henrik`, `jonas`, `amina`, `nora`, `lena`, `petter` | «Opplært direkte av **Erik**. Samme metodikk, samme grundighet.» |
-| `terapeut` | «Vi tildeler en av våre erfarne terapeuter, alle opplært direkte i **Eriks** metoder. Samme filosofi, samme grundighet.» |
+| `sofie`, `henrik`, `jonas`, `amina`, `nora`, `lena`, `petter` | «Opplært direkte av **E*****. Samme metodikk, samme grundighet.» |
+| `terapeut` | «Vi tildeler en av våre erfarne terapeuter, alle opplært direkte i **E***s** metoder. Samme filosofi, samme grundighet.» |
 
 **Lesbart for publikum: ja.** `anon` har `SELECT` på kolonnen `bio`, og
 policyen `staff_members read active: anon` slipper gjennom alt med
@@ -1395,10 +1395,10 @@ allerede har, i de tre andre.
 
 `public.staff_members.color`:
 
-> Hex-farge (#RRGGBB) for behandlerens fargebar i admin-UI. **Erik
+> Hex-farge (#RRGGBB) for behandlerens fargebar i admin-UI. **E***
 > streng** = bruk frontend-fallback. Migrasjon 0049.
 
-Det skal stå «Tom streng». Et blindt søk-og-erstatt av `Tom` → `Erik`
+Det skal stå «Tom streng». Et blindt søk-og-erstatt av `T**` → `E***`
 har truffet det norske ordet «tom». Kommentaren er den eneste plassen
 skaden er synlig i databasen, men den forklarer hvorfor
 `ERIKS&nbsp;A****` sto i produksjon mens git sa `MARKUS'&nbsp;A****`:
@@ -1536,10 +1536,10 @@ private adressen maskert.
 
 | Før | Etter | Rader |
 |---|---|---|
-| «Opplært direkte av **Erik**. Samme metodikk, samme grundighet.» | «Opplært direkte av **Markus**. …» | 7 |
-| «…alle opplært direkte i **Eriks** metoder.» | «…alle opplært direkte i **Markus'** metoder.» | 1 |
+| «Opplært direkte av **E*****. Samme metodikk, samme grundighet.» | «Opplært direkte av **Markus**. …» | 7 |
+| «…alle opplært direkte i **E***s** metoder.» | «…alle opplært direkte i **Markus'** metoder.» | 1 |
 
-Genitiven måtte tas først. Byttes `Erik` før `Eriks`, blir «Eriks» til
+Genitiven måtte tas først. Byttes `E***` før `E***s`, blir «E***s» til
 «Markuss». Norsk genitiv av et navn som ender på s er apostrof alene.
 
 Erstatningen gikk mot verdiene som faktisk lå i radene, ikke mot
@@ -1564,7 +1564,7 @@ altså reell, men gikk gjennom API-et alene.
 > Hex-farge (#RRGGBB) for behandlerens fargebar i admin-UI. **Tom
 > streng** = bruk frontend-fallback. Migrasjon 0049.
 
-Lest ut av katalogen, «Erik streng» byttet til «Tom streng», resten
+Lest ut av katalogen, «E*** streng» byttet til «Tom streng», resten
 urørt.
 
 ### 3. `notify_to`
@@ -1595,7 +1595,7 @@ ikke feil.
 
 | Kontroll | Resultat |
 |---|---|
-| «Erik» borte fra `bio` | 8 rader oppdatert, 0 treff igjen i `bio`, `name` og `role` |
+| «E***» borte fra `bio` | 8 rader oppdatert, 0 treff igjen i `bio`, `name` og `role` |
 | Genitiv | `terapeut` har «Markus' metoder» med apostrof |
 | Kolonnekommentaren | «Tom streng = bruk frontend-fallback» |
 | `notify_to` byttet | Ja, og ingen `@gmail.com` igjen i noen funksjon i `public` |
@@ -1628,10 +1628,10 @@ Hentet gjennom `anon`-API-et fra selve `booking-demo-rosy.vercel.app`,
 med sidens egen anon-nøkkel:
 
     GET /rest/v1/staff_members?select=staff_id,name,bio&order=sortering
-    → 200, 9 rader, 0 treff på «Erik», «Markus' metoder» på plass
+    → 200, 9 rader, 0 treff på «E***», «Markus' metoder» på plass
 
 Bestillingsflyten ble åpnet på live og de to behandlerkortene gjengir
-riktig tekst. Null forekomster av «Erik» i sidens tekst.
+riktig tekst. Null forekomster av «E***» i sidens tekst.
 
 ---
 
@@ -1642,7 +1642,7 @@ truffet det norske ordet «tom». Jeg lette etter samme skade i begge
 retninger, over funksjonskropper, kommentarer, seed-data i alle
 tabeller, RLS-policyer, constraints, kolonne-defaults og `cron.job`.
 
-**Søkt etter:** et navn (`Markus`, `Erik`, `Toms`, `Tom`) med en
+**Søkt etter:** et navn (`Markus`, `E***`, `T**s`, `T**`) med en
 bokstav rett foran eller en liten bokstav rett etter — altså navnet
 inne i et ord; feilformene `Markuss` og `Erikss` fra en genitiv som er
 byttet i feil rekkefølge; `Klinikk` og `Westengen` inne i et annet ord,
@@ -1660,7 +1660,7 @@ til å rette:
 |---|---|---|
 | `create_journal_entry()` | «Notatet kan ikke være **tomt**» | Vanlig norsk ord. Vil bli ødelagt av `tom` → et navn. |
 | `demo_seed()`, 4 steder | «audit-siden er **tom**», «en **tom** respons», «ikke er **tom**», «enn en **tom** liste» | Samme. Fire treff. |
-| `staff_members.color` | «**Tom** streng = bruk frontend-fallback» | Nettopp rettet. Var «Erik streng». |
+| `staff_members.color` | «**Tom** streng = bruk frontend-fallback» | Nettopp rettet. Var «E*** streng». |
 | `demo_seed()` og `journal_entries`, 11 rader | «**Symptom**fri ved siste kontroll» | Inneholder «tom». Ville blitt «Symp\<navn\>fri». |
 | `send_booking_email()` | «Westengen Klinikk — **automatisk** varsel» | Inneholder «tom». |
 | `send_contact_message_email()` | «**AUTOMATISK** VARSEL — WESTENGEN KLINIKK» | Samme, i versaler. |
@@ -1788,7 +1788,7 @@ Ingen av dem bruker Turnstile. Kontrollert, ikke antatt:
 
 | Endepunkt | Hvordan | Resultat |
 |---|---|---|
-| Bestilling | `createBooking()` i bookingmotoren på live | `ok: true`, ref `TA-3QWE-3192`, rad i `bookings` |
+| Bestilling | `createBooking()` i bookingmotoren på live | `ok: true`, ref `T*-3QWE-3192`, rad i `bookings` |
 | Avbestilling | `avbestill.html?token=…` med tokenet fra bookingen over, bekreftet i UI | RPC `cancel_booking_by_token` → **200** `{"ok":true}`, kvitteringsskjerm vist |
 | Venteliste | Skjemaet på `venteliste.html` | Rad i `waitlist` med `status = 'waiting'`, `get_waitlist_position` → **200**, posisjon 3 |
 
@@ -2164,7 +2164,7 @@ hos Markus eller 14:30 hos de andre.
 
 | Endepunkt | Resultat |
 |---|---|
-| Bestilling | `ok: true`, ref `TA-N38C-4017`, rad opprettet |
+| Bestilling | `ok: true`, ref `T*-N38C-4017`, rad opprettet |
 | Avbestilling | `cancel_booking_by_token` → **200** `{"ok":true}`, kvitteringsskjerm. Andre forsøk → `already_cancelled`, altså idempotent |
 | Venteliste | Rad opprettet, `get_waitlist_position` → **200**, plass 3 |
 | Kontakt | **200** `{"ok":true}`, kvittering vist, rad i innboksen |
@@ -2650,9 +2650,9 @@ Live, Chrome, adminsesjon liggende i `localStorage`
 
 | Endepunkt | Resultat |
 |---|---|
-| Bestilling | Markus → Førstegangsvurdering → tirsdag 22. september 06:30 → detaljer → «Timen er bekreftet», referanse `TA-TD77-6460`, adresse «Eksempelveien 12, 0000 Oslo». (Testet før `TA-` → `WK-`.) |
+| Bestilling | Markus → Førstegangsvurdering → tirsdag 22. september 06:30 → detaljer → «Timen er bekreftet», referanse `T*-TD77-6460`, adresse «Eksempelveien 12, 0000 Oslo». (Testet før `TA-` → `WK-`.) |
 | Avbestilling | Referanse + e-post → «Timen din er avbestilt». Status i basen: `cancelled`. |
-| Venteliste | Markus, fra 1. oktober → «Du står på ventelista», `TA-WL-JESW-8KM6`. |
+| Venteliste | Markus, fra 1. oktober → «Du står på ventelista», `T*-WL-JESW-8KM6`. |
 | Kontakt | Turnstile utstedte token uten utfordring (794 tegn), knappen åpnet, «Takk! Meldingen er sendt.» |
 | Anmeldelse | Med `review_token` fra en gjennomført seed-time → «Takk for anmeldelsen!» |
 
@@ -2694,8 +2694,8 @@ fra et skrivebordsvindu.
 
 | Tabell | Rad | Status |
 |---|---|---|
-| `bookings` | `TA-TD77-6460` | Slettet, bekreftet borte |
-| `waitlist` | `TA-WL-JESW-8KM6` | Slettet, bekreftet borte |
+| `bookings` | `T*-TD77-6460` | Slettet, bekreftet borte |
+| `waitlist` | `T*-WL-JESW-8KM6` | Slettet, bekreftet borte |
 | `contact_messages` | Testrad Opprydding | Slettet, bekreftet borte |
 | `reviews` | «Testrad O.», 4 stjerner | **Står igjen**, satt til `rejected`. Admin har ingen delete-policy på anmeldelser (403), med vilje. Slettes av nullstillingen 01:00 UTC. |
 | `audit_log`, `journal_audit` | Én rad hver fra testene | Står igjen. Tømmes av nullstillingen. |

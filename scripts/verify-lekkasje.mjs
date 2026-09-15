@@ -27,8 +27,22 @@ const MOENSTRE = [
   // Monogrammet i e-posthodene het «<navn>&nbsp;ARENA» i to runder
   // etter at prosjektnavnet ellers var byttet.
   [/\barena\b/gi, 'gammelt prosjektnavn'],
-  // Norske telefonnumre som ikke er plassholderen 400 00 000.
-  [/\+47[ ]?(?!400[ ]?00[ ]?000)\d{2}[ ]?\d{2}[ ]?\d{2}[ ]?\d{2}/g, 'telefonnummer'],
+  // Gamle navn. «tom» er ogsaa et norsk ord («Tom streng», «Tom.»), saa
+  // Tom fanges bare i formene navnet faktisk hadde: «Toms», foran et
+  // etternavn, etter med/hos/til/av/fra, og som id («tom-…», 'tom').
+  // ponytail: formbasert; «Tom» alene midt i en setning glipper.
+  [/\bEriks?\b/g, 'gammelt navn'],
+  [/\bToms\b|\bTom(?=[ ]+[A-ZÆØÅ][a-zæøå])|(?<=\b(?:med|hos|til|av|fra|with)[ ]+)Tom\b|\btom-(?!tilstand)[a-z*]|['"]tom['"]/g, 'gammelt navn'],
+  // Det gamle referanseprefikset, for WK-.
+  [/\bTA-(?:WL-)?[A-Z0-9]{4}\b/g, 'gammelt prefiks'],
+  // Organisasjonsnummer: med ledetekst, med MVA, eller gruppert 3-3-3.
+  [/(?:org\.?\s*(?:nr|nummer)\.?|organisasjonsnummer)[:\s]*\d{3}\s?\d{3}\s?\d{3}/gi, 'organisasjonsnummer'],
+  [/(?<![\d-])\d{3} \d{3} \d{3}(?![\d-])|\b\d{9}\s?MVA\b/g, 'organisasjonsnummer'],
+  // Norske telefonnumre som ikke er demoens serie 400 00 000–099.
+  // Mobilnumre skrives oftest 3-2-3 («912 34 567»); moenstret tok foer
+  // bare 2-2-2-2 og uten mellomrom, saa den vanligste formen gikk forbi.
+  [/(?:\+47|0047)[ ]?(?!400[ ]?00[ ]?0\d\d(?!\d))(?:\d{2}[ ]?\d{2}[ ]?\d{2}[ ]?\d{2}|\d{3}[ ]?\d{2}[ ]?\d{3})(?!\d)/g, 'telefonnummer'],
+  [/(?<!\d|\d |\+|\+47 ?|0047 ?)(?!400 00 0\d\d)[49]\d{2} \d{2} \d{3}(?![\d ]\d)/g, 'telefonnummer'],
   // Norske gateadresser. Plassholderen er Eksempelveien 12, 0000 Oslo:
   // gatenavnet finnes ikke i Kartverkets adresseregister, og 0000 er
   // ikke et postnummer. Tidligere plassholdere var ekte adresser.

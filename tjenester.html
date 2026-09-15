@@ -662,7 +662,7 @@
       return st ? st.name : id;
     });
     // Telleren bruker eligible-settet (slug-prefix-basert) som divisor,
-    // ikke STAFF.length, så tom-tjenester viser "1 av 1" istedenfor "1 av 7".
+    // ikke STAFF.length, så markus-tjenester viser "1 av 1" istedenfor "1 av 7".
     var eligible = eligibleStaffFor(s);
     var staffLabel = staffNames.length === 0 ? 'Ingen' :
                      staffNames.length === eligible.length ? 'Alle' :
@@ -890,7 +890,7 @@
 
   function renderEditorForm(svc) {
     // eligibleStaffFor() filtrerer basert på svc.slug:
-    //   tom-* → kun Markus, ter-* → kun de 5 terapeutene, ellers → alle utenom paraplyen.
+    //   markus-* → kun Markus, ter-* → kun de 5 terapeutene, ellers → alle utenom paraplyen.
     // For nye services (uten svc) brukes eligible-settet som default-assignment;
     // det inkluderer alt utenom 'terapeut'-paraplyen (samme adferd som før).
     var eligible = eligibleStaffFor(svc);

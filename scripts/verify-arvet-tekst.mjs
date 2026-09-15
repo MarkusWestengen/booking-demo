@@ -44,15 +44,20 @@ function gaa(dir) {
     if (statSync(sti).isDirectory()) { gaa(sti); continue; }
     if (!TEKST.has(extname(sti))) continue;
     if (UNNTAK.some((u) => sti === u || sti.endsWith(sep + u) || navn === u)) continue;
-    readFileSync(sti, 'utf8').split('\n').forEach((l, i) => {
+    readFileSync(sti, 'utf8').split('\n').forEach((linje, i) => {
+      // Samme grep som verify-lekkasje: escapene i JSON og SQL
+      // («\n14 års erfaring») blir mellomrom, og alle treff telles.
+      const l = linje.replace(/\\[nrt"']/g, '  ');
       for (const re of MOENSTRE) {
-        const m = l.match(re);
-        if (m) funn.push(`${sti}:${i + 1}  ${m[0]}`);
+        for (const m of l.matchAll(new RegExp(re.source, re.flags.includes('g') ? re.flags : re.flags + 'g'))) {
+          funn.push(`${sti}:${i + 1}  ${m[0]}`);
+        }
       }
     });
   }
 }
-gaa('.');
+// Uten argument: repoet. Med en katalog: den, f.eks. en eksport av databasen.
+gaa(process.argv[2] || '.');
 
 if (funn.length) {
   console.log(`${funn.length} treff:`);
