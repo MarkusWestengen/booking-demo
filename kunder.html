@@ -445,7 +445,7 @@
           '</div>' +
         '</div>' +
         '<div class="cust-stats">' +
-          '<div class="count">' + c.count + ' bookinger</div>' +
+          '<div class="count">' + c.count + (c.count === 1 ? ' booking' : ' bookinger') + '</div>' +
           '<div>' + escapeHtml(formatPrice(c.revenue)) + '</div>' +
           '<div>sist ' + escapeHtml(formatDateShort(c.lastSeen)) + '</div>' +
         '</div>' +

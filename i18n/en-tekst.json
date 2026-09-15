@@ -922,6 +922,9 @@
     ["^Åpne kunde (.+)$", "Open client $1"],
     ["^Viser (\\d+)[–-](\\d+) av (\\d+)$", "Showing $1–$2 of $3"],
     ["^(\\d+) ledige?$", "$1 available"],
-    ["^(\\d+) min$", "$1 min"]
+    ["^(\\d+) min$", "$1 min"],
+    ["^(· )?(\\d+) blokkeringer$", "$1$2 blocks"],
+    ["^(· )?(\\d+) blokkering$", "$1$2 block"],
+    ["^sist (.+)$", "last $1"]
   ]
 }

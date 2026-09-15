@@ -395,7 +395,8 @@
   function docHtml(d) {
     var admin = isAdmin();
     var when = d.created_at ? new Date(d.created_at).toLocaleDateString(WestengenKlinikkI18n.locale()) : '';
-    var fileLine = [escapeHtml(d.file_name || ''), when].filter(Boolean).join(' · ');
+    // Filnavnet er en id, ikke tekst: «skulder-2.pdf» ble «shoulder-2.pdf» paa engelsk.
+    var fileLine = [d.file_name ? '<span translate="no">' + escapeHtml(d.file_name) + '</span>' : '', when].filter(Boolean).join(' · ');
     return '<div class="doc" data-doc="' + escapeHtml(d.id) + '">' +
       '<div class="doc-row">' +
         '<div class="doc-main">' +

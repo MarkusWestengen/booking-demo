@@ -1352,7 +1352,7 @@
       <div class="settings-card">
         <h3>Min konto</h3>
         <table class="session-table">
-          <tr><td>E-post</td>    <td id="setEmail">,</td></tr>
+          <tr><td>E-post</td>    <td id="setEmail" translate="no">,</td></tr>
           <tr><td>Rolle</td>     <td id="setRole">,</td></tr>
           <tr id="setStaffRow" style="display:none;">
             <td>Behandler</td>   <td id="setStaff">,</td>
@@ -1687,7 +1687,7 @@
     window.WestengenKlinikkAuth.applyRoleGates(user.role);
     setTopbarRight(
       '<a href="kalender.html">Min kalender →</a>' +
-      '<span class="who">' + escapeHtml(user.email) + '</span>' +
+      '<span class="who" translate="no">' + escapeHtml(user.email) + '</span>' +
       '<button id="logoutBtn">Logg ut</button>'
     );
 

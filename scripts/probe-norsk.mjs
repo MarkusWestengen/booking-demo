@@ -6,6 +6,11 @@
 //   BASE=https://booking-demo-rosy.vercel.app node scripts/probe-norsk.mjs
 //   node scripts/probe-norsk.mjs kalender.html tjenester.html
 //
+// Som terapeut (standard er administrator, som auto-innloggingen gir):
+//   ROLLE=terapeut node scripts/probe-norsk.mjs
+// Proben logger inn med rollens konto foer adminsidene, og sjekker paa
+// hver adminside at det er den kontoen sesjonen faktisk tilhoerer.
+//
 // Beviset for at proben virker:
 //   PLANT=1 node scripts/probe-norsk.mjs index.html
 // legger en norsk setning inn i hver side etter at den er oversatt. Proben
@@ -28,6 +33,9 @@
 
 const BASE = (process.env.BASE || 'http://localhost:8790').replace(/\/$/, '');
 const PLANT = process.env.PLANT === '1';
+const ROLLE = process.env.ROLLE || 'admin';
+const KONTO = { admin: 'admin@westengenklinikk.example', terapeut: 'terapeut@westengenklinikk.example' }[ROLLE];
+if (!KONTO) { console.error('ROLLE maa vaere admin eller terapeut'); process.exit(2); }
 const PLANTET = 'Timen din er bekreftet og lagret';
 
 async function lastPlaywright() {
@@ -60,7 +68,8 @@ dokument dokumenter notat notater slik der denne hei takk vennligst feil bekreft
 kommende tidligere totalt antall inntekt år gjennomført fullført utført trinn dato klokken
 oppdiktet oppdiktede demoen fiktive velkommen skriv spørsmål hjelp innboks innboksen legg til
 ukens dagens neste ingen treff sortering alle behandling behandlinger merknad merknader
-e-post epost adresse sted besøk henvendelse registrert opprettet endret slettet åpne åpen stengt`;
+e-post epost adresse sted besøk henvendelse registrert opprettet endret slettet åpne åpen stengt
+sist blokkering blokkeringer bookinger`;
 const ORDSETT = new Set(NORSKE_ORD.split(/\s+/).filter(Boolean));
 
 // Merkenavn og spraakvalget selv. «Norsk» skal staa i spraakmenyen ogsaa
@@ -267,6 +276,13 @@ await ctx.addInitScript(() => {
   } catch (_) {}
 });
 
+if (sider.some((s) => ADMIN.includes(s))) {
+  const p = await ctx.newPage();
+  await p.goto(`${BASE}/ansatt.html?auto=${ROLLE === 'terapeut' ? 'therapist' : 'admin'}&next=kalender.html`);
+  await p.waitForURL('**/kalender.html', { timeout: 30000 }).catch(() => {});
+  await p.close();
+}
+
 const funn = [];
 const tilstander = {};
 let brukerTreff = 0;
@@ -301,6 +317,17 @@ for (const side of sider) {
     continue;
   }
   await vent(page, +(process.env.WAIT || 2500));
+  if (ADMIN.includes(side) && side !== 'set-password.html' && side !== 'ansatt.html') {
+    const epost = await page.evaluate(() => {
+      for (const k of Object.keys(localStorage)) if (/^sb-.*-auth-token$/.test(k)) {
+        try { return JSON.parse(localStorage.getItem(k)).user.email; } catch (_) {}
+      }
+      return null;
+    });
+    if (epost !== KONTO) funn.push({ side, tilstand: 'rolle', ord: '-', tekst: `innlogget som ${epost}, ikke ${KONTO}`, sti: '-' });
+    const her = page.url().split('/').pop().split('?')[0];
+    if (her !== side) (tilstander[side] ||= []).push('omdirigert til ' + her);
+  }
   const lang = await page.evaluate(() => document.documentElement.lang);
   if (lang !== 'en') funn.push({ side, tilstand: 'lasting', ord: '-', tekst: `<html lang="${lang}">, ikke en`, sti: 'html' });
   await samle('lastet');
@@ -321,7 +348,7 @@ for (const [side, liste] of Object.entries(perSide)) {
   console.log(`\n${side}: ${liste.length}`);
   for (const f of liste) console.log(`  [${f.tilstand}] «${f.ord}»  ${f.tekst}\n      ${f.sti}`);
 }
-console.log(`\n${sider.length} sider, ${funn.length} treff paa norsk tekst` +
+console.log(`\n${sider.length} sider som ${ROLLE}, ${funn.length} treff paa norsk tekst` +
   (brukerTreff ? `, ${brukerTreff} under translate="no" (ikke feil)` : '') +
   (navnHoppet ? `, ${navnHoppet} personnavn med æøå hoppet over` : '') + (PLANT ? '  [PLANT]' : ''));
 if (PLANT) {
