@@ -3721,3 +3721,317 @@ Service worker-cache bumpet til `v87`.
 (terapeutrollen, proben), `73265b1` (cache), `e5044bb` (Practitioner),
 `1d00aba` (verify-lekkasje), og denne rapporten. Pushet til
 `runde/2026-09-15`. Ikke merget til `master`.
+
+---
+
+# Runde 2026-09-15, del 3
+
+Seks punkter: tekst i kortene på forsiden, ingressen under dem,
+seed-dokumentene, rollevelgeren, språket i mobilmenyen, og det fulle
+sveipet av databasedefinisjonene. Branch `runde/2026-09-15`, ikke merget.
+
+**Tilgang.** `postgres` via Management API (`supabase db query --linked`)
+med det midlertidige tokenet, satt som miljøvariabel i hver kommando.
+Jeg har ikke skrevet verdien til noen fil, se punkt 6.
+
+## 6 — Fullt sveip av databasen
+
+Rundens viktigste punkt, derfor først.
+
+### Flatene
+
+Eksportert fra produksjon (`pfyidlnztpwjnpxpoheu`) som `postgres`, alle
+skjemaer utenom `pg_catalog`, `information_schema` og `pg_toast`:
+
+| Flate | Rader |
+|---|---|
+| Funksjonskropper (`pg_get_functiondef`), alle skjemaer, med kommentar og `proconfig` | 149 |
+| Views og materialiserte views | 3 |
+| Triggere (ikke interne) og event-triggere | 32 + 7 |
+| RLS-policyer (`USING` og `WITH CHECK`) | 65 |
+| Kolonne-defaults | 198 |
+| Constraints | 172 |
+| Kommentarer på tabeller, kolonner, funksjoner og andre objekter, og delte kommentarer | 2 038 + 3 |
+| Enum-er, domener og sammensatte typer | 49 + 19 |
+| Rolle- og databaseinnstillinger, publikasjoner, utvidelser | 9 + 84 + 2 + 7 |
+| `vault.decrypted_secrets` (egen fil, slettet etter sveipet) | **0** |
+| Data i alle 58 tabeller i `auth`, `cron`, `net`, `public`, `realtime`, `storage` og `supabase_migrations` | se under |
+
+Utvalgte datatabeller: `supabase_migrations.schema_migrations` 78,
+`cron.job` 4, `cron.job_run_details` 1 073, `net._http_response` 13,
+`auth.users` 2, `auth.sessions` 204, `auth.refresh_tokens` 206,
+`auth.identities` 2, `storage.buckets` 1, `storage.objects` 0, alle 17
+tabellene i `public` (journalen lest direkte, uten oppslag i loggen).
+
+Kolonner med hemmeligheter ble utelatt ved eksport (passord-hasher,
+tokens, OTP-er, `refresh_token_hmac_key`, `cancel_token`, `review_token`).
+Vault ble dekryptert og sveipet, og er tom.
+
+**Kontroll av at eksporten er komplett:** kjente verdier ble funnet der
+de skal: plassholderadressen og `post@westengenklinikk.example` i
+funksjonskroppene og migrasjonsloggen, «Demonotat 4» i journalen,
+`demo-nightly-reset` i `cron.job`, «Tom streng» i kolonnekommentaren.
+
+### Mønstrene
+
+Ble utvidet før sveipet, fordi de manglet klasser du ba om:
+
+| Klasse | Før | Nå |
+|---|---|---|
+| Gamle navn E***, T** | Ikke i proben | `E***`/`E***s`; `T**` i formene navnet hadde: genitiv, foran et etternavn, etter med/hos/til/av/fra, og som id (`t**-…`, `'t**'`). «tom» er et norsk ord, og «Tom streng» står i en kolonnekommentar |
+| `T*-`-prefikset | Ikke i proben | `T*-XXXX`, `T*-WL-XXXX` |
+| Organisasjonsnummer | Ikke i proben | Med ledetekst, med MVA, og gruppert 3-3-3 |
+| Telefonnummer | Bare gruppert 2-2-2-2 etter +47, og uten mellomrom | Også 3-2-3 etter +47 eller 0047, og 3-2-3 uten landskode. **Den vanligste skrivemåten for mobilnumre gikk forbi.** Demoserien `400 00 000–099` er unntatt |
+| Arvet markedsføringstekst | `verify-arvet-tekst.mjs` hadde de samme to feilene som `verify-lekkasje` hadde: så ikke gjennom escapet tekst, og tok ikke en katalog | Rettet likt |
+
+Telefonmønsteret ble testet mot 14 saker (6 som skal treffe, 8 som ikke
+skal, blant dem demonumrene og 3-2-3 inne i lengre sifferrekker), før og
+etter rettelsen.
+
+**De nye mønstrene fant rester i repoet med én gang:**
+
+- `tjenester.html`: «t**-tjenester» og «t**-* → kun Markus» i to kommentarer, etter det gamle slug-prefikset. Koden bruker `markus-`. Rettet.
+- `docs/QA-lansering.md`: det gamle fornavnet umaskert 19 steder, og 8 gamle `TA-`-referanser. Maskert som resten av rapporten (`E***`, `T**`, `T*-`).
+
+### Beviset, før nullresultatet
+
+34 plantede verdier i en kopi av den fulle eksporten, én per mønster og
+hver i sin flate, alltid etter et escapet linjeskift (den formen som
+gikk forbi i forrige runde). Kravet er at planten gir **flere treff enn
+utgangspunktet** i samme fil og klasse, så et ekte treff i samme fil ikke
+kan skjule en bom.
+
+| Plantet | Flate | Resultat |
+|---|---|---|
+| e-post på gmail | funksjonskropp | fanget |
+| registrerbart domene | policy | fanget |
+| `t***-a***a` | kommentar | fanget |
+| «A***a» | trigger | fanget |
+| `+** ** ** ** *7`, gruppert 2-2-2-2 | kolonne-default | fanget |
+| gateadresse | migrasjonsloggen | fanget |
+| gateadresse i versaler | constraint | fanget |
+| LAN-adresse | `auth.sessions.ip` | fanget |
+| service role-nøkkel med escapede sitattegn | `cron.job.command` | fanget |
+| hemmelig nøkkelprefiks | `net._http_response.content` | fanget |
+| E*** | view | fanget |
+| «Time med T**» | `auth.users.raw_user_meta_data` | fanget |
+| `T*-****-1234` | `bookings.ref` | fanget |
+| «Org.nr.: 9 sifre» | `storage.buckets` | fanget |
+| «9 sifre MVA» | enum | fanget |
+| `+** *** ** **7`, gruppert 3-2-3 | `waitlist.phone` | fanget |
+| «ring meg på *** ** **7» uten landskode | `document_sends` | fanget |
+| org.nr. gruppert 3-3-3 | `holidays` | fanget |
+| `staff_id = 't**'` | `staff_services` | fanget |
+| 15 uttrykk for arvet tekst, ett per mønster | `staff_members`, `services`, `reviews`, journalen, meldinger, venteliste, dokumenter, loggen, `document_sends`, `cron.job_run_details`, funksjonskommentar, rolleinnstillinger, `storage.migrations`, `realtime`- og `auth`-migrasjoner | 15 av 15 fanget |
+
+**34 av 34.** Utgangspunktet, uten planter: 0 treff i begge probene.
+
+### Resultatet
+
+| Probe | Eksporten | Vault |
+|---|---|---|
+| `verify-lekkasje.mjs` (16 mønstre) | **0 treff** | 0 |
+| `verify-arvet-tekst.mjs` (15 mønstre) | **0 treff** | 0 |
+
+**Ingen ekte funn i klassene du ba om. Derfor ingen ny migrasjon.**
+
+### Bredt oppslag utenfor mønstrene
+
+Mønstrene fanger bare kjente former. Eksporten ble derfor også gått
+gjennom for alt som ligner, gruppert og klassifisert uten å skrive ut
+verdiene:
+
+| Hva | Funnet | Vurdering | Lesbart for publikum |
+|---|---|---|---|
+| E-postdomener | `eksempel.example` (537), `westengenklinikk.example` (29), `resend.dev` (15, Resends testavsender), `example.com` (9), `y.example` (3) | `example.com` er bare `x@example.com` i kommentarer i migrasjonsloggen. Alle domenene er reservert eller eksempler | — |
+| `+47`-numre | 21 ulike | Alle i demoserien `400 00 0xx` | — |
+| «9067…» | én kommentar i migrasjonsloggen | Et avkuttet eksempel («ring meg på 9067…»), ikke et nummer | Nei |
+| de gamle navnene, prosjektnavnet og prefikset uten hensyn til store/små bokstaver | 0 | — | — |
+| `tom`/`Tom` | 51 | Alle er ordet *tom*: «tom journal», «tom streng», «Tom streng = bruk frontend-fallback» | — |
+| **Offentlige IP-adresser** | **8 ulike**, i `auth.sessions` (204 sesjoner, 1.–15. september, med user-agent) og `public.anon_insert_events` (4 rader) | `auth.sessions`: besøkende og testkjøringene. `anon_insert_events`: IP-en bak mine fire innsendinger i forrige runde. Ikke en av klassene du ba om (du ba om private IP-er, og det er 0) | **Nei.** `auth` har ingen grants til `anon` eller `authenticated`, og `anon_insert_events` gir 401/403 gjennom REST |
+
+`auth.sessions` ble stående ved en tidligere beslutning. `anon_insert_events`
+tømmes av `demo_reset()` i natt.
+
+**Hva som er lesbart gjennom API-et, kontrollert:** `anon` og
+`authenticated` har ingen tabell-grants i `auth`, `supabase_migrations`,
+`cron`, `vault` eller `net`. De har grants i `storage` og `realtime`,
+som går gjennom egne tjenester med RLS; `storage.objects` er tom.
+PostgREST sin OpenAPI-beskrivelse, som ville vist kommentarer, krever
+`service_role`.
+
+### Tokenet
+
+Satt som `SUPABASE_ACCESS_TOKEN` i kommandolinja for hver kjøring.
+Søkt etter verdien etterpå: 0 i repoets arbeidstre, 0 i hele
+git-historikken, 0 i scratchpad, `~/.supabase`, `supabase/.temp`,
+bash- og PowerShell-historikken. Den står i Claude Codes egne logger,
+se «Det jeg ikke fikk til». Det bør slettes nå, som planlagt.
+
+## 1 — Kortene på forsiden
+
+Kortet ned i begge språk, ingenting nytt skrevet. Tre punkter per kort,
+hvert til ordene som bærer det:
+
+| | Før | Nå, norsk | Nå, engelsk |
+|---|---|---|---|
+| Kundeflyt, avsnitt | Slik en kunde møter systemet. Ingen konto, ingenting å fylle ut først. | Ingen konto. | No account. |
+| | Velg behandler, tjeneste og tid mot ekte ledig-tid-oppslag | Ekte ledige tider | Real availability |
+| | Avbestill med referansekode, eller meld deg på venteliste | Avbestill med kode | Cancel with code |
+| | Send en melding og se den dukke opp i innboksen bak | Send en melding | Send a message |
+| Adminpanel, avsnitt | Halvparten av systemet ligger her. Du kommer rett inn. | Du kommer rett inn. | You go straight in. |
+| | Kalender, kunderegister og pasientjournal med samtykke | Pasientjournal | Patient records |
+| | En logg som fanger hvert oppslag, ikke bare hver endring | Logg over oppslag | Log of every read |
+| | To roller. Bytt mellom dem i toppen av panelet og se hva som forsvinner | To roller | Two roles |
+
+Skriften er ikke gjort mindre. På 320 er tekstspalten i kortene rundt
+17 tegn bred, så første forsøk («Kalender og journal», «Melding til
+innboksen», «Bytt mellom to roller») brakk der og ble kortet én gang til.
+Ingen punkter er fjernet: tre fikk plass.
+
+«Venteliste» er ute av kundekortet, og «kalender» av adminkortet. Begge
+står i ingressen rett under.
+
+## 2 — Ingressen under kortene
+
+Teksten er uendret, delt i to avsnitt der den går fra kundesiden til
+innsiden («… når alt er fullt. / På innsiden ligger …»).
+
+| | Før | Nå |
+|---|---|---|
+| Tekstbredde | `62ch` = 75–82 tegn per linje | `49ch` = 60–68 tegn per linje (snitt 63), begge språk |
+| Linjeavstand | 1,62 | 1,65 |
+| Avsnitt | ett | to, 1 em mellom |
+| Avstand opp til kortene | 56 px (36 på telefon) | uendret |
+| Avstand ned til neste seksjon | 8 px | 56 px (36 på telefon) |
+
+`ch` er bredden av sifferet 0, som er bredere enn en snittbokstav i
+Inter. Derfor gir `62ch` langt flere enn 62 tegn.
+
+## 3 — Seed-dokumentene
+
+Valgt: **merket i panelet.** Ekte PDF-er ville vært tilstand i lagringen
+som ingen migrasjon gjenskaper, og en ny kopi av demoen ville hatt samme
+404. De åtte seed-dokumentene viser nå «Plassholder uten fil. Kan ikke
+sendes.» (engelsk: «Placeholder without a file. Cannot be sent.») i
+stedet for «Send til kunde». Før fikk man «Sendingen ble ikke fullført.
+Prøv igjen.» på noe som aldri kunne lykkes.
+
+**Funnet i samme kode:** sendeskjemaet sto åpent under hvert dokument.
+`.doc-send { display: flex }` overstyrte `hidden`. Rettet.
+
+Bevist med en ekte opplasting som administrator: et opplastet dokument
+får sendeknapp, skjemaet er skjult til knappen trykkes, lenken lages
+(«Sendt ✓»), og dokumentet slettes igjen gjennom panelet. Plantet:
+skjemaet tvunget synlig ga FEIL.
+
+## 4 — Rollevelgeren på loggen over oppslag
+
+En terapeut gikk rett til «ingen tilgang» uten `applyRoleGates`, som er
+det som monterer rollevelgeren. Rettet.
+
+**Funnet av menymålingen etter rettelsen:** på samme side hadde terapeuten
+heller ingen «Logg ut» i mobilmenyen. Menyknappen trykker på sidens
+`#logoutBtn`, og siden laget den bare for administrator. Rettet.
+
+## 5 — Språket ut av mobilmenyen
+
+Fjernet fra kontoraden i `shared/admin-nav.js`, med CSS-en. Språket står
+i seksjonslinja på alle bredder.
+
+### Målt, punkt 4 og 5
+
+| Kontroll | Resultat |
+|---|---|
+| Rollevelgeren, alle elleve adminsider | Synlig i seksjonslinja, to knapper, riktig rolle markert (`aria-current`), innenfor skjermen, 44 px på telefon |
+| Bredder og høyder | 320, 375, 414, 768 og 1280 × 812 og 667, begge språk, begge roller |
+| Mobilmenyen (320–414) | Arket åpner seg, ingen språkvalg, ingen ADMIN-hode, rutenettet øverst, «Logg ut» under rutenettet og synlig, ingen rulling, trykkflater 44 px, markert side |
+| **Resultat** | **440 sidevisninger, 264 menyer, 0 feil** |
+| Samme måling mot koden før punkt 4 og 5 | 44 feil: språkvalg i alle 42 menyene, ingen rollevelger for terapeuten på loggen over oppslag (norsk og engelsk) |
+
+Første kjøring på ny kode ga 12 feil, alle «Logg ut» i terapeutens meny på
+loggen over oppslag. Den var skjult, se punkt 4. Målingen meldte først
+«over rutenettet» for en knapp med høyde 0; den sier nå «mangler eller
+er skjult».
+
+Terapeuten sendes fra Tjenester og Behandlere til kalenderen, og der er
+rollevelgeren målt.
+
+## 7 — Verifisering
+
+| Kontroll | Resultat | Plantet |
+|---|---|---|
+| `probe-norsk.mjs`, admin 375 / 1280 | 21 sider, **0 treff** / 21 sider, **0 treff** | Norsk setning i tre endrede sider som terapeut: fanget på alle tre |
+| `probe-norsk.mjs`, terapeut 375 / 1280 | 21 sider, **0 treff** / 21 sider, **0 treff** | Samme |
+| `verify-priser.mjs` | **priser OK**, 4 tjenester | De fire plantene fra forrige runde: alle exit 1 |
+| Rollevelgeren, elleve sider, begge roller | **0 feil**, se punkt 4 og 5 | Koden før: 44 feil |
+| Kortene først på 320 | Kortene rett under headeren (72 px), knappene 378–417 px ned på 812; punktene én linje på 320–1440, begge språk | Forsiden fra før runden: kortene 169 px under headeren på 320, knappene under første skjermbilde på 1280, punkter over flere linjer, ingressen 74–86 tegn |
+| Fem endepunkter gjennom de ekte skjemaene | Se under | — |
+| Konsoll og bredder | Offentlig 112, admin 182, terapeut 182 sidevisninger: **0 feil**, ingen sidelengs rulling, riktig konto på hver adminside | Plantet `console.error`, et 2000 px bredt element og innlogging som feil rolle: alle fanget |
+| Dokumenter, opplastet fil | Sendeknapp, skjema skjult til trykk, «Sendt ✓», slettet igjen | Skjemaet tvunget synlig: FEIL |
+| Testrader | Ryddet og bekreftet borte, se under | Radene ble funnet før sletting (se RETURNING og REST-svar) |
+
+### Endepunktene
+
+Lokalt med branchens filer mot produksjonsdatabasen, og kontaktskjemaet
+på live i Chrome (Turnstile er bundet til domenet; `kontakt.html` og
+`submit-contact` er uendret mot `master`).
+
+| Endepunkt | Resultat |
+|---|---|
+| Bestilling, engelsk | Markus → Initial assessment · 60 min → Friday 18 September at 06:00, NOK 1,290, «Practitioner» i oppsummeringen → «Your appointment is confirmed», `WK-2YKU-9623` |
+| Bestilling, norsk | Markus → Førstegangsvurdering · 60 min → mandag 21. september kl. 06:00, kr 1 290 → «Timen er bekreftet», `WK-NQC6-7848` |
+| Avbestilling, engelsk | Begge bookingene avbestilt med referanse og e-post. **Kvitteringen er nå lest av siden** (synlig tekst, ikke DOM): «Your appointment is cancelled. We've registered the cancellation.» Forrige runde fikk jeg ikke skilt den fra skjult tekst |
+| Venteliste, engelsk | Markus, fra 1. oktober → «You're on the waiting list», `WK-WL-KMRQ-YYGY` |
+| Anmeldelse, engelsk | `review_token` fra seed-timen `demo-20260817-henrik-2` → «Thank you for your review!» |
+| Kontakt, live, Chrome | Turnstile åpnet knappen → «Takk! Meldingen er sendt. Vi svarer så snart vi kan.» |
+
+Null konsollfeil i de lokale.
+
+### Testrader
+
+| Tabell | Rader | Slik |
+|---|---|---|
+| `bookings` | `WK-2YKU-9623`, `WK-NQC6-7848` | REST som admin |
+| `waitlist` | `WK-WL-KMRQ-YYGY` | REST som admin |
+| `contact_messages` | Testrad Runde | REST som admin |
+| `reviews` | Denne rundens og **forrige rundens** («Testrad R.», sto som `rejected`) | `postgres`, `delete … where name = 'Testrad R.' and not is_demo_seed returning id`: 2 rader. Admin har ikke `DELETE` på tabellen |
+| `document_sends` | To sendinger fra dokumenttesten | `postgres`, avgrenset på testadressen og tittelen: 2 rader. Admin har ikke `DELETE` |
+| `exercise_documents` og lagringen | Testdokumentet | Slettet gjennom panelet |
+
+Kontrollert etterpå i SQL: 0 rader med `is_demo_seed = false` i
+`bookings`, `waitlist`, `contact_messages`, `reviews`,
+`exercise_documents`, `blocked_slots`, `holidays`, `special_open_days`,
+`services`, `staff_members` og `staff_services`; 0 testrader i
+`document_sends`; `storage.objects` tom.
+
+**Står igjen:** `public.anon_insert_events` har 8 rader med IP-en bak
+testinnsendingene i denne og forrige runde (fartsgrensen for anon). Ikke
+slettet, fordi tabellen også kan ha rader fra andre besøkende i dag; den
+tømmes av nullstillingen i natt. `audit_log` og `journal_audit` har rader
+fra probene og fra oppslagene i journalen i forrige runde, og tømmes likt.
+
+### Raske gater, sist kjørt
+
+    verify-arvet-tekst   ingen arvet markedsfoeringstekst
+    verify-i18n          i18n OK
+    verify-inline-js     21 inline-blokker, 0 med feil
+    verify-lekkasje      ingen treff
+    verify-lenker        30 filer sjekket, alle interne lenker finnes
+    verify-priser        priser OK: 4 tjenester
+
+Service worker-cache bumpet til `v88`.
+
+## Det jeg ikke fikk til, og det du bør vite
+
+1. **Tokenet står i Claude Codes egne logger** på maskinen: `~/.claude/paste-cache/` og transkripsjonen av økta under `~/.claude/projects/…/5f0d2809-….jsonl`. Det kom inn fordi det sto i meldingen og i kommandolinjene. Jeg har ikke skrevet det til noen fil selv, og det står ikke i repoet, git-historikken, scratchpad, `~/.supabase` eller shell-historikken. Slett tokenet i Supabase, som planlagt; loggene kan slettes eller ligge, men verdien er da død.
+2. **«Send til kunde» er ikke probet på engelsk.** Proben nådde tilstanden ved å åpne skjemaet på et seed-dokument, og de har ikke knappen lenger. Skjemaet finnes bare for opplastede filer, og proben laster ikke opp.
+3. **Git-historikken er ikke sveipet på nytt med de nye mønstrene.** Forrige runde fant tre ekte gateadresser og det gamle prosjektnavnet der; det er uendret og står i historikken.
+4. **Offentlige IP-adresser i `auth.sessions`** er ikke rørt, som ved den tidligere beslutningen.
+
+## Commits
+
+`026ff47` (mønstrene, rester i repoet), `2dfa82c` (forsiden), `50bbec4`
+(dokumenter), `6aa4dcd` (rollevelger, meny), `f6891c7` (cache),
+`c5d0ba0` (Logg ut på «ingen tilgang»), og denne rapporten. Pushet til
+`runde/2026-09-15`. Ikke merget til `master`.
