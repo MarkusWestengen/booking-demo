@@ -383,7 +383,26 @@ if ('serviceWorker' in navigator) {
   var _params = new URLSearchParams(window.location.search);
   var _auto = _params.get('auto');
   var _next = _params.get('next') || 'kalender.html';
-  if (_auto === 'admin' || _auto === 'therapist') {
+  // Demoen skal aldri stoppe på innloggingen: kommer noen hit uten sesjon
+  // (lenken «Adminpanel» peker rett på ansatt.html), logges de inn som
+  // administrator. ?manuell=1 gir det vanlige skjemaet.
+  if (!_auto && _params.get('manuell') !== '1') {
+    sb.auth.getSession().then(function (res) {
+      var s = res && res.data && res.data.session;
+      if (s) { routeAfterSession(s); return; }
+      autoInn('admin');
+    }).catch(function () { autoInn('admin'); });
+  } else if (_auto === 'admin' || _auto === 'therapist') {
+    autoInn(_auto);
+  } else {
+    sb.auth.getSession().then(function (res) {
+      routeAfterSession(res && res.data && res.data.session);
+    }).catch(function () {
+      show('loginView');
+    });
+  }
+
+  function autoInn(_auto) {
     show('bootView');
     var _acct = (window.WestengenKlinikkAuth && window.WestengenKlinikkAuth.demoAccount(_auto))
       || { email: 'admin@westengenklinikk.example', password: 'demo-admin-2026' };
@@ -398,14 +417,7 @@ if ('serviceWorker' in navigator) {
       show('loginView');
       showError('Den automatiske innloggingen gikk ikke gjennom. Logg inn under.');
     });
-    return;
   }
-
-  sb.auth.getSession().then(function (res) {
-    routeAfterSession(res && res.data && res.data.session);
-  }).catch(function () {
-    show('loginView');
-  });
 
   // ---------- Login-handler ----------
   $('loginForm').addEventListener('submit', function (e) {
