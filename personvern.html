@@ -7,11 +7,11 @@
 
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
-  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: https:;
-  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  connect-src 'self';
   base-uri 'self';
   form-action 'self';
 ">
@@ -195,7 +195,7 @@
       <p data-i18n="privacy.b1b">Denne siden er derfor ikke en personvernerklæring for en helsetjeneste. Den beskriver hva demoen faktisk gjør med opplysninger du selv skriver inn mens du prøver den.</p>
 
       <h2 data-i18n="privacy.h2">Hvem som står bak</h2>
-      <p data-i18n="privacy.b2">Demoen er laget og driftes av Westengen Studio (Markus Westengen). Spørsmål om demoen kan sendes via kontaktskjemaet på nettstedet. Kontaktopplysningene som vises som klinikkens, adresse, telefonnummer og e-post, er plassholdere og er ikke i bruk.</p>
+      <p data-i18n="privacy.b2">Demoen er laget og driftes av Westengen Studio (Markus Westengen). Kontaktopplysningene som vises som klinikkens (adresse, telefonnummer og e-post) er plassholdere og er ikke i bruk.</p>
 
       <h2 data-i18n="privacy.h3">Hva demoen lagrer om deg</h2>
       <p data-i18n="privacy.b3">Bare det du selv skriver inn. Konkret:</p>
@@ -203,12 +203,12 @@
         <li><strong>Bestillinger:</strong> navn, e-post, telefonnummer, valgt tid og eventuelle notater du legger ved.</li>
         <li><strong>Kontaktmeldinger:</strong> navn, e-post og meldingsteksten.</li>
         <li><strong>Venteliste og anmeldelser:</strong> de feltene skjemaet ber om.</li>
-        <li><strong>Teknisk:</strong> IP-adressen din brukes til å begrense hvor mange skjemaer som kan sendes per time, og lagres ikke sammen med innholdet.</li>
+        <li><strong>Teknisk:</strong> ingenting. Demoen har ingen server, og skjemaene sender ingenting ut av nettleseren din.</li>
       </ul>
-      <p data-i18n="privacy.b3b">Dataene ligger hos Supabase, som er databaseleverandøren, på servere i EU. Ingenting deles videre, selges eller brukes til markedsføring.</p>
+      <p data-i18n="privacy.b3b">Alt dette blir liggende i nettleseren din og forlater den aldri. Ingenting deles videre, selges eller brukes til markedsføring.</p>
 
       <h2 data-i18n="privacy.h4">Hvor lenge det ligger der</h2>
-      <p data-i18n="privacy.b4">Kort. Demoen nullstilles automatisk hvert døgn: alt besøkende har lagt inn slettes, og oppsettet settes tilbake til utgangspunktet. Du kan også be om at noe fjernes umiddelbart via kontaktskjemaet.</p>
+      <p data-i18n="privacy.b4">Til datoen skifter. Da bygges demoen opp på nytt fra utgangspunktet, og det du har lagt inn forsvinner. Du kan også fjerne alt med en gang ved å slette nettstedsdataene for siden i nettleseren.</p>
 
       <h2 id="cookies" data-i18n="privacy.h5">Informasjonskapsler</h2>
       <p data-i18n="privacy.b5">Nettstedet setter ingen sporings- eller markedsføringskapsler, og bruker ingen analyseverktøy. Det som lagres i nettleseren din er:</p>
@@ -216,17 +216,18 @@
         <li>Språkvalget ditt og svaret ditt på samtykkebanneret.</li>
         <li>En midlertidig kopi av en påbegynt bestilling, i tilfelle nettet faller ut.</li>
         <li>En nøkkel som holder deg innlogget i adminpanelet mens du er der.</li>
+        <li>Demoens data: klinikkens oppdiktede bestillinger, kunder og notater, pluss det du selv legger inn.</li>
       </ul>
       <p data-i18n="privacy.b5b">Alt dette ligger i din egen nettleser og forsvinner når du tømmer nettleserdataene.</p>
 
       <h2 data-i18n="privacy.h6">Rettighetene dine</h2>
-      <p data-i18n="privacy.b6">Du kan be om innsyn i, retting av eller sletting av det du har lagt inn. Send en melding via kontaktskjemaet, så ordner vi det. Mener du at opplysninger håndteres feil, kan du klage til <a href="https://www.datatilsynet.no" target="_blank" rel="noopener noreferrer">Datatilsynet</a>.</p>
+      <p data-i18n="privacy.b6">Alt du har lagt inn, ligger hos deg. Du kan se, endre og slette det i demoen, eller fjerne alt ved å slette nettstedsdataene. Mener du at opplysninger håndteres feil, kan du klage til <a href="https://www.datatilsynet.no" target="_blank" rel="noopener noreferrer">Datatilsynet</a>.</p>
 
       <h2 data-i18n="privacy.h7">Hva en ekte versjon ville hatt</h2>
       <p data-i18n="privacy.b7">I en ekte klinikk erstattes denne siden av en fullstendig personvernerklæring med behandlingsgrunnlag, lagringstid, databehandleravtaler og kontaktpunkt. Denne siden beskriver bare demoen.</p>
 
       <div class="p-foot" data-i18n="privacy.foot">
-        Spørsmål om personvern i demoen? Bruk kontaktskjemaet på nettstedet.
+        Personvern i demoen, kort fortalt: det du skriver inn, blir i nettleseren din.
       </div>
 
     </div>

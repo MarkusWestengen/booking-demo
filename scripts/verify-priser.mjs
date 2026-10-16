@@ -1,33 +1,31 @@
-// Sammenligner prisene og varighetene i teksten med databasen.
+// Sammenligner prisene og varighetene i teksten med demodataene.
 //
 // Demoguiden (shared/components.js), vilkaarene (vilkar.html) og
-// rammene paa bestillingssiden skriver prisene ut som tekst. Databasen
-// er autoritativ, saa teksten sklir naar noen endrer en pris i panelet.
-// Denne proben leser tjenestene som anon (samme vei som bestillings-
-// siden) og krever at hver aktiv, offentlig tjeneste staar med riktig
-// pris og varighet paa norsk og engelsk, og at ingen annen pris staar der.
+// rammene paa bestillingssiden skriver prisene ut som tekst. Katalogen
+// i shared/demo-seed.js er fasiten (demoen har ingen database lenger),
+// saa teksten sklir naar noen endrer en pris der. Denne proben bygger
+// demodataene slik nettleseren gjoer, og krever at hver aktiv, offentlig
+// tjeneste staar med riktig pris og varighet paa norsk og engelsk, og at
+// ingen annen pris staar der.
 //
 //   node scripts/verify-priser.mjs
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
 const les = (f) => readFileSync(f, 'utf8');
-const cfg = les('shared/booking-config.js');
-const url = cfg.match(/supabaseUrl: '([^']+)'/)[1];
-const key = cfg.match(/supabaseAnonKey: '([^']+)'/)[1];
 
 let tjenester;
 try {
-  const r = await fetch(url + '/rest/v1/services?select=name,price_nok,duration_min&is_active=eq.true&is_public=eq.true&order=sort_order',
-    { headers: { apikey: key, authorization: 'Bearer ' + key } });
-  if (!r.ok) throw new Error('HTTP ' + r.status);
-  tjenester = await r.json();
+  const sandkasse = { window: {} };
+  vm.runInNewContext(les('shared/demo-seed.js'), sandkasse);
+  tjenester = sandkasse.window.WestengenKlinikkDemoSeed.build().tables.services
+    .filter((s) => s.is_active && s.is_public)
+    .sort((a, b) => a.sort_order - b.sort_order);
 } catch (e) {
-  console.error('fikk ikke lest tjenestene fra databasen: ' + e.message);
+  console.error('fikk ikke bygget demodataene: ' + e.message);
   tjenester = [];
 }
-// process.exit etter fetch krasjer Node paa Windows (libuv-assert, exit 127),
-// saa utgangskoden settes i stedet.
-if (!tjenester.length) { console.error('databasen ga null tjenester'); process.exitCode = 2; }
+if (!tjenester.length) { console.error('demodataene ga null tjenester'); process.exitCode = 2; }
 
 const kat = JSON.parse(les('i18n/en-tekst.json'));
 const en = JSON.parse(les('i18n/en.json'));

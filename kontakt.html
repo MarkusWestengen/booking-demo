@@ -12,12 +12,11 @@
      den skikkelig på server-nivå. -->
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
-  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com;
+  script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: https:;
-  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
-  frame-src https://challenges.cloudflare.com;
+  connect-src 'self';
   base-uri 'self';
   form-action 'self';
 ">
@@ -262,8 +261,7 @@
 <section class="k-hero">
   <div class="container">
     <p class="k-notice" data-i18n-html="contact.demo_notice">
-      <strong>Meldingen lagres på ekte.</strong> Den havner i demo-databasen, og adminpanelet er åpent for alle. Skriv ikke noe du ikke vil at andre skal lese. Alt slettes ved neste nattlige nullstilling.
-    
+      <strong>Meldingen blir i nettleseren din.</strong> Demoen har ingen server. Det du sender, havner i innboksen i adminpanelet i denne nettleseren, og ingen andre ser det. Alt nullstilles når datoen skifter.
     </p>
   </div>
 </section>
@@ -282,7 +280,7 @@
           <li data-i18n-html="contact.chain_3"><b>Turnstile og rate-limit</b> verifiseres på serversiden, per IP-adresse og per time.</li>
           <li data-i18n-html="contact.chain_4"><b>Meldingen lagres</b> med service_role og dukker opp i innboksen i adminpanelet, med status ny, lest eller besvart.</li>
         </ol>
-        <p class="k-chain-foot" data-i18n-html="contact.chain_foot">Åpne adminpanelet og se den komme inn.</p>
+        <p class="k-chain-foot" data-i18n-html="contact.chain_foot">I demoen spiller nettleseren din rollen som server. Åpne adminpanelet og se meldingen komme inn.</p>
       </div>
 
       <div class="k-form-wrap">
@@ -315,57 +313,15 @@
               </label>
             </div>
 
-            <!-- Turnstile — ekte nokkel, ikke testnokkel.
-
-                 Sitekey-en er offentlig. Den staar i markup paa hver
-                 side som viser widgeten og er ikke en hemmelighet.
-                 Hemmeligheten er TURNSTILE_SECRET_KEY, som er satt som
-                 secret paa Edge-funksjonen submit-contact og aldri
-                 forlater serveren.
-
-                 Fram til 2026-09-02 sto Cloudflares testnoekkel
-                 1x00000000000000000000BB her. Den godkjenner ALT, saa
-                 ingen positiv test mot den beviste noe som helst.
-
-                 Widgeten er bundet til booking-demo-rosy.vercel.app i
-                 Cloudflare. Et token utstedt for et annet domene blir
-                 avvist av siteverify. Konsekvensen er at localhost ikke
-                 staar paa hostname-lista, saa kontaktskjemaet feiler i
-                 lokal utvikling. Se docs/QA-lansering.md, seksjonen
-                 «Turnstile i produksjon», for valgene.
-
-                 data-size er fjernet sammen med testnoekkelen: verdien
-                 «invisible» hoerte til den usynlige testnoekkelen og er
-                 ikke en gyldig data-size. Synlighet styres av
-                 widget-modus i Cloudflare-dashbordet. -->
-            <div class="cf-turnstile"
-                 data-sitekey="0x4AAAAAAElCRZstoX978mDR"
-                 data-theme="light"
-                 data-callback="wkTurnstileReady"
-                 data-expired-callback="wkTurnstileGone"
-                 data-timeout-callback="wkTurnstileGone"
-                 data-error-callback="wkTurnstileFailed"></div>
-            <script>
-              /* Turnstile i normal størrelse er 300 px bred og får ikke
-                 plass i kortet under ca. 420 px. «compact» er 150 px.
-                 Må settes før api.js leser attributtet, derfor inline
-                 rett etter elementet. */
-              (function () {
-                try {
-                  if (window.matchMedia('(max-width: 419px)').matches) {
-                    var el = document.querySelector('.cf-turnstile');
-                    if (el) el.setAttribute('data-size', 'compact');
-                  }
-                } catch (_) {}
-              })();
-            </script>
-
+            <!-- I drift ligger en Cloudflare Turnstile-sjekk her, og
+                 Edge-funksjonen submit-contact verifiserer tokenet foer
+                 meldingen lagres. Demoen har ingen server aa verifisere
+                 mot, saa widgeten er tatt ut og knappen er aapen med en
+                 gang. Meldingen lagres i denne nettleseren (se
+                 shared/demo-backend.js) og dukker opp under Meldinger i
+                 adminpanelet. -->
             <div class="k-actions">
-              <!-- Deaktivert til Turnstile har utstedt token. Med ekte
-                   noekkel tar det 6-10 sekunder, og et klikk foer det
-                   sendte tom token og ga en generisk feilmelding uten
-                   forklaring. Aapnes av wkTurnstileReady under. -->
-              <button type="submit" class="k-submit" data-i18n="contact.submit" disabled>Send melding</button>
+              <button type="submit" class="k-submit" data-i18n="contact.submit">Send melding</button>
               <span class="k-status" id="contactStatus" role="status" aria-live="polite"></span>
             </div>
           </form>
@@ -388,18 +344,22 @@
 </footer>
 
 <script src="i18n/i18n.js"></script>
+<script src="shared/demo-seed.js"></script>
+<script src="shared/demo-backend.js"></script>
 <script src="shared/booking-config.js"></script>
 <script src="shared/header-mobile.js" defer></script>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script>
 /* ============================================================
    Kontaktskjema
    ------------------------------------------------------------
-   Innsending går via Edge Function «submit-contact», som gjør
-   Turnstile-verifisering, IP-rate-limit og selve inserten med
+   I drift går innsendingen via Edge Function «submit-contact», som
+   gjør Turnstile-verifisering, IP-rate-limit og selve inserten med
    service_role. Anon har ingen INSERT-rett på contact_messages
    (migrasjon 0058), så skjemaet kan ikke misbrukes direkte mot
    PostgREST.
+
+   I demoen svarer shared/demo-backend.js på samme adresse og lagrer
+   meldingen i nettleseren. Kallet under er det samme som i drift.
 
    Klient-siden gjør bare tre ting: honeypot, lengdesjekk og
    tilbakemelding til brukeren.
@@ -420,80 +380,11 @@
     statusEl.textContent = msg;
     statusEl.className = 'k-status' + (kind ? ' ' + kind : '');
   }
-  function resetCaptcha() {
-    try { if (window.turnstile) window.turnstile.reset(); } catch (_) {}
-    // Tokenet er borte til widgeten har laget et nytt.
-    setReady(false);
-    startVaktbikkje();
-  }
-
-  // ----- Turnstile-tilstand -> send-knappen ------------------------
-  // Widgeten er usynlig, saa brukeren har ingen maate aa se at en
-  // sikkerhetssjekk paagaar. Med testnoekkelen kom tokenet momentant;
-  // med ekte noekkel tar det 6-10 sekunder. Knappen staar derfor
-  // deaktivert med en rolig hjelpetekst til tokenet finnes.
-  var submitBtn = form.querySelector('button[type="submit"]');
-  var venteteksten_vises = false;
-  var captchafeil_vises = false;
-  function setReady(ready) {
-    if (submitBtn) submitBtn.disabled = !ready;
-  }
-  function sayWait() {
-    venteteksten_vises = true;
-    captchafeil_vises = false;
-    say(t('contact.captcha_wait', 'Sikkerhetssjekken kjører. Knappen åpner om et par sekunder.'));
-  }
-  window.wkTurnstileReady = function () {
-    stoppVaktbikkje();
-    setReady(true);
-    // Rydd vekk vaar egen ventetekst OG en tidligere captcha-feil: kom
-    // tokenet likevel, er «last siden paa nytt» direkte misvisende ved
-    // siden av en knapp som virker. En kvittering eller en feilmelding
-    // fra selve innsendingen skal derimot bli staaende.
-    if (venteteksten_vises || captchafeil_vises) {
-      venteteksten_vises = false; captchafeil_vises = false; say('');
-    }
-  };
-  window.wkTurnstileGone = function () {
-    setReady(false);
-    sayWait();
-    startVaktbikkje();
-  };
-  window.wkTurnstileFailed = function () {
-    stoppVaktbikkje();
-    setReady(false);
-    venteteksten_vises = false;
-    captchafeil_vises = true;
-    say(t('contact.captcha_failed_client',
-          'Sikkerhetssjekken kom ikke gjennom. Last siden på nytt og prøv igjen.'), 'err');
-  };
-  // Vaktbikkje: kommer tokenet aldri — Cloudflare struper, nettet er
-  // nede, eller widgeten henger — skal brukeren ikke sitte igjen med en
-  // laast knapp og «kjoerer» i det uendelige. Etter 25 sekunder byttes
-  // teksten til noe handlingsbart. Uten dette er en deaktivert knapp en
-  // blindvei, og det er verre enn feilmeldingen den erstattet.
-  var vaktbikkje = null;
-  function startVaktbikkje() {
-    if (vaktbikkje) clearTimeout(vaktbikkje);
-    vaktbikkje = setTimeout(function () {
-      var el = form.querySelector('input[name="cf-turnstile-response"]');
-      if (el && el.value) return;         // tokenet kom likevel
-      window.wkTurnstileFailed();
-    }, 25000);
-  }
-  function stoppVaktbikkje() {
-    if (vaktbikkje) { clearTimeout(vaktbikkje); vaktbikkje = null; }
-  }
-
-  // Startstatus. Har tokenet allerede kommet (rask nettverk, eller
-  // tilbake-navigasjon med bevart DOM), aapner vi med en gang.
-  (function initCaptchaState() {
-    var el = form.querySelector('input[name="cf-turnstile-response"]');
-    if (el && el.value) { setReady(true); return; }
-    setReady(false);
-    sayWait();
-    startVaktbikkje();
-  })();
+  // I drift ventet knappen paa et Turnstile-token, og Edge-funksjonen
+  // sjekket det. Demoen har ingen server aa sjekke mot (se kommentaren
+  // ved knappen), saa knappen er aapen fra start og det finnes ikke noe
+  // token aa nullstille etter en innsending.
+  function resetCaptcha() {}
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -505,7 +396,6 @@
     var name    = (fd.get('name') || '').trim();
     var email   = (fd.get('email') || '').trim();
     var message = (fd.get('message') || '').trim();
-    var token   = (fd.get('cf-turnstile-response') || '').trim();
 
     if (!name || !email || !message) {
       return say(t('contact.err_required', 'Fyll inn navn, e-post og melding.'), 'err');
@@ -546,7 +436,6 @@
         name: name,
         email: email,
         message: message,
-        turnstileToken: token,
         company: (fd.get('company') || '').trim()
       })
     }).then(function (res) {
@@ -566,11 +455,7 @@
       say(t('contact.err_generic', 'Meldingen kunne ikke sendes. Prøv igjen.'), 'err');
     }).then(function () {
       btn.textContent = original;
-      // Reset gjoer det gamle tokenet ubrukelig. Knappen skal derfor
-      // ikke aapnes her — den aapnes av wkTurnstileReady naar det nye
-      // tokenet er utstedt. Aapnet vi den naa, ville neste klikk sende
-      // tom token og gi den generiske feilen igjen.
-      resetCaptcha();
+      btn.disabled = false;
     });
   });
 })();

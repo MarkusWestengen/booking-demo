@@ -362,7 +362,7 @@
       return 'Du trenger ikke logge inn: adminpanelet logger deg inn selv. Det er to roller, administrator og terapeut, og du bytter mellom dem i toppen av panelet. Prøv begge \u2014 forskjellen mellom dem er poenget, ikke en detalj.';
     }
     if (/(ekte|virkelig|fiktiv|oppdiktet|data|personer|finnes|real|fake|fictional|invented|people|exist)/.test(s)) {
-      return 'Nei. Klinikken, behandlerne, kundene og alle bestillinger er oppdiktet. E-postadressene ligger på .example, et toppdomene som aldri kan registreres. Skriv likevel ikke inn noe ekte \u2014 det du legger inn er synlig for alle som åpner adminpanelet.';
+      return 'Nei. Klinikken, behandlerne, kundene og alle bestillinger er oppdiktet. E-postadressene ligger på .example, et toppdomene som aldri kan registreres. Det du skriver inn, blir liggende i din egen nettleser og sendes ikke noe sted.';
     }
     if (/(pris|kost|hva.+koster|hvor mye|price|cost|how much)/.test(s)) {
       return 'Prisene ligger i databasen, ikke i koden: Førstegangsvurdering kr 1 290 (60 minutter), Oppfølgingstime kr 790 (30 minutter), Trykkbølgebehandling kr 690 (30 minutter) og Bevegelsesanalyse kr 1 490 (60 minutter), likt hos alle behandlere. En administrator kan endre dem i adminpanelet uten ny utrulling.';
@@ -374,10 +374,10 @@
       return 'Avbestilling går inntil 24 timer før timen, med referansekoden fra bekreftelsen. Du kan prøve det: bestill en time, og bruk koden på avbestillingssiden.';
     }
     if (/(bestil|book|reserv)/.test(s)) {
-      return 'Bruk \u00abBestill time\u00bb. Du velger behandler, tjeneste og tidspunkt, og får en referansekode til slutt. Bestillingen din blir en helt vanlig rad du kan endre og slette \u2014 i motsetning til radene som fulgte med demoen.';
+      return 'Bruk \u00abBestill time\u00bb. Du velger behandler, tjeneste og tidspunkt, og får en referansekode til slutt. Bestillingen dukker så opp i kalenderen i adminpanelet, der du kan endre og slette den.';
     }
     if (/(nullstill|slett|reset|forsvinner|lagres|delete|saved|stored|disappear)/.test(s)) {
-      return 'Alt du legger inn slettes ved den nattlige nullstillingen, bortsett fra filer du laster opp under Dokumenter. Radene som fulgte med demoen er skrivebeskyttet i databasen: knappene virker, men lagringen avvises med en forklaring, slik at panelet ser likt ut for neste besøkende.';
+      return 'Alt du legger inn, lagres bare i denne nettleseren. Når datoen skifter, bygges demoen opp på nytt fra utgangspunktet, og endringene dine forsvinner. Ingen andre besøkende ser det du endrer.';
     }
     return null;
   }

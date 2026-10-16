@@ -7,11 +7,11 @@
 
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
-  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: https:;
-  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  connect-src 'self';
   base-uri 'self';
   form-action 'self';
 ">
@@ -312,10 +312,10 @@
 <section class="colophon">
   <div class="container">
     <p data-i18n-html="landing.colophon2">Skriv ikke inn ekte personopplysninger. <a href="personvern.html">Slik håndteres det du legger inn</a>.</p>
-    <p data-i18n="landing.colophon3">Nettsiden er bygget i ren HTML, CSS og JavaScript, uten rammeverk. Data ligger i en database hos Supabase, der hver bruker bare ser det rollen gir tilgang til. Siden finnes på norsk og engelsk, og ansatte kan legge den til på mobilen som en app.</p>
+    <p data-i18n="landing.colophon3">Nettsiden er bygget i ren HTML, CSS og JavaScript, uten rammeverk. Systemet er laget for en database hos Supabase, der hver bruker bare ser det rollen gir tilgang til. Demoen kjører uten server: dataene ligger i nettleseren din, med de samme reglene for hvem som ser hva. Siden finnes på norsk og engelsk, og ansatte kan legge den til på mobilen som en app.</p>
     <details class="tech-detail">
       <summary data-i18n="landing.tech_summary">Teknisk detalj</summary>
-      <p data-i18n="landing.tech_body">Statisk frontend uten byggesteg. Supabase i bunn: PostgreSQL med Row-Level Security, Auth, Edge Functions og pg_cron for planlagte jobber. To språk via JSON-filer, og et PWA-skall for de ansatte.</p>
+      <p data-i18n="landing.tech_body">Statisk frontend uten byggesteg. Laget for Supabase: PostgreSQL med Row-Level Security, Auth, Edge Functions og pg_cron for planlagte jobber. Demoen kjører uten server, med en kopi av datalaget i nettleseren. To språk via JSON-filer, og et PWA-skall for de ansatte.</p>
     </details>
   </div>
 </section>

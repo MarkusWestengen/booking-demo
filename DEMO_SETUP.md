@@ -4,6 +4,23 @@ Westengen Klinikk er en oppdiktet klinikk. Demoen viser bookingsystemet, ikke
 klinikken: den kundevendte bestillingsflyten med avbestilling og venteliste, og
 hele adminpanelet. Klinikkens markedsføringssider er ikke med.
 
+## Den publiserte demoen trenger ingen database
+
+Demoen kjører helt i nettleseren. `shared/demo-seed.js` bygger dagens data, og
+`shared/demo-backend.js` står i stedet for Supabase: den svarer på alle kall
+sidene gjør, og lagrer endringer i den besøkendes egen nettleser. Når datoen
+skifter, bygges alt på nytt. Se README.md, «Demoen kjører uten database».
+
+For å kjøre demoen holder det å servere mappa statisk. Supabase-prosjektet
+demoen tidligere brukte, kan slettes.
+
+Resten av dette dokumentet gjelder bare hvis du vil koble en kopi til en ekte
+database. Da må `shared/demo-seed.js` og `shared/demo-backend.js` byttes ut med
+supabase-js fra CDN på sidene som laster dem, og `shared/booking-config.js` må
+få prosjektets URL og anon-nøkkel.
+
+---
+
 Dette er et frittstaaende repo: alt demoen trenger ligger her, og det har ingen
 historikk eller avhengighet til noe annet prosjekt. Dokumentet forklarer hvordan
 du setter opp en fungerende kopi i et tomt Supabase-prosjekt, og hvorfor den er

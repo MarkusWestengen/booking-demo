@@ -12,11 +12,11 @@
      external scripts kan 'unsafe-inline' for script-src fjernes. -->
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
-  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: https:;
-  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  connect-src 'self';
   base-uri 'self';
   form-action 'self';
 ">
@@ -412,7 +412,7 @@ button:focus-visible {
       <strong data-i18n="page.book.breadcrumb">Bestilling</strong>
     </p>
     <h1><span data-i18n="page.book.hero_title_pre">Bestill</span> <span data-i18n="page.book.hero_title_em">time</span></h1>
-    <p class="page-head-lede" data-i18n="page.book.lede">Velg behandler, tjeneste og tidspunkt. Kalenderen under viser faktisk ledige tider fra databasen.</p>
+    <p class="page-head-lede" data-i18n="page.book.lede">Velg behandler, tjeneste og tidspunkt. Kalenderen under viser tidene som faktisk er ledige.</p>
     <hr class="tick-rule"/>
   </div>
 </section>
@@ -516,6 +516,8 @@ button:focus-visible {
 </div>
 
 <script src="i18n/i18n.js"></script>
+<script src="shared/demo-seed.js"></script>
+<script src="shared/demo-backend.js"></script>
 <script src="shared/booking-config.js"></script>
 <script src="shared/services.js"></script>
 <script src="shared/booking-engine.js"></script>

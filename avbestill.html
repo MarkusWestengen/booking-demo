@@ -10,11 +10,11 @@
      ikke via <meta>-CSP, beholdes for paritet med admin-sidene. -->
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
-  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: https:;
-  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  connect-src 'self';
   base-uri 'self';
   form-action 'self';
 ">
@@ -445,8 +445,9 @@
   </div>
 </footer>
 
+<script src="shared/demo-seed.js"></script>
+<script src="shared/demo-backend.js"></script>
 <script src="shared/booking-config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="i18n/i18n.js"></script>
 <script src="shared/header-mobile.js" defer></script>
 <script>

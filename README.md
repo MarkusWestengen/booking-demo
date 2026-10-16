@@ -11,7 +11,32 @@ er konstruert. Det som er ekte er systemet.
 ber om et passord først er en demo folk ikke ser. Panelet logger deg inn selv
 og lar deg bytte mellom de to rollene i toppen. Hvordan det lar seg gjøre uten
 at demoen kan ødelegges, står under
-[Skrivesperre på seed-data](#skrivesperre-på-seed-data).
+[Demoen kjører uten database](#demoen-kjører-uten-database).
+
+---
+
+## Demoen kjører uten database
+
+Den publiserte demoen har ingen server og ingen database. Systemet er bygget
+for Supabase, og det som står om arkitektur og sikkerhet under beskriver det,
+men demoen kjører en kopi av datalaget i nettleseren:
+
+- `shared/demo-seed.js` bygger innholdet ut fra dagens dato, på samme måte som
+  `demo_seed()` i migrasjon 0078: bestillinger fra en måned tilbake til tre
+  måneder fram, journalnotater, meldinger, anmeldelser, venteliste, dokumenter
+  og stengte tider.
+- `shared/demo-backend.js` gir sidene en klient med samme overflate som
+  supabase-js (spørringer, funksjoner, innlogging, fillagring) og svarer på
+  PostgREST-kallene fra bookingmotoren. Rolleskillet er gjenskapt: en terapeut
+  ser bare egne bestillinger, og bare administrator ser loggen.
+- Alt lagres i den besøkendes egen nettleser (`localStorage`). Ingen andre ser
+  det, og når datoen skifter, bygges dataene opp på nytt. Det erstatter den
+  nattlige nullstillingen.
+
+Adressen i `shared/booking-config.js` er `https://demo.invalid`, et toppdomene
+som aldri kan peke noe sted. Demoen kan derfor ikke nå en ekte database, heller
+ikke ved en feil. Migrasjonene ligger fortsatt i `supabase/` som dokumentasjon
+av hvordan systemet er bygget i drift.
 
 ---
 
@@ -47,7 +72,7 @@ Nettleser ──► PostgREST ──► PostgreSQL
 
 **Frontend er vanilla JavaScript.** Ingen rammeverk, ingen byggesteg, ingen
 `node_modules`. Statiske HTML-filer, delte moduler i `shared/`, og Supabase
-JS SDK fra CDN. Det er et bevisst valg for et system som skal driftes av noen
+JS SDK fra CDN (i den publiserte demoen erstattet av `shared/demo-backend.js`). Det er et bevisst valg for et system som skal driftes av noen
 andre enn den som skrev det: en `.html`-fil kan åpnes, leses og endres om ti år
 uten at en toolchain må rekonstrueres først.
 
@@ -145,6 +170,10 @@ bevares.
 
 ### Skrivesperre på seed-data
 
+Slik var demoen bygget mens den hadde en delt database. Den publiserte demoen
+trenger det ikke lenger: hver besøkende har sin egen kopi i nettleseren, se
+[Demoen kjører uten database](#demoen-kjører-uten-database).
+
 Adminpanelet er åpent for alle. Sikkerheten kan derfor ikke ligge i et passord.
 
 Den nærliggende løsningen er å skru av knappene, men det ødelegger demoen: en
@@ -224,12 +253,15 @@ DEMO_SETUP.md       oppsett fra tomt Supabase-prosjekt, ~15 minutter
 
 ## Kom i gang
 
-Se **[DEMO_SETUP.md](DEMO_SETUP.md)**. Kort fortalt: opprett et tomt
+Demoen trenger ingenting: server mappa med en hvilken som helst statisk
+webserver og åpne `index.html`. Alt annet skjer i nettleseren.
+
+Skal en kopi kobles til en ekte database, se **[DEMO_SETUP.md](DEMO_SETUP.md)**. Kort fortalt: opprett et tomt
 Supabase-prosjekt i EU, slå på `pg_cron`, kjør migrasjonene i rekkefølge, og
 lim Project URL og anon-nøkkel inn i `shared/booking-config.js`.
 
-Så lenge den filen er tom sier hver side tydelig fra om at nøklene mangler,
-i stedet for å henge.
+Da må også `shared/demo-seed.js` og `shared/demo-backend.js` byttes ut med
+supabase-js fra CDN på sidene som laster dem.
 
 ---
 
